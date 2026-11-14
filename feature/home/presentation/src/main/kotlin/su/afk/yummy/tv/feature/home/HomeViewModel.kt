@@ -774,7 +774,11 @@ class HomeViewModel @Inject internal constructor(
                 setState { copy(error = null) }
             }
             runSuspendCatching { getHomeFeed() }.fold(
-                onSuccess = { feed -> applyFeed(feed, isLoading = false) },
+                onSuccess = { feed ->
+                    applyFeed(feed, isLoading = false)
+                    // Feed refresh records newly published episode videos before this schedule read.
+                    loadRecentlyAired()
+                },
                 onFailure = { e ->
                     analytics.eventLoadError(e)
                     setState {
@@ -829,11 +833,13 @@ class HomeViewModel @Inject internal constructor(
             } else {
                 setState { copy(isRefreshing = true) }
             }
-            loadRecentlyAired()
             val result = runSuspendCatching { refreshHomeFeed() }
             setState { copy(isRefreshing = false) }
             result.fold(
-                onSuccess = { feed -> applyFeed(feed, isLoading = false) },
+                onSuccess = { feed ->
+                    applyFeed(feed, isLoading = false)
+                    loadRecentlyAired()
+                },
                 onFailure = { e ->
                     analytics.eventLoadError(e)
                     if (!showInitialLoading) {

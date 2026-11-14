@@ -17,6 +17,8 @@ data class HomeFeedItem(
      * означает, что у источника известен только день, без времени.
      */
     val airedAtSeconds: Long? = null,
+    /** Время появления первого видео серии на YummyAnime (epoch seconds). */
+    val videoAddedAtSeconds: Long? = null,
     /** Серия [episodeNumber] уже отмечена просмотренной локально. */
     val isWatched: Boolean = false,
     /** Заполнено только у коллекций. */

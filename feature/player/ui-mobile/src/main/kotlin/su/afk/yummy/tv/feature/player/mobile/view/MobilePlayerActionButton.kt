@@ -54,6 +54,7 @@ internal fun MobilePlayerActionButton(
     onHoldHint: () -> Unit = {},
     onLongPress: (() -> Unit)? = null,
     sizeMultiplier: Float = 1f,
+    iconScale: Float = 0.55f,
 ) {
     val shape = CircleShape
     val contentColor = when {
@@ -67,7 +68,7 @@ internal fun MobilePlayerActionButton(
     val surfaceFill = when {
         !enabled -> Color.Black.copy(alpha = 0.10f)
         primary -> MaterialTheme.colorScheme.primary
-        else -> Color.White.copy(alpha = 0.10f)
+        else -> Color.Black.copy(alpha = 0.16f)
     }
 
     val baseViewConfiguration = LocalViewConfiguration.current
@@ -110,7 +111,7 @@ internal fun MobilePlayerActionButton(
                 },
             ),
     ) {
-        Icon(imageVector = icon, contentDescription = contentDescription, tint = contentColor)
+        Icon(imageVector = icon, contentDescription = contentDescription, tint = contentColor, modifier = Modifier.size(buttonSize * iconScale.coerceIn(0.1f, 1f)))
         if (onHold != null) {
             CircularProgressIndicator(
                 progress = { holdProgress.value },

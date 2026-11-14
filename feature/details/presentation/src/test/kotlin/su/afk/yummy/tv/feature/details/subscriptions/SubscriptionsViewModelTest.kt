@@ -16,6 +16,9 @@ import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.model.text.UiText
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
+import su.afk.yummy.tv.core.preferences.settings.TitleReleaseTrackingStore
+import su.afk.yummy.tv.domain.anime.usecase.GetAnimeDetailsUseCase
+import su.afk.yummy.tv.domain.anime.usecase.GetAnimeVideosUseCase
 import su.afk.yummy.tv.core.preferences.settings.AppLifecycleSettingsStore
 import su.afk.yummy.tv.core.testing.BaseUnitTest
 import su.afk.yummy.tv.feature.details.DetailsAnalytics
@@ -35,6 +38,11 @@ class SubscriptionsViewModelTest : BaseUnitTest() {
         every { notificationPermissionRequested } returns permissionRequested
     }
     private val subscriptionHandler: DetailsSubscriptionHandler = mockk()
+    private val titleReleaseTrackingStore: TitleReleaseTrackingStore = mockk(relaxed = true) {
+        every { subscriptions } returns MutableStateFlow(emptyList())
+    }
+    private val getAnimeDetails: GetAnimeDetailsUseCase = mockk()
+    private val getAnimeVideos: GetAnimeVideosUseCase = mockk()
     private val tracker: AnalyticsTracker = mockk(relaxed = true)
 
     private fun option(key: String, subscribed: Boolean = false) = SubscriptionOption(
@@ -50,7 +58,10 @@ class SubscriptionsViewModelTest : BaseUnitTest() {
     private fun content(vararg options: SubscriptionOption) =
         ScreenSubscriptionBaseResult.Content(ScreenSubscriptionBase(details = null, subscriptions = options.toList()))
 
-    private fun createViewModel() = SubscriptionsViewModel(
+    private fun createViewModel(): SubscriptionsViewModel {
+        coEvery { getAnimeDetails(ANIME_ID) } throws IllegalStateException("not needed in this test")
+        coEvery { getAnimeVideos(ANIME_ID) } returns emptyList()
+        return SubscriptionsViewModel(
         animeId = ANIME_ID,
         errorHandler = errorHandler,
         retryStorage = retryStorage,
@@ -58,7 +69,11 @@ class SubscriptionsViewModelTest : BaseUnitTest() {
         subscriptionHandler = subscriptionHandler,
         analytics = DetailsAnalytics(tracker),
         appLifecycleSettingsStore = appLifecycleSettingsStore,
-    )
+        titleReleaseTrackingStore = titleReleaseTrackingStore,
+        getAnimeDetails = getAnimeDetails,
+        getAnimeVideos = getAnimeVideos,
+        )
+    }
 
     @Test
     fun `loads the subscription options`() {

@@ -39,11 +39,14 @@ class NewEpisodePushScheduler @Inject constructor(
         )
     }
 
-    /** Device-local title subscriptions are independent from account/server subscriptions. */
+    /**
+     * One periodic worker refreshes the Yani home feed (durable new-release history and
+     * upload-time calendar) and checks device-local title subscriptions.
+     */
     fun scheduleTitleReleaseTracking() {
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             TITLE_RELEASE_TRACKING_WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,
+            ExistingPeriodicWorkPolicy.UPDATE,
             createTitleReleaseTrackingRequest(),
         )
     }

@@ -9,6 +9,7 @@ import su.afk.yummy.tv.core.preferences.api.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.schedule.AnimeScheduleStorage
 import su.afk.yummy.tv.core.storage.document.DocumentCacheStorage
 import su.afk.yummy.tv.data.schedule.network.YaniScheduleApi
+import su.afk.yummy.tv.data.home.network.YaniHomeApi
 import su.afk.yummy.tv.data.schedule.repository.YaniScheduleRepository
 import su.afk.yummy.tv.domain.schedule.repository.AnimeScheduleRepository
 import javax.inject.Singleton
@@ -28,6 +29,7 @@ object ScheduleDataModule {
         scheduleStore: AnimeScheduleStorage,
         settingsStore: YaniAccountSettingsStore,
         documentCache: DocumentCacheStorage,
+        homeApi: YaniHomeApi,
     ): AnimeScheduleRepository =
-        YaniScheduleRepository(api, scheduleStore, settingsStore, documentCache)
+        YaniScheduleRepository(api, scheduleStore, settingsStore, documentCache, homeApi)
 }

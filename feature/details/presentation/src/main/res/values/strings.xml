@@ -247,4 +247,13 @@
     <string name="details_onboarding_episodes_text">All episodes with watch marks. Choose a dubbing for a specific episode here.</string>
     <string name="details_onboarding_subscriptions_title">New episode alerts</string>
     <string name="details_onboarding_subscriptions_text">Subscribe to a dubbing to get notified when a new episode comes out.</string>
+    <string name="details_local_tracking_title">Track this title</string>
+    <string name="details_local_tracking_description">Get one alert when a new regular episode first appears in any matching dubbing. Alternate uploads of the same episode are ignored.</string>
+    <string name="details_local_tracking_enabled">Track new episodes</string>
+    <string name="details_local_tracking_all">All</string>
+    <string name="details_local_tracking_dubbing">Dubbing</string>
+    <string name="details_local_tracking_subtitles">Subtitles</string>
+    <string name="details_local_tracking_exclusions">Exclude dubbings</string>
+    <string name="details_local_tracking_empty">No dubbings are available to exclude yet.</string>
+    <string name="details_local_tracking_server_sign_in">Sign in to manage server-side subscriptions to individual dubbings.</string>
 </resources>

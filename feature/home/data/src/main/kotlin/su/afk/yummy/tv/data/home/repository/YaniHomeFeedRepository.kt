@@ -43,6 +43,16 @@ private const val FEED_TTL_MS = 60 * 1000L
 private const val FEED_CACHE_SIGNATURE_VERSION = "cw-local1"
 private const val TAG = "YaniHomeFeed"
 
+/**
+ * Returns a whole episode number only for plain numeric episode labels.
+ * Fractional specials (for example "7.5") must not be counted as episode 7.
+ */
+private fun String.toWholeEpisodeNumberOrNull(): Int? {
+    val number = trim().toDoubleOrNull() ?: return null
+    if (!number.isFinite() || number <= 0.0 || number % 1.0 != 0.0) return null
+    return number.toInt()
+}
+
 class YaniHomeFeedRepository(
     private val api: YaniHomeApi,
     private val homeFeedStore: HomeFeedStorage,
@@ -111,11 +121,8 @@ class YaniHomeFeedRepository(
                     .groupBy { it.animeId }
                     .mapValues { (_, items) ->
                         items.mapNotNullTo(mutableSetOf()) { entry ->
-                            // Спецвыпуски вроде «7.5» — не серия 7, иначе она ложно считалась бы
-                            // просмотренной.
-                            entry.episode.episodeNumberOrNull()
-                                ?.takeIf { it % 1.0 == 0.0 }
-                                ?.toInt()
+                            // Спецвыпуски вроде «7.5» не должны засчитываться как серия 7.
+                            entry.episode.toWholeEpisodeNumberOrNull()
                         }
                     }
             }

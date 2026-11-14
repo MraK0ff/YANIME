@@ -6,7 +6,6 @@ import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.titleRel
 import su.afk.yummy.tv.core.preferences.settings.TitleReleaseTracking
 import su.afk.yummy.tv.core.preferences.settings.TitleReleaseTrackingMode
 import su.afk.yummy.tv.core.preferences.settings.TitleReleaseTrackingStore
-import java.util.Base64
 import javax.inject.Inject
 import javax.inject.Singleton
 

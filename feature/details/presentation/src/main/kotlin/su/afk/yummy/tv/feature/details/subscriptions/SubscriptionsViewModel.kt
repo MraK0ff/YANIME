@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.error.api.ErrorHandler
+import su.afk.yummy.tv.core.common.coroutines.runSuspendCatching
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.model.text.UiText
@@ -113,8 +114,8 @@ class SubscriptionsViewModel @AssistedInject internal constructor(
 
         // Local tracking is device-scoped and works for guests too. Fetch the public video list
         // independently from the account-only server subscription list.
-        val details = runCatching { getAnimeDetails(animeId) }.getOrNull()
-        val videosResult = runCatching { getAnimeVideos(animeId) }
+        val details = runSuspendCatching { getAnimeDetails(animeId) }.getOrNull()
+        val videosResult = runSuspendCatching { getAnimeVideos(animeId) }
         availableVideos = videosResult.getOrDefault(emptyList())
         val currentTracking = titleReleaseTrackingStore.subscriptions.first()
             .firstOrNull { it.animeId == animeId }

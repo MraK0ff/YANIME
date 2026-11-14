@@ -13,10 +13,12 @@ import su.afk.yummy.tv.core.preferences.settings.TitleReleaseTrackingMode
 import su.afk.yummy.tv.core.preferences.settings.TitleReleaseTrackingStore
 import su.afk.yummy.tv.domain.account.model.SubscriptionKeys
 import su.afk.yummy.tv.domain.anime.usecase.RefreshAnimeVideosUseCase
+import su.afk.yummy.tv.domain.home.usecase.RefreshHomeFeedUseCase
 import su.afk.yummy.tv.domain.home.usecase.SelectLibraryEpisodePushesUseCase
 
 /**
- * Polls device-local title subscriptions even when the app process is not running.
+ * Refreshes the Yani home feed (including persistent new-release history and upload-time calendar
+ * data), then polls device-local title subscriptions even when the app process is not running.
  * Episode numbers are deduplicated across all dubbings and players, so the first matching upload
  * creates one notification and later alternate uploads of the same episode are silent.
  */
@@ -25,19 +27,35 @@ class TitleReleaseTrackingWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted params: WorkerParameters,
     private val trackingStore: TitleReleaseTrackingStore,
+    private val refreshHomeFeed: RefreshHomeFeedUseCase,
     private val refreshAnimeVideos: RefreshAnimeVideosUseCase,
     private val pushSettings: EpisodePushSettingsStore,
     private val notificationService: NewEpisodePushNotificationService,
 ) : CoroutineWorker(appContext, params) {
 
     override suspend fun doWork(): Result {
-        val subscriptions = trackingStore.subscriptions.first()
-        if (subscriptions.isEmpty()) return Result.success()
+        var hasFailures = false
+        try {
+            // This is the same feed refresh used by the Home screen. It updates the Room-backed
+            // anime history and upload-time calendar even when no title subscriptions exist.
+            refreshHomeFeed()
+        } catch (cancelled: kotlinx.coroutines.CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            hasFailures = true
+        }
+
+        val subscriptions = try {
+            trackingStore.subscriptions.first()
+        } catch (cancelled: kotlinx.coroutines.CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            return Result.retry()
+        }
+        if (subscriptions.isEmpty()) return if (hasFailures) Result.retry() else Result.success()
 
         val pushEnabled = pushSettings.enabled.first() &&
             NotificationManagerCompat.from(applicationContext).areNotificationsEnabled()
-        var hasFailures = false
-
         for (subscription in subscriptions) {
             try {
                 val videos = refreshAnimeVideos(subscription.animeId)

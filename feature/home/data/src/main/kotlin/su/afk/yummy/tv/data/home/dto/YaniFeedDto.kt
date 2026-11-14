@@ -2,6 +2,7 @@ package su.afk.yummy.tv.data.home.dto
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 
 @Serializable
 data class YaniFeedDto(
@@ -45,7 +46,7 @@ data class YaniRatingDto(
 data class YaniVideoDto(
     @SerialName("video_id") val videoId: Int? = null,
     /** Unix-время публикации видео в ленте YummyAnime. */
-    val date: Long? = null,
+    val date: JsonElement? = null,
     @SerialName("anime_id") val animeId: Int? = null,
     @SerialName("anime_url") val animeUrl: String? = null,
     val title: String = "",

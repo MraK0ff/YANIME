@@ -149,7 +149,7 @@ class YaniScheduleRepository(
             AnimeScheduleItem(
                 animeId = animeId,
                 title = latest.title.ifBlank { "Anime $animeId" },
-                poster = latest.posterUrl?.takeIf(String::isNotBlank)?.let { AnimePoster(mega = it) },
+                poster = latest.posterUrl?.takeIf(String::isNotBlank)?.let { AnimePoster(small = null, medium = null, big = null, fullsize = null, mega = it) },
                 nextDateEpochSeconds = null,
                 previousDateEpochSeconds = null,
                 airedEpisodes = null,

@@ -113,7 +113,7 @@ class TitleReleaseTrackingWorker @AssistedInject constructor(
 
     private companion object {
         val EPISODE_NUMBER_PATTERN = Regex(
-            """^(\d+)(?:[.,](\d+))?\s*(?:серия|серии|эпизод|эп\.?|episode|ep\.?)?$""",
+            """^(?:(?:серия|серии|эпизод|эп\.?|episode|ep\.?)\s*)?(\d+)(?:[.,](\d+))?\s*(?:серия|серии|эпизод|эп\.?|episode|ep\.?)?$""",
             RegexOption.IGNORE_CASE,
         )
     }

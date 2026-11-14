@@ -38,7 +38,7 @@ class TitleReleaseTrackingWorker @AssistedInject constructor(
             NotificationManagerCompat.from(applicationContext).areNotificationsEnabled()
         var hasFailures = false
 
-        subscriptions.forEach { subscription ->
+        for (subscription in subscriptions) {
             try {
                 val videos = refreshAnimeVideos(subscription.animeId)
                 val matchingEpisodes = videos.asSequence()
@@ -79,7 +79,7 @@ class TitleReleaseTrackingWorker @AssistedInject constructor(
                     notificationService.showTrackedTitleEpisode(
                         animeId = subscription.animeId,
                         title = subscription.title,
-                        episodeNumber = newEpisodes.max(),
+                        episodeNumber = newEpisodes.maxOrNull() ?: continue,
                     )
                     pushSettings.recordPush(subscription.animeId, nowSeconds)
                 }

@@ -1,5 +1,6 @@
 package su.afk.yummy.tv.data.schedule.repository
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -15,6 +16,8 @@ import su.afk.yummy.tv.core.storage.offlinefirst.offlineFirstCache
 import su.afk.yummy.tv.core.storage.schedule.AnimeScheduleStorage
 import su.afk.yummy.tv.core.storage.schedule.isFresh
 import su.afk.yummy.tv.data.schedule.network.YaniScheduleApi
+import su.afk.yummy.tv.data.home.network.YaniHomeApi
+import su.afk.yummy.tv.data.home.mapper.toAnimeEpisodeReleases
 import su.afk.yummy.tv.data.schedule.storage.mapper.toAnimeScheduleCache
 import su.afk.yummy.tv.domain.schedule.model.AnimeEpisodeRelease
 import su.afk.yummy.tv.domain.schedule.model.AnimeScheduleDay
@@ -24,6 +27,7 @@ import su.afk.yummy.tv.domain.schedule.repository.AnimeScheduleRepository
 import su.afk.yummy.tv.data.schedule.storage.mapper.toScheduleDays as toStoredScheduleDays
 
 private const val SCHEDULE_TTL_MS = 60 * 60 * 1000L
+private const val FEED_POLL_INTERVAL_MS = 60 * 1000L
 private const val EPISODE_RELEASE_HISTORY_KEY = "yummyanime:episode-release-history:v1"
 private val RELEASE_HISTORY_TTL_MS = Long.MAX_VALUE
 private val releaseHistoryJson = Json { ignoreUnknownKeys = true }
@@ -68,11 +72,15 @@ class YaniScheduleRepository(
     private val scheduleStore: AnimeScheduleStorage,
     private val settingsStore: YaniAccountSettingsStore,
     private val documentCache: DocumentCacheStorage,
+    private val homeApi: YaniHomeApi,
 ) : AnimeScheduleRepository {
 
     private val releaseHistoryMutex = Mutex()
+    private val feedRefreshMutex = Mutex()
+    @Volatile private var lastFeedPollAtMs = 0L
 
     override suspend fun getSchedule(): List<AnimeScheduleDay> = withContext(Dispatchers.IO) {
+        refreshEpisodeFeedIfNeeded()
         val languageCode = settingsStore.currentLanguageCode()
         val schedule = offlineFirstCache(
             read = { scheduleStore.getSchedule(languageCode) },
@@ -91,8 +99,9 @@ class YaniScheduleRepository(
     }
 
     override suspend fun saveEpisodeReleases(releases: List<AnimeEpisodeRelease>) {
-        if (releases.isEmpty()) return
         releaseHistoryMutex.withLock {
+            lastFeedPollAtMs = System.currentTimeMillis()
+            if (releases.isEmpty()) return@withLock
             val previous = readEpisodeReleaseHistory()
             val merged = (previous + releases)
                 .groupBy { it.animeId to it.episodeNumber }
@@ -110,6 +119,26 @@ class YaniScheduleRepository(
                 }
                 .sortedWith(compareBy<AnimeEpisodeRelease> { it.firstVideoAtSeconds }.thenBy { it.animeId }.thenBy { it.episodeNumber })
             writeEpisodeReleaseHistory(merged)
+        }
+    }
+
+    /**
+     * Календарь тоже должен работать независимо от того, открывалась ли главная. Лента опрашивается
+     * не чаще раза в минуту; ошибки ленты не мешают показать будущие даты расписания.
+     */
+    private suspend fun refreshEpisodeFeedIfNeeded() {
+        feedRefreshMutex.withLock {
+            val now = System.currentTimeMillis()
+            if (now - lastFeedPollAtMs < FEED_POLL_INTERVAL_MS) return
+            try {
+                val feed = homeApi.getFeed()
+                saveEpisodeReleases(feed.response.newVideos.toAnimeEpisodeReleases())
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                // Не повторяем неудачный запрос на каждом пересчёте календаря.
+                lastFeedPollAtMs = now
+            }
         }
     }
 

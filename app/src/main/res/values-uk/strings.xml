@@ -21,6 +21,6 @@
     <string name="widget_episode">Серія</string>
     <string name="widget_episode_number">Серія %1$s</string>
     <string name="library_episode_push_text">Вийшла серія %1$d</string>
-    <string name="title_release_push_text">Серія %1$d з’явилася в новому озвученні</string>
+    <string name="title_release_push_text">З’явилася нова версія серії %1$d</string>
     <string name="title_release_tracking_notification_channel">Підписки на тайтли</string>
 </resources>

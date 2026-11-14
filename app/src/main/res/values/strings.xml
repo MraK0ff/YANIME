@@ -22,4 +22,5 @@
     <string name="widget_episode_number">Episode %1$s</string>
     <string name="library_episode_push_text">Episode %1$d is out</string>
     <string name="title_release_push_text">Episode %1$d is available in a new dubbing</string>
+    <string name="title_release_tracking_notification_channel">Title subscriptions</string>
 </resources>

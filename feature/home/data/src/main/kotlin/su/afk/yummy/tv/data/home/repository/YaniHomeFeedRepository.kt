@@ -237,3 +237,41 @@ class YaniHomeFeedRepository(
 
     private fun feedCacheSignature(): String = FEED_CACHE_SIGNATURE_VERSION
 }
+
+/**
+ * Converts the old one-card-per-anime cache into a history baseline during upgrade.
+ * These entries intentionally have episodeNumber = 0: the first successful video poll enriches
+ * them without generating a false "new episode" event.
+ */
+private fun HomeFeedCache?.toLegacyReleaseHistory(now: Long): List<HomeNewReleaseEntry> {
+    val baselineTimestamp = this?.cachedAt?.takeIf { it > 0L } ?: now
+    return this?.items
+        .orEmpty()
+        .asSequence()
+        .filter { it.container == HOME_FEED_CONTAINER_NEW_RELEASES }
+        .sortedBy { it.position }
+        .distinctBy { it.itemId }
+        .mapIndexed { index, item ->
+            HomeNewReleaseEntry(
+                animeId = item.itemId,
+                title = item.title,
+                animeUrl = "",
+                description = item.description,
+                episodeNumber = 0,
+                episodeTitle = "",
+                videoId = null,
+                dubTitle = item.dubbing.takeIf { it.isNotBlank() },
+                playerTitle = item.playerName.takeIf { it.isNotBlank() },
+                posterSmallUrl = item.posterSmallUrl,
+                posterMediumUrl = item.posterMediumUrl,
+                posterBigUrl = item.posterBigUrl,
+                posterFullsizeUrl = item.posterFullsizeUrl,
+                posterMegaUrl = item.posterMegaUrl,
+                firstSeenAt = baselineTimestamp,
+                lastDetectedAt = baselineTimestamp,
+                lastUpdatedAt = 0L,
+                position = index,
+            )
+        }
+        .toList()
+}

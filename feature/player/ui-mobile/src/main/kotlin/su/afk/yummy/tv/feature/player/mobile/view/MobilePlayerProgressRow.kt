@@ -4,25 +4,38 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.core.utils.formatting.millisToClockTime
 
 @Composable
@@ -35,18 +48,18 @@ internal fun MobilePlayerProgressRow(
     onSeekFinished: () -> Unit,
     videoWidthFraction: Float = 1f,
     videoBottomInset: Dp = 0.dp,
+    timeDisplaySettings: PlayerTimeDisplaySettings = PlayerTimeDisplaySettings(),
+    showRemainingTime: Boolean = false,
+    onTimeCodeClick: () -> Unit = {},
+    dubbingLabel: String = "",
+    balancerLabel: String = "",
+    onTrackSettings: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
-    val safeHorizontalInset = with(androidx.compose.ui.platform.LocalDensity.current) {
-        maxOf(
-            WindowInsets.safeDrawing.getLeft(this, androidx.compose.ui.platform.LocalLayoutDirection.current),
-            WindowInsets.safeDrawing.getRight(this, androidx.compose.ui.platform.LocalLayoutDirection.current),
-        ).toDp()
-    }
     Box(
         modifier = modifier
             .fillMaxWidth(videoWidthFraction.coerceIn(0.1f, 1f))
-            .padding(horizontal = safeHorizontalInset),
+
     ) {
         Column(
             modifier = Modifier.align(Alignment.BottomCenter)
@@ -62,12 +75,68 @@ internal fun MobilePlayerProgressRow(
                 onValueChangeFinished = onSeekFinished,
                 modifier = Modifier.fillMaxWidth(),
             )
-            Text(
-                text = "${displayTime.millisToClockTime().padStart(5, '0')}/${duration.millisToClockTime().padStart(5, '0')}",
-                style = MaterialTheme.typography.labelSmall,
-                color = Color.White.copy(alpha = 0.94f),
-                modifier = Modifier.padding(start = 2.dp, top = 3.dp),
-            )
+            Spacer(Modifier.height(8.dp))
+            val remaining = (duration - displayTime).coerceAtLeast(0L)
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                        modifier = Modifier.align(Alignment.CenterStart)
+                            .mobilePlayerGlassSurface()
+                            .clickable(onClick = onTimeCodeClick)
+                            .padding(horizontal = 9.dp, vertical = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = (if (showRemainingTime) "-${remaining.millisToClockTime().padStart(5, '0')}" else displayTime.millisToClockTime().padStart(5, '0')),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White.copy(alpha = 0.96f),
+                        )
+                        Text("/", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.58f))
+                        Text(
+                            text = duration.millisToClockTime().padStart(5, '0'),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White.copy(alpha = 0.62f),
+                        )
+                    }
+                Row(
+                    modifier = Modifier.align(Alignment.Center),
+                    horizontalArrangement = Arrangement.spacedBy(7.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (dubbingLabel.isNotBlank()) {
+                        Text(
+                            text = dubbingLabel,
+                            modifier = Modifier.clickable(onClick = onTrackSettings),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = Color.White.copy(alpha = 0.78f),
+                            maxLines = 1,
+                        )
+                    }
+                    if (dubbingLabel.isNotBlank() && balancerLabel.isNotBlank()) {
+                        Text("|", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.32f))
+                    }
+                    if (balancerLabel.isNotBlank()) {
+                        Row(
+                            modifier = Modifier.clickable(onClick = onTrackSettings),
+                            horizontalArrangement = Arrangement.spacedBy(1.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                text = balancerLabel,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = Color.White.copy(alpha = 0.78f),
+                                maxLines = 1,
+                            )
+                            Icon(
+                                imageVector = Icons.Filled.KeyboardArrowDown,
+                                contentDescription = null,
+                                tint = Color.White.copy(alpha = 0.72f),
+                                modifier = Modifier.size(18.dp),
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -82,7 +151,10 @@ private fun MobilePlayerTimeline(
     onValueChangeFinished: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val accent = MaterialTheme.colorScheme.primary
+    val playedColor = MaterialTheme.colorScheme.primary
+    val bufferedColor = Color.White
+    // Keep the same hue as the active theme accent, but reduce its prominence.
+    val unplayedColor = lerp(playedColor, Color(0xFF858D97), 0.58f)
     val safeProgress = progress.coerceIn(0f, 1f)
     Box(
         modifier = modifier
@@ -120,14 +192,14 @@ private fun MobilePlayerTimeline(
             val playedX = endX * safeProgress
             val bufferedX = endX * bufferedProgress.coerceIn(safeProgress, 1f)
             drawRoundRect(
-                color = Color.White.copy(alpha = 0.54f),
+                color = unplayedColor,
                 topLeft = Offset(0f, centerY - radius),
                 size = Size(endX, stroke),
                 cornerRadius = androidx.compose.ui.geometry.CornerRadius(radius, radius),
             )
             if (bufferedX > playedX) {
                 drawRoundRect(
-                    color = Color.White.copy(alpha = 0.82f),
+                    color = bufferedColor,
                     topLeft = Offset(playedX, centerY - radius),
                     size = Size(bufferedX - playedX, stroke),
                     cornerRadius = androidx.compose.ui.geometry.CornerRadius(radius, radius),
@@ -135,7 +207,7 @@ private fun MobilePlayerTimeline(
             }
             if (playedX > 0f) {
                 drawRoundRect(
-                    color = accent,
+                    color = playedColor,
                     topLeft = Offset(0f, centerY - radius),
                     size = Size(playedX, stroke),
                     cornerRadius = androidx.compose.ui.geometry.CornerRadius(radius, radius),
@@ -143,7 +215,7 @@ private fun MobilePlayerTimeline(
             }
             if (enabled) {
                 drawCircle(
-                    color = Color.White,
+                    color = playedColor,
                     radius = 6.dp.toPx(),
                     center = Offset(playedX.coerceIn(0f, endX), centerY),
                 )

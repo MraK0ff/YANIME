@@ -1,7 +1,14 @@
 package su.afk.yummy.tv.feature.player.mobile.view
 
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -10,15 +17,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplayMode
 import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.core.utils.formatting.millisToClockTime
-import su.afk.yummy.tv.feature.player.presentation.R
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -29,6 +36,10 @@ internal fun MobilePlayerTimeOverlay(
     displayTimeMs: Long,
     durationMs: Long,
     controlsActive: Boolean,
+    videoTopInset: Dp,
+    videoBottomInset: Dp,
+    showRemainingTime: Boolean,
+    onTimeCodeClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var nowMs by remember { mutableLongStateOf(System.currentTimeMillis()) }
@@ -42,32 +53,80 @@ internal fun MobilePlayerTimeOverlay(
     val clockFormat = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
     val systemClock = clockFormat.format(Date(nowMs))
     val finishAt = clockFormat.format(Date(nowMs + remainingMs))
-    val visibleRows = listOf(
-        shouldShow(settings.systemClock, controlsActive) to stringResource(R.string.player_time_display_clock_value, systemClock),
-        shouldShow(settings.elapsed, controlsActive) to stringResource(R.string.player_time_display_elapsed_value, displayTimeMs.millisToClockTime()),
-        shouldShow(settings.remaining, controlsActive) to stringResource(R.string.player_time_display_remaining_value, remainingMs.millisToClockTime()),
-        shouldShow(settings.finishAt, controlsActive) to stringResource(R.string.player_time_display_finish_value, finishAt),
-    ).filter { it.first }.map { it.second }
-    if (visibleRows.isEmpty()) return
-    Column(
-        modifier = modifier
-            .mobilePlayerGlassSurface()
-            .padding(horizontal = 10.dp, vertical = 7.dp),
-    ) {
-        visibleRows.forEach { value ->
-            Text(
-                text = value,
-                style = MaterialTheme.typography.labelMedium,
-                color = Color.White,
-                maxLines = 1,
+    val showClock = shouldShow(settings.systemClock, controlsActive)
+    val showFinish = durationMs > 0L && shouldShow(settings.finishAt, controlsActive)
+    // Split time chips belong to the idle player only; active controls show one combined timecode.
+    val showElapsed = settings.separateTimecodes && !controlsActive && durationMs > 0L && shouldShow(settings.elapsed, controlsActive)
+    val showDuration = settings.separateTimecodes && !controlsActive && durationMs > 0L && shouldShow(settings.duration, controlsActive)
+    val edgeTopPadding = 56.dp + videoTopInset.coerceAtLeast(0.dp)
+    val edgeBottomPadding = if (videoBottomInset > 0.dp) videoBottomInset / 2 else 12.dp
+
+    Box(modifier = modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top))) {
+        if (showClock) {
+            TimeChip(
+                value = systemClock,
+                modifier = Modifier.align(Alignment.TopStart)
+                    .padding(start = 8.dp, top = edgeTopPadding),
+            )
+        }
+        if (showFinish) {
+            TimeChip(
+                value = finishAt,
+                modifier = Modifier.align(Alignment.TopEnd)
+                    .padding(end = 8.dp, top = edgeTopPadding),
+            )
+        }
+        if (showElapsed) {
+            TimeValueChip(
+                value = if (showRemainingTime) "-${remainingMs.millisToClockTime().padStart(5, '0')}"
+                    else displayTimeMs.millisToClockTime().padStart(5, '0'),
+                modifier = Modifier.align(Alignment.BottomStart)
+                    .padding(start = 8.dp, bottom = edgeBottomPadding),
+                onClick = onTimeCodeClick,
+            )
+        }
+        if (showDuration) {
+            TimeValueChip(
+                value = durationMs.millisToClockTime().padStart(5, '0'),
+                modifier = Modifier.align(Alignment.BottomEnd)
+                    .padding(end = 8.dp, bottom = edgeBottomPadding),
+                onClick = onTimeCodeClick,
             )
         }
     }
 }
 
+@Composable
+private fun TimeChip(value: String, modifier: Modifier = Modifier) {
+    Text(
+        text = value,
+        style = MaterialTheme.typography.labelMedium,
+        color = Color.White,
+        maxLines = 1,
+        modifier = modifier.mobilePlayerGlassSurface().padding(horizontal = 7.dp, vertical = 5.dp),
+    )
+}
+
+@Composable
+private fun TimeValueChip(
+    value: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    Text(
+        text = value,
+        style = MaterialTheme.typography.labelSmall,
+        color = Color.White,
+        maxLines = 1,
+        modifier = modifier.mobilePlayerGlassSurface()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 9.dp, vertical = 4.dp),
+    )
+}
+
 private fun shouldShow(mode: PlayerTimeDisplayMode, controlsActive: Boolean): Boolean =
     when (mode) {
         PlayerTimeDisplayMode.ALWAYS -> true
-        PlayerTimeDisplayMode.NEVER -> false
         PlayerTimeDisplayMode.CONTROLS -> controlsActive
+        PlayerTimeDisplayMode.NEVER -> false
     }

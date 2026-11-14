@@ -15,6 +15,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -25,6 +29,7 @@ import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.feature.player.common.model.PlayerPlaybackProgressState
 import su.afk.yummy.tv.feature.player.common.model.StepSeekDirection
 import su.afk.yummy.tv.feature.player.presentation.R
@@ -33,6 +38,7 @@ import su.afk.yummy.tv.feature.player.presentation.R
 internal fun MobilePlayerOverlay(
     visible: Boolean,
     wantsPlay: Boolean,
+    loading: Boolean = false,
     progress: PlayerPlaybackProgressState,
     hasPrevEpisode: Boolean,
     hasNextEpisode: Boolean,
@@ -54,6 +60,11 @@ internal fun MobilePlayerOverlay(
     episodesStrip: @Composable () -> Unit = {},
     videoWidthFraction: Float = 1f,
     videoBottomInset: androidx.compose.ui.unit.Dp = 0.dp,
+    timeDisplaySettings: PlayerTimeDisplaySettings = PlayerTimeDisplaySettings(),
+    showRemainingTime: Boolean = false,
+    onTimeCodeClick: () -> Unit = {},
+    dubbingLabel: String = "",
+    balancerLabel: String = "",
 ) {
     if (!visible) return
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
@@ -70,7 +81,7 @@ internal fun MobilePlayerOverlay(
                 onPlayPause = onPlayPause,
                 onPrevEpisode = onPrevEpisode,
                 onNextEpisode = onNextEpisode,
-                loading = false,
+                loading = loading,
             )
         }
 
@@ -89,6 +100,12 @@ internal fun MobilePlayerOverlay(
                 onSeekFinished = onSeekFinished,
                 videoWidthFraction = videoWidthFraction,
                 videoBottomInset = videoBottomInset,
+                timeDisplaySettings = timeDisplaySettings,
+                showRemainingTime = showRemainingTime,
+                onTimeCodeClick = onTimeCodeClick,
+                dubbingLabel = dubbingLabel,
+                balancerLabel = balancerLabel,
+                onTrackSettings = onTrackSettings,
             )
             if (episodesAvailable) {
                 AnimatedVisibility(

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Audiotrack
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Cast
 import androidx.compose.material.icons.filled.AspectRatio
 import androidx.compose.material.icons.filled.AccessTime
@@ -15,6 +16,7 @@ import androidx.compose.material.icons.filled.Bedtime
 import androidx.compose.material.icons.filled.BrightnessMedium
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.ScreenRotation
 import androidx.compose.material.icons.filled.Subtitles
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -31,6 +33,7 @@ import su.afk.yummy.tv.feature.player.mobile.model.MobilePlayerSettingsMenuActio
 import su.afk.yummy.tv.feature.player.mobile.model.MobilePlayerSettingsMenuModel
 import su.afk.yummy.tv.feature.player.mobile.model.MobilePlayerSettingsPage
 import su.afk.yummy.tv.feature.player.presentation.R
+import su.afk.yummy.tv.core.designsystem.utils.dubbingDisplayName
 
 /**
  * Единое меню настроек плеера в стиле YouTube: одна шторка с главным списком (качество, скорость,
@@ -110,6 +113,21 @@ internal fun MobilePlayerSettingsMenuSheet(
                 )
             }
 
+            MobilePlayerSettingsPage.Sources -> MobilePlayerSourcesPage(
+                dubbingNames = model.dubbingNames,
+                dubbingEpisodeCounts = model.dubbingEpisodeCounts,
+                dubbingViews = model.dubbingViews,
+                dubbingAvailability = model.dubbingAvailability,
+                selectedDubbingIndex = model.selectedDubbingIndex,
+                onDubbingSelected = actions.onDubbingSelected,
+                balancerNames = model.balancerNames,
+                balancerAvailability = model.balancerAvailability,
+                balancerExternal = model.balancerExternal,
+                selectedBalancerIndex = model.selectedBalancerIndex,
+                onBalancerSelected = actions.onBalancerSelected,
+                onBack = goBack,
+            )
+
             MobilePlayerSettingsPage.SleepTimer -> MobilePlayerSleepTimerPage(
                 selectedMinutes = model.sleepTimerMinutes,
                 onSelected = actions.onSleepTimerSelected,
@@ -126,6 +144,12 @@ internal fun MobilePlayerSettingsMenuSheet(
                     onModeSelected = actions.onResizeModeSelected,
                 )
             }
+
+            MobilePlayerSettingsPage.Orientation -> MobilePlayerOrientationPage(
+                selected = model.orientationMode,
+                onSelected = actions.onOrientationModeSelected,
+                onBack = goBack,
+            )
 
             MobilePlayerSettingsPage.CastAndPip -> MobilePlayerCastPipPage(
                 showPictureInPicture = model.showPictureInPicture,
@@ -148,6 +172,12 @@ internal fun MobilePlayerSettingsMenuSheet(
                 MobilePlayerMenuPageHeader(
                     title = stringResource(R.string.player_menu_display),
                     onBack = goBack,
+                )
+                MobilePlayerMenuRow(
+                    icon = Icons.Filled.ScreenRotation,
+                    label = stringResource(R.string.player_mobile_orientation),
+                    trailing = MobilePlayerMenuRowTrailing.Navigate(),
+                    onClick = { onNavigate(MobilePlayerSettingsPage.Orientation) },
                 )
                 MobilePlayerMenuRow(
                     icon = Icons.Filled.BrightnessMedium,
@@ -198,6 +228,16 @@ private fun MobilePlayerMenuRoot(
                     model.audioTrackNames.getOrNull(model.selectedAudioTrackIndex),
                 ),
                 onClick = { onNavigate(MobilePlayerSettingsPage.AudioTrack) },
+            )
+        }
+        if (model.dubbingNames.isNotEmpty()) {
+            MobilePlayerMenuRow(
+                icon = Icons.Filled.Mic,
+                label = stringResource(R.string.player_mobile_track_settings_title),
+                trailing = MobilePlayerMenuRowTrailing.Navigate(
+                    model.dubbingNames.getOrNull(model.selectedDubbingIndex)?.dubbingDisplayName(),
+                ),
+                onClick = { onNavigate(MobilePlayerSettingsPage.Sources) },
             )
         }
         // Выбор субтитров есть только у Alloha (см. PlayerTrackMenu.showSubtitleChoice): для остальных пункт не нужен.

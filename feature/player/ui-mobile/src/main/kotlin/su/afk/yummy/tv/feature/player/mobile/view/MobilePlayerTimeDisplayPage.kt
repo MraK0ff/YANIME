@@ -33,15 +33,22 @@ internal fun MobilePlayerTimeDisplayPage(
             mode = settings.systemClock,
             onSelected = { onSettingsChange(settings.copy(systemClock = it)) },
         )
+        MobilePlayerMenuRow(
+            label = stringResource(R.string.player_time_display_separate),
+            trailing = MobilePlayerMenuRowTrailing.Toggle(settings.separateTimecodes),
+            onClick = {
+                onSettingsChange(settings.copy(separateTimecodes = !settings.separateTimecodes))
+            },
+        )
         TimeDisplayModeRow(
             label = stringResource(R.string.player_time_display_elapsed),
             mode = settings.elapsed,
             onSelected = { onSettingsChange(settings.copy(elapsed = it)) },
         )
         TimeDisplayModeRow(
-            label = stringResource(R.string.player_time_display_remaining),
-            mode = settings.remaining,
-            onSelected = { onSettingsChange(settings.copy(remaining = it)) },
+            label = stringResource(R.string.player_time_display_duration),
+            mode = settings.duration,
+            onSelected = { onSettingsChange(settings.copy(duration = it)) },
         )
         TimeDisplayModeRow(
             label = stringResource(R.string.player_time_display_finish_at),
@@ -64,8 +71,8 @@ private fun TimeDisplayModeRow(
             trailing = MobilePlayerMenuRowTrailing.Navigate(
                 when (mode) {
                     PlayerTimeDisplayMode.ALWAYS -> stringResource(R.string.player_time_display_always)
-                    PlayerTimeDisplayMode.NEVER -> stringResource(R.string.player_time_display_never)
                     PlayerTimeDisplayMode.CONTROLS -> stringResource(R.string.player_time_display_controls)
+                    PlayerTimeDisplayMode.NEVER -> stringResource(R.string.player_time_display_never)
                 },
             ),
             onClick = { expanded = true },
@@ -76,12 +83,12 @@ private fun TimeDisplayModeRow(
                 onClick = { onSelected(PlayerTimeDisplayMode.ALWAYS); expanded = false },
             )
             DropdownMenuItem(
-                text = { Text(stringResource(R.string.player_time_display_never)) },
-                onClick = { onSelected(PlayerTimeDisplayMode.NEVER); expanded = false },
-            )
-            DropdownMenuItem(
                 text = { Text(stringResource(R.string.player_time_display_controls)) },
                 onClick = { onSelected(PlayerTimeDisplayMode.CONTROLS); expanded = false },
+            )
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.player_time_display_never)) },
+                onClick = { onSelected(PlayerTimeDisplayMode.NEVER); expanded = false },
             )
         }
     }

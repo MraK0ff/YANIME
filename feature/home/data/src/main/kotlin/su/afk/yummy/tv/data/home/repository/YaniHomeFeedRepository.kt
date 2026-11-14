@@ -1,5 +1,6 @@
 package su.afk.yummy.tv.data.home.repository
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -35,6 +36,8 @@ import su.afk.yummy.tv.domain.home.model.ContinueWatchingProgressMigration
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.domain.home.model.HomeFeed
 import su.afk.yummy.tv.domain.home.repository.HomeFeedRepository
+import su.afk.yummy.tv.domain.schedule.model.AnimeEpisodeRelease
+import su.afk.yummy.tv.domain.schedule.repository.AnimeScheduleRepository
 import su.afk.yummy.tv.data.home.storage.mapper.toHomeFeed as toStoredHomeFeed
 
 private const val FEED_TTL_MS = 60 * 1000L
@@ -50,6 +53,7 @@ class YaniHomeFeedRepository(
     private val watchProgressStore: WatchProgressStorage,
     private val animeStorage: AnimeStorage,
     private val analyticsTracker: AnalyticsTracker,
+    private val scheduleRepository: AnimeScheduleRepository,
 ) : HomeFeedRepository {
 
     /** Параллельные загрузки ленты (экран и канал ТВ) ждут друг друга, а не качают её дважды. */
@@ -173,6 +177,34 @@ class YaniHomeFeedRepository(
         analyticsTracker.log(TAG) { "Fetch feed language=$languageCode watchSignature=$watchSignature" }
         val dto = api.getFeed()
         analyticsTracker.log(TAG) { "Feed dto ${dto.summaryForLog()}" }
+        val episodeReleases = dto.response.newVideos.mapNotNull { video ->
+            val animeId = video.animeId?.takeIf { it > 0 } ?: return@mapNotNull null
+            val videoId = video.videoId?.takeIf { it > 0 } ?: return@mapNotNull null
+            val episodeNumber = video.episodeTitle
+                ?.episodeNumberOrNull()
+                ?.takeIf { it > 0.0 && it % 1.0 == 0.0 }
+                ?.toInt()
+                ?: return@mapNotNull null
+            val publishedAt = video.date?.let { if (it > 10_000_000_000L) it / 1_000L else it }
+                ?.takeIf { it > 0 }
+                ?: return@mapNotNull null
+            AnimeEpisodeRelease(
+                animeId = animeId,
+                episodeNumber = episodeNumber,
+                firstVideoAtSeconds = publishedAt,
+                firstVideoId = videoId,
+                title = video.title,
+                posterUrl = video.poster?.mega ?: video.poster?.fullsize ?: video.poster?.big
+                    ?: video.poster?.medium ?: video.poster?.small,
+            )
+        }
+        try {
+            scheduleRepository.saveEpisodeReleases(episodeReleases)
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (error: Exception) {
+            analyticsTracker.log(TAG) { "Could not persist episode release history: ${error.message}" }
+        }
         val cache = dto.toHomeFeedCache(
             language = languageCode,
             watchSignature = watchSignature,

@@ -54,8 +54,8 @@ class ScheduleTimelineMapperTest {
 
     @Test
     fun `multiple actually published episodes remain separate calendar entries`() {
-        val first = nowSeconds - 2 * DAY
-        val second = nowSeconds - DAY
+        val first = nowSeconds - 2 * 3_600L
+        val second = nowSeconds - 3_600L
         val timeline = listOf(
             day(
                 item(

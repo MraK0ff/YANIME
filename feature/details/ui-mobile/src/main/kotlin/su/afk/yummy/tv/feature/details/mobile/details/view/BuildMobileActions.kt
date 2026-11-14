@@ -1,7 +1,6 @@
 package su.afk.yummy.tv.feature.details.mobile.details.view
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.runtime.Composable
@@ -29,28 +28,15 @@ internal fun buildMobileActions(
                 onEpisodesSelected,
             ),
         )
-        if (state.isSignedIn) {
-            add(
-                MobileDetailsAction(
-                    DetailsButtonAction.SUBSCRIPTIONS,
-                    stringResource(R.string.details_subscriptions),
-                    stringResource(R.string.details_mobile_subscriptions_hint),
-                    Icons.Filled.Notifications,
-                    onSubscriptionsSelected,
-                ),
-            )
-        } else {
-            // Гостю пункт виден с замком: тап объясняет, что даст вход.
-            add(
-                MobileDetailsAction(
-                    DetailsButtonAction.SUBSCRIPTIONS,
-                    stringResource(R.string.details_subscriptions),
-                    stringResource(R.string.details_mobile_subscriptions_locked_hint),
-                    Icons.Filled.Lock,
-                    onSubscriptionsLockedSelected,
-                ),
-            )
-        }
+        add(
+            MobileDetailsAction(
+                DetailsButtonAction.SUBSCRIPTIONS,
+                stringResource(R.string.details_subscriptions),
+                stringResource(R.string.details_mobile_subscriptions_hint),
+                Icons.Filled.Notifications,
+                onSubscriptionsSelected,
+            ),
+        )
     }
     val byAction = availableActions.associateBy { it.action }
     return DetailsButtonAction.defaultOrder

@@ -148,7 +148,7 @@ class YaniScheduleRepository(
             ttlMs = RELEASE_HISTORY_TTL_MS,
             decode = { releaseHistoryJson.decodeFromString<EpisodeReleaseHistoryDocument>(it).releases.map(EpisodeReleaseHistoryEntry::toDomain) },
             encode = { releaseHistoryJson.encodeToString(EpisodeReleaseHistoryDocument(it.map(EpisodeReleaseHistoryEntry::fromDomain))) },
-            fetch = { EpisodeReleaseHistoryDocument() },
+            fetch = { emptyList() },
         )
 
     private suspend fun writeEpisodeReleaseHistory(releases: List<AnimeEpisodeRelease>) {
@@ -158,7 +158,7 @@ class YaniScheduleRepository(
             forceRefresh = true,
             decode = { releaseHistoryJson.decodeFromString<EpisodeReleaseHistoryDocument>(it).releases.map(EpisodeReleaseHistoryEntry::toDomain) },
             encode = { releaseHistoryJson.encodeToString(EpisodeReleaseHistoryDocument(it.map(EpisodeReleaseHistoryEntry::fromDomain))) },
-            fetch = { EpisodeReleaseHistoryDocument(releases) },
+            fetch = { releases },
         )
     }
 

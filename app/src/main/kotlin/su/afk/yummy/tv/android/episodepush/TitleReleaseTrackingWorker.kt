@@ -8,14 +8,11 @@ import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.first
-import su.afk.yummy.tv.core.common.coroutines.runSuspendCatching
 import su.afk.yummy.tv.core.preferences.settings.EpisodePushSettingsStore
-import su.afk.yummy.tv.core.preferences.settings.TitleReleaseTracking
 import su.afk.yummy.tv.core.preferences.settings.TitleReleaseTrackingMode
 import su.afk.yummy.tv.core.preferences.settings.TitleReleaseTrackingStore
 import su.afk.yummy.tv.domain.account.model.SubscriptionKeys
 import su.afk.yummy.tv.domain.anime.usecase.RefreshAnimeVideosUseCase
-import java.math.BigDecimal
 
 /**
  * Polls device-local title subscriptions even when the app process is not running.
@@ -67,6 +64,9 @@ class TitleReleaseTrackingWorker @AssistedInject constructor(
                 }
 
                 val newEpisodes = matchingEpisodes - subscription.knownEpisodeNumbers
+                // Persist the deduplication keys before notifying: a process interruption after
+                // notify() must not make WorkManager deliver the same episode again on retry.
+                trackingStore.recordEpisodes(subscription.animeId, matchingEpisodes)
                 if (pushEnabled) {
                     newEpisodes.sorted().forEach { episode ->
                         notificationService.showTrackedTitleEpisode(
@@ -76,7 +76,6 @@ class TitleReleaseTrackingWorker @AssistedInject constructor(
                         )
                     }
                 }
-                trackingStore.recordEpisodes(subscription.animeId, matchingEpisodes)
             } catch (cancelled: kotlinx.coroutines.CancellationException) {
                 throw cancelled
             } catch (_: Exception) {

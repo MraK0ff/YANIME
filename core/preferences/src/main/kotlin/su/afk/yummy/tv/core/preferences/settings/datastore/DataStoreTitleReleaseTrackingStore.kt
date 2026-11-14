@@ -26,7 +26,7 @@ internal class DataStoreTitleReleaseTrackingStore @Inject constructor(
                 .mapNotNull { decode(it) }.associateBy { it.animeId }.toMutableMap()
             current[subscription.animeId] = subscription.copy(
                 knownEpisodeNumbers = subscription.knownEpisodeNumbers
-                    .filter { it > 0 }.toSortedSet().takeLast(MAX_KNOWN_EPISODES).toSet(),
+                    .filter { it > 0 }.toSortedSet().toList().takeLast(MAX_KNOWN_EPISODES).toSet(),
                 excludedDubbingKeys = subscription.excludedDubbingKeys.filter { it.isNotBlank() }.toSet(),
             )
             prefs[titleReleaseTrackingKey] = current.values.mapTo(mutableSetOf()) { encode(it) }
@@ -48,7 +48,7 @@ internal class DataStoreTitleReleaseTrackingStore @Inject constructor(
             val subscription = current[animeId] ?: return@edit
             current[animeId] = subscription.copy(
                 knownEpisodeNumbers = (subscription.knownEpisodeNumbers + episodeNumbers)
-                    .filter { it > 0 }.toSortedSet().takeLast(MAX_KNOWN_EPISODES).toSet(),
+                    .filter { it > 0 }.toSortedSet().toList().takeLast(MAX_KNOWN_EPISODES).toSet(),
                 initialized = true,
             )
             prefs[titleReleaseTrackingKey] = current.values.mapTo(mutableSetOf()) { encode(it) }

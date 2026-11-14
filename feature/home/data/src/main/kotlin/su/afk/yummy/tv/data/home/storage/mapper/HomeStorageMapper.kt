@@ -23,7 +23,6 @@ import su.afk.yummy.tv.data.home.dto.YaniAnimeDto
 import su.afk.yummy.tv.data.home.dto.YaniCollectionDto
 import su.afk.yummy.tv.data.home.dto.YaniFeedDto
 import su.afk.yummy.tv.data.home.dto.YaniPosterDto
-import su.afk.yummy.tv.data.home.dto.YaniVideoDto
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.domain.home.model.HomeFeed
 import su.afk.yummy.tv.domain.home.model.HomeCollectionPreview
@@ -37,7 +36,7 @@ internal fun YaniFeedDto.toHomeFeedCache(
     language: String,
     watchSignature: String,
     cachedAt: Long,
-    newReleaseHistory: List<HomeNewReleaseEntry>,
+    newReleaseHistory: List<HomeNewReleaseEntry> = emptyList(),
 ): HomeFeedCache =
     HomeFeedCache(
         entry = HomeFeedCacheEntry(

@@ -8,6 +8,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -18,6 +19,7 @@ import java.time.ZoneOffset
 private fun parseIsoPublicationDate(value: String): Long? =
     runCatching { Instant.parse(value).epochSecond }.getOrNull()
         ?: runCatching { OffsetDateTime.parse(value).toInstant().epochSecond }.getOrNull()
+        ?: runCatching { LocalDateTime.parse(value.replace(' ', 'T')).toEpochSecond(ZoneOffset.UTC) }.getOrNull()
         ?: runCatching { LocalDate.parse(value).atStartOfDay().toEpochSecond(ZoneOffset.UTC) }.getOrNull()
 
 fun List<YaniVideoDto>.toAnimeEpisodeReleases(): List<AnimeEpisodeRelease> =

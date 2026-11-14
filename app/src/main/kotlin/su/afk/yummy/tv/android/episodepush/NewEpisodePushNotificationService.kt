@@ -54,7 +54,7 @@ class NewEpisodePushNotificationService @Inject constructor(
         val notificationId = TRACKED_TITLE_NOTIFICATION_ID_BASE +
             ("$animeId:$episodeNumber".hashCode() and TRACKED_TITLE_NOTIFICATION_ID_MASK)
         show(
-            channel = Channel.LIBRARY,
+            channel = Channel.TITLE_TRACKING,
             notificationId = notificationId,
             title = title,
             text = context.getString(R.string.title_release_push_text, episodeNumber),
@@ -127,6 +127,9 @@ class NewEpisodePushNotificationService @Inject constructor(
 
         /** Локальные пуши о новых сериях из списков пользователя. */
         LIBRARY("library_new_episodes", R.string.library_episode_push_notification_channel),
+
+        /** Локальные подписки на конкретные тайтлы. */
+        TITLE_TRACKING("title_release_tracking", R.string.title_release_tracking_notification_channel),
     }
 
     private companion object {

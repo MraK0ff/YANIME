@@ -7,6 +7,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,6 +24,13 @@ internal fun MobilePlayerTimeDisplayPage(
     onSettingsChange: (PlayerTimeDisplaySettings) -> Unit,
     onBack: () -> Unit,
 ) {
+    LaunchedEffect(settings.elapsed, settings.duration) {
+        val elapsed = settings.elapsed.takeUnless { it == PlayerTimeDisplayMode.NEVER } ?: PlayerTimeDisplayMode.CONTROLS
+        val duration = settings.duration.takeUnless { it == PlayerTimeDisplayMode.NEVER } ?: PlayerTimeDisplayMode.CONTROLS
+        if (elapsed != settings.elapsed || duration != settings.duration) {
+            onSettingsChange(settings.copy(elapsed = elapsed, duration = duration))
+        }
+    }
     Column(modifier = Modifier.fillMaxWidth()) {
         MobilePlayerMenuPageHeader(
             title = stringResource(R.string.player_time_display_title),
@@ -43,11 +51,13 @@ internal fun MobilePlayerTimeDisplayPage(
         TimeDisplayModeRow(
             label = stringResource(R.string.player_time_display_elapsed),
             mode = settings.elapsed,
+            allowNever = false,
             onSelected = { onSettingsChange(settings.copy(elapsed = it)) },
         )
         TimeDisplayModeRow(
             label = stringResource(R.string.player_time_display_duration),
             mode = settings.duration,
+            allowNever = false,
             onSelected = { onSettingsChange(settings.copy(duration = it)) },
         )
         TimeDisplayModeRow(
@@ -63,6 +73,7 @@ private fun TimeDisplayModeRow(
     label: String,
     mode: PlayerTimeDisplayMode,
     onSelected: (PlayerTimeDisplayMode) -> Unit,
+    allowNever: Boolean = true,
 ) {
     var expanded by remember { mutableStateOf(false) }
     Box(modifier = Modifier.fillMaxWidth()) {
@@ -72,7 +83,7 @@ private fun TimeDisplayModeRow(
                 when (mode) {
                     PlayerTimeDisplayMode.ALWAYS -> stringResource(R.string.player_time_display_always)
                     PlayerTimeDisplayMode.CONTROLS -> stringResource(R.string.player_time_display_controls)
-                    PlayerTimeDisplayMode.NEVER -> stringResource(R.string.player_time_display_never)
+                    PlayerTimeDisplayMode.NEVER -> if (allowNever) stringResource(R.string.player_time_display_never) else stringResource(R.string.player_time_display_controls)
                 },
             ),
             onClick = { expanded = true },
@@ -86,10 +97,12 @@ private fun TimeDisplayModeRow(
                 text = { Text(stringResource(R.string.player_time_display_controls)) },
                 onClick = { onSelected(PlayerTimeDisplayMode.CONTROLS); expanded = false },
             )
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.player_time_display_never)) },
-                onClick = { onSelected(PlayerTimeDisplayMode.NEVER); expanded = false },
-            )
+            if (allowNever) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.player_time_display_never)) },
+                    onClick = { onSelected(PlayerTimeDisplayMode.NEVER); expanded = false },
+                )
+            }
         }
     }
 }

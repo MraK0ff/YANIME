@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -53,12 +54,14 @@ internal fun MobilePlayerMenuRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clip(MaterialTheme.shapes.medium)
+            .clip(MobilePlayerInteractiveShape)
             .clickable(
                 role = if (trailing is MobilePlayerMenuRowTrailing.Toggle) Role.Switch else Role.Button,
+                onClickLabel = label,
                 onClick = onClick,
             )
-            .padding(horizontal = 8.dp, vertical = 10.dp),
+            .heightIn(min = MobilePlayerMinimumTouchTarget)
+            .padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {

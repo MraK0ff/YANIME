@@ -79,3 +79,15 @@ internal fun MobilePlayerQualityPage(
         }
     }
 }
+
+/** Compact quality label used by the always-visible player toolbar. */
+internal fun playerQualityButtonLabel(
+    activeQuality: String?,
+    adaptiveQuality: Boolean,
+    adaptiveLimitQuality: String?,
+    adaptiveLimitBest: Boolean,
+): String {
+    val raw = (if (adaptiveQuality && !adaptiveLimitBest) adaptiveLimitQuality else activeQuality).orEmpty()
+    val compact = raw.replace(" ", "").removeSuffix("p").removeSuffix("P").ifBlank { "AUTO" }
+    return if (compact == "AUTO") compact else "${compact}p"
+}

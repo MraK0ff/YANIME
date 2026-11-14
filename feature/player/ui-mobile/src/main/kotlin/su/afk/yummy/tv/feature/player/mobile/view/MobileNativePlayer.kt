@@ -15,16 +15,16 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -51,7 +51,6 @@ import su.afk.yummy.tv.core.utils.cast.CastSupport
 import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.feature.player.PlayerState
 import su.afk.yummy.tv.feature.player.common.PlayerBlackBackdrop
-import su.afk.yummy.tv.feature.player.common.PlayerSpeedOptions
 import su.afk.yummy.tv.feature.player.common.PlayerBufferingIndicator
 import su.afk.yummy.tv.feature.player.common.PlayerEpisodeEndController
 import su.afk.yummy.tv.feature.player.common.PlayerKeepScreenOnEffect
@@ -86,7 +85,6 @@ import su.afk.yummy.tv.feature.player.mobile.model.rememberMobilePlayerSettingsS
 import su.afk.yummy.tv.feature.player.common.rememberPlayerSleepTimer
 import su.afk.yummy.tv.feature.player.common.rememberPlayerVolumeController
 import su.afk.yummy.tv.feature.player.common.service.rememberPlayerMediaController
-import su.afk.yummy.tv.feature.player.common.toastIcon
 import su.afk.yummy.tv.feature.player.common.utils.hasOtherSource
 import su.afk.yummy.tv.feature.player.common.utils.isVisible
 import su.afk.yummy.tv.feature.player.common.utils.playerContentScale
@@ -369,7 +367,7 @@ internal fun MobileNativePlayer(
         isPromptSuppressed = { isInPictureInPictureMode },
         onPromptShown = {
             overlay.visible = false
-            trackSheetOpen = false
+            settingsMenuOpen = false
             overlay.cancelHide()
         },
     )
@@ -452,7 +450,7 @@ internal fun MobileNativePlayer(
             overlay.visible = false
             endFlow.hideAll()
             gestures.resetForPictureInPicture()
-            trackSheetOpen = false
+            settingsMenuOpen = false
             overlay.cancelHide()
             stepSeekToast.clear()
         }
@@ -464,7 +462,7 @@ internal fun MobileNativePlayer(
     }
 
     LaunchedEffect(ui.activeIframeUrl) {
-        trackSheetOpen = false
+        settingsMenuOpen = false
     }
 
     PlayerEndPromptCountdownEffect(
@@ -677,8 +675,6 @@ internal fun MobileNativePlayer(
             title = state.animeTitle,
             episode = ui.activeEpisode,
             episodeTitle = ui.activeEpisodeTitle,
-            dubbing = ui.activeDubbing,
-            playerName = ui.activeBalancerLabel,
             offlinePlayback = state.isOfflinePlayback,
             episodeFlags = ui.activeEpisodeFlags,
             qualityLabel = playerQualityButtonLabel(
@@ -688,41 +684,10 @@ internal fun MobileNativePlayer(
                 adaptiveLimitBest = ui.adaptiveLimitBest,
             ),
             qualityOptions = ui.qualityLabels,
-            selectedQuality = selectedQuality,
-            adaptiveQuality = ui.adaptiveQuality,
-            onAdaptiveQualityChange = { onEvent(PlayerState.Event.AdaptiveQualityToggled(it)) },
-            onQualitySelected = { quality ->
-                val position = player.currentPosition.coerceAtLeast(0L)
-                reporter.saveProgress(position, progress.duration)
-                onEvent(PlayerState.Event.QualitySelected(quality, position))
-            },
-            onAdaptiveLimitSelected = { quality ->
-                onEvent(PlayerState.Event.AdaptiveQualityLimitSelected(
-                    quality, player.currentPosition.coerceAtLeast(0L),
-                ))
-            },
-            onAdaptiveLimitBestSelected = { onEvent(PlayerState.Event.AdaptiveQualityLimitBestSelected) },
-            speedOptions = PlayerSpeedOptions.values,
-            onSpeedSelected = { onEvent(PlayerState.Event.SpeedSelected(it)); overlay.show() },
-            titleStartPadding = maxOf(
-                controlSize + 12.dp,
-                if (!hasSideLetterboxing && videoBottomInsetDp < controlSize && videoTopDp < controlSize)
-                    controlSize * 2 + 24.dp else 4.dp,
-            ),
             onEpisodeClick = {
                 onEpisodesExpandedChange(!episodesExpanded)
                 if (!episodesExpanded) overlay.cancelHide() else overlay.show()
             },
-            onDubbingClick = {
-                if (!state.isOfflinePlayback) {
-                    endFlow.hideAll()
-                    trackSheetOpen = true
-                    overlay.visible = true
-                    overlay.cancelHide()
-                }
-            },
-            showAudioTracks = trackMenu.showAudioChoice,
-            showSubtitleTracks = trackMenu.showSubtitleChoice,
             onMoreMenuItem = { page ->
                 endFlow.hideAll()
                 settingsMenuPage = page
@@ -745,17 +710,8 @@ internal fun MobileNativePlayer(
                 overlay.visible = true
                 overlay.cancelHide()
             },
-            onSpeedLongPress = {
-                endFlow.hideAll()
-                settingsMenuPage = MobilePlayerSettingsPage.Speed
-                settingsMenuOpen = true
-                overlay.visible = true
-                overlay.cancelHide()
-            },
             visible = overlay.visible && !locked && !isInPictureInPictureMode && !tutorialBlocksPlayback,
             episodeExpanded = episodesExpanded,
-            dubbingExpanded = trackSheetOpen,
-            onPopupVisibilityChange = { topBarPopupOpen = it },
             modifier = Modifier.offset(x = videoLeftDp, y = videoTopDp).width(videoWidthDp).height(videoHeightDp),
         )
 
@@ -871,8 +827,7 @@ internal fun MobileNativePlayer(
         MobilePlayerOverlay(
             modifier = Modifier.align(Alignment.Center),
             visible = overlay.visible && !locked && !isInPictureInPictureMode &&
-                !tutorialBlocksPlayback && !trackSheetOpen &&
-                !settingsMenuOpen && !qualitySheetOpen && !speedSheetOpen,
+                !tutorialBlocksPlayback && !settingsMenuOpen,
             wantsPlay = wantsPlay,
             loading = isBuffering || showRecoveryIndicator,
             progress = progress,
@@ -915,7 +870,9 @@ internal fun MobileNativePlayer(
             },
             onTrackSettings = {
                 endFlow.hideAll()
-                trackSheetOpen = true
+                settingsMenuPage = MobilePlayerSettingsPage.Sources
+                settingsMenuOpen = true
+                overlay.visible = true
                 overlay.visible = true
                 overlay.cancelHide()
             },
@@ -1060,7 +1017,9 @@ internal fun MobileNativePlayer(
             MobilePlayerRecoveryHint(
                 onChangePlayer = if (ui.canChangePlayer) {
                     {
-                        trackSheetOpen = true
+                        settingsMenuPage = MobilePlayerSettingsPage.Sources
+                settingsMenuOpen = true
+                overlay.visible = true
                         overlay.cancelHide()
                     }
                 } else {
@@ -1068,7 +1027,9 @@ internal fun MobileNativePlayer(
                 },
                 onChangeDubbing = if (ui.canChangeDubbing) {
                     {
-                        trackSheetOpen = true
+                        settingsMenuPage = MobilePlayerSettingsPage.Sources
+                settingsMenuOpen = true
+                overlay.visible = true
                         overlay.cancelHide()
                     }
                 } else {

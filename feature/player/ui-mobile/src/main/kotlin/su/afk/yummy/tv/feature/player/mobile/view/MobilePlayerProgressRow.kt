@@ -29,6 +29,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -151,14 +152,22 @@ private fun MobilePlayerTimeline(
     onValueChangeFinished: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val playedColor = MaterialTheme.colorScheme.primary
+    val themeAccent = MaterialTheme.colorScheme.primary
+    val accentChroma = maxOf(themeAccent.red, themeAccent.green, themeAccent.blue) -
+        minOf(themeAccent.red, themeAccent.green, themeAccent.blue)
+    // Graphite uses a near-white neutral accent; soften it so the white buffer remains distinguishable.
+    val playedColor = if (themeAccent.luminance() > 0.78f && accentChroma < 0.12f) {
+        Color(0xFFB7BEC7)
+    } else {
+        themeAccent
+    }
     val bufferedColor = Color.White
-    // Keep the same hue as the active theme accent, but reduce its prominence.
+    // Same hue family as the played segment, mixed toward a neutral grey for lower emphasis.
     val unplayedColor = lerp(playedColor, Color(0xFF858D97), 0.58f)
     val safeProgress = progress.coerceIn(0f, 1f)
     Box(
         modifier = modifier
-            .height(24.dp)
+            .height(48.dp)
             .pointerInput(enabled, onValueChange) {
                 if (enabled) {
                     detectTapGestures { position ->
@@ -184,7 +193,7 @@ private fun MobilePlayerTimeline(
                 }
             },
     ) {
-        Canvas(Modifier.fillMaxWidth().height(24.dp)) {
+        Canvas(Modifier.fillMaxWidth().height(48.dp)) {
             val centerY = size.height / 2f
             val stroke = 3.5.dp.toPx()
             val radius = stroke / 2f

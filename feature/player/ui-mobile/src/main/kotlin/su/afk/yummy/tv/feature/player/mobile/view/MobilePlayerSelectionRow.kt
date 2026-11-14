@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.components.LogoBadge
@@ -39,9 +40,9 @@ internal fun MobilePlayerSelectionRow(
 ) {
     val shape = MobilePlayerInteractiveShape
     val background = if (selected) {
-        MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+        MaterialTheme.colorScheme.primary.copy(alpha = MobilePlayerSelectedContainerAlpha)
     } else {
-        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.58f)
+        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = MobilePlayerUnselectedContainerAlpha)
     }
     val textColor = if (selected || accentLabel) {
         MaterialTheme.colorScheme.primary
@@ -65,6 +66,8 @@ internal fun MobilePlayerSelectionRow(
                 enabled = enabled,
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
+                role = Role.RadioButton,
+                onClickLabel = label,
                 onClick = onClick,
             )
             .padding(horizontal = 14.dp, vertical = 13.dp),

@@ -3,10 +3,8 @@ package su.afk.yummy.tv.feature.player.mobile.view
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,7 +28,7 @@ internal fun MobilePlayerSpeedBoostIndicator(
         Box(
             modifier = Modifier
                 .size(58.dp)
-                .background(Color.Black.copy(alpha = 0.78f), CircleShape),
+                .mobilePlayerGlassSurface(shape = androidx.compose.foundation.shape.CircleShape, elevation = 4.dp),
             contentAlignment = Alignment.Center,
         ) {
             Text(

@@ -65,13 +65,13 @@ private fun OrientationChoiceRow(
     onClick: () -> Unit,
 ) {
     val background = if (selected) {
-        MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)
+        MaterialTheme.colorScheme.primary.copy(alpha = MobilePlayerSelectedContainerAlpha)
     } else {
-        MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.72f)
+        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = MobilePlayerUnselectedContainerAlpha)
     }
     Row(
         modifier = Modifier.fillMaxWidth()
-            .clip(MaterialTheme.shapes.medium)
+            .clip(MobilePlayerInteractiveShape)
             .background(background)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
@@ -86,7 +86,7 @@ private fun OrientationChoiceRow(
             else MaterialTheme.colorScheme.onSurfaceVariant
         Box(
             modifier = Modifier.size(36.dp)
-                .clip(MaterialTheme.shapes.small)
+                .clip(MobilePlayerStaticShape)
                 .background(tint.copy(alpha = 0.12f)),
             contentAlignment = Alignment.Center,
         ) {

@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.core.preferences.settings.datastore
 
-import android.util.Base64\nimport kotlinx.coroutines.flow.Flow
+import android.util.Base64
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.titleReleaseTrackingKey
 import su.afk.yummy.tv.core.preferences.settings.TitleReleaseTracking

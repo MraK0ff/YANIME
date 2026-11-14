@@ -95,9 +95,9 @@ class SubscriptionsViewModel @AssistedInject internal constructor(
                 setState {
                     copy(
                         excludedDubbingKeys = if (event.excluded) {
-                            excludedDubbingKeys.add(event.key)
+                            (excludedDubbingKeys + event.key).toImmutableSet()
                         } else {
-                            excludedDubbingKeys.remove(event.key)
+                            (excludedDubbingKeys - event.key).toImmutableSet()
                         },
                     )
                 }

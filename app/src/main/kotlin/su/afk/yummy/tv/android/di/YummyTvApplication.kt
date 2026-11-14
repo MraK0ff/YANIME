@@ -146,6 +146,7 @@ class YummyTvApplication :
             trace("App.schedulers") {
                 homeFeedRefreshScheduler.schedule()
                 newEpisodePushScheduler.scheduleLibraryPush()
+                newEpisodePushScheduler.scheduleTitleReleaseTracking()
                 pendingMutationSyncScheduler.schedule()
                 pendingMutationOnlineFlusher.start()
             }

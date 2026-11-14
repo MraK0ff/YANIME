@@ -19,6 +19,7 @@ dependencies {
     implementation(project(":feature:collection:api"))
     implementation(project(":feature:details:api"))
     implementation(project(":core:model"))
+    implementation(project(":core:preferences"))
     implementation(project(":feature:details:presentation"))
     implementation(project(":feature:player:api"))
 

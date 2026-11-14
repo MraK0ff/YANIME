@@ -20,7 +20,7 @@ class HomeFeedRefreshScheduler @Inject constructor(
     fun schedule() {
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             HOME_FEED_REFRESH_WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,
+            ExistingPeriodicWorkPolicy.UPDATE,
             createRefreshRequest(),
         )
     }

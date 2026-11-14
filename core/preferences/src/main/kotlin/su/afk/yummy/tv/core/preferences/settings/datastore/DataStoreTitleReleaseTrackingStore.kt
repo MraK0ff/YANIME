@@ -1,6 +1,6 @@
 package su.afk.yummy.tv.core.preferences.settings.datastore
 
-import kotlinx.coroutines.flow.Flow
+import android.util.Base64\nimport kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.titleReleaseTrackingKey
 import su.afk.yummy.tv.core.preferences.settings.TitleReleaseTracking
@@ -57,7 +57,7 @@ internal class DataStoreTitleReleaseTrackingStore @Inject constructor(
 
     private fun encode(item: TitleReleaseTracking): String = listOf(
         item.animeId.toString(),
-        Base64.getUrlEncoder().withoutPadding().encodeToString(item.title.toByteArray(Charsets.UTF_8)),
+        Base64.encodeToString(item.title.toByteArray(Charsets.UTF_8), Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING),
         item.mode.name,
         if (item.initialized) "1" else "0",
         item.knownEpisodeNumbers.sorted().joinToString(","),
@@ -71,7 +71,7 @@ internal class DataStoreTitleReleaseTrackingStore @Inject constructor(
         val mode = runCatching { TitleReleaseTrackingMode.valueOf(parts[2]) }
             .getOrDefault(TitleReleaseTrackingMode.ALL)
         val title = runCatching {
-            String(Base64.getUrlDecoder().decode(parts[1]), Charsets.UTF_8)
+            String(Base64.decode(parts[1], Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING), Charsets.UTF_8)
         }.getOrDefault("")
         return TitleReleaseTracking(
             animeId = animeId,

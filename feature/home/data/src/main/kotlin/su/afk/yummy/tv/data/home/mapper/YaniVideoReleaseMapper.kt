@@ -1,8 +1,7 @@
 package su.afk.yummy.tv.data.home.mapper
 
 import su.afk.yummy.tv.core.common.episode.episodeNumberOrNull
-import su.afk.yummy.tv.core.model.anime.AnimePoster
-import su.afk.yummy.tv.core.model.anime.AnimeEpisodeRelease
+import su.afk.yummy.tv.domain.schedule.model.AnimeEpisodeRelease
 import su.afk.yummy.tv.core.utils.network.toHttpsUrl
 import su.afk.yummy.tv.data.home.dto.YaniVideoDto
 

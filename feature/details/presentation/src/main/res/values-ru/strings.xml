@@ -259,4 +259,13 @@
     <string name="details_onboarding_episodes_text">Все серии с отметками просмотра. Здесь же можно выбрать озвучку для конкретной серии.</string>
     <string name="details_onboarding_subscriptions_title">Уведомления о сериях</string>
     <string name="details_onboarding_subscriptions_text">Подпишитесь на озвучку, чтобы узнавать о выходе новой серии.</string>
+    <string name="details_local_tracking_title">Следить за тайтлом</string>
+    <string name="details_local_tracking_description">Уведомим один раз, когда новая обычная серия впервые появится в подходящей озвучке. Повторные публикации и альтернативные озвучки не дублируют уведомление.</string>
+    <string name="details_local_tracking_enabled">Отслеживать новые серии</string>
+    <string name="details_local_tracking_all">Все варианты</string>
+    <string name="details_local_tracking_dubbing">Только озвучка</string>
+    <string name="details_local_tracking_subtitles">Только субтитры</string>
+    <string name="details_local_tracking_exclusions">Исключить озвучки</string>
+    <string name="details_local_tracking_empty">Пока нет озвучек, которые можно исключить.</string>
+    <string name="details_local_tracking_server_sign_in">Войдите, чтобы управлять серверными подписками на отдельные озвучки.</string>
 </resources>

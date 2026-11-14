@@ -248,7 +248,7 @@
     <string name="details_onboarding_subscriptions_title">New episode alerts</string>
     <string name="details_onboarding_subscriptions_text">Subscribe to a dubbing to get notified when a new episode comes out.</string>
     <string name="details_local_tracking_title">Track this title</string>
-    <string name="details_local_tracking_description">Get one alert when a new regular episode first appears in any matching dubbing. Alternate uploads of the same episode are ignored.</string>
+    <string name="details_local_tracking_description">Get one alert when a new regular episode first appears in a matching version. Alternate uploads of the same episode are ignored.</string>
     <string name="details_local_tracking_enabled">Track new episodes</string>
     <string name="details_local_tracking_all">All</string>
     <string name="details_local_tracking_dubbing">Dubbing</string>

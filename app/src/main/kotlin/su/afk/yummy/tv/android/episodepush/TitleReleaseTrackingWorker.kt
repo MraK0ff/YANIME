@@ -13,6 +13,7 @@ import su.afk.yummy.tv.core.preferences.settings.TitleReleaseTrackingMode
 import su.afk.yummy.tv.core.preferences.settings.TitleReleaseTrackingStore
 import su.afk.yummy.tv.domain.account.model.SubscriptionKeys
 import su.afk.yummy.tv.domain.anime.usecase.RefreshAnimeVideosUseCase
+import su.afk.yummy.tv.domain.home.usecase.SelectLibraryEpisodePushesUseCase
 
 /**
  * Polls device-local title subscriptions even when the app process is not running.
@@ -64,17 +65,23 @@ class TitleReleaseTrackingWorker @AssistedInject constructor(
                 }
 
                 val newEpisodes = matchingEpisodes - subscription.knownEpisodeNumbers
-                // Persist the deduplication keys before notifying: a process interruption after
-                // notify() must not make WorkManager deliver the same episode again on retry.
+                // Share the existing cross-worker per-title cooldown with server/library pushes.
+                // Episode history itself remains per-number, so alternate dubs never re-alert.
+                val nowSeconds = System.currentTimeMillis() / 1_000
+                val lastPush = pushSettings.recentPushes.first()[subscription.animeId]
+                val alreadyNotifiedRecently = lastPush != null &&
+                    lastPush >= nowSeconds - SelectLibraryEpisodePushesUseCase.DEDUP_WINDOW_SECONDS
+
+                // Persist episode keys before notify(): WorkManager retry cannot repeat the same
+                // release after a process interruption.
                 trackingStore.recordEpisodes(subscription.animeId, matchingEpisodes)
-                if (pushEnabled) {
-                    newEpisodes.sorted().forEach { episode ->
-                        notificationService.showTrackedTitleEpisode(
-                            animeId = subscription.animeId,
-                            title = subscription.title,
-                            episodeNumber = episode,
-                        )
-                    }
+                if (pushEnabled && newEpisodes.isNotEmpty() && !alreadyNotifiedRecently) {
+                    notificationService.showTrackedTitleEpisode(
+                        animeId = subscription.animeId,
+                        title = subscription.title,
+                        episodeNumber = newEpisodes.max(),
+                    )
+                    pushSettings.recordPush(subscription.animeId, nowSeconds)
                 }
             } catch (cancelled: kotlinx.coroutines.CancellationException) {
                 throw cancelled

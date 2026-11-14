@@ -1,5 +1,6 @@
 package su.afk.yummy.tv.data.home.mapper
 
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.time.Instant
 import org.junit.Assert.assertEquals
@@ -11,7 +12,7 @@ import su.afk.yummy.tv.core.testing.BaseUnitTest
 class YaniVideoReleaseMapperTest : BaseUnitTest() {
 
     @Test
-    fun `numeric publication dates and duplicate dubbings map to the same episode event`() {
+    fun `numeric publication dates are read from each feed video`() {
         val dto = Json.decodeFromString<YaniFeedDto>(
             """
             {

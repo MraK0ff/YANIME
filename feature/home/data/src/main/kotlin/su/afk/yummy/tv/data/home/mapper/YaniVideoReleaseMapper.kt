@@ -4,11 +4,22 @@ import su.afk.yummy.tv.core.common.episode.episodeNumberOrNull
 import su.afk.yummy.tv.domain.schedule.model.AnimeEpisodeRelease
 import su.afk.yummy.tv.core.utils.network.toHttpsUrl
 import su.afk.yummy.tv.data.home.dto.YaniVideoDto
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
+import java.time.Instant
+import java.time.LocalDate
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 
 /**
  * /feed/new_videos содержит дату публикации конкретного видео. Серия извлекается из ep_title;
  * строки без однозначного целого номера не превращаются в обычные эпизоды.
  */
+private fun parseIsoPublicationDate(value: String): Long? =
+    runCatching { Instant.parse(value).epochSecond }.getOrNull()
+        ?: runCatching { OffsetDateTime.parse(value).toInstant().epochSecond }.getOrNull()
+        ?: runCatching { LocalDate.parse(value).atStartOfDay().toEpochSecond(ZoneOffset.UTC) }.getOrNull()
+
 fun List<YaniVideoDto>.toAnimeEpisodeReleases(): List<AnimeEpisodeRelease> =
     mapNotNull { video ->
         val animeId = video.animeId?.takeIf { it > 0 } ?: return@mapNotNull null
@@ -18,10 +29,13 @@ fun List<YaniVideoDto>.toAnimeEpisodeReleases(): List<AnimeEpisodeRelease> =
             ?.takeIf { it > 0.0 && it % 1.0 == 0.0 }
             ?.toInt()
             ?: return@mapNotNull null
-        val publishedAt = video.date
-            ?.let { if (it > 10_000_000_000L) it / 1_000L else it }
-            ?.takeIf { it > 0 }
+        val rawDate = (video.date as? JsonPrimitive)?.contentOrNull
             ?: return@mapNotNull null
+        val publishedAt = rawDate.toLongOrNull()
+            ?.let { if (it > 10_000_000_000L) it / 1_000L else it }
+            ?: parseIsoPublicationDate(rawDate)
+            ?: return@mapNotNull null
+        if (publishedAt <= 0) return@mapNotNull null
         AnimeEpisodeRelease(
             animeId = animeId,
             episodeNumber = episodeNumber,

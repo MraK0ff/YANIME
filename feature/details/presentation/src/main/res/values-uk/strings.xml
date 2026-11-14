@@ -270,4 +270,5 @@
     <string name="details_local_tracking_server_sign_in">Увійдіть, щоб керувати серверними підписками на окремі озвучення.</string>
     <string name="details_server_subscriptions_title">Підписки на окремі озвучення</string>
     <string name="details_mobile_subscription_episode_count">Доступно серій: %1$d</string>
+    <string name="details_local_tracking_unavailable">Не вдалося завантажити серії. Спробуйте ще раз за наявності мережі.</string>
 </resources>

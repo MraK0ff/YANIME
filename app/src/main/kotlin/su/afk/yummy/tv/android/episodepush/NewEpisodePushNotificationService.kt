@@ -131,7 +131,9 @@ class NewEpisodePushNotificationService @Inject constructor(
 
     private companion object {
         const val NOTIFICATION_ID_BASE = 61_000
-        const val LIBRARY_NOTIFICATION_ID_BASE = 1_000_000\n        const val TRACKED_TITLE_NOTIFICATION_ID_BASE = 1_200_000_000\n        const val TRACKED_TITLE_NOTIFICATION_ID_MASK = 0x1fffffff
+        const val LIBRARY_NOTIFICATION_ID_BASE = 1_000_000
+        const val TRACKED_TITLE_NOTIFICATION_ID_BASE = 1_200_000_000
+        const val TRACKED_TITLE_NOTIFICATION_ID_MASK = 0x1fffffff
 
         const val CONTINUE_DEEP_LINK_PREFIX = "yanime://continue/"
         const val DETAILS_DEEP_LINK_PREFIX = "yanime://details/"

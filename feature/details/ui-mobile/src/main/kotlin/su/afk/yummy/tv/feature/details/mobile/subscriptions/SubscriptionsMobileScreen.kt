@@ -195,6 +195,7 @@ private fun LocalTitleTrackingCard(
                 Switch(
                     checked = state.isLocalTrackingEnabled,
                     onCheckedChange = onTrackingToggled,
+                    enabled = state.localTrackingAvailable || state.isLocalTrackingEnabled,
                 )
             }
 

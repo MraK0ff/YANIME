@@ -16,7 +16,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Планирует два фоновых задания пушей о новых сериях.
+ * Планирует фоновые задания обновления ленты и уведомлений о новых сериях.
  *
  * Локальное ([LibraryEpisodePushWorker]) ставится всегда: гейт «включён ли пуш» стоит внутри
  * [LibraryEpisodePushWorker.doWork], само задание не переэнкьюивается.

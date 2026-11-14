@@ -173,7 +173,6 @@ class HomeViewModel @Inject internal constructor(
             }
             .launchIn(viewModelScope)
         observeLibraryAnimeIds()
-        loadRecentlyAired()
         observeHiddenRecommendations()
         observeSupportPrompt()
         observeAnnouncement()

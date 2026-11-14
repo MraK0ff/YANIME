@@ -259,4 +259,13 @@
     <string name="details_onboarding_episodes_text">Усі серії з позначками перегляду. Тут же можна обрати озвучення для конкретної серії.</string>
     <string name="details_onboarding_subscriptions_title">Сповіщення про серії</string>
     <string name="details_onboarding_subscriptions_text">Підпишіться на озвучення, щоб дізнаватися про вихід нової серії.</string>
+    <string name="details_local_tracking_title">Стежити за тайтлом</string>
+    <string name="details_local_tracking_description">Повідомимо один раз, коли нова звичайна серія вперше з’явиться у відповідному озвученні. Повторні публікації та альтернативні озвучення не дублюють сповіщення.</string>
+    <string name="details_local_tracking_enabled">Відстежувати нові серії</string>
+    <string name="details_local_tracking_all">Усі варіанти</string>
+    <string name="details_local_tracking_dubbing">Лише озвучення</string>
+    <string name="details_local_tracking_subtitles">Лише субтитри</string>
+    <string name="details_local_tracking_exclusions">Виключити озвучення</string>
+    <string name="details_local_tracking_empty">Поки немає озвучень, які можна виключити.</string>
+    <string name="details_local_tracking_server_sign_in">Увійдіть, щоб керувати серверними підписками на окремі озвучення.</string>
 </resources>

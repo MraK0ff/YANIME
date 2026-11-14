@@ -147,7 +147,7 @@ class YaniScheduleRepository(
             cacheKey = EPISODE_RELEASE_HISTORY_KEY,
             ttlMs = RELEASE_HISTORY_TTL_MS,
             decode = { releaseHistoryJson.decodeFromString<EpisodeReleaseHistoryDocument>(it).releases.map(EpisodeReleaseHistoryEntry::toDomain) },
-            encode = { releaseHistoryJson.encodeToString(EpisodeReleaseHistoryDocument(it.map(EpisodeReleaseHistoryEntry::fromDomain))) },
+            encode = { releaseHistoryJson.encodeToString(EpisodeReleaseHistoryDocument(it.map { EpisodeReleaseHistoryEntry.fromDomain(it) })) },
             fetch = { emptyList() },
         )
 

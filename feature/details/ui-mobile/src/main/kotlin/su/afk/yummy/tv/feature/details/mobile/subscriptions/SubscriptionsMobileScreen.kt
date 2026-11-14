@@ -129,7 +129,7 @@ fun SubscriptionsMobileScreen(
             } else if (state.error != null && state.subscriptions.isEmpty()) {
                 item(key = "server_subscriptions_error") {
                     MobileMessage(
-                        title = state.error.asString(),
+                        title = state.error?.asString().orEmpty(),
                         icon = Icons.Filled.Warning,
                         actionLabel = stringResource(CoreR.string.common_retry),
                         onAction = { onEvent(SubscriptionsState.Event.RetrySelected) },

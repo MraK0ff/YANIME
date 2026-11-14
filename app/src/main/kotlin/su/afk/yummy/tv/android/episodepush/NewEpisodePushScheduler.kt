@@ -117,9 +117,11 @@ class NewEpisodePushScheduler @Inject constructor(
 
     private companion object {
         const val EPISODE_PUSH_WORK_NAME = "new_episode_push"
-        const val LIBRARY_EPISODE_PUSH_WORK_NAME = "library_episode_push"\n        const val TITLE_RELEASE_TRACKING_WORK_NAME = "title_release_tracking"
+        const val LIBRARY_EPISODE_PUSH_WORK_NAME = "library_episode_push"
+        const val TITLE_RELEASE_TRACKING_WORK_NAME = "title_release_tracking"
         const val EPISODE_PUSH_INTERVAL_HOURS = 3L
-        const val LIBRARY_EPISODE_PUSH_INTERVAL_HOURS = 3L\n        const val TITLE_RELEASE_TRACKING_INTERVAL_HOURS = 3L
+        const val LIBRARY_EPISODE_PUSH_INTERVAL_HOURS = 3L
+        const val TITLE_RELEASE_TRACKING_INTERVAL_HOURS = 3L
         const val EPISODE_PUSH_BACKOFF_MINUTES = 30L
     }
 }

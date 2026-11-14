@@ -124,7 +124,8 @@ class SubscriptionsViewModel @AssistedInject internal constructor(
                 title = details?.title?.takeIf { it.isNotBlank() }
                     ?: currentTracking?.title?.takeIf { it.isNotBlank() }
                     ?: "Аниме #$animeId",
-                isLocalTrackingLoading = false,\n                localTrackingAvailable = videosResult.isSuccess,
+                isLocalTrackingLoading = false,
+                localTrackingAvailable = videosResult.isSuccess,
                 availableDubbings = availableVideos.toTrackingDubbings().toImmutableList(),
             )
         }

@@ -51,6 +51,8 @@ data class YaniVideoDto(
     @SerialName("ep_title") val episodeTitle: String? = null,
     @SerialName("dub_title") val dubTitle: String? = null,
     @SerialName("player_title") val playerTitle: String? = null,
+    /** Время добавления видео на YummyAnime, а не дата выхода серии в Японии. */
+    val date: Long? = null,
     val poster: YaniPosterDto? = null,
 )
 

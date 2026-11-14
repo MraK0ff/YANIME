@@ -39,6 +39,15 @@ class NewEpisodePushScheduler @Inject constructor(
         )
     }
 
+    /** Device-local title subscriptions are independent from account/server subscriptions. */
+    fun scheduleTitleReleaseTracking() {
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            TITLE_RELEASE_TRACKING_WORK_NAME,
+            ExistingPeriodicWorkPolicy.KEEP,
+            createTitleReleaseTrackingRequest(),
+        )
+    }
+
     /**
      * Держит профильное задание в соответствии со входом: ставит при авторизации и снимает при
      * выходе. Работает, пока жив вызывающий scope. UPDATE, а не KEEP: у тех, кто уже ставил
@@ -88,6 +97,19 @@ class NewEpisodePushScheduler @Inject constructor(
             )
             .build()
 
+    private fun createTitleReleaseTrackingRequest() =
+        PeriodicWorkRequestBuilder<TitleReleaseTrackingWorker>(
+            repeatInterval = TITLE_RELEASE_TRACKING_INTERVAL_HOURS,
+            repeatIntervalTimeUnit = TimeUnit.HOURS,
+        )
+            .setConstraints(networkConstraints())
+            .setBackoffCriteria(
+                backoffPolicy = BackoffPolicy.EXPONENTIAL,
+                backoffDelay = EPISODE_PUSH_BACKOFF_MINUTES,
+                timeUnit = TimeUnit.MINUTES,
+            )
+            .build()
+
     private fun networkConstraints() =
         Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -95,9 +117,9 @@ class NewEpisodePushScheduler @Inject constructor(
 
     private companion object {
         const val EPISODE_PUSH_WORK_NAME = "new_episode_push"
-        const val LIBRARY_EPISODE_PUSH_WORK_NAME = "library_episode_push"
+        const val LIBRARY_EPISODE_PUSH_WORK_NAME = "library_episode_push"\n        const val TITLE_RELEASE_TRACKING_WORK_NAME = "title_release_tracking"
         const val EPISODE_PUSH_INTERVAL_HOURS = 3L
-        const val LIBRARY_EPISODE_PUSH_INTERVAL_HOURS = 3L
+        const val LIBRARY_EPISODE_PUSH_INTERVAL_HOURS = 3L\n        const val TITLE_RELEASE_TRACKING_INTERVAL_HOURS = 3L
         const val EPISODE_PUSH_BACKOFF_MINUTES = 30L
     }
 }

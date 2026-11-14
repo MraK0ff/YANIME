@@ -44,6 +44,8 @@ data class YaniRatingDto(
 @Serializable
 data class YaniVideoDto(
     @SerialName("video_id") val videoId: Int? = null,
+    /** Unix-время публикации видео в ленте YummyAnime. */
+    val date: Long? = null,
     @SerialName("anime_id") val animeId: Int? = null,
     @SerialName("anime_url") val animeUrl: String? = null,
     val title: String = "",

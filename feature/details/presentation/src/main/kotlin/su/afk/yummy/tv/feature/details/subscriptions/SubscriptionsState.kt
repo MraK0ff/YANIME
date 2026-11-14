@@ -28,7 +28,7 @@ class SubscriptionsState {
         val subscriptions: ImmutableList<SubscriptionOption> = persistentListOf(),
         val isSignedIn: Boolean = false,
         val title: String = "",
-        val isLocalTrackingLoading: Boolean = true,
+        val isLocalTrackingLoading: Boolean = true,\n        val localTrackingAvailable: Boolean = false,
         val isLocalTrackingEnabled: Boolean = false,
         val localTrackingMode: TitleReleaseTrackingMode = TitleReleaseTrackingMode.ALL,
         val availableDubbings: ImmutableList<TitleReleaseDubbingOption> = persistentListOf(),

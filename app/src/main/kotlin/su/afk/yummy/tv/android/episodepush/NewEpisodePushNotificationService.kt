@@ -49,6 +49,19 @@ class NewEpisodePushNotificationService @Inject constructor(
         )
     }
 
+    /** One stable notification per anime + episode, regardless of how many dubbings appear. */
+    fun showTrackedTitleEpisode(animeId: Int, title: String, episodeNumber: Int) {
+        val notificationId = TRACKED_TITLE_NOTIFICATION_ID_BASE +
+            ("$animeId:$episodeNumber".hashCode() and TRACKED_TITLE_NOTIFICATION_ID_MASK)
+        show(
+            channel = Channel.LIBRARY,
+            notificationId = notificationId,
+            title = title,
+            text = context.getString(R.string.title_release_push_text, episodeNumber),
+            animeId = animeId,
+        )
+    }
+
     private fun show(channel: Channel, notificationId: Int, title: String, text: String, animeId: Int?) {
         ensureChannel(channel)
         val builder = NotificationCompat.Builder(context, channel.id)
@@ -118,7 +131,7 @@ class NewEpisodePushNotificationService @Inject constructor(
 
     private companion object {
         const val NOTIFICATION_ID_BASE = 61_000
-        const val LIBRARY_NOTIFICATION_ID_BASE = 1_000_000
+        const val LIBRARY_NOTIFICATION_ID_BASE = 1_000_000\n        const val TRACKED_TITLE_NOTIFICATION_ID_BASE = 1_200_000_000\n        const val TRACKED_TITLE_NOTIFICATION_ID_MASK = 0x1fffffff
 
         const val CONTINUE_DEEP_LINK_PREFIX = "yanime://continue/"
         const val DETAILS_DEEP_LINK_PREFIX = "yanime://details/"

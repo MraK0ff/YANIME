@@ -779,6 +779,7 @@ class HomeViewModel @Inject internal constructor(
                     loadRecentlyAired()
                 },
                 onFailure = { e ->
+                    loadRecentlyAired()
                     analytics.eventLoadError(e)
                     setState {
                         copy(
@@ -840,6 +841,7 @@ class HomeViewModel @Inject internal constructor(
                     loadRecentlyAired()
                 },
                 onFailure = { e ->
+                    loadRecentlyAired()
                     analytics.eventLoadError(e)
                     if (!showInitialLoading) {
                         setEffect(

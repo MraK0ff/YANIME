@@ -260,7 +260,7 @@
     <string name="details_onboarding_subscriptions_title">Сповіщення про серії</string>
     <string name="details_onboarding_subscriptions_text">Підпишіться на озвучення, щоб дізнаватися про вихід нової серії.</string>
     <string name="details_local_tracking_title">Стежити за тайтлом</string>
-    <string name="details_local_tracking_description">Повідомимо один раз, коли нова звичайна серія вперше з’явиться у відповідній версії. Повторні публікації та альтернативні озвучення не дублюють сповіщення.</string>
+    <string name="details_local_tracking_description">Повідомимо про першу відповідну появу кожної нової звичайної серії. Альтернативні озвучення не дублюють сповіщення; для одного тайтлу діє обмеження — не частіше разу на 24 години.</string>
     <string name="details_local_tracking_enabled">Відстежувати нові серії</string>
     <string name="details_local_tracking_all">Усі варіанти</string>
     <string name="details_local_tracking_dubbing">Лише озвучення</string>

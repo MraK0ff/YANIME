@@ -258,4 +258,5 @@
     <string name="details_local_tracking_server_sign_in">Sign in to manage server-side subscriptions to individual dubbings.</string>
     <string name="details_server_subscriptions_title">Server subscriptions (individual dubbings)</string>
     <string name="details_mobile_subscription_episode_count">%1$d episodes available</string>
+    <string name="details_local_tracking_unavailable">Episode data is unavailable right now. Try again when online.</string>
 </resources>

@@ -270,4 +270,5 @@
     <string name="details_local_tracking_server_sign_in">Войдите, чтобы управлять серверными подписками на отдельные озвучки.</string>
     <string name="details_server_subscriptions_title">Подписки на отдельные озвучки</string>
     <string name="details_mobile_subscription_episode_count">Доступно серий: %1$d</string>
+    <string name="details_local_tracking_unavailable">Не удалось загрузить серии. Попробуйте ещё раз при подключении к сети.</string>
 </resources>

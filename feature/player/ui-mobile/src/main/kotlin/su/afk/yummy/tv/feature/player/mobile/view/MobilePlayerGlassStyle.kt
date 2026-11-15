@@ -32,6 +32,13 @@ internal fun Modifier.mobilePlayerGlassSurface(
     .background(fill)
     .border(1.dp, borderColor, shape)
 
+/**
+ * Backward-compatible default for controls that do not receive the measured player width.
+ * Prefer the width-aware overload whenever the parent has measured its available space.
+ */
+internal fun mobilePlayerControlButtonSize(primary: Boolean = false): Dp =
+    mobilePlayerControlButtonSize(availableWidth = 400.dp, primary = primary)
+
 internal fun mobilePlayerControlButtonSize(availableWidth: Dp, primary: Boolean = false): Dp =
     when {
         availableWidth >= 440.dp -> if (primary) 68.dp else MobilePlayerMinimumTouchTarget

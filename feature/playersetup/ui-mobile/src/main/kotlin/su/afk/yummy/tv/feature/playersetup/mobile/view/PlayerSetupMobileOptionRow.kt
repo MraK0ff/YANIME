@@ -27,7 +27,7 @@ internal fun PlayerSetupMobileOptionRow(
         enabled = enabled,
         leadingIcon = icon,
         valueIcon = valueIcon,
-        valueMaxWidthFraction = 0.4f,
+        valueMaxWidthFraction = null,
         valueMaxLines = 1,
     )
 }

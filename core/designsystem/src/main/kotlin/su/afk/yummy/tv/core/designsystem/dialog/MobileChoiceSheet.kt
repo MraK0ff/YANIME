@@ -137,7 +137,7 @@ private fun ChoiceActionRow(text: String, filled: Boolean, onClick: () -> Unit) 
     } else {
         TextButton(
             onClick = onClick,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().heightIn(min = YummySpacing.TouchTarget),
             shape = YummyShapeTokens.Control,
         ) {
             Text(text = text, style = MaterialTheme.typography.labelLarge)

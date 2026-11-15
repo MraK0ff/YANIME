@@ -69,7 +69,7 @@ private fun ConfirmRow(
     } else {
         TextButton(
             onClick = onClick,
-            modifier = Modifier.fillMaxWidth().testTag(testTag),
+            modifier = Modifier.fillMaxWidth().heightIn(min = YummySpacing.TouchTarget).testTag(testTag),
             shape = YummyShapeTokens.Control,
         ) {
             Text(text = text, style = MaterialTheme.typography.labelLarge)

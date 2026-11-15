@@ -79,7 +79,7 @@ fun ScheduleMobileScreen(
         selectedPage = dayGroups
             .indexOfFirst { it.date.toEpochDay() == schedule.selectedEpochDay }
             .coerceAtLeast(0),
-        pageCount = dayGroups.size.coerceAtLeast(1),
+        pageCount = dayGroups.size,
         onPageSelected = { page ->
             dayGroups.getOrNull(page)?.let {
                 onEvent(ScheduleState.Event.DateSelected(it.date.toEpochDay()))

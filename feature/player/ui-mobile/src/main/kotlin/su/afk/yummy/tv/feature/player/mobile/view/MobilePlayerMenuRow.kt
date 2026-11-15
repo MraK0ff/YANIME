@@ -61,7 +61,10 @@ internal fun MobilePlayerMenuRow(
         modifier = modifier
             .fillMaxWidth()
             .clip(shape)
-            .background(MaterialTheme.colorScheme.surfaceContainerLow)
+            .background(
+                if (isSelected) MaterialTheme.colorScheme.secondaryContainer
+                else MaterialTheme.colorScheme.surfaceContainerLow,
+            )
             .clickable(
                 role = if (trailing is MobilePlayerMenuRowTrailing.Toggle) Role.Switch else Role.Button,
                 onClickLabel = label,
@@ -106,7 +109,7 @@ internal fun MobilePlayerMenuRow(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+                )
             }
         }
         when (trailing) {
@@ -128,7 +131,10 @@ internal fun MobilePlayerMenuRow(
                 )
             }
 
-            is MobilePlayerMenuRowTrailing.Toggle -> Switch(checked = trailing.checked, onCheckedChange = null)
+            is MobilePlayerMenuRowTrailing.Toggle -> Switch(
+                checked = trailing.checked,
+                onCheckedChange = { onClick() },
+            )
             is MobilePlayerMenuRowTrailing.Choice, MobilePlayerMenuRowTrailing.None -> Unit
         }
     }

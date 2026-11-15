@@ -20,8 +20,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
 import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 @Composable
@@ -38,7 +38,6 @@ fun MobileSettingOptionRow(
     valueMaxWidthFraction: Float? = 0.4f,
     valueMaxLines: Int = 2,
 ) {
-
     BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()

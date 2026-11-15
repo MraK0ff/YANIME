@@ -101,7 +101,7 @@ internal fun CollectionsCatalogGrid(
                     .fillMaxSize()
                     .focusGroup(),
             ) {
-                item(span = { GridItemSpan(maxLineSpan) }) {
+                item(span = { GridItemSpan(maxLineSpan) }, contentType = "collections_catalog_header") {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -176,7 +176,7 @@ internal fun CollectionsCatalogGrid(
                 }
 
                 if (isLoadingMore) {
-                    item(span = { GridItemSpan(maxLineSpan) }) {
+                    item(span = { GridItemSpan(maxLineSpan) }, contentType = "loading_footer") {
                         TvLoadingFooter()
                     }
                 }

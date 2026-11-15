@@ -149,7 +149,11 @@ fun EpisodeDubbingsTvScreen(
                         modifier = Modifier.padding(bottom = 8.dp),
                     )
                 }
-                itemsIndexed(state.dubbings, key = { _, item -> item.name }) { index, dubbing ->
+                itemsIndexed(
+                    items = state.dubbings,
+                    key = { _, item -> item.name },
+                    contentType = { _, _ -> "episode_dubbing" },
+                ) { index, dubbing ->
                     DubbingRow(
                         dubbing = dubbing,
                         modifier = Modifier

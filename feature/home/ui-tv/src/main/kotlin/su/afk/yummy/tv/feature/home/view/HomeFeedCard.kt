@@ -135,7 +135,7 @@ internal fun HomeFeedCard(
                             .padding(6.dp)
                             .background(
                                 MaterialTheme.colorScheme.primary,
-                                RoundedCornerShape(4.dp),
+                                YummyShapeTokens.Compact,
                             )
                             .padding(horizontal = 6.dp, vertical = 3.dp),
                     )
@@ -172,7 +172,7 @@ internal fun HomeFeedCard(
                                 .padding(4.dp)
                                 .background(
                                     MaterialTheme.colorScheme.surface.copy(alpha = 0.88f),
-                                    RoundedCornerShape(4.dp),
+                                    YummyShapeTokens.Compact,
                                 )
                                 .padding(horizontal = 6.dp, vertical = 3.dp),
                         )

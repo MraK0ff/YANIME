@@ -21,6 +21,7 @@ import su.afk.yummy.tv.core.model.text.UiText
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.preferences.api.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.testing.BaseUnitTest
+import su.afk.yummy.tv.domain.schedule.model.AnimeEpisodeRelease
 import su.afk.yummy.tv.domain.schedule.model.AnimeScheduleDay
 import su.afk.yummy.tv.domain.schedule.model.AnimeScheduleItem
 import su.afk.yummy.tv.domain.schedule.repository.AnimeScheduleRepository
@@ -163,7 +164,7 @@ class ScheduleViewModelTest : BaseUnitTest() {
 
     @Test
     fun `yesterday release adds a yesterday tab without selecting it`() {
-        givenSchedule(day(previousEpochSeconds = NOW - 86_400L))
+        givenSchedule(day(videoReleases = listOf(release(episode = 3, publishedAt = NOW - 86_400L))))
 
         val timeline = createViewModel().currentState.tvSchedule
 
@@ -173,7 +174,7 @@ class ScheduleViewModelTest : BaseUnitTest() {
 
     @Test
     fun `releases older than yesterday are dropped`() {
-        givenSchedule(day(previousEpochSeconds = NOW - 2 * 86_400L))
+        givenSchedule(day(videoReleases = listOf(release(episode = 3, publishedAt = NOW - 2 * 86_400L))))
 
         assertEquals(1, createViewModel().currentState.tvSchedule.dayGroups.size)
     }
@@ -190,10 +191,19 @@ class ScheduleViewModelTest : BaseUnitTest() {
         const val DAY_1 = 1_900_000_000L
         const val DAY_2 = DAY_1 + 3 * 86_400L
 
+        fun release(episode: Int, publishedAt: Long) = AnimeEpisodeRelease(
+            animeId = 1,
+            episodeNumber = episode,
+            firstVideoAtSeconds = publishedAt,
+            firstVideoId = episode,
+            title = "anime",
+        )
+
         fun day(
             epochSeconds: Long = DAY_1,
             previousEpochSeconds: Long? = null,
             airedEpisodes: Int? = 3,
+            videoReleases: List<AnimeEpisodeRelease> = emptyList(),
         ) = AnimeScheduleDay(
             title = "day",
             items = listOf(
@@ -205,6 +215,7 @@ class ScheduleViewModelTest : BaseUnitTest() {
                     previousDateEpochSeconds = previousEpochSeconds,
                     airedEpisodes = airedEpisodes,
                     totalEpisodes = 12,
+                    videoReleases = videoReleases,
                 ),
             ),
         )

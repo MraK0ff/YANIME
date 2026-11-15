@@ -14,6 +14,7 @@ dependencies {
     implementation(project(":core:storage"))
     implementation(project(":core:utils"))
     implementation(project(":feature:schedule:domain"))
+    implementation(project(":feature:home:data"))
 
     implementation(libs.kotlinx.serialization.json)
 }

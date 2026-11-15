@@ -18,6 +18,7 @@ import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressEntry
 import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStorage
 import su.afk.yummy.tv.core.testing.BaseUnitTest
 import su.afk.yummy.tv.data.home.network.YaniHomeApi
+import su.afk.yummy.tv.domain.schedule.repository.AnimeScheduleRepository
 
 /** Только [YaniHomeFeedRepository.observeWatchedEpisodes]: остальные зависимости не участвуют. */
 class YaniHomeFeedRepositoryWatchedEpisodesTest : BaseUnitTest() {
@@ -30,6 +31,7 @@ class YaniHomeFeedRepositoryWatchedEpisodesTest : BaseUnitTest() {
     private val watchProgressStore: WatchProgressStorage = mockk()
     private val animeStorage: AnimeStorage = mockk()
     private val analyticsTracker: AnalyticsTracker = mockk(relaxed = true)
+    private val scheduleRepository: AnimeScheduleRepository = mockk(relaxed = true)
     private val watched = mutableListOf<WatchProgressEntry>()
 
     @Before
@@ -79,6 +81,7 @@ class YaniHomeFeedRepositoryWatchedEpisodesTest : BaseUnitTest() {
         watchProgressStore = watchProgressStore,
         animeStorage = animeStorage,
         analyticsTracker = analyticsTracker,
+        scheduleRepository = scheduleRepository,
     )
 
     private fun progress(animeId: Int, episode: String) = WatchProgressEntry(

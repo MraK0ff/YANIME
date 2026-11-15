@@ -161,6 +161,7 @@ fun CollectionsCatalogMobileScreen(
                 items(
                     count = pagingItems.itemCount,
                     key = pagingItems.safeItemKey("collection") { it.id },
+                    contentType = { "collection" },
                 ) { index ->
                     pagingItems.getOrNull(index)?.let { item ->
                         MobileCollectionCard(

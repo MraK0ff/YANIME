@@ -1,5 +1,6 @@
 package su.afk.yummy.tv.feature.player.mobile.view
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
@@ -40,7 +42,7 @@ internal sealed interface MobilePlayerMenuRowTrailing {
     data object None : MobilePlayerMenuRowTrailing
 }
 
-/** Строка единого меню настроек в стиле YouTube: иконка, название, значение/переключатель справа. */
+/** Выразительная строка настроек: отдельная tonal-иконка, крупная зона нажатия и ясное состояние. */
 @Composable
 internal fun MobilePlayerMenuRow(
     label: String,
@@ -51,28 +53,45 @@ internal fun MobilePlayerMenuRow(
     /** Поясняющая строка под названием (мельче и приглушённее). */
     subtitle: String? = null,
 ) {
+    val shape = RoundedCornerShape(20.dp)
+    val iconShape = RoundedCornerShape(14.dp)
+    val isSelected = trailing is MobilePlayerMenuRowTrailing.Choice && trailing.selected
+
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clip(MobilePlayerInteractiveShape)
+            .clip(shape)
+            .background(MaterialTheme.colorScheme.surfaceContainerLow)
             .clickable(
                 role = if (trailing is MobilePlayerMenuRowTrailing.Toggle) Role.Switch else Role.Button,
                 onClickLabel = label,
                 onClick = onClick,
             )
-            .heightIn(min = MobilePlayerMinimumTouchTarget)
-            .padding(horizontal = 12.dp, vertical = 8.dp),
+            .heightIn(min = 64.dp)
+            .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        // Колонка иконки есть у всех строк, чтобы заголовки стояли в одну линию (и в списках выбора).
-        Box(modifier = Modifier.size(28.dp), contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(iconShape)
+                .background(
+                    if (isSelected) MaterialTheme.colorScheme.primaryContainer
+                    else MaterialTheme.colorScheme.surfaceContainerHighest,
+                ),
+            contentAlignment = Alignment.Center,
+        ) {
             when {
-                icon != null -> Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface)
-                trailing is MobilePlayerMenuRowTrailing.Choice && trailing.selected -> Icon(
+                isSelected -> Icon(
                     Icons.Filled.Check,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+                icon != null -> Icon(
+                    icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
@@ -87,7 +106,7 @@ internal fun MobilePlayerMenuRow(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+            )
             }
         }
         when (trailing) {

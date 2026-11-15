@@ -3,15 +3,15 @@ package su.afk.yummy.tv.feature.home.mobile.view
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.designsystem.mobile.cards.MobilePosterCard
 import su.afk.yummy.tv.core.model.anime.posterUrls
 import su.afk.yummy.tv.domain.home.model.HomeFeedItem
@@ -47,12 +47,12 @@ internal fun HomeItemCard(
                         color = MaterialTheme.colorScheme.inverseSurface,
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
-                            .padding(4.dp)
+                            .padding(YummySpacing.XSmall)
                             .background(
                                 MaterialTheme.colorScheme.inverseOnSurface,
-                                RoundedCornerShape(4.dp),
+                                YummyShapeTokens.Compact,
                             )
-                            .padding(horizontal = 6.dp, vertical = 3.dp),
+                            .padding(horizontal = YummySpacing.Small - 2.dp, vertical = YummySpacing.XSmall - 1.dp),
                     )
                 }
             }

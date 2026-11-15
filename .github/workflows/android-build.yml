@@ -13,9 +13,8 @@ permissions:
 # Separate concurrency per ref: a new run cancels only an older run on the same ref.
 concurrency:
   group: yanime-optimized-build-${{ github.ref }}
-  # Never kill an active build: Gradle cache is saved during the post-job step.
-  # Keep one active run per branch and let newer commits wait their turn.
-  cancel-in-progress: false
+  # Only the newest commit on a branch needs an APK; cancel stale builds to save runner time.
+  cancel-in-progress: true
 
 jobs:
   build:

@@ -120,11 +120,10 @@ internal fun DetailsMobileHero(
                 Icon(
                     imageVector = Icons.Filled.Search,
                     contentDescription = stringResource(DetailsR.string.details_new_search),
-                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.92f),
-                )
+                    )
             }
             if (canShare) {
-                IconButton(
+                FilledTonalIconButton(
                     onClick = onShare,
                     modifier = Modifier.size(52.dp),
                 ) {
@@ -135,7 +134,7 @@ internal fun DetailsMobileHero(
                 }
             }
         }
-        IconButton(
+        FilledTonalIconButton(
             onClick = onBack,
             modifier = Modifier
                 .align(Alignment.TopStart)

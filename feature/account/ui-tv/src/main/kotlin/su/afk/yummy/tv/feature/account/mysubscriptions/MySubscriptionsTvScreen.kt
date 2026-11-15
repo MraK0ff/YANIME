@@ -105,7 +105,7 @@ private fun MySubscriptionsGrid(
                     .fillMaxSize()
                     .focusGroup(),
             ) {
-                item(span = { GridItemSpan(maxLineSpan) }) {
+                item(span = { GridItemSpan(maxLineSpan) }, contentType = "subscriptions_header") {
                     Text(
                         text = stringResource(R.string.account_my_subscriptions),
                         style = MaterialTheme.typography.headlineMedium,
@@ -145,6 +145,7 @@ private inline fun LazyGridScope.itemsIndexedSubscriptions(
             val item = state.subscriptions[index]
             SubscriptionKeys.animePlayerKey(item.animeId, item.playerId, item.player)
         },
+        contentType = { "subscription_title" },
     ) { index ->
         val subscription = state.subscriptions[index]
         TvTitleCard(

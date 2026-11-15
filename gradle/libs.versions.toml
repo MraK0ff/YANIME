@@ -21,7 +21,7 @@ jetbrains-navigation3 = "1.2.0"
 
 # Compose
 androidx-composeBom = "2026.09.00"
-material3 = "1.4.0"
+material3 = "1.5.0-rc01"
 
 # DI / Codegen
 hilt = "2.60.1"

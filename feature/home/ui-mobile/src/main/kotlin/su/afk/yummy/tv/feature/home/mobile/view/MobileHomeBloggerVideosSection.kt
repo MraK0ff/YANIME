@@ -42,7 +42,11 @@ internal fun MobileHomeBloggerVideosSection(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 16.dp),
         ) {
-            items(videos, key = { lazyKey("bloggervideo", it.id) }) { video ->
+            items(
+                items = videos,
+                key = { lazyKey("bloggervideo", it.id) },
+                contentType = { "blogger_video" },
+            ) { video ->
                 ElevatedCard(
                     shape = MaterialTheme.shapes.medium,
                     colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),

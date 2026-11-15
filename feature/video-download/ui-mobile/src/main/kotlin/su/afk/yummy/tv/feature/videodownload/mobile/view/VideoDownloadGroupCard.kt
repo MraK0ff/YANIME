@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
@@ -29,10 +28,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.components.FallbackAsyncImage
 import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.feature.videodownload.mobile.utils.formatDiskSize
 import su.afk.yummy.tv.feature.videodownload.mobile.utils.visibleProgress
 import su.afk.yummy.tv.feature.videodownload.model.VideoDownloadGroup
@@ -57,10 +58,10 @@ internal fun VideoDownloadGroupCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable(onClick = onToggle)
-                .padding(start = 12.dp, top = 10.dp, bottom = 10.dp, end = 4.dp),
+                .clickable(role = Role.Button, onClick = onToggle)
+                .padding(start = YummySpacing.Medium, top = YummySpacing.Small + YummySpacing.XSmall, bottom = YummySpacing.Small + YummySpacing.XSmall, end = YummySpacing.XSmall),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
         ) {
             FallbackAsyncImage(
                 models = listOfNotNull(group.posterUrl.takeIf { it.isNotBlank() }),
@@ -72,7 +73,7 @@ internal fun VideoDownloadGroupCard(
             )
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(YummySpacing.XSmall),
             ) {
                 Text(
                     text = group.title,
@@ -127,8 +128,8 @@ internal fun VideoDownloadGroupCard(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                    .padding(start = YummySpacing.Small, end = YummySpacing.Small, bottom = YummySpacing.Small),
+                verticalArrangement = Arrangement.spacedBy(YummySpacing.Small),
                 content = episodes,
             )
         }

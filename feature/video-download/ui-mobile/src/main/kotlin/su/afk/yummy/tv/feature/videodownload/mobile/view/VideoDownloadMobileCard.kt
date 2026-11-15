@@ -1,7 +1,6 @@
 package su.afk.yummy.tv.feature.videodownload.mobile.view
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
@@ -39,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.components.FallbackAsyncImage
 import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
 import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.model.anime.EpisodeFlags
 import su.afk.yummy.tv.core.utils.episode.episodeThumbnailModels
 import su.afk.yummy.tv.core.utils.episode.episodeThumbnailOf
@@ -122,14 +121,14 @@ internal fun VideoDownloadMobileCard(
                     color = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier
                         .align(Alignment.TopStart)
-                        .padding(8.dp)
-                        .background(MaterialTheme.colorScheme.primary, CircleShape)
-                        .padding(horizontal = 7.dp, vertical = 3.dp),
+                        .padding(YummySpacing.Small)
+                        .background(MaterialTheme.colorScheme.primary, YummyShapeTokens.Pill)
+                        .padding(horizontal = YummySpacing.Small, vertical = YummySpacing.XSmall),
                 )
                 if (flags != null) {
                     VideoDownloadEpisodeFlagBadge(
                         flags = flags,
-                        modifier = Modifier.align(Alignment.BottomStart).padding(8.dp),
+                        modifier = Modifier.align(Alignment.BottomStart).padding(YummySpacing.Small),
                     )
                 }
                 // Зелёная точка: серия уже выгружена в папку экспорта
@@ -137,7 +136,7 @@ internal fun VideoDownloadMobileCard(
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .padding(8.dp)
+                            .padding(YummySpacing.Small)
                             .size(10.dp)
                             .background(DownloadActiveColor, CircleShape),
                     )
@@ -169,12 +168,12 @@ internal fun VideoDownloadMobileCard(
             Row(
                 modifier = Modifier
                     .weight(0.58f)
-                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                    .padding(horizontal = YummySpacing.Medium, vertical = YummySpacing.Small + YummySpacing.XSmall),
                 verticalAlignment = Alignment.Top,
             ) {
                 Column(
                     modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                    verticalArrangement = Arrangement.spacedBy(YummySpacing.XSmall),
                 ) {
                     Text(
                         text = stringResource(

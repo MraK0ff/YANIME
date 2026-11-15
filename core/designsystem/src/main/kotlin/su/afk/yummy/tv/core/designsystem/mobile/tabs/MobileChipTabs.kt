@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlin.math.ceil
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 /**
  * Компактные вкладки ровной сеткой: все видны сразу, ячейки одинаковой ширины
@@ -60,7 +61,6 @@ fun <K> MobileChipTabs(
                             modifier = Modifier.weight(1f),
                         )
                     }
-                    // Неполная строка: держим ширину колонок как в остальных.
                     repeat(columns - row.size) { Spacer(Modifier.weight(1f)) }
                 }
             }
@@ -86,11 +86,13 @@ private fun <K> MobileChipTabItem(
 ) {
     val contentColor = if (selected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
     Surface(
-        modifier = modifier.selectable(
-            selected = selected,
-            onClick = onClick,
-            role = Role.Tab,
-        ),
+        modifier = modifier
+            .heightIn(min = YummySpacing.TouchTarget)
+            .selectable(
+                selected = selected,
+                onClick = onClick,
+                role = Role.Tab,
+            ),
         shape = MaterialTheme.shapes.large,
         color = if (selected) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
         contentColor = contentColor,

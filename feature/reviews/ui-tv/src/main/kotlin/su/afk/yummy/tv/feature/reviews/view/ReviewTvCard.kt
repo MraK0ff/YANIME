@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.ThumbDown
@@ -40,6 +39,7 @@ import coil3.compose.AsyncImage
 import su.afk.yummy.tv.core.designsystem.focus.tvFocusableClick
 import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
 import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.utils.formatting.htmlToPlainText
 import su.afk.yummy.tv.core.utils.formatting.toCompactCount
 import su.afk.yummy.tv.domain.reviews.model.AnimeReviewSummary
@@ -89,8 +89,8 @@ internal fun ReviewTvCard(
                 modifier = Modifier
                     .weight(1f)
                     .heightIn(min = 190.dp)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
+                    .padding(YummySpacing.Large),
+                verticalArrangement = Arrangement.spacedBy(YummySpacing.Small),
             ) {
                 if (showAnime && review.animeTitle.isNotBlank()) {
                     Text(
@@ -127,13 +127,13 @@ internal fun ReviewTvCard(
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
         Column(
-            modifier = Modifier.padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(9.dp),
+            modifier = Modifier.padding(YummySpacing.Medium),
+            verticalArrangement = Arrangement.spacedBy(YummySpacing.Small),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(YummySpacing.Small),
             ) {
                 AsyncImage(
                     model = review.author.avatarUrl,
@@ -141,7 +141,7 @@ internal fun ReviewTvCard(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(42.dp)
-                        .clip(RoundedCornerShape(8.dp)),
+                        .clip(YummyShapeTokens.Control),
                 )
                 Column(Modifier.weight(1f)) {
                     Text(
@@ -162,7 +162,7 @@ internal fun ReviewTvCard(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                horizontalArrangement = Arrangement.spacedBy(YummySpacing.XSmall),
             ) {
                 ReviewMetric(
                     icon = Icons.Filled.Visibility,
@@ -194,9 +194,9 @@ private fun ReviewMetric(
     emphasized: Boolean = false,
 ) {
     Row(
-        modifier = Modifier.padding(horizontal = 9.dp, vertical = 7.dp),
+        modifier = Modifier.padding(horizontal = YummySpacing.Medium, vertical = YummySpacing.Small),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(5.dp),
+        horizontalArrangement = Arrangement.spacedBy(YummySpacing.XSmall),
     ) {
         Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(19.dp))
         Text(
@@ -218,10 +218,10 @@ private fun ReviewScoreBadge(score: Int) {
     Surface(
         color = color,
         contentColor = YummySemanticColors.OnScoreBadge,
-        shape = RoundedCornerShape(8.dp)
+        shape = YummyShapeTokens.Control
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
+            modifier = Modifier.padding(horizontal = YummySpacing.Medium, vertical = YummySpacing.Small),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(5.dp),
         ) {

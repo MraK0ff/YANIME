@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Article
 import androidx.compose.material3.Card
@@ -31,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.components.CachedAsyncImage
 import su.afk.yummy.tv.core.designsystem.focus.tvFocusableClick
 import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.utils.formatting.formatFeedDateTime
 import su.afk.yummy.tv.domain.posts.model.PostSummary
 
@@ -62,8 +62,8 @@ fun PostTvCard(post: PostSummary, onClick: () -> Unit, modifier: Modifier = Modi
                 Modifier
                     .weight(1f)
                     .fillMaxHeight()
-                    .padding(horizontal = 24.dp, vertical = 20.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                    .padding(horizontal = YummySpacing.XXLarge, vertical = YummySpacing.XLarge),
+                verticalArrangement = Arrangement.spacedBy(YummySpacing.Small),
             ) {
                 Text(
                     post.category.title,

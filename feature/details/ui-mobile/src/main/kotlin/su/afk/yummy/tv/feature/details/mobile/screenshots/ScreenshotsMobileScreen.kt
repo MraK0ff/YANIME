@@ -87,6 +87,7 @@ fun ScreenshotsMobileScreen(
                 itemsIndexed(
                     items = state.screenshots,
                     key = { index, screenshot -> screenshot.screenshotLazyKey(index) },
+                    contentType = { _, _ -> "screenshot" },
                 ) { index, screenshot ->
                     ScreenshotMobileCard(
                         screenshot = screenshot,

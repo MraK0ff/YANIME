@@ -143,13 +143,22 @@ fun ReviewDetailsMobileScreen(
                         }
                     }
                 }
-                items(blocks, key = { it.id }) { block ->
+                items(
+                    items = blocks,
+                    key = { it.id },
+                    contentType = {
+                        when (it) {
+                            is ReviewContentBlock.Image -> "review_image"
+                            is ReviewContentBlock.Paragraph -> "review_paragraph"
+                        }
+                    },
+                ) { block ->
                     when (block) {
                         is ReviewContentBlock.Image -> ReviewMobileRemoteImage(block.url, block.alt)
                         is ReviewContentBlock.Paragraph -> ReviewMobileRichParagraph(block)
                     }
                 }
-                item {
+                item(contentType = "review_reactions") {
                     ReviewReactionsCard(
                         reactions = review.reactions,
                         onVote = { onEvent(ReviewDetailsState.Event.VoteSelected(it)) },

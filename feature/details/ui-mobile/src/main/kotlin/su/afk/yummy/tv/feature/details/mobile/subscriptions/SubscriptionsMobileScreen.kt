@@ -99,7 +99,11 @@ fun SubscriptionsMobileScreen(
                 contentPadding = PaddingValues(bottom = 4.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(state.subscriptions, key = { it.key }) { option ->
+                items(
+                    items = state.subscriptions,
+                    key = { it.key },
+                    contentType = { "subscription_option" },
+                ) { option ->
                     SubscriptionMobileRow(
                         option = option,
                         onClick = {

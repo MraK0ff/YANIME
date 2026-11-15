@@ -2,6 +2,7 @@ package su.afk.yummy.tv.core.designsystem.mobile.cards
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
@@ -45,7 +46,7 @@ fun MobileTitleListCard(
             .clip(YummyShapeTokens.Card)
             .background(MaterialTheme.colorScheme.surfaceContainerLow)
             .clickablePointer()
-            .clickable(onClick = onClick),
+            .clickable(role = Role.Button, onClick = onClick),
     ) {
         TitleListRowContent(
             item = item,

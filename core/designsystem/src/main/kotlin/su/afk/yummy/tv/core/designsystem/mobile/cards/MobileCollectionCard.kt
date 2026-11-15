@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.core.designsystem.mobile.cards
 
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -38,7 +39,7 @@ fun MobileCollectionCard(
         Column(
             Modifier
                 .clickablePointer()
-                .combinedClickable(onClick = onClick),
+                .combinedClickable(onClick = onClick, role = Role.Button),
         ) {
             PostersCollage(
                 posterUrls = posterUrls,

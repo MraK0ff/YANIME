@@ -9,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 @Composable
@@ -19,7 +20,7 @@ internal fun AccountMobileSurfacePanel(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clip(MaterialTheme.shapes.extraLarge)
+            .clip(YummyShapeTokens.Card)
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .padding(YummySpacing.XLarge),
         content = content,

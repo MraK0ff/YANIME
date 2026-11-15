@@ -2,7 +2,7 @@
 
 Дата фиксации аудита: 2026-11-15  
 Ветка: `feature/material3-expressive`  
-Аудируемый HEAD: `e234ed26daabc81c892014a98db3f889d723c382`
+Аудируемый HEAD: `31e9e5f024d9b4f1d13cb0a7b07415ec440e694a`
 
 Этот документ фиксирует проверенные факты до дальнейшей модернизации. Он не означает, что все перечисленные системы уже завершены или прошли runtime-проверку.
 
@@ -156,3 +156,16 @@ Workflow: `.github/workflows/android-build.yml`.
 - Промежуточные запуски отменялись последующими push в ту же ветку; дальнейшие изменения следует группировать крупнее и проверять один итоговый запуск.
 
 Этот проход повышает предсказуемость Compose lazy layouts, но не заменяет runtime-проверку на Android TV и мобильных устройствах, Macrobenchmark и проверку восстановления фокуса при реальных обновлениях данных.
+
+
+## 11. Общие компоненты и токены форм — 2026-11-15
+
+Продолжен аудит общих компонентов дизайн-системы:
+- MobilePosterCard и MobileTitleRowCard используют семантическую роль Button и общие shape/spacing tokens.
+- TvTitleCard использует общий TV focus/click контракт и YummyShapeTokens.Card.
+- MobileSettingToggleRow использует единый toggleable semantics Role.Switch, а вложенный Switch не создаёт дублирующее accessibility-действие.
+- MobileSettingOptionRow предоставляет Role.Button и учитывает disabled state.
+- TvChip использует Role.Tab, selected state и TV focus feedback.
+- StateMessage и TvRetryButton приведены к общим YummyShapeTokens/YummySpacing вместо локально заданных размеров и геометрии.
+
+Не добавлялись искусственные accessibility-обёртки поверх уже корректных semantics. Следующие проверки должны включать TalkBack и реальное управление D-pad, поскольку чтение исходников не заменяет runtime-аудит.

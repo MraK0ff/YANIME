@@ -21,7 +21,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.foundation.shape.CircleShape
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -47,7 +47,7 @@ fun StateMessage(
     Column(
         modifier = modifier
             .then(if (fillMaxSize) Modifier.fillMaxSize() else Modifier.fillMaxWidth())
-            .padding(horizontal = 32.dp, vertical = if (fillMaxSize) 40.dp else 24.dp),
+            .padding(horizontal = YummySpacing.XXXLarge, vertical = if (fillMaxSize) YummySpacing.Section else YummySpacing.XXLarge),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -55,7 +55,7 @@ fun StateMessage(
             SeasonalEmptyIllustration(Modifier.size(iconSize * 2))
         } else {
             Surface(
-                shape = CircleShape,
+                shape = YummyShapeTokens.Pill,
                 color = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
             ) {
@@ -64,7 +64,7 @@ fun StateMessage(
                 }
             }
         }
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(YummySpacing.XLarge))
         Text(
             text = title,
             style = MaterialTheme.typography.headlineSmallEmphasized,
@@ -72,7 +72,7 @@ fun StateMessage(
             textAlign = TextAlign.Center,
         )
         if (!description.isNullOrBlank()) {
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(YummySpacing.Small))
             Text(
                 description,
                 style = MaterialTheme.typography.bodyMedium,
@@ -82,7 +82,7 @@ fun StateMessage(
         }
         when {
             action != null -> {
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(YummySpacing.XLarge))
                 action()
             }
 

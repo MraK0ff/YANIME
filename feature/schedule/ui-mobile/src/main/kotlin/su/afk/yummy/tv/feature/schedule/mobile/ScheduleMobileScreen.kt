@@ -4,8 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -26,6 +26,7 @@ import su.afk.yummy.tv.core.designsystem.mobile.bar.MobileTopBar
 import su.afk.yummy.tv.core.designsystem.mobile.layout.mobileContentMaxWidth
 import su.afk.yummy.tv.core.designsystem.mobile.rememberMobileSwipeableTabsState
 import su.afk.yummy.tv.core.designsystem.mobile.state.MobileMessage
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.designsystem.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.core.model.ErrorItem
 import su.afk.yummy.tv.core.model.text.UiText
@@ -71,7 +72,6 @@ fun ScheduleMobileScreen(
     state: ScheduleState.State,
     effect: Flow<ScheduleState.Effect>,
     onEvent: (ScheduleState.Event) -> Unit,
-
 ) {
     val schedule = state.tvSchedule
     val dayGroups = schedule.dayGroups
@@ -153,12 +153,12 @@ private fun ScheduleDayReleases(
             .mobileContentMaxWidth()
             .fillMaxSize(),
         contentPadding = PaddingValues(
-            start = 16.dp,
-            top = 10.dp,
-            end = 16.dp,
+            start = YummySpacing.Large,
+            top = YummySpacing.Small,
+            end = YummySpacing.Large,
             bottom = MobileBottomBarDefaults.contentBottomPadding,
         ),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
     ) {
         items(group.items, key = { it.focusKey }) { release ->
             ScheduleMobileReleaseCard(

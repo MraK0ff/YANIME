@@ -52,7 +52,7 @@ fun MobileSettingSection(
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(YummySpacing.XSmall / 2),
-                content = content,
+                content = { content() },
             )
         }
     }

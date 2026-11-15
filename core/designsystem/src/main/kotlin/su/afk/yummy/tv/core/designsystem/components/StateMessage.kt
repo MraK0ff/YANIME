@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -27,6 +28,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 @Composable
 fun StateMessage(
@@ -49,7 +51,6 @@ fun StateMessage(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        // Пустое состояние (без кнопки действия, то есть не ошибка с повтором) на Хэллоуин — призрак.
         if (onAction == null && action == null && rememberSeasonalTheme() == SeasonalTheme.HALLOWEEN) {
             SeasonalEmptyIllustration(Modifier.size(iconSize * 2))
         } else {
@@ -76,7 +77,7 @@ fun StateMessage(
                 description,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
         }
         when {
@@ -87,10 +88,13 @@ fun StateMessage(
 
             actionLabel != null && onAction != null -> {
                 Spacer(Modifier.height(20.dp))
-                Button(onClick = onAction) {
+                Button(
+                    onClick = onAction,
+                    modifier = Modifier.heightIn(min = YummySpacing.TouchTarget),
+                ) {
                     Text(
                         actionLabel,
-                        style = MaterialTheme.typography.labelLarge
+                        style = MaterialTheme.typography.labelLarge,
                     )
                 }
             }

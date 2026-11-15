@@ -45,6 +45,10 @@ fun MobileSettingOptionRow(
             .clickable(enabled = enabled, onClick = onClick, role = Role.Button)
             .padding(horizontal = YummySpacing.Large, vertical = YummySpacing.Medium),
     ) {
+        // Capture BoxWithConstraints values before entering nested layout scopes.
+        val safeMaxWidthFraction = valueMaxWidthFraction?.coerceIn(0f, 1f)
+        val valueMaxWidth = safeMaxWidthFraction?.let { maxWidth * it }
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -73,9 +77,8 @@ fun MobileSettingOptionRow(
                     tint = valueColor ?: MaterialTheme.colorScheme.primary,
                 )
             } else {
-                val safeMaxWidthFraction = valueMaxWidthFraction?.coerceIn(0f, 1f)
-                val valueModifier = if (safeMaxWidthFraction != null) {
-                    Modifier.widthIn(max = maxWidth * safeMaxWidthFraction)
+                val valueModifier = if (valueMaxWidth != null) {
+                    Modifier.widthIn(max = valueMaxWidth)
                 } else {
                     Modifier
                 }

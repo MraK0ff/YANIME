@@ -159,7 +159,7 @@ fun BloggerVideosListTvScreen(
                 ) {
                     items(
                         videos.itemCount,
-                        key = { index -> lazyKey("bloggervideo", videos[index]?.id) },
+                        key = { index -> lazyKey("bloggervideo", videos[index]?.id, index) },
                         contentType = { "blogger_video" },
                     ) { index ->
                         videos[index]?.let { video ->

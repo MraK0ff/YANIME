@@ -102,8 +102,8 @@ fun MobilePosterCard(
                         modifier = Modifier
                             .align(Alignment.TopStart)
                             .padding(YummySpacing.Small)
-                            .background(MaterialTheme.colorScheme.primary, MaterialTheme.shapes.extraSmall)
-                            .padding(horizontal = 8.dp, vertical = 3.dp),
+                            .background(MaterialTheme.colorScheme.primary, YummyShapeTokens.Control)
+                            .padding(horizontal = YummySpacing.Small, vertical = YummySpacing.XSmall),
                     )
                 }
                 rating?.takeIf { it > 0.0 }?.let { value ->
@@ -151,7 +151,7 @@ fun MobilePosterCard(
                     )
                 }
                 if (!caption.isNullOrBlank() || captionMinLines > 1) {
-                    Spacer(Modifier.height(4.dp))
+                    Spacer(Modifier.height(YummySpacing.XSmall))
                     Text(
                         text = caption.orEmpty(),
                         minLines = captionMinLines,

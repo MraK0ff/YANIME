@@ -37,12 +37,12 @@ internal fun <T> MobileMainNavigationBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceContainerLow)
+            .background(containerColor)
             .navigationBarsPadding(),
     ) {
         NavigationBar(
             modifier = Modifier.height(MobileBottomBarDefaults.BarHeight),
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            containerColor = containerColor,
             tonalElevation = 0.dp,
             windowInsets = WindowInsets(0.dp),
         ) {

@@ -20,6 +20,7 @@ import su.afk.yummy.tv.core.designsystem.mobile.input.clickablePointer
 import su.afk.yummy.tv.core.designsystem.seasonal.seasonalNavigationRailItemColors
 import su.afk.yummy.tv.core.designsystem.seasonal.seasonalRailItemDecor
 import su.afk.yummy.tv.core.designsystem.seasonal.seasonalSideMenuDecor
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.feature.main.mobile.model.MobileMenuItem
 
 /** Рейка для широких окон: те же вкладки, что в нижнем баре, по центру по вертикали. */
@@ -60,4 +61,4 @@ internal fun <T> MobileMainNavigationRail(
     }
 }
 
-private val RailItemSpacing = 12.dp
+private val RailItemSpacing = YummySpacing.Medium

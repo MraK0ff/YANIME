@@ -153,7 +153,7 @@ fun CollectionMobileScreen(
             singleColumn = state.titleCardLayout == TitleCardLayout.ROW,
         ) {
             if (collection != null) {
-                item(span = { GridItemSpan(maxLineSpan) }) {
+                item(span = { GridItemSpan(maxLineSpan) }, contentType = "collection_header") {
                     CollectionMobileHeader(
                         collection = collection,
                         isOwner = state.isOwner,
@@ -162,7 +162,7 @@ fun CollectionMobileScreen(
                         onDelete = { onEvent(CollectionState.Event.DeleteSelected) },
                     )
                 }
-                item(span = { GridItemSpan(maxLineSpan) }) {
+                item(span = { GridItemSpan(maxLineSpan) }, contentType = "collection_engagement") {
                     CollectionEngagementPanel(
                         collection = collection,
                         voting = state.isVoteLoading,
@@ -171,7 +171,11 @@ fun CollectionMobileScreen(
                         modifier = Modifier.padding(bottom = 4.dp),
                     )
                 }
-                items(collection.animes, key = { lazyKey("collectionanime", it.id) }) { item ->
+                items(
+                    items = collection.animes,
+                    key = { lazyKey("collectionanime", it.id) },
+                    contentType = { if (state.titleCardLayout == TitleCardLayout.ROW) "title_row" else "poster" },
+                ) { item ->
                     if (state.titleCardLayout == TitleCardLayout.ROW) {
                         MobileTitleRowCard(
                             title = item.title,

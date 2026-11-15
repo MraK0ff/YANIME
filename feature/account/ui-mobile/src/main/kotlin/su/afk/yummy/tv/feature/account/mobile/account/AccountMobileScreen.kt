@@ -248,10 +248,10 @@ fun AccountMobileScreen(
                 ),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                item(key = "quick_actions") {
+                item(key = "quick_actions", contentType = "account_quick_actions") {
                     AccountMobileQuickActionsGrid(actions = quickActions)
                 }
-                item {
+                item(key = "login_card", contentType = "account_login_card") {
                     AccountMobileLoginCard(state = state, onEvent = onEvent)
                 }
             }
@@ -351,7 +351,7 @@ fun AccountMobileScreen(
                 contentPadding = PaddingValues(bottom = MobileBottomBarDefaults.contentBottomPadding),
                 verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
-                item(key = "profile") {
+                item(key = "profile", contentType = "account_profile") {
                     // Баннер остаётся под статус-баром, плашка лежит поверх него, а кнопки и аватар сдвинуты вниз.
                     var bannerHeightPx by remember { mutableIntStateOf(0) }
                     Box {
@@ -372,13 +372,13 @@ fun AccountMobileScreen(
                         }
                     }
                 }
-                item(key = "quick_actions") {
+                item(key = "quick_actions", contentType = "account_quick_actions") {
                     AccountMobileQuickActionsGrid(
                         actions = quickActions,
                         modifier = Modifier.padding(horizontal = 16.dp),
                     )
                 }
-                item(key = "tabs") {
+                item(key = "tabs", contentType = "account_tabs") {
                     AccountMobileTabs(
                         modifier = Modifier.padding(horizontal = 16.dp),
                         selected = state.selectedTab,
@@ -388,7 +388,7 @@ fun AccountMobileScreen(
                 }
                 // Ошибку открытия уведомления показываем тостом, а не блоком с «Повторить».
                 if (state.hubError != null && state.hubError != AccountUiError.OPEN_NOTIFICATION_FAILED) {
-                    item(key = "hub_error") {
+                    item(key = "hub_error", contentType = "error_banner") {
                         state.hubError.accountErrorMessage()?.let { error ->
                             MobileMessage(
                                 modifier = Modifier.padding(horizontal = 16.dp),
@@ -402,7 +402,7 @@ fun AccountMobileScreen(
                         }
                     }
                 }
-                item(key = "tabs_pager") {
+                item(key = "tabs_pager", contentType = "account_tabs_content") {
                     MobileSwipeableTabsPager(
                         state = tabsState,
                         modifier = Modifier

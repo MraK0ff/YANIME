@@ -71,7 +71,7 @@ internal fun SimilarRecommendationsGrid(
                 )
             }
 
-            is SimilarUiState.Error -> item(span = { GridItemSpan(maxLineSpan) }) {
+            is SimilarUiState.Error -> item(span = { GridItemSpan(maxLineSpan) }, contentType = "error_state") {
                 MobileMessage(
                     title = similarState.message.asString(),
                     icon = Icons.Filled.Warning,
@@ -82,7 +82,11 @@ internal fun SimilarRecommendationsGrid(
             }
 
             is SimilarUiState.Content -> {
-                items(similarState.items, key = { lazyKey("similar", it.animeId) }) { item ->
+                items(
+                    items = similarState.items,
+                    key = { lazyKey("similar", it.animeId) },
+                    contentType = { "similar_recommendation" },
+                ) { item ->
                     MobilePosterCard(
                         title = item.title,
                         posterUrls = item.poster.posterUrls(),

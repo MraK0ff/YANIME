@@ -7,9 +7,14 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
@@ -17,6 +22,7 @@ import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.model.ErrorItem
+import su.afk.yummy.tv.core.model.settings.YaniContentLanguage
 import su.afk.yummy.tv.core.model.text.UiText
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.preferences.api.YaniAccountSettingsStore
@@ -50,14 +56,18 @@ class ScheduleViewModelTest : BaseUnitTest() {
         }
     }
 
-    private fun createViewModel() = ScheduleViewModel(
+    private fun createViewModel(
+        accountSettingsStore: YaniAccountSettingsStore = mockk {
+            every { yaniContentLanguage } returns emptyFlow()
+        },
+    ) = ScheduleViewModel(
         errorHandler = errorHandler,
         retryStorage = retryStorage,
         getSchedule = GetAnimeScheduleUseCase(repository),
         nav = nav,
         detailsNavigator = detailsNavigator,
         analytics = ScheduleAnalytics(tracker),
-        accountSettingsStore = mockk<YaniAccountSettingsStore> { every { yaniContentLanguage } returns emptyFlow() },
+        accountSettingsStore = accountSettingsStore,
         appClock = appClock,
     )
 
@@ -120,6 +130,32 @@ class ScheduleViewModelTest : BaseUnitTest() {
 
         assertFalse(vm.currentState.isRefreshing)
         assertEquals(2, vm.currentState.days.size)
+    }
+
+    @Test
+    fun `language change during refresh cancels refresh and clears its indicator`() {
+        val languages = MutableSharedFlow<YaniContentLanguage>(replay = 1)
+        languages.tryEmit(YaniContentLanguage.RUSSIAN)
+        val accountSettings = mockk<YaniAccountSettingsStore> {
+            every { yaniContentLanguage } returns languages
+        }
+        coEvery { repository.getSchedule() } returns listOf(day()) andThenAnswer {
+            awaitCancellation()
+        } andThen listOf(day(epochSeconds = DAY_2))
+
+        val vm = createViewModel(accountSettings)
+
+        testScheduler.advanceUntilIdle()
+        vm.setEvent(ScheduleState.Event.RefreshRequested)
+        testScheduler.runCurrent()
+        assertTrue(vm.currentState.isRefreshing)
+
+        languages.tryEmit(YaniContentLanguage.ENGLISH)
+        testScheduler.advanceUntilIdle()
+
+        assertFalse(vm.currentState.isRefreshing)
+        assertFalse(vm.currentState.isLoading)
+        assertEquals(DAY_2, vm.currentState.days.single().items.single().nextDateEpochSeconds)
     }
 
     @Test

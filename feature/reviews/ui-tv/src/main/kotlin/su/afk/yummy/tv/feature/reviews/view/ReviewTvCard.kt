@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import su.afk.yummy.tv.core.designsystem.focus.tvFocusableClick
 import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.core.utils.formatting.htmlToPlainText
 import su.afk.yummy.tv.core.utils.formatting.toCompactCount
 import su.afk.yummy.tv.domain.reviews.model.AnimeReviewSummary
@@ -58,14 +59,14 @@ internal fun ReviewTvCard(
     onOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val shape = RoundedCornerShape(8.dp)
+    val shape = YummyShapeTokens.ProminentCard
     Card(
         modifier = modifier
             .fillMaxWidth()
             .tvFocusableClick(onClick = onOpen, shape = shape),
         shape = shape,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         ),
     ) {
         Row(
@@ -94,7 +95,7 @@ internal fun ReviewTvCard(
                 if (showAnime && review.animeTitle.isNotBlank()) {
                     Text(
                         text = review.animeTitle,
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.titleLargeEmphasized,
                         color = MaterialTheme.colorScheme.primary,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
@@ -145,7 +146,7 @@ internal fun ReviewTvCard(
                 Column(Modifier.weight(1f)) {
                     Text(
                         text = review.author.nickname,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleMediumEmphasized,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )

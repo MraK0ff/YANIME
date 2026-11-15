@@ -23,6 +23,12 @@ object YummyMotion {
         stiffness = Spring.StiffnessMediumLow,
     )
 
+    /** Subtle scale spring for screen state changes; expressive without drawing attention away from content. */
+    val ScreenState: SpringSpec<Float> = spring(
+        dampingRatio = Spring.DampingRatioNoBouncy,
+        stiffness = Spring.StiffnessMediumLow,
+    )
+
     /** A slightly more playful spring reserved for deliberate selection/expansion feedback. */
     val Selection: SpringSpec<Float> = spring(
         dampingRatio = Spring.DampingRatioMediumBouncy,

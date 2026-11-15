@@ -32,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.components.FallbackAsyncImage
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.feature.videodownload.mobile.utils.formatDiskSize
 import su.afk.yummy.tv.feature.videodownload.mobile.utils.visibleProgress
 import su.afk.yummy.tv.feature.videodownload.model.VideoDownloadGroup
@@ -50,7 +51,7 @@ internal fun VideoDownloadGroupCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
+        shape = YummyShapeTokens.ProminentCard,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
     ) {
         Row(
@@ -67,7 +68,7 @@ internal fun VideoDownloadGroupCard(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(width = 56.dp, height = 80.dp)
-                    .clip(RoundedCornerShape(6.dp)),
+                    .clip(YummyShapeTokens.Control),
             )
             Column(
                 modifier = Modifier.weight(1f),

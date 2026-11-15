@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ThumbDown
 import androidx.compose.material.icons.filled.ThumbUp
@@ -27,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import su.afk.yummy.tv.core.designsystem.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.domain.reviews.model.AnimeReviewSummary
 import su.afk.yummy.tv.domain.reviews.model.ReviewAuthor
 import su.afk.yummy.tv.domain.reviews.model.ReviewRating
@@ -47,11 +47,11 @@ internal fun ReviewMobileCard(
     ElevatedCard(
         onClick = onOpen,
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = YummyShapeTokens.ProminentCard,
         colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         ),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 0.dp),
     ) {
         if (showAnime && review.animePosterUrl != null) {
             Row(

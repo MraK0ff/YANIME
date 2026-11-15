@@ -37,8 +37,6 @@ fun MobileSettingOptionRow(
     valueMaxWidthFraction: Float? = 0.4f,
     valueMaxLines: Int = 2,
 ) {
-    require(valueMaxWidthFraction == null || valueMaxWidthFraction in 0f..1f)
-    require(valueMaxLines > 0)
 
     BoxWithConstraints(
         modifier = modifier
@@ -75,8 +73,9 @@ fun MobileSettingOptionRow(
                     tint = valueColor ?: MaterialTheme.colorScheme.primary,
                 )
             } else {
-                val valueModifier = if (valueMaxWidthFraction != null) {
-                    Modifier.widthIn(max = maxWidth * valueMaxWidthFraction)
+                val safeMaxWidthFraction = valueMaxWidthFraction?.coerceIn(0f, 1f)
+                val valueModifier = if (safeMaxWidthFraction != null) {
+                    Modifier.widthIn(max = maxWidth * safeMaxWidthFraction)
                 } else {
                     Modifier
                 }
@@ -86,7 +85,7 @@ fun MobileSettingOptionRow(
                     style = MaterialTheme.typography.bodyMedium,
                     color = valueColor ?: MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.End,
-                    maxLines = valueMaxLines,
+                    maxLines = valueMaxLines.coerceAtLeast(1),
                     overflow = TextOverflow.Ellipsis,
                 )
             }

@@ -1,7 +1,7 @@
 package su.afk.yummy.tv.feature.schedule
 
-import su.afk.yummy.tv.core.common.coroutines.AppClock
 import androidx.navigation3.runtime.NavKey
+import su.afk.yummy.tv.core.common.coroutines.AppClock
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -10,12 +10,10 @@ import io.mockk.verify
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runCurrent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker

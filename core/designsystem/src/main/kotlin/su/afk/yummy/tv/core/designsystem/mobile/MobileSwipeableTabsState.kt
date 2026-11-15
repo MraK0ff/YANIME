@@ -10,27 +10,27 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 /**
- * State holder for tabs backed by [PagerState].
+ * Состояние вкладок, основанных на [PagerState].
  *
- * [settledPage] is deliberately used for selection: [PagerState.currentPage] changes while
- * a drag is still in progress and must not be treated as a committed selection.
+ * Для определения выбранной страницы используется [settledPage]: [PagerState.currentPage]
+ * меняется ещё во время перетаскивания и не означает, что пользователь завершил переход.
  */
 @Stable
 class MobileSwipeableTabsState internal constructor(
     val pagerState: PagerState,
     private val scope: CoroutineScope,
 ) {
-    /** Page whose scroll/settling operation has completed. */
+    /** Страница, до которой pager завершил прокрутку. */
     val settledPage: Int get() = pagerState.settledPage
 
-    /** Compatibility alias for callers that need the selected, settled page. */
+    /** Совместимый псевдоним для выбранной, уже зафиксированной страницы. */
     val currentPage: Int get() = settledPage
 
-    /** Animate to [index], ignoring stale indices and duplicate requests. */
+    /** Анимированно переключает pager на [index], игнорируя недопустимые и повторные запросы. */
     fun selectPage(index: Int) {
         if (index !in 0 until pagerState.pageCount) return
         if (pagerState.settledPage == index || pagerState.targetPage == index) return
@@ -42,13 +42,13 @@ class MobileSwipeableTabsState internal constructor(
 }
 
 /**
- * Remembers a pager-backed tab state and synchronizes it with an external selection.
+ * Запоминает состояние pager-вкладок и синхронизирует его с внешним выбранным индексом.
  *
- * The external state is updated only after the pager settles. This prevents intermediate
- * [PagerState.currentPage] values during a gesture from feeding back into the pager and
- * starting competing scroll animations.
+ * Внешнее состояние обновляется только после завершения прокрутки. Промежуточные значения
+ * [PagerState.currentPage] во время жеста не запускают встречные анимации.
  *
- * [pageCount] may change dynamically. [selectedPage] is normalized to the current range.
+ * Поддерживает динамическое изменение [pageCount], в том числе пустой набор страниц.
+ * Внешний [selectedPage] автоматически ограничивается допустимым диапазоном.
  */
 @Composable
 fun rememberMobileSwipeableTabsState(
@@ -56,8 +56,8 @@ fun rememberMobileSwipeableTabsState(
     pageCount: Int,
     onPageSelected: (Int) -> Unit,
 ): MobileSwipeableTabsState {
-    val safePageCount = pageCount.coerceAtLeast(1)
-    val safeSelectedPage = selectedPage.coerceIn(0, safePageCount - 1)
+    val safePageCount = pageCount.coerceAtLeast(0)
+    val safeSelectedPage = selectedPage.coerceIn(0, (safePageCount - 1).coerceAtLeast(0))
     val pagerState = rememberPagerState(
         initialPage = safeSelectedPage,
         pageCount = { safePageCount },
@@ -68,16 +68,14 @@ fun rememberMobileSwipeableTabsState(
     val currentOnPageSelected = rememberUpdatedState(onPageSelected)
     val currentSelectedPage = rememberUpdatedState(safeSelectedPage)
 
-    // External selection -> pager. LaunchedEffect cancels an obsolete animation when the
-    // selected page changes again, and settledPage avoids restarting an already completed move.
+    // Внешний выбор -> pager. При новом выборе устаревшая анимация отменяется.
     LaunchedEffect(safeSelectedPage, safePageCount, pagerState) {
-        if (pagerState.settledPage != safeSelectedPage) {
+        if (safePageCount > 0 && pagerState.settledPage != safeSelectedPage) {
             pagerState.animateScrollToPage(safeSelectedPage)
         }
     }
 
-    // Pager -> external state. Observe only completed page transitions, never intermediate
-    // currentPage updates produced while the user is dragging between pages.
+    // Pager -> внешнее состояние. Публикуем только завершённые переходы.
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.settledPage }
             .collect { page ->

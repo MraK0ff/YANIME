@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.semantics.Role
 import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 @Composable
@@ -42,7 +43,7 @@ fun MobileSettingOptionRow(
         modifier = modifier
             .fillMaxWidth()
             .alpha(if (enabled) 1f else 0.4f)
-            .clickable(enabled = enabled, onClick = onClick)
+            .clickable(enabled = enabled, onClick = onClick, role = Role.Button)
             .padding(horizontal = YummySpacing.Large, vertical = YummySpacing.Medium),
     ) {
         Row(

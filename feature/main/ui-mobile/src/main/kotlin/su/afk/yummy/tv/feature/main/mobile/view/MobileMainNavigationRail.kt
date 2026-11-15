@@ -15,7 +15,6 @@ import su.afk.yummy.tv.core.designsystem.onboarding.onboardingTarget
 import su.afk.yummy.tv.feature.main.mobile.utils.mobileMainTabTargetId
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.mobile.input.clickablePointer
 import su.afk.yummy.tv.core.designsystem.seasonal.seasonalNavigationRailItemColors
 import su.afk.yummy.tv.core.designsystem.seasonal.seasonalRailItemDecor

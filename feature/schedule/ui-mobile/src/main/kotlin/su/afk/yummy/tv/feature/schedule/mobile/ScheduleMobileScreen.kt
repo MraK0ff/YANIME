@@ -160,7 +160,11 @@ private fun ScheduleDayReleases(
         ),
         verticalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
     ) {
-        items(group.items, key = { it.focusKey }) { release ->
+        items(
+            items = group.items,
+            key = { it.focusKey },
+            contentType = { "schedule_release" },
+        ) { release ->
             ScheduleMobileReleaseCard(
                 release = release,
                 now = now,

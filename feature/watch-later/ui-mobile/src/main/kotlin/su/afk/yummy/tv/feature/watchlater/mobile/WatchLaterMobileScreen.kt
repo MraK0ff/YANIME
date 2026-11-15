@@ -68,7 +68,11 @@ fun WatchLaterMobileScreen(
                 ),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                items(state.items, key = { "${it.animeId}_${it.episode}" }) { item ->
+                items(
+                    items = state.items,
+                    key = { "${it.animeId}_${it.episode}" },
+                    contentType = { "watch_later_item" },
+                ) { item ->
                     WatchLaterMobileCard(
                         item = item,
                         onClick = {

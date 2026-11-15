@@ -131,7 +131,7 @@ private fun ChoiceActionRow(text: String, filled: Boolean, onClick: () -> Unit) 
         textAlign = TextAlign.Center,
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
+            .clip(YummyShapeTokens.Control)
             .background(if (filled) colors.primary else colors.surfaceVariant.copy(alpha = 0.72f))
             .clickable(onClick = onClick)
             .padding(horizontal = YummySpacing.Large, vertical = YummySpacing.Medium),

@@ -8,6 +8,7 @@ import androidx.compose.ui.unit.Dp
 /**
  * Motion tokens for bespoke YANIME interactions. Material components use the expressive
  * MaterialTheme motion scheme; these specs keep custom focus and selection animations aligned.
+ * Callers that animate custom UI also gate these specs with rememberAnimationsEnabled().
  */
 object YummyMotion {
     /** TV focus should feel responsive without making the focused target wobble. */

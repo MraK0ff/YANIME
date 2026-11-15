@@ -31,7 +31,7 @@ internal fun AccountMobileStatSection(
                     imageVector = it,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
-                    modifier = Modifier.size(YummySpacing.Large + 2.dp),
+                    modifier = Modifier.size(YummySpacing.Large + YummySpacing.XSmall / 2),
                 )
             }
             Text(

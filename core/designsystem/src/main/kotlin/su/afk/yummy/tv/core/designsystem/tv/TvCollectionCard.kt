@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.components.MarqueeTitleText
 import su.afk.yummy.tv.core.designsystem.components.PostersCollage
 import su.afk.yummy.tv.core.designsystem.focus.tvFocusableClick
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 private const val COLLAGE_ASPECT_RATIO = 2.6f
 
@@ -33,7 +35,7 @@ fun TvCollectionCard(
     onFocused: () -> Unit = {},
     badge: (@Composable BoxScope.() -> Unit)? = null,
 ) {
-    val shape = MaterialTheme.shapes.medium
+    val shape = YummyShapeTokens.Card
     var isFocused by remember { mutableStateOf(false) }
 
     Card(
@@ -58,7 +60,7 @@ fun TvCollectionCard(
             )
             MarqueeTitleText(
                 text = title,
-                modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+                modifier = Modifier.padding(horizontal = YummySpacing.Large, vertical = YummySpacing.Small),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.SemiBold,
                 minLines = 1,

@@ -24,6 +24,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
 import su.afk.yummy.tv.core.utils.formatting.toCompactCount
 
@@ -47,11 +49,11 @@ fun MobileReactionsCard(
     Surface(
         modifier = modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surfaceContainer,
-        shape = RoundedCornerShape(16.dp),
+        shape = YummyShapeTokens.Card,
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(YummySpacing.Large),
+            verticalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
         ) {
             Text(
                 text = title,
@@ -60,7 +62,7 @@ fun MobileReactionsCard(
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(YummySpacing.Small),
             ) {
                 MobileReactionButton(
                     icon = Icons.Filled.ThumbUp,
@@ -99,7 +101,7 @@ fun MobileReactionsRow(
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(YummySpacing.Small),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         MobileReactionButton(
@@ -124,7 +126,7 @@ fun MobileReactionsRow(
     }
 }
 
-private val CompactReactionPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp)
+private val CompactReactionPadding = PaddingValues(horizontal = 14.dp, vertical = YummySpacing.Medium)
 
 @Composable
 private fun MobileReactionButton(
@@ -135,7 +137,7 @@ private fun MobileReactionButton(
     enabled: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 13.dp),
+    contentPadding: PaddingValues = PaddingValues(horizontal = YummySpacing.Large, vertical = YummySpacing.Medium),
 ) {
     Surface(
         onClick = onClick,
@@ -147,7 +149,7 @@ private fun MobileReactionButton(
             MaterialTheme.colorScheme.surfaceContainerHighest
         },
         contentColor = color,
-        shape = RoundedCornerShape(12.dp),
+        shape = YummyShapeTokens.Control,
         border = if (selected) BorderStroke(1.dp, color) else null,
     ) {
         Row(

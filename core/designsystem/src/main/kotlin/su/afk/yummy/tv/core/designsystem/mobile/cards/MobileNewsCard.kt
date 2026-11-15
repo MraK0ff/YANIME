@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.designsystem.components.CachedAsyncImage
 import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 
@@ -49,7 +50,7 @@ fun MobileNewsCard(
                     .aspectRatio(16f / 9f),
             )
         }
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(Modifier.padding(YummySpacing.Large), verticalArrangement = Arrangement.spacedBy(YummySpacing.Small)) {
             if (category.isNotBlank()) {
                 SuggestionChip(onClick = onClick, label = { Text(category) })
             }

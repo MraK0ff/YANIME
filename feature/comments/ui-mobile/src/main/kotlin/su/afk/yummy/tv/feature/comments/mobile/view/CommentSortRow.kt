@@ -41,7 +41,7 @@ internal fun CommentSortRow(
         if (totalCount != null && totalCount > 0) {
             Text(
                 text = stringResource(R.string.comments_total, totalCount.toCompactCount()).uppercase(),
-                style = MaterialTheme.typography.labelLarge,
+                style = MaterialTheme.typography.labelLargeEmphasized,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(start = YummySpacing.XSmall),
             )

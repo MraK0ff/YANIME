@@ -6,6 +6,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -67,7 +68,8 @@ fun TvChip(
                 role = Role.Tab,
                 selectedState = selected,
             )
-            .padding(horizontal = YummySpacing.XLarge, vertical = YummySpacing.Small),
+            .padding(horizontal = YummySpacing.XLarge, vertical = YummySpacing.Small)
+            .heightIn(min = YummySpacing.TvTouchTarget),
         horizontalArrangement = Arrangement.spacedBy(7.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

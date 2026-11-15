@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.weight
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -16,6 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.R
 import su.afk.yummy.tv.core.designsystem.focus.TvRetryButton
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 /**
  * Compact error with a retry action for a section of a screen (next-page failure, remote sync failure).
@@ -37,14 +40,16 @@ fun ErrorBanner(
         Row(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(vertical = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterHorizontally),
+                .padding(vertical = YummySpacing.Large),
+            horizontalArrangement = Arrangement.spacedBy(YummySpacing.XLarge, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.error,
+                textAlign = TextAlign.End,
+                modifier = Modifier.weight(1f),
             )
             TvRetryButton(text = retryLabel, enabled = enabled, onClick = onRetry)
         }
@@ -52,9 +57,9 @@ fun ErrorBanner(
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(vertical = 12.dp, horizontal = 16.dp),
+                .padding(vertical = YummySpacing.Medium, horizontal = YummySpacing.Large),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(YummySpacing.XSmall),
         ) {
             Text(
                 text = message,
@@ -63,7 +68,11 @@ fun ErrorBanner(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
             )
-            TextButton(onClick = onRetry, enabled = enabled) {
+            TextButton(
+                onClick = onRetry,
+                enabled = enabled,
+                modifier = Modifier.heightIn(min = YummySpacing.TouchTarget),
+            ) {
                 Text(retryLabel)
             }
         }

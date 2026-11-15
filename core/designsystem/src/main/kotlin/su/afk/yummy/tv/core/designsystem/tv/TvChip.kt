@@ -1,6 +1,8 @@
 package su.afk.yummy.tv.core.designsystem.tv
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
@@ -22,8 +24,10 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.focus.tvFocusableClick
+import su.afk.yummy.tv.core.designsystem.skeleton.rememberAnimationsEnabled
 import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
+import su.afk.yummy.tv.core.designsystem.theme.YummyMotion
 
 private val ChipShape = YummyShapeTokens.Pill
 
@@ -42,6 +46,7 @@ fun TvChip(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
+    val animationsEnabled = rememberAnimationsEnabled()
 
     val containerColor by animateColorAsState(
         targetValue = when {
@@ -49,6 +54,7 @@ fun TvChip(
             focused -> MaterialTheme.colorScheme.surfaceContainerHighest
             else -> MaterialTheme.colorScheme.surfaceContainerHigh
         },
+        animationSpec = if (animationsEnabled) tween(YummyMotion.FastEffectsMillis) else snap(),
         label = "TvChipContainer",
     )
     val contentColor = when {

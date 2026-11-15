@@ -1,8 +1,10 @@
 package su.afk.yummy.tv.core.designsystem.focus
 
 import su.afk.yummy.tv.core.designsystem.seasonal.seasonalFocusLights
+import su.afk.yummy.tv.core.designsystem.skeleton.rememberAnimationsEnabled
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -38,14 +40,19 @@ fun Modifier.tvFocusableClick(
     selectedState: Boolean? = null,
 ): Modifier {
     val focused by interactionSource.collectIsFocusedAsState()
+    val animationsEnabled = rememberAnimationsEnabled()
     val scale by animateFloatAsState(
-        targetValue = if (focused) focusedScale else 1f,
-        animationSpec = YummyMotion.TvFocusScale,
+        targetValue = if (animationsEnabled && focused) focusedScale else 1f,
+        animationSpec = if (animationsEnabled) YummyMotion.TvFocusScale else snap(),
         label = "tvFocusScale",
     )
     val borderColor by animateColorAsState(
         targetValue = if (focused) focusedBorderColor else Color.Transparent,
-        animationSpec = tween(durationMillis = YummyMotion.StandardEffectsMillis),
+        animationSpec = if (animationsEnabled) {
+            tween(durationMillis = YummyMotion.StandardEffectsMillis)
+        } else {
+            snap()
+        },
         label = "tvFocusBorder",
     )
 

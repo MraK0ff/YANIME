@@ -77,7 +77,7 @@ private fun HomeQuickActionCard(
     Card(
         onClick = onClick,
         modifier = modifier.height(64.dp),
-        shape = YummyShapeTokens.Control,
+        shape = YummyShapeTokens.ProminentCard,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         ),

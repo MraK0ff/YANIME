@@ -88,6 +88,7 @@ internal fun SettingsMobileDialogsHost(
                     it.label(),
                     it.hint(),
                     labelColor = it.previewColor(),
+                    previewColors = it.previewColors(),
                 )
             },
             onDismiss = { dialogs.activePicker = null },

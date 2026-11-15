@@ -247,6 +247,28 @@ val isDynamicColorSupported: Boolean
  * Акцентный цвет темы для превью в списке выбора: тот, что получит `primary` после выбора,
  * с учётом светлого/тёмного фона текущего экрана. Для [AppTheme.DYNAMIC] — системный акцент.
  */
+/**
+ * Compact palette preview used by the appearance picker. The four swatches expose the
+ * hierarchy users will actually see: primary, secondary, tertiary and a tonal container.
+ */
+@Composable
+fun AppTheme.previewColors(): List<Color> {
+    val context = LocalContext.current
+    val darkSurface = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val scheme = when {
+        this == AppTheme.DYNAMIC && isDynamicColorSupported ->
+            if (darkSurface) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        darkSurface -> palette.toDarkColorScheme()
+        else -> palette.toLightColorScheme(LightNeutralsWhite)
+    }
+    return listOf(
+        scheme.primary,
+        scheme.secondary,
+        scheme.tertiary,
+        scheme.primaryContainer,
+    )
+}
+
 @Composable
 fun AppTheme.previewColor(): Color {
     val darkSurface = MaterialTheme.colorScheme.background.luminance() < 0.5f
@@ -293,7 +315,9 @@ private fun YummyTvPalette.toDarkColorScheme() = darkColorScheme(
     onPrimaryContainer = onPrimaryContainer,
     secondary = secondary,
     onSecondary = onPrimary,
-    secondaryContainer = surfaceVariant,
+    // Distinct tonal container roles keep secondary actions expressive without competing
+    // with the primary action hierarchy.
+    secondaryContainer = lerp(surfaceVariant, secondary, 0.22f),
     onSecondaryContainer = onBackground,
     // Secondary accent is the distinct expressive tertiary role; the container remains
     // tonal and neutral enough to preserve hierarchy on poster-heavy screens.
@@ -303,10 +327,10 @@ private fun YummyTvPalette.toDarkColorScheme() = darkColorScheme(
     onTertiaryContainer = onPrimaryContainer,
     error = error,
     onError = onError,
-    errorContainer = onError,
-    onErrorContainer = error,
+    errorContainer = Color(0xFF93000A),
+    onErrorContainer = Color(0xFFFFDAD6),
     outline = outline,
-    outlineVariant = surfaceVariant,
+    outlineVariant = lerp(surfaceVariant, outline, 0.32f),
     scrim = Color.Black,
     inverseSurface = onBackground,
     inverseOnSurface = background,
@@ -357,9 +381,9 @@ private fun YummyTvPalette.toLightColorScheme(neutrals: LightNeutrals) = lightCo
     onPrimaryContainer = onPrimaryContainerLight,
     secondary = secondaryLight,
     onSecondary = onPrimaryLight,
-    // Акцентная «таблетка» выделения (напр. активная вкладка нижнего меню) несёт оттенок палитры.
-    secondaryContainer = primaryContainerLight,
-    onSecondaryContainer = onPrimaryContainerLight,
+    // Secondary stays visibly distinct from primary while retaining the selected-state tonal fill.
+    secondaryContainer = lerp(neutrals.surfaceVariant, secondaryLight, 0.18f),
+    onSecondaryContainer = LightOnBackground,
     tertiary = lerp(secondaryLight, primaryLight, 0.38f),
     onTertiary = onPrimaryLight,
     tertiaryContainer = lerp(neutrals.surfaceVariant, primaryContainerLight, 0.36f),
@@ -369,7 +393,7 @@ private fun YummyTvPalette.toLightColorScheme(neutrals: LightNeutrals) = lightCo
     errorContainer = Color(0xFFFFDAD6),
     onErrorContainer = Color(0xFF410002),
     outline = LightOutline,
-    outlineVariant = neutrals.surfaceVariant,
+    outlineVariant = lerp(neutrals.surfaceVariant, LightOutline, 0.42f),
     scrim = Color.Black,
     inverseSurface = LightOnBackground,
     inverseOnSurface = neutrals.background,

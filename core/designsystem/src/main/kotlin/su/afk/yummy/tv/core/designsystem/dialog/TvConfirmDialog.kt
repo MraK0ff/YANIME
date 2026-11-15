@@ -95,7 +95,7 @@ internal fun TvConfirmDialog(
                         .width(440.dp)
                         .clip(YummyShapeTokens.Dialog)
                         .background(YummySemanticColors.OverlayScrim)
-                        .border(1.dp, Color.White.copy(alpha = 0.10f), RoundedCornerShape(16.dp))
+                        .border(1.dp, Color.White.copy(alpha = 0.10f), YummyShapeTokens.Control)
                         .focusGroup()
                         .onPreviewKeyEvent { event ->
                             if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false

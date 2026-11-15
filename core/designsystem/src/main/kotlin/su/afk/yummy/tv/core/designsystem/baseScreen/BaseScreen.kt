@@ -139,7 +139,9 @@ fun BaseScreen(
                 .padding(innerPadding)
                 .padding(contentPadding)
 
-            val bodyModifier = if (isScroll) base.verticalScroll(rememberScrollState()) else base
+            // Keep the scroll state slot stable when callers toggle isScroll.
+            val scrollState = rememberScrollState()
+            val bodyModifier = if (isScroll) base.verticalScroll(scrollState) else base
 
             val screenState = when {
                 error != null -> BaseScreenContentState.Error

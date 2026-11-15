@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.LocalContentColor
@@ -17,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
@@ -31,27 +33,27 @@ internal fun FilterChip(
     val shape = CircleShape
     val borderColor by animateColorAsState(
         targetValue = if (selected) {
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.65f)
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.48f)
         } else {
-            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f)
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.72f)
         },
         animationSpec = tween(durationMillis = CHIP_ANIMATION_MILLIS),
         label = "filterChipBorder",
     )
     val backgroundColor by animateColorAsState(
         targetValue = if (selected) {
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
+            MaterialTheme.colorScheme.primaryContainer
         } else {
-            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.38f)
+            MaterialTheme.colorScheme.surfaceContainerLow
         },
         animationSpec = tween(durationMillis = CHIP_ANIMATION_MILLIS),
         label = "filterChipBackground",
     )
     val contentColor by animateColorAsState(
         targetValue = if (selected) {
-            MaterialTheme.colorScheme.primary
+            MaterialTheme.colorScheme.onPrimaryContainer
         } else {
-            MaterialTheme.colorScheme.onBackground
+            MaterialTheme.colorScheme.onSurfaceVariant
         },
         animationSpec = tween(durationMillis = CHIP_ANIMATION_MILLIS),
         label = "filterChipContent",
@@ -59,17 +61,18 @@ internal fun FilterChip(
 
     Row(
         modifier = modifier
+            .heightIn(min = 48.dp)
             .clip(shape)
             .border(width = 1.dp, color = borderColor, shape = shape)
             .background(backgroundColor, shape)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 14.dp, vertical = 9.dp),
+            .clickable(role = Role.Checkbox, onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
             color = contentColor,
             maxLines = 1,
         )

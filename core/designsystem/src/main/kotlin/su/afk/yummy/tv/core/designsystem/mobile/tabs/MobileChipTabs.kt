@@ -84,7 +84,7 @@ private fun <K> MobileChipTabItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val contentColor = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
+    val contentColor = if (selected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
     Surface(
         modifier = modifier.selectable(
             selected = selected,
@@ -92,7 +92,7 @@ private fun <K> MobileChipTabItem(
             role = Role.Tab,
         ),
         shape = MaterialTheme.shapes.large,
-        color = if (selected) tab.color.copy(alpha = 0.18f) else Color.Transparent,
+        color = if (selected) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
         contentColor = contentColor,
     ) {
         Column(

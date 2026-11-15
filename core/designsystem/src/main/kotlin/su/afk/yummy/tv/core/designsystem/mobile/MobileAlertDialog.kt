@@ -3,6 +3,7 @@ package su.afk.yummy.tv.core.designsystem.mobile
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -89,7 +90,7 @@ fun MobileAlertDialog(
                     Button(
                         onClick = onConfirm,
                         enabled = confirmEnabled,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().heightIn(min = YummySpacing.TouchTarget),
                         colors = if (destructive) {
                             ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.error,
@@ -113,7 +114,7 @@ fun MobileAlertDialog(
                         OutlinedButton(
                             onClick = onDismiss,
                             enabled = dismissEnabled,
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().heightIn(min = YummySpacing.TouchTarget),
                         ) { Text(dismissText) }
                     }
                 }

@@ -2,7 +2,7 @@
 
 ## Текущая основа
 
-YANIME использует централизованный модуль `:core:designsystem`. Текущая реализация Material 3 закреплена в version catalog: Compose BOM `2026.09.00`, стабильный Material 3 `1.4.0`, Kotlin `2.4.21`, AGP `9.5.1` и Media3 `1.11.1`. RC-версии Material 3 не используются в production-зависимостях до выхода стабильного релиза.
+YANIME использует централизованный модуль `:core:designsystem`. Текущая реализация Material 3 закреплена в version catalog: Compose BOM `2026.09.00`, Material 3 `1.5.0-rc01`, Kotlin `2.4.21`, AGP `9.5.1` и Media3 `1.11.1`. Для Material 3 сделано осознанное исключение из правила stable-only: стабильная `1.4.0` не экспортирует публичные `MaterialExpressiveTheme`, `MotionScheme.expressive()`, emphasized typography и expressive shape tokens, на которых основана текущая тема. Понижение до `1.4.0` без отдельной миграции сломает публичные вызовы и полноту M3E. Используется последний RC, а переход на стабильную `1.5.0` нужно выполнить сразу после её публикации с проверкой API и сборки.
 
 Существующая тема сохраняет пользовательские режимы оформления:
 - Dynamic Color на Android 12 и новее;

@@ -124,6 +124,7 @@ fun DialogsMobileScreen(
                             else -> items(
                                 count = dialogs.itemCount,
                                 key = dialogs.safeItemKey("dialog") { lazyKey("dialog", it.userId) },
+                                contentType = { if (isCompact) "dialog_avatar" else "dialog_row" },
                             ) { index ->
                                 dialogs.getOrNull(index)?.let { dialog ->
                                     val onClick = {

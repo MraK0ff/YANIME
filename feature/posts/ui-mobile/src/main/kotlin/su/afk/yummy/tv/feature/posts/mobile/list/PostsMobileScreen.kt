@@ -160,7 +160,11 @@ private fun PostsList(
                 )
             }
 
-            else -> items(posts.itemCount, key = posts.safeItemKey("post") { lazyKey("post", it.id) }) { index ->
+            else -> items(
+                count = posts.itemCount,
+                key = posts.safeItemKey("post") { lazyKey("post", it.id) },
+                contentType = { "post" },
+            ) { index ->
                 posts.getOrNull(index)?.let { post ->
                     PostMobileCard(
                         post,

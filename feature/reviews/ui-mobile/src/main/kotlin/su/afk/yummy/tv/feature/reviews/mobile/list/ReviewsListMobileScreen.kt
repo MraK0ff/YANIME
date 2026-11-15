@@ -125,6 +125,7 @@ private fun ReviewsListContent(
             items(
                 items.itemCount,
                 key = items.safeItemKey("review") { it.id },
+                contentType = { "review" },
             ) { index ->
                 items.getOrNull(index)?.let { review ->
                     ReviewMobileCard(

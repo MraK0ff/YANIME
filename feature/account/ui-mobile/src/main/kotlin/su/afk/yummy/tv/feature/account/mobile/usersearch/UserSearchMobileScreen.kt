@@ -153,6 +153,7 @@ fun UserSearchMobileScreen(
                 else -> items(
                     count = results.itemCount,
                     key = results.safeItemKey("user") { lazyKey("user", it.id) },
+                    contentType = { "user_result" },
                 ) { index ->
                     results.getOrNull(index)?.let { item ->
                         UserSearchCard(

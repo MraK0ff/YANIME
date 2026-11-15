@@ -36,6 +36,8 @@ import su.afk.yummy.tv.core.designsystem.dimensions.TITLE_POSTER_ASPECT_RATIO
 import su.afk.yummy.tv.core.designsystem.dimensions.currentTvTitleCardDimensions
 import su.afk.yummy.tv.core.designsystem.focus.tvFocusableClick
 import su.afk.yummy.tv.core.designsystem.locals.LocalLibraryListStatuses
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 @Composable
 fun TvTitleCard(
@@ -56,7 +58,7 @@ fun TvTitleCard(
     /** Слот под текстом карточки — например кнопки голосования. Живёт внутри Card. */
     footer: @Composable ColumnScope.() -> Unit = {},
 ) {
-    val shape = MaterialTheme.shapes.medium
+    val shape = YummyShapeTokens.Card
     val cardDimensions = currentTvTitleCardDimensions()
     val cardWidth = width ?: cardDimensions.width
     var isFocused by remember { mutableStateOf(false) }
@@ -118,10 +120,10 @@ fun TvTitleCard(
                 }
             }
 
-            Column(modifier = Modifier.padding(10.dp)) {
+            Column(modifier = Modifier.padding(YummySpacing.Large)) {
                 MarqueeTitleText(
                     text = title,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.titleMediumEmphasized,
                     fontWeight = FontWeight.SemiBold,
                     minLines = 2,
                     maxLines = 2,
@@ -143,7 +145,7 @@ fun TvTitleCard(
                         color = MaterialTheme.colorScheme.primary,
                         // Отсчёт до серии в одну строку карточки не влезает.
                         minLines = captionMinLines,
-maxLines = 2,
+                        maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
                 }

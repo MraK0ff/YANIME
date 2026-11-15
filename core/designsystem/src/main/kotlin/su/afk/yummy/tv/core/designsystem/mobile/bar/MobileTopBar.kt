@@ -19,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.R
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 private val CompactMobileTopBarHeight = 52.dp
 
@@ -38,10 +39,11 @@ fun MobileTopBar(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 titleLeading?.let {
                     it()
-                    Spacer(Modifier.width(10.dp))
+                    Spacer(Modifier.width(YummySpacing.Medium))
                 }
                 Text(
                     text = title,
+                    style = MaterialTheme.typography.titleLargeEmphasized,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )

@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -32,10 +31,12 @@ import su.afk.yummy.tv.core.designsystem.components.FallbackAsyncImage
 import su.afk.yummy.tv.core.designsystem.mobile.cards.MobileRatingBadge
 import su.afk.yummy.tv.core.model.anime.posterUrls
 import su.afk.yummy.tv.domain.home.model.HomeFeedItem
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 /** Фиксированная высота: длина названия и описания не должна менять высоту карусели. */
 private val HERO_CARD_HEIGHT = 220.dp
-private val HERO_POSTER_SHAPE = RoundedCornerShape(10.dp)
+private val HERO_POSTER_SHAPE = YummyShapeTokens.Control
 
 @Composable
 internal fun HomeHeroCard(
@@ -49,7 +50,7 @@ internal fun HomeHeroCard(
             .fillMaxWidth()
             .height(HERO_CARD_HEIGHT)
             .clickable(onClick = onClick),
-        shape = MaterialTheme.shapes.large,
+        shape = YummyShapeTokens.ProminentCard,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
         Box(
@@ -84,8 +85,8 @@ internal fun HomeHeroCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
-                    .padding(14.dp),
-                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    .padding(YummySpacing.Large),
+                horizontalArrangement = Arrangement.spacedBy(YummySpacing.Large),
             ) {
                 Box(
                     modifier = Modifier
@@ -114,11 +115,11 @@ internal fun HomeHeroCard(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight(),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(YummySpacing.Small),
                 ) {
                     Text(
                         text = item.title,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleMediumEmphasized,
                         color = MaterialTheme.colorScheme.onSurface,
                         minLines = 2,
                         maxLines = 2,

@@ -1,8 +1,12 @@
 package su.afk.yummy.tv.feature.player.view.player
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,6 +30,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.skeleton.rememberAnimationsEnabled
+import su.afk.yummy.tv.core.designsystem.theme.YummyMotion
 import su.afk.yummy.tv.feature.player.common.model.PlayerActiveSkip
 import su.afk.yummy.tv.feature.player.model.PlayerPlaybackUiState
 import su.afk.yummy.tv.feature.player.model.TvPlayerFocusRequesters
@@ -67,6 +73,12 @@ internal fun BoxScope.TvPlayerControlsOverlay(
     /** Ряд управления остаётся в композиции (держит фокус), но невидим, пока поверх него лента серий. */
     hidden: Boolean = false,
 ) {
+    val animationsEnabled = rememberAnimationsEnabled()
+    val playerControlsTransition = if (animationsEnabled) {
+        tween<Float>(YummyMotion.FastEffectsMillis)
+    } else {
+        snap()
+    }
     val progressDownFocusRequester = when {
         playback.dubbingNames.size > 1 -> focus.dubbing
         playback.balancerNames.size > 1 -> focus.balancer
@@ -80,8 +92,8 @@ internal fun BoxScope.TvPlayerControlsOverlay(
         modifier = Modifier
             .align(Alignment.BottomCenter)
             .fillMaxWidth(),
-        enter = fadeIn(),
-        exit = fadeOut(),
+        enter = if (animationsEnabled) fadeIn(playerControlsTransition) else EnterTransition.None,
+        exit = if (animationsEnabled) fadeOut(playerControlsTransition) else ExitTransition.None,
     ) {
         Box(
             modifier = Modifier

@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.core.designsystem.dialog
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,7 +21,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -49,7 +49,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import su.afk.yummy.tv.core.designsystem.focus.requestFocusUntilTimeout
+import su.afk.yummy.tv.core.designsystem.theme.YummyMotion
 import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
+import su.afk.yummy.tv.core.designsystem.skeleton.rememberAnimationsEnabled
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.core.designsystem.tv.TvOverlayAppear
 import kotlin.time.Duration.Companion.seconds
 
@@ -101,7 +104,7 @@ internal fun TvChoiceDialog(
                     modifier = Modifier
                         .width(720.dp)
                         .heightIn(max = 560.dp)
-                        .clip(RoundedCornerShape(16.dp))
+                        .clip(YummyShapeTokens.Dialog)
                         .background(YummySemanticColors.OverlayScrim)
                         .border(1.dp, Color.White.copy(alpha = 0.10f), RoundedCornerShape(16.dp))
                         .focusGroup()
@@ -120,7 +123,7 @@ internal fun TvChoiceDialog(
                 ) {
                     Text(
                         text = request.title,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleMediumEmphasized,
                         fontWeight = FontWeight.SemiBold,
                         color = Color.White,
                         maxLines = 2,
@@ -195,11 +198,12 @@ private fun TvChoiceOption(
     centered: Boolean = false,
     onClick: () -> Unit,
 ) {
+    val animationsEnabled = rememberAnimationsEnabled()
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
     val bgColor by animateColorAsState(
         targetValue = if (focused) Color.White else Color.White.copy(alpha = 0.10f),
-        animationSpec = tween(durationMillis = 150),
+        animationSpec = if (animationsEnabled) tween(durationMillis = YummyMotion.FastEffectsMillis) else snap(),
         label = "choiceOptionBg",
     )
     val titleColor = if (focused) Color.Black else Color.White
@@ -208,7 +212,7 @@ private fun TvChoiceOption(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
+            .clip(YummyShapeTokens.Control)
             .background(bgColor)
             .clickable(interactionSource = interactionSource, indication = null, onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 12.dp),
@@ -216,7 +220,7 @@ private fun TvChoiceOption(
     ) {
         Text(
             text = title,
-            style = MaterialTheme.typography.titleSmall,
+            style = MaterialTheme.typography.titleSmallEmphasized,
             fontWeight = FontWeight.SemiBold,
             color = titleColor,
             maxLines = 2,

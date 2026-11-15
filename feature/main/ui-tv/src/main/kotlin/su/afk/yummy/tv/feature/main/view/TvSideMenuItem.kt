@@ -28,7 +28,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.feature.main.utils.moveFocusToContentOnKey
@@ -53,13 +52,13 @@ internal fun TvSideMenuItem(
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
     val backgroundColor = when {
-        focused -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.92f)
-        selected -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.14f)
+        focused -> MaterialTheme.colorScheme.primary
+        selected -> MaterialTheme.colorScheme.secondaryContainer
         else -> Color.Transparent
     }
     val contentColor = when {
-        focused -> MaterialTheme.colorScheme.surface
-        selected -> MaterialTheme.colorScheme.onSurface
+        focused -> MaterialTheme.colorScheme.onPrimary
+        selected -> MaterialTheme.colorScheme.onSecondaryContainer
         else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
 
@@ -100,8 +99,11 @@ internal fun TvSideMenuItem(
         if (expanded) {
             Text(
                 text = label,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = if (focused || selected) FontWeight.SemiBold else FontWeight.SemiBold,
+                style = if (focused || selected) {
+                    MaterialTheme.typography.titleSmallEmphasized
+                } else {
+                    MaterialTheme.typography.titleSmall
+                },
                 color = contentColor,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

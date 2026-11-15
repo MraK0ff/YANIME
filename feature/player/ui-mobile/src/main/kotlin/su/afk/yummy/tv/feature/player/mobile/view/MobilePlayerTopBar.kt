@@ -95,7 +95,7 @@ internal fun MobilePlayerTopBar(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                    style = MaterialTheme.typography.titleMediumEmphasized,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
@@ -114,7 +114,7 @@ internal fun MobilePlayerTopBar(
                         },
                         color = Color.White.copy(alpha = 0.72f),
                         maxLines = 1,
-                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                        style = MaterialTheme.typography.labelLargeEmphasized.copy(color = Color.White),
                     )
                     Icon(
                         imageVector = if (episodeExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
@@ -157,7 +157,7 @@ private fun TopBarQualityAction(label: String, onClick: () -> Unit) {
             Icon(Icons.Filled.HighQuality, contentDescription = null, tint = Color.White, modifier = Modifier.size(17.dp))
             Text(
                 text = label,
-                style = MaterialTheme.typography.labelLarge.copy(color = Color.White, fontWeight = FontWeight.SemiBold),
+                style = MaterialTheme.typography.labelLargeEmphasized.copy(color = Color.White),
                 maxLines = 1,
                 softWrap = false,
             )

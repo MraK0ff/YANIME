@@ -37,6 +37,8 @@ import su.afk.yummy.tv.core.designsystem.locals.LocalLibraryListStatuses
 import su.afk.yummy.tv.core.designsystem.mobile.input.clickablePointer
 import su.afk.yummy.tv.core.designsystem.mobile.input.onSecondaryClick
 import su.afk.yummy.tv.core.designsystem.seasonal.seasonalCardDecor
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -63,7 +65,7 @@ fun MobilePosterCard(
 ) {
     Card(
         modifier = modifier,
-        shape = MaterialTheme.shapes.medium,
+        shape = YummyShapeTokens.Card,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
         Column(
@@ -97,7 +99,7 @@ fun MobilePosterCard(
                         color = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier
                             .align(Alignment.TopStart)
-                            .padding(8.dp)
+                            .padding(YummySpacing.Small)
                             .background(MaterialTheme.colorScheme.primary, MaterialTheme.shapes.extraSmall)
                             .padding(horizontal = 8.dp, vertical = 3.dp),
                     )
@@ -127,7 +129,7 @@ fun MobilePosterCard(
                     )
                 }
             }
-            Column(Modifier.padding(horizontal = currentMobilePosterTextPadding(), vertical = 8.dp)) {
+            Column(Modifier.padding(horizontal = currentMobilePosterTextPadding(), vertical = YummySpacing.Small)) {
                 Text(
                     text = title,
                     minLines = titleMinLines,
@@ -137,7 +139,7 @@ fun MobilePosterCard(
                     fontWeight = currentMobilePosterTitleWeight(),
                 )
                 if (!subtitle.isNullOrBlank()) {
-                    Spacer(Modifier.height(4.dp))
+                    Spacer(Modifier.height(YummySpacing.XSmall))
                     Text(
                         text = subtitle,
                         maxLines = 1,

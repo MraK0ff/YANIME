@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,6 +17,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.baseScreen.BaseBottomSheet
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 /** Мобильный вид запроса подтверждения: шторка поверх текущего экрана, строки как в пикерах деталки. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,7 +31,7 @@ internal fun MobileConfirmSheet(
     BaseBottomSheet(
         onDismissRequest = { onAnswer(false) },
         title = request.title,
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
     ) {
         Text(
             text = request.message,
@@ -64,10 +65,10 @@ private fun ConfirmRow(
         modifier = Modifier
             .fillMaxWidth()
             .testTag(testTag)
-            .clip(RoundedCornerShape(14.dp))
+            .clip(YummyShapeTokens.Control)
             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.72f))
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+            .padding(horizontal = YummySpacing.Large, vertical = YummySpacing.Medium),
     ) {
         Text(
             text = text,

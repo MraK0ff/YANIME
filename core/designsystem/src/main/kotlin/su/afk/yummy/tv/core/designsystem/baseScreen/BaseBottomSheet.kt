@@ -24,11 +24,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.seasonal.seasonalPanelDecor
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 /**
  * Гасит остаточный scroll/fling, когда список внутри шторки короче её максимальной высоты и
@@ -77,7 +77,7 @@ fun BaseBottomSheet(
     /** Ограничение строк заголовка: длинные названия тайтлов иначе съедают полшторки. */
     titleMaxLines: Int = Int.MAX_VALUE,
     titleContent: (@Composable () -> Unit)? = null,
-    contentPadding: PaddingValues = PaddingValues(start = 16.dp, end = 16.dp, bottom = 18.dp),
+    contentPadding: PaddingValues = PaddingValues(start = YummySpacing.Large, end = YummySpacing.Large, bottom = YummySpacing.Large),
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     scrollableContent: Boolean = false,
     content: @Composable ColumnScope.() -> Unit,
@@ -109,11 +109,10 @@ fun BaseBottomSheet(
                 titleContent != null -> titleContent()
                 title != null -> Text(
                     text = title,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.titleLargeEmphasized,
                     maxLines = titleMaxLines,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(bottom = 14.dp),
+                    modifier = Modifier.padding(bottom = YummySpacing.Large),
                 )
             }
             content()

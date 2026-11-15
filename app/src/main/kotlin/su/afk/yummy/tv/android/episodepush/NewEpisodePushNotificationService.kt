@@ -49,6 +49,17 @@ class NewEpisodePushNotificationService @Inject constructor(
         )
     }
 
+    /** Уведомление о новой серии одной из выбранных пользователем озвучек. */
+    fun showSubscribedEpisode(animeId: Int, title: String, episodeNumber: Int) {
+        show(
+            channel = Channel.SUBSCRIPTIONS,
+            notificationId = SUBSCRIPTION_NOTIFICATION_ID_BASE + animeId,
+            title = title,
+            text = context.getString(R.string.subscribed_episode_push_text, episodeNumber),
+            animeId = animeId,
+        )
+    }
+
     private fun show(channel: Channel, notificationId: Int, title: String, text: String, animeId: Int?) {
         ensureChannel(channel)
         val builder = NotificationCompat.Builder(context, channel.id)
@@ -114,11 +125,13 @@ class NewEpisodePushNotificationService @Inject constructor(
 
         /** Локальные пуши о новых сериях из списков пользователя. */
         LIBRARY("library_new_episodes", R.string.library_episode_push_notification_channel),
+        SUBSCRIPTIONS("subscribed_new_episodes", R.string.subscribed_episode_push_notification_channel),
     }
 
     private companion object {
         const val NOTIFICATION_ID_BASE = 61_000
         const val LIBRARY_NOTIFICATION_ID_BASE = 1_000_000
+        const val SUBSCRIPTION_NOTIFICATION_ID_BASE = 2_000_000
 
         const val CONTINUE_DEEP_LINK_PREFIX = "yanime://continue/"
         const val DETAILS_DEEP_LINK_PREFIX = "yanime://details/"

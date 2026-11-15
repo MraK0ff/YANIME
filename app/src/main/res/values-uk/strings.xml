@@ -10,6 +10,7 @@
     <string name="interface_mode_mobile_hint">Компактне компонування для сенсорного керування</string>
     <string name="episode_push_notification_channel">Сповіщення профілю</string>
     <string name="library_episode_push_notification_channel">Нові серії з ваших списків</string>
+    <string name="subscribed_episode_push_notification_channel">Нові серії за підписками</string>
     <string name="episode_push_action_watch">Дивитися</string>
     <string name="episode_push_action_details">Детальніше</string>
     <string name="shortcut_search">Пошук</string>
@@ -21,4 +22,5 @@
     <string name="widget_episode">Серія</string>
     <string name="widget_episode_number">Серія %1$s</string>
     <string name="library_episode_push_text">Вийшла серія %1$d</string>
+    <string name="subscribed_episode_push_text">У підписаній озвучці вийшла серія %1$d</string>
 </resources>

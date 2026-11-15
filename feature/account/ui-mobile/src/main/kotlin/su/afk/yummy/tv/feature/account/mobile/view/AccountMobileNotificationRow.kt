@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.designsystem.R as CoreR
 import su.afk.yummy.tv.core.designsystem.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.domain.account.model.ProfileNotification
@@ -94,13 +95,13 @@ internal fun AccountMobileNotificationRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(14.dp),
+                .padding(YummySpacing.Medium + 2.dp),
             verticalAlignment = Alignment.Top,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
         ) {
             Box(
                 modifier = Modifier
-                    .size(40.dp)
+                    .size(YummySpacing.TouchTarget - YummySpacing.Small)
                     .background(
                         color = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f),
                         shape = CircleShape,
@@ -111,12 +112,12 @@ internal fun AccountMobileNotificationRow(
                     imageVector = notificationTypeIcon(notification.type),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(YummySpacing.Large + YummySpacing.XSmall),
                 )
             }
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(YummySpacing.XSmall),
             ) {
                 Text(
                     text = notification.title.ifBlank { notification.type },
@@ -152,14 +153,14 @@ internal fun AccountMobileNotificationRow(
                         ),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f),
                         modifier = Modifier
-                            .padding(vertical = 6.dp)
-                            .size(24.dp),
+                            .padding(vertical = YummySpacing.Small - 2.dp)
+                            .size(YummySpacing.XXLarge),
                     )
                 }
                 if (!notification.viewed) {
                     IconButton(
                         onClick = onRead,
-                        modifier = Modifier.size(36.dp),
+                        modifier = Modifier.size(YummySpacing.TouchTarget - YummySpacing.Medium),
                         colors = IconButtonDefaults.iconButtonColors(
                             contentColor = MaterialTheme.colorScheme.primary,
                         ),
@@ -167,7 +168,7 @@ internal fun AccountMobileNotificationRow(
                         Icon(
                             imageVector = Icons.Filled.Done,
                             contentDescription = stringResource(R.string.account_mark_read),
-                            modifier = Modifier.size(20.dp),
+                            modifier = Modifier.size(YummySpacing.Large + YummySpacing.XSmall),
                         )
                     }
                 }
@@ -194,8 +195,8 @@ internal fun AccountMobileNotificationRow(
 private fun AccountMobileNotificationRowPreview() {
     ScreenPreviewTheme {
         Column(
-            modifier = Modifier.padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier.padding(YummySpacing.Medium),
+            verticalArrangement = Arrangement.spacedBy(YummySpacing.Medium - 2.dp),
         ) {
             AccountMobileNotificationRow(
                 notification = previewNotification(

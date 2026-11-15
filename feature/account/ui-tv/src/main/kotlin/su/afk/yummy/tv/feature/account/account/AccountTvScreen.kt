@@ -28,7 +28,7 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
@@ -74,7 +74,7 @@ fun AccountTvScreen(
             },
         )
     }
-    val horizontalPadding = if (state.isSignedIn) 32.dp else TvScreenPadding.Horizontal
+    val horizontalPadding = if (state.isSignedIn) YummySpacing.XXXLarge else TvScreenPadding.Horizontal
     val preferredFocusRequester = remember { FocusRequester() }
     val registerPreferredContentFocusRequester = LocalPreferredContentFocusRequester.current
     val mainMenuFocusRequester = LocalMainMenuFocusRequester.current

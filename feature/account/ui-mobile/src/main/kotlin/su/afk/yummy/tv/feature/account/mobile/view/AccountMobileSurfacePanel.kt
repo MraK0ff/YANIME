@@ -9,7 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 @Composable
 internal fun AccountMobileSurfacePanel(
@@ -21,7 +21,7 @@ internal fun AccountMobileSurfacePanel(
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.extraLarge)
             .background(MaterialTheme.colorScheme.surfaceContainer)
-            .padding(20.dp),
+            .padding(YummySpacing.XLarge),
         content = content,
     )
 }

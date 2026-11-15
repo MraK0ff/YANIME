@@ -9,9 +9,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.feature.settings.common.utils.color
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 @Composable
 internal fun SettingsMobileSection(
@@ -22,18 +22,17 @@ internal fun SettingsMobileSection(
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(YummySpacing.Small),
     ) {
         if (title != null || subtitle != null) {
             Column(
-                verticalArrangement = Arrangement.spacedBy(1.dp),
-                modifier = Modifier.padding(horizontal = 4.dp),
+                verticalArrangement = Arrangement.spacedBy(YummySpacing.XSmall / 2),
+                modifier = Modifier.padding(horizontal = YummySpacing.XSmall),
             ) {
                 if (title != null) {
                     Text(
                         text = title,
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.SemiBold,
+                        style = MaterialTheme.typography.titleSmallEmphasized,
                         color = MaterialTheme.colorScheme.primary,
                     )
                 }
@@ -48,12 +47,12 @@ internal fun SettingsMobileSection(
         }
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.extraLarge,
+            shape = YummyShapeTokens.ProminentCard,
             color = MaterialTheme.colorScheme.surfaceContainer,
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(2.dp),
+                verticalArrangement = Arrangement.spacedBy(YummySpacing.XSmall / 2),
                 content = { content() },
             )
         }

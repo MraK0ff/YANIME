@@ -16,8 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 @Composable
 internal fun PlayerSetupMobileToggleRow(
@@ -32,16 +32,15 @@ internal fun PlayerSetupMobileToggleRow(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+            .padding(horizontal = YummySpacing.Large, vertical = YummySpacing.Medium),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
     ) {
         PlayerSetupMobileRowIcon(icon = icon)
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = label,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = if (enabled) FontWeight.SemiBold else FontWeight.Normal,
+                style = if (enabled) MaterialTheme.typography.bodyLargeEmphasized else MaterialTheme.typography.bodyLarge,
                 color = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
             )
             Text(
@@ -50,7 +49,7 @@ internal fun PlayerSetupMobileToggleRow(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.width(YummySpacing.Large))
         Switch(
             checked = enabled,
             onCheckedChange = null,

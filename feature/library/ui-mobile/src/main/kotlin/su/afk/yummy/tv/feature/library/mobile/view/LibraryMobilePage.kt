@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import su.afk.yummy.tv.core.designsystem.components.ErrorBanner
 import su.afk.yummy.tv.core.designsystem.error.asString
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.designsystem.mobile.bar.MobileBottomBarDefaults
 import su.afk.yummy.tv.core.designsystem.mobile.cards.MobileTitleListCard
 import su.afk.yummy.tv.core.designsystem.mobile.layout.mobileContentMaxWidth
@@ -98,12 +99,12 @@ internal fun LibraryMobilePage(
             .mobileContentMaxWidth()
             .fillMaxSize(),
         contentPadding = PaddingValues(
-            start = 16.dp,
-            top = 12.dp,
-            end = 16.dp,
+            start = YummySpacing.Large,
+            top = YummySpacing.Medium,
+            end = YummySpacing.Large,
             bottom = MobileBottomBarDefaults.contentBottomPadding,
         ),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
     ) {
         if (showRemoteLoader) {
             item(key = "remote_loader") {

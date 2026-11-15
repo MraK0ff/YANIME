@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -25,8 +24,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 @Composable
 internal fun PlayerSetupTvToggleRow(
@@ -39,7 +39,7 @@ internal fun PlayerSetupTvToggleRow(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
-    val shape = RoundedCornerShape(10.dp)
+    val shape = YummyShapeTokens.Control
 
     Row(
         modifier = modifier
@@ -55,16 +55,15 @@ internal fun PlayerSetupTvToggleRow(
                 shape,
             )
             .clickable(interactionSource = interactionSource, indication = null, onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+            .padding(horizontal = YummySpacing.Large, vertical = YummySpacing.Medium),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
     ) {
         PlayerSetupTvRowIcon(icon = icon)
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = label,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = if (enabled) FontWeight.SemiBold else FontWeight.Normal,
+                style = if (enabled) MaterialTheme.typography.bodyLargeEmphasized else MaterialTheme.typography.bodyLarge,
                 color = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
             )
             Text(
@@ -73,7 +72,7 @@ internal fun PlayerSetupTvToggleRow(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.width(YummySpacing.Large))
         Switch(
             checked = enabled,
             onCheckedChange = null,

@@ -16,9 +16,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 /** Строка выбора значения: название, подсказка и текущее значение; нажатие открывает шторку. */
 @Composable
@@ -38,16 +38,15 @@ internal fun PlayerSetupMobileOptionRow(
             .fillMaxWidth()
             .alpha(if (enabled) 1f else 0.4f)
             .clickable(enabled = enabled, onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+            .padding(horizontal = YummySpacing.Large, vertical = YummySpacing.Medium),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
     ) {
         PlayerSetupMobileRowIcon(icon = icon)
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = label,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.bodyLargeEmphasized,
                 color = MaterialTheme.colorScheme.onBackground,
             )
             Text(

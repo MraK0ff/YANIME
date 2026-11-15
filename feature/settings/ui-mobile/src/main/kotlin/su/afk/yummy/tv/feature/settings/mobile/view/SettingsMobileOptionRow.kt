@@ -18,13 +18,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.feature.settings.common.utils.color
-import su.afk.yummy.tv.feature.settings.common.utils.hint
-import su.afk.yummy.tv.feature.settings.common.utils.label
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 @Composable
 internal fun SettingsMobileOptionRow(
@@ -42,7 +39,7 @@ internal fun SettingsMobileOptionRow(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+            .padding(horizontal = YummySpacing.Large, vertical = YummySpacing.Medium),
     ) {
         // Значение без потолка по ширине вытесняло подпись: вес был только у колонки с ней, а длинное
         // значение («Смотрю, В планах, … Избранное») забирало строку целиком. Потолок оставляет подписи
@@ -53,13 +50,12 @@ internal fun SettingsMobileOptionRow(
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = label,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.bodyLargeEmphasized,
                     color = MaterialTheme.colorScheme.onBackground,
                 )
                 if (hint.isNotBlank()) {

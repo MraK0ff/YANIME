@@ -212,7 +212,7 @@ internal fun LibraryGrid(
             ) {
                 itemsIndexed(
                     items = items,
-                    key = { index, item -> lazyKey("library", item.animeId, index) },
+                    key = { _, item -> lazyKey("library", item.animeId) },
                     contentType = { _, _ -> "library_card" },
                 ) { index, item ->
                     val stableOnClick = remember(item.animeId, index) {

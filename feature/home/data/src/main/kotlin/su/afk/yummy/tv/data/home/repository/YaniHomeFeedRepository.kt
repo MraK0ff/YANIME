@@ -42,6 +42,44 @@ import su.afk.yummy.tv.data.home.mapper.toAnimeEpisodeReleases
 import su.afk.yummy.tv.domain.schedule.repository.AnimeScheduleRepository
 import su.afk.yummy.tv.data.home.storage.mapper.toHomeFeed as toStoredHomeFeed
 
+
+/**
+ * The old cache had one card per anime but no episode number. Convert it into a zero-episode
+ * baseline so the first history-aware poll enriches it without producing false new-release moves.
+ */
+private fun HomeFeedCache?.toLegacyReleaseHistory(now: Long): List<HomeNewReleaseEntry> {
+    val baselineAt = this?.cachedAt?.takeIf { it > 0L } ?: now
+    return this?.items
+        .orEmpty()
+        .asSequence()
+        .filter { it.container == HOME_FEED_CONTAINER_NEW_RELEASES }
+        .sortedBy { it.position }
+        .distinctBy { it.itemId }
+        .mapIndexed { index, item ->
+            HomeNewReleaseEntry(
+                animeId = item.itemId,
+                title = item.title,
+                animeUrl = "",
+                description = item.description,
+                episodeNumber = 0,
+                episodeTitle = "",
+                videoId = null,
+                dubTitle = item.dubbing.takeIf(String::isNotBlank),
+                playerTitle = item.playerName.takeIf(String::isNotBlank),
+                posterSmallUrl = item.posterSmallUrl,
+                posterMediumUrl = item.posterMediumUrl,
+                posterBigUrl = item.posterBigUrl,
+                posterFullsizeUrl = item.posterFullsizeUrl,
+                posterMegaUrl = item.posterMegaUrl,
+                firstSeenAt = baselineAt,
+                lastDetectedAt = baselineAt,
+                lastUpdatedAt = 0L,
+                position = index,
+            )
+        }
+        .toList()
+}
+
 private const val FEED_TTL_MS = 60 * 1000L
 private const val FEED_CACHE_SIGNATURE_VERSION = "cw-local1"
 private const val TAG = "YaniHomeFeed"

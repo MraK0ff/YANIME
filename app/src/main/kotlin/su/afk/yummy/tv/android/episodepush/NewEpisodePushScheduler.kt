@@ -21,9 +21,9 @@ import javax.inject.Singleton
  * Локальное ([LibraryEpisodePushWorker]) ставится всегда: гейт «включён ли пуш» стоит внутри
  * [LibraryEpisodePushWorker.doWork], само задание не переэнкьюивается.
  *
- * Профильное ([NewEpisodePushWorker]) нужно только авторизованному пользователю — без входа
- * ленты уведомлений нет, и холостой запуск раз в несколько часов ничего не даёт. Поэтому его
- * ставит и снимает [syncProfilePushWithSession] по состоянию сессии.
+ * Профильное ([NewEpisodePushWorker]) нужно только авторизованному пользователю: оно проверяет
+ * как серверную ленту уведомлений, так и активные подписки на озвучки. Поэтому его ставит и
+ * снимает [syncProfilePushWithSession] по состоянию сессии.
  */
 @Singleton
 class NewEpisodePushScheduler @Inject constructor(
@@ -34,7 +34,8 @@ class NewEpisodePushScheduler @Inject constructor(
     fun scheduleLibraryPush() {
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             LIBRARY_EPISODE_PUSH_WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,
+            // Upgrade existing installs from the previous interval.
+            ExistingPeriodicWorkPolicy.UPDATE,
             createLibraryPushRequest(),
         )
     }

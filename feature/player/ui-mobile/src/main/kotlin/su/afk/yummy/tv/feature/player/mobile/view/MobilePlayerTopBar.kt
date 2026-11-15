@@ -1,5 +1,6 @@
 package su.afk.yummy.tv.feature.player.mobile.view
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -53,7 +55,7 @@ internal fun MobilePlayerBackButton(
         contentAlignment = Alignment.Center,
         modifier = modifier.padding(top = topInset),
     ) {
-        IconButton(onClick = onBack, modifier = Modifier.size(buttonSize)) {
+        IconButton(onClick = onBack, modifier = Modifier.mobilePlayerGlassSurface(shape = MobilePlayerInteractiveShape).size(buttonSize)) {
             Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(DesignSystemR.string.common_back),
                 tint = Color.White, modifier = Modifier.size(24.dp))
         }
@@ -83,8 +85,12 @@ internal fun MobilePlayerTopBar(
     Box(
         modifier = modifier.fillMaxSize(),
     ) {
+        Box(
+            modifier = Modifier.align(Alignment.TopCenter).fillMaxWidth().height(176.dp)
+                .background(Brush.verticalGradient(listOf(Color.Black.copy(alpha = 0.76f), Color.Black.copy(alpha = 0.34f), Color.Transparent))),
+        )
         Column(
-            modifier = Modifier.align(Alignment.TopCenter).fillMaxWidth(0.94f).padding(top = 36.dp),
+            modifier = Modifier.align(Alignment.TopCenter).fillMaxWidth(0.92f).padding(top = 34.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
@@ -95,7 +101,7 @@ internal fun MobilePlayerTopBar(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleMediumEmphasized,
+                    style = MaterialTheme.typography.headlineSmallEmphasized,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }

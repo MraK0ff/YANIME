@@ -31,6 +31,10 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.setProgress
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -168,6 +172,14 @@ private fun MobilePlayerTimeline(
     Box(
         modifier = modifier
             .height(48.dp)
+            .semantics {
+                progressBarRangeInfo = ProgressBarRangeInfo(safeProgress, 0f..1f)
+                if (enabled) setProgress { target ->
+                    onValueChange(target.coerceIn(0f, 1f))
+                    onValueChangeFinished()
+                    true
+                }
+            }
             .pointerInput(enabled, onValueChange) {
                 if (enabled) {
                     detectTapGestures { position ->
@@ -195,7 +207,7 @@ private fun MobilePlayerTimeline(
     ) {
         Canvas(Modifier.fillMaxWidth().height(48.dp)) {
             val centerY = size.height / 2f
-            val stroke = 3.5.dp.toPx()
+            val stroke = 5.dp.toPx()
             val radius = stroke / 2f
             val endX = size.width
             val playedX = endX * safeProgress
@@ -225,7 +237,7 @@ private fun MobilePlayerTimeline(
             if (enabled) {
                 drawCircle(
                     color = playedColor,
-                    radius = 6.dp.toPx(),
+                    radius = 7.dp.toPx(),
                     center = Offset(playedX.coerceIn(0f, endX), centerY),
                 )
             }

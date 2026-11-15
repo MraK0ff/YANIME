@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.feature.player.mobile.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -93,7 +94,8 @@ private fun StripCard(
                 .fillMaxWidth()
                 .aspectRatio(16f / 9f)
                 .clip(STRIP_CARD_SHAPE)
-                .background(Color.White.copy(alpha = 0.12f)),
+                .background(Color.White.copy(alpha = 0.12f))
+                .border(if (selected) 2.dp else 1.dp, if (selected) primary else Color.White.copy(alpha = 0.18f), STRIP_CARD_SHAPE),
         ) {
             val thumbnailModels = remember(item, animeId, posterUrl) { item.thumbnailModels(animeId, posterUrl) }
             if (thumbnailModels.isNotEmpty()) {

@@ -102,8 +102,9 @@ internal fun MobilePlayerTopBar(
             if (episode.isNotBlank()) {
                 Row(
                     modifier = Modifier.heightIn(min = MobilePlayerMinimumTouchTarget)
+                        .mobilePlayerGlassSurface()
                         .clickable(role = Role.Button, onClickLabel = stringResource(R.string.player_mobile_episode_number, episode), onClick = onEpisodeClick)
-                        .padding(horizontal = 8.dp),
+                        .padding(horizontal = 12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(2.dp),
                 ) {
@@ -148,7 +149,8 @@ internal fun MobilePlayerTopBar(
 private fun TopBarQualityAction(label: String, onClick: () -> Unit) {
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.widthIn(min = 72.dp, max = 112.dp)
+        modifier = Modifier.mobilePlayerGlassSurface()
+            .widthIn(min = 72.dp, max = 112.dp)
             .size(height = mobilePlayerControlButtonSize(), width = 92.dp)
             .clickable(role = Role.Button, onClickLabel = stringResource(R.string.player_quality_title), onClick = onClick)
             .padding(horizontal = 4.dp),
@@ -170,7 +172,8 @@ private fun TopBarSpeedAction(speed: Float, onClick: () -> Unit) {
     val label = if (speed % 1f == 0f) "${speed.toInt()}x" else "${speed}x"
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.size(width = 50.dp, height = mobilePlayerControlButtonSize())
+        modifier = Modifier.mobilePlayerGlassSurface()
+            .size(width = 58.dp, height = mobilePlayerControlButtonSize())
             .clickable(role = Role.Button, onClickLabel = stringResource(R.string.player_speed_title), onClick = onClick),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
@@ -188,7 +191,8 @@ private fun TopBarSpeedAction(speed: Float, onClick: () -> Unit) {
 private fun TopBarAction(icon: ImageVector, description: String, onClick: () -> Unit) {
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.size(width = 48.dp, height = mobilePlayerControlButtonSize())
+        modifier = Modifier.mobilePlayerGlassSurface()
+            .size(width = 48.dp, height = mobilePlayerControlButtonSize())
             .clickable(role = Role.Button, onClickLabel = description, onClick = onClick),
     ) {
         Icon(icon, description, tint = Color.White, modifier = Modifier.size(24.dp))

@@ -12,12 +12,15 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SearchOff
-import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -136,13 +139,21 @@ fun CatalogMobileScreen(
             }
             item(span = { GridItemSpan(maxLineSpan) }, contentType = "query_field") {
                 OutlinedTextField(
-                    shape = MaterialTheme.shapes.large,
+                    shape = MaterialTheme.shapes.extraLarge,
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        disabledContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                        focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
+                        unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
+                    ),
                     value = state.query,
                     onValueChange = { onEvent(CatalogState.Event.QueryChanged(it)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(queryFocusRequester),
                     placeholder = { Text(stringResource(R.string.search_placeholder)) },
+                    leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                     keyboardActions = KeyboardActions(onSearch = {
@@ -158,35 +169,26 @@ fun CatalogMobileScreen(
                             }
                             CatalogMobileFilterButton(
                                 activeCount = state.filters.activeCount,
-                                modifier = Modifier.padding(end = 6.dp),
+                                modifier = Modifier.padding(end = 2.dp),
                                 onClick = {
                                     keyboardController?.hide()
                                     onEvent(CatalogState.Event.OpenFilters)
                                 },
                             )
+                            IconButton(
+                                onClick = {
+                                    keyboardController?.hide()
+                                    onEvent(CatalogState.Event.SearchSubmitted)
+                                },
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Search,
+                                    contentDescription = stringResource(R.string.search_mobile_submit),
+                                )
+                            }
                         }
                     },
                 )
-            }
-            item(span = { GridItemSpan(maxLineSpan) }, contentType = "submit_button") {
-                Button(
-                    onClick = {
-                        keyboardController?.hide()
-                        onEvent(CatalogState.Event.SearchSubmitted)
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(
-                        if (state.filters.activeCount > 0) {
-                            stringResource(
-                                R.string.search_mobile_submit_with_filters,
-                                state.filters.activeCount,
-                            )
-                        } else {
-                            stringResource(R.string.search_mobile_submit)
-                        },
-                    )
-                }
             }
             if (state.query.isEmpty() && state.searchHistory.isNotEmpty()) {
                 item(span = { GridItemSpan(maxLineSpan) }, contentType = "search_history") {

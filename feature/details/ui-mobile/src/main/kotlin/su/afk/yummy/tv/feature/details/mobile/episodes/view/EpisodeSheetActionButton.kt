@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -38,7 +37,7 @@ internal fun EpisodeSheetActionButton(
         modifier = Modifier
             .fillMaxWidth()
             .clip(YummyShapeTokens.Control)
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.72f))
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
             .clickable(role = Role.Button, onClick = onClick)
             .padding(horizontal = YummySpacing.Large, vertical = YummySpacing.Medium),
         horizontalArrangement = Arrangement.spacedBy(14.dp),

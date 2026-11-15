@@ -135,7 +135,7 @@ internal fun DetailsPrimaryActions(
                         modifier = Modifier
                             .weight(1f)
                             .animateWidth(interactionSource)
-                            .height(46.dp),
+                            .heightIn(min = YummySpacing.TouchTarget),
                     ) {
                         Icon(
                             imageVector = if (state.isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,

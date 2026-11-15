@@ -8,7 +8,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -33,12 +32,9 @@ internal fun Modifier.mobilePlayerGlassSurface(
     .background(fill)
     .border(1.dp, borderColor, shape)
 
-@androidx.compose.runtime.Composable
-internal fun mobilePlayerControlButtonSize(primary: Boolean = false): Dp {
-    val widthDp = LocalConfiguration.current.screenWidthDp
-    return when {
-        widthDp >= 440 -> if (primary) 68.dp else MobilePlayerMinimumTouchTarget
-        widthDp >= 392 -> if (primary) 64.dp else MobilePlayerMinimumTouchTarget
+internal fun mobilePlayerControlButtonSize(availableWidth: Dp, primary: Boolean = false): Dp =
+    when {
+        availableWidth >= 440.dp -> if (primary) 68.dp else MobilePlayerMinimumTouchTarget
+        availableWidth >= 392.dp -> if (primary) 64.dp else MobilePlayerMinimumTouchTarget
         else -> if (primary) 60.dp else MobilePlayerMinimumTouchTarget
     }
-}

@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.components.FallbackAsyncImage
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.core.model.anime.posterUrls
 import su.afk.yummy.tv.feature.schedule.presentation.R
 import su.afk.yummy.tv.feature.schedule.utils.remainingText
@@ -51,20 +54,21 @@ internal fun ScheduleMobileReleaseCard(
     val accentColor =
         if (aired) MobileScheduleAiredColor else MaterialTheme.colorScheme.onSurfaceVariant
     val rowBackground = if (aired) {
-        MobileScheduleAiredColor.copy(alpha = 0.10f)
+        MobileScheduleAiredColor.copy(alpha = 0.14f)
     } else {
-        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.045f)
+        MaterialTheme.colorScheme.surfaceContainerLow
     }
-    val shape = RoundedCornerShape(8.dp)
 
+    Card(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth().heightIn(min = 126.dp),
+        shape = YummyShapeTokens.ProminentCard,
+        colors = CardDefaults.cardColors(containerColor = rowBackground),
+    ) {
     Row(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 126.dp)
-            .clip(shape)
-            .background(rowBackground, shape)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 14.dp, vertical = 10.dp),
+            .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
@@ -72,7 +76,7 @@ internal fun ScheduleMobileReleaseCard(
             modifier = Modifier
                 .width(74.dp)
                 .height(106.dp)
-                .clip(RoundedCornerShape(6.dp))
+                .clip(YummyShapeTokens.Control)
                 .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)),
         ) {
             FallbackAsyncImage(
@@ -89,7 +93,7 @@ internal fun ScheduleMobileReleaseCard(
         ) {
             Text(
                 text = item.title,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleMediumEmphasized,
                 color = MaterialTheme.colorScheme.onBackground,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
@@ -116,9 +120,10 @@ internal fun ScheduleMobileReleaseCard(
         Text(
             text = releaseAt.timeLabel(),
             modifier = Modifier.widthIn(min = 58.dp),
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.headlineSmallEmphasized,
             color = accentColor,
             maxLines = 1,
         )
+    }
     }
 }

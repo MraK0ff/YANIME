@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.mobile.input.clickablePointer
@@ -35,12 +36,13 @@ internal fun <T> MobileMainNavigationBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(containerColor)
+            .background(MaterialTheme.colorScheme.surfaceContainerLow)
             .navigationBarsPadding(),
     ) {
         NavigationBar(
             modifier = Modifier.height(MobileBottomBarDefaults.BarHeight),
-            containerColor = containerColor,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            tonalElevation = 0.dp,
             windowInsets = WindowInsets(0.dp),
         ) {
             val itemColors = seasonalNavigationBarItemColors()

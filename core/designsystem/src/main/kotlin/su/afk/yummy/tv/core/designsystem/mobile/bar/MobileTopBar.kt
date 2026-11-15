@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.R
 import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
-private val CompactMobileTopBarHeight = 52.dp
+private val CompactMobileTopBarHeight = 64.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,8 +61,8 @@ fun MobileTopBar(
         },
         actions = { actions() },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            scrolledContainerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainer,
         ),
     )
 }

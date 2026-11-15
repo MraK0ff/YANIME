@@ -297,10 +297,10 @@ private fun YummyTvPalette.toDarkColorScheme() = darkColorScheme(
     onSecondaryContainer = onBackground,
     // Secondary accent is the distinct expressive tertiary role; the container remains
     // tonal and neutral enough to preserve hierarchy on poster-heavy screens.
-    tertiary = secondary,
+    tertiary = lerp(secondary, primary, 0.38f),
     onTertiary = onPrimary,
-    tertiaryContainer = surfaceVariant,
-    onTertiaryContainer = onSurfaceVariant,
+    tertiaryContainer = lerp(surfaceVariant, primaryContainer, 0.42f),
+    onTertiaryContainer = onPrimaryContainer,
     error = error,
     onError = onError,
     errorContainer = onError,
@@ -360,10 +360,10 @@ private fun YummyTvPalette.toLightColorScheme(neutrals: LightNeutrals) = lightCo
     // Акцентная «таблетка» выделения (напр. активная вкладка нижнего меню) несёт оттенок палитры.
     secondaryContainer = primaryContainerLight,
     onSecondaryContainer = onPrimaryContainerLight,
-    tertiary = secondaryLight,
+    tertiary = lerp(secondaryLight, primaryLight, 0.38f),
     onTertiary = onPrimaryLight,
-    tertiaryContainer = neutrals.surfaceVariant,
-    onTertiaryContainer = LightOnBackground,
+    tertiaryContainer = lerp(neutrals.surfaceVariant, primaryContainerLight, 0.36f),
+    onTertiaryContainer = onPrimaryContainerLight,
     error = Color(0xFFBA1A1A),
     onError = Color(0xFFFFFFFF),
     errorContainer = Color(0xFFFFDAD6),

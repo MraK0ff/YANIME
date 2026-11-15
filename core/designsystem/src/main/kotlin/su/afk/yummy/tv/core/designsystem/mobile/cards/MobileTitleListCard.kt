@@ -8,13 +8,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.components.TitleListRowContent
 import su.afk.yummy.tv.core.designsystem.components.yearText
 import su.afk.yummy.tv.core.designsystem.locals.LocalLibraryListStatuses
 import su.afk.yummy.tv.core.designsystem.locals.LocalLibraryUserRatings
 import su.afk.yummy.tv.core.designsystem.mobile.input.clickablePointer
 import su.afk.yummy.tv.core.designsystem.model.TitleListCardUi
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 
 /**
  * Строка тайтла из пользовательского списка (библиотека, списки профиля): постер 2:3 с оценкой

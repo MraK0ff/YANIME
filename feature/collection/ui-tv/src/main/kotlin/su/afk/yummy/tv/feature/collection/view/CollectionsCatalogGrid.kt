@@ -133,6 +133,7 @@ internal fun CollectionsCatalogGrid(
                 items(
                     count = itemCount,
                     key = pagingItems.safeItemKey("collection") { it.id },
+                    contentType = { "collection_card" },
                 ) { index ->
                     val item = pagingItems.getOrNull(index) ?: return@items
                     TvCollectionCard(

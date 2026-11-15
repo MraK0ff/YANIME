@@ -210,7 +210,11 @@ internal fun LibraryGrid(
                 verticalArrangement = Arrangement.spacedBy(TvCardSpacing.Vertical + TvTopAnchoredExtraRowGap),
                 horizontalArrangement = Arrangement.spacedBy(horizontalSpacing),
             ) {
-                itemsIndexed(items, key = { index, item -> lazyKey("library", item.animeId, index) }) { index, item ->
+                itemsIndexed(
+                    items = items,
+                    key = { index, item -> lazyKey("library", item.animeId, index) },
+                    contentType = { _, _ -> "library_card" },
+                ) { index, item ->
                     val stableOnClick = remember(item.animeId, index) {
                         {
                             rememberFocusedItem(index)

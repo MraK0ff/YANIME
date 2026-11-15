@@ -149,7 +149,8 @@ fun ReviewsListTvScreen(
                     ) {
                         items(
                             reviews.itemCount,
-                            key = reviews.safeItemKey("review") { it.id }) { index ->
+                            key = reviews.safeItemKey("review") { it.id },
+                            contentType = { "review" }) { index ->
                             reviews.getOrNull(index)?.let { review ->
                                 ReviewTvCard(
                                     review = review,

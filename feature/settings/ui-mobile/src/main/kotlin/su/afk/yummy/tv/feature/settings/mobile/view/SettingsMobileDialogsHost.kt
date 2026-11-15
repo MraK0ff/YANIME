@@ -26,7 +26,6 @@ import su.afk.yummy.tv.feature.settings.mobile.utils.hint
 import su.afk.yummy.tv.feature.settings.mobile.utils.icon
 import su.afk.yummy.tv.feature.settings.mobile.utils.label
 import su.afk.yummy.tv.feature.settings.presentation.R
-import su.afk.yummy.tv.core.designsystem.theme.previewColor
 import su.afk.yummy.tv.feature.settings.common.utils.availableAppThemes
 import su.afk.yummy.tv.feature.settings.common.utils.color
 import su.afk.yummy.tv.feature.settings.common.utils.hint
@@ -87,7 +86,6 @@ internal fun SettingsMobileDialogsHost(
                     it,
                     it.label(),
                     it.hint(),
-                    labelColor = it.previewColor(),
                     previewColors = it.previewColors(),
                 )
             },

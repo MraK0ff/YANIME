@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -42,24 +43,28 @@ internal fun QualityRow(
     labelColor: Color? = null,
     /** Значок варианта; без него строка остаётся только с подписью. Тонируется [labelColor], если он задан. */
     icon: ImageVector? = null,
+    previewColors: List<Color> = emptyList(),
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
-    val shape = RoundedCornerShape(10.dp)
+    val shape = RoundedCornerShape(18.dp)
 
     val bgColor = when {
-        selected && focused -> MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
-        focused -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
-        selected -> MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)
-        else -> Color.Transparent
+        selected -> MaterialTheme.colorScheme.secondaryContainer
+        focused -> MaterialTheme.colorScheme.surfaceContainerHigh
+        else -> MaterialTheme.colorScheme.surfaceContainerLow
     }
     val borderColor = if (focused) MaterialTheme.colorScheme.primary else Color.Transparent
-    val effectiveLabelColor = labelColor
-        ?: if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
+    val effectiveLabelColor = labelColor ?: if (selected) {
+        MaterialTheme.colorScheme.onSecondaryContainer
+    } else {
+        MaterialTheme.colorScheme.onSurface
+    }
 
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .heightIn(min = 68.dp)
             .clip(shape)
             .border(width = 2.dp, color = borderColor, shape = shape)
             .background(bgColor, shape)
@@ -70,7 +75,22 @@ internal fun QualityRow(
     ) {
         RadioDot(selected = selected, focused = focused)
 
-        if (icon != null) {
+        if (previewColors.isNotEmpty()) {
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
+                previewColors.take(4).forEachIndexed { index, color ->
+                    Box(
+                        modifier = Modifier
+                            .size(if (index == 0) 24.dp else 18.dp)
+                            .background(color, CircleShape)
+                            .then(
+                                if (selected && index == 0) {
+                                    Modifier.border(2.dp, MaterialTheme.colorScheme.onSecondaryContainer, CircleShape)
+                                } else Modifier,
+                            ),
+                    )
+                }
+            }
+        } else if (icon != null) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
@@ -90,7 +110,8 @@ internal fun QualityRow(
                 Text(
                     text = hint,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = if (selected) MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.78f)
+                    else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }

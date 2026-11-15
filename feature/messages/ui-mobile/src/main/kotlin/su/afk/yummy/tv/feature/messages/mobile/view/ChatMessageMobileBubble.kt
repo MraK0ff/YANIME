@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.core.designsystem.R as CoreR
 import su.afk.yummy.tv.domain.messages.model.ChatMessage
 import su.afk.yummy.tv.feature.messages.mobile.utils.formatMessageDate
@@ -81,7 +82,7 @@ internal fun ChatMessageMobileBubble(
     val context = LocalContext.current
     var menuExpanded by remember { mutableStateOf(false) }
     val showAvatar = showAuthor && !isOwn
-    val bubbleShape = RoundedCornerShape(18.dp)
+    val bubbleShape = YummyShapeTokens.ProminentCard
 
     val density = LocalDensity.current
     val thresholdPx = with(density) { 56.dp.toPx() }
@@ -142,7 +143,7 @@ internal fun ChatMessageMobileBubble(
                         targetValue = when {
                             isHighlighted -> MaterialTheme.colorScheme.tertiaryContainer
                             isOwn -> MaterialTheme.colorScheme.primaryContainer
-                            else -> MaterialTheme.colorScheme.surfaceVariant
+                            else -> MaterialTheme.colorScheme.surfaceContainerLow
                         },
                         label = "bubbleHighlight",
                     )
@@ -179,7 +180,7 @@ internal fun ChatMessageMobileBubble(
                             message.reply?.let { reply ->
                                 Surface(
                                     color = MaterialTheme.colorScheme.surface.copy(alpha = .5f),
-                                    shape = RoundedCornerShape(8.dp),
+                                    shape = YummyShapeTokens.Control,
                                     modifier = Modifier.clickable(enabled = reply.messageId != null) {
                                         reply.messageId?.let(onReplyClick)
                                     },

@@ -151,7 +151,7 @@ fun CollectionsCatalogMobileScreen(
             ) {
                 val error = (appendState as? LoadState.Error)?.error
                 if (error != null && pagingItems.itemCount > 0) {
-                    item(span = { GridItemSpan(maxLineSpan) }) {
+                    item(span = { GridItemSpan(maxLineSpan) }, contentType = "error_banner") {
                         ErrorBanner(
                             message = error.uiMessage(),
                             onRetry = { pagingItems.retry() },
@@ -183,7 +183,7 @@ fun CollectionsCatalogMobileScreen(
                     }
                 }
                 if (appendState is LoadState.Loading) {
-                    item(span = { GridItemSpan(maxLineSpan) }) {
+                    item(span = { GridItemSpan(maxLineSpan) }, contentType = "loading_indicator") {
                         Box(
                             modifier = Modifier.fillMaxWidth(),
                             contentAlignment = Alignment.Center,

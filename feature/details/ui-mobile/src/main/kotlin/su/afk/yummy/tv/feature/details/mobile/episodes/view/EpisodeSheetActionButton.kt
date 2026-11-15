@@ -19,8 +19,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 /** Строка-действие в шитах над серией: карточка как у пикеров, иконка в круге слева. */
 @Composable
@@ -34,10 +37,10 @@ internal fun EpisodeSheetActionButton(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
+            .clip(YummyShapeTokens.Control)
             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.72f))
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = YummySpacing.Large, vertical = YummySpacing.Medium),
         horizontalArrangement = Arrangement.spacedBy(14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

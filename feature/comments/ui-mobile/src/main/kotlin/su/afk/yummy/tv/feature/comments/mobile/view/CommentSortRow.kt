@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.designsystem.mobile.MobileSortDropdown
 import su.afk.yummy.tv.core.utils.formatting.toCompactCount
 import su.afk.yummy.tv.domain.comments.model.CommentSort
@@ -23,7 +24,7 @@ import su.afk.yummy.tv.feature.comments.utils.dropdownLabelRes
 internal val commentSortOrder = listOf(CommentSort.BEST, CommentSort.NEW, CommentSort.OLD)
 
 /** Высота шапки вместе с внешними отступами: список резервирует её сверху, чтобы шапка не перекрывала первый элемент. */
-internal val CommentSortRowHeight = 56.dp
+internal val CommentSortRowHeight = YummySpacing.TouchTarget + YummySpacing.Small
 
 @Composable
 internal fun CommentSortRow(
@@ -42,7 +43,7 @@ internal fun CommentSortRow(
                 text = stringResource(R.string.comments_total, totalCount.toCompactCount()).uppercase(),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 4.dp),
+                modifier = Modifier.padding(start = YummySpacing.XSmall),
             )
         } else {
             Spacer(Modifier.width(1.dp))

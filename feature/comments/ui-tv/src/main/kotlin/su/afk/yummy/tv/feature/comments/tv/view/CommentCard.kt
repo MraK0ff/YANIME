@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandLess
@@ -32,6 +31,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import coil3.compose.AsyncImage
 import su.afk.yummy.tv.core.designsystem.R as CoreR
 import su.afk.yummy.tv.core.designsystem.components.YummyLoadingIndicator
@@ -63,13 +64,13 @@ internal fun CommentCard(
     val reportFocusRequester = androidx.compose.runtime.remember { FocusRequester() }
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.34f),
-        shape = RoundedCornerShape(14.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        shape = YummyShapeTokens.ProminentCard,
         tonalElevation = 1.dp,
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 18.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier.padding(horizontal = YummySpacing.XLarge, vertical = YummySpacing.Medium + 2.dp),
+            verticalArrangement = Arrangement.spacedBy(YummySpacing.Medium - 2.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 AsyncImage(
@@ -77,16 +78,15 @@ internal fun CommentCard(
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .size(38.dp)
+                        .size(YummySpacing.TouchTarget - YummySpacing.Medium + 2.dp)
                         .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape),
                 )
-                Spacer(Modifier.width(10.dp))
+                Spacer(Modifier.width(YummySpacing.Medium - 2.dp))
                 Text(
                     text = comment.author.name.ifBlank {
                         stringResource(R.string.comments_unknown_author)
                     },
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.titleSmallEmphasized,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -111,7 +111,7 @@ internal fun CommentCard(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(YummySpacing.Small),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (comment.childrenCount > 0 || item.children.isNotEmpty()) {
@@ -173,8 +173,8 @@ internal fun CommentCard(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = if (depth == 0) 24.dp else 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                        .padding(start = if (depth == 0) YummySpacing.XXLarge else YummySpacing.Medium),
+                    verticalArrangement = Arrangement.spacedBy(YummySpacing.Medium - 2.dp),
                 ) {
                     item.children.forEach { child ->
                         CommentCard(
@@ -195,7 +195,7 @@ internal fun CommentCard(
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            YummyLoadingIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                            YummyLoadingIndicator(modifier = Modifier.size(YummySpacing.Large + YummySpacing.XSmall), strokeWidth = 2.dp)
                             Text(
                                 text = stringResource(CoreR.string.common_loading),
                                 style = MaterialTheme.typography.bodyMedium,

@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import su.afk.yummy.tv.core.designsystem.R as CoreR
@@ -45,8 +46,8 @@ internal fun CommentsList(
         modifier = Modifier
             .mobileContentMaxWidth()
             .fillMaxSize(),
-        contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = topInset + 8.dp, bottom = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(start = YummySpacing.Medium, end = YummySpacing.Medium, top = topInset + YummySpacing.Small, bottom = YummySpacing.Small),
+        verticalArrangement = Arrangement.spacedBy(YummySpacing.Small),
     ) {
         (appendState as? LoadState.Error)?.error?.let { error ->
             item(key = "soft_error") {
@@ -121,11 +122,11 @@ internal fun CommentsList(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 10.dp),
+                        .padding(vertical = YummySpacing.Medium - 2.dp),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    YummyLoadingIndicator(modifier = Modifier.padding(end = 10.dp).size(18.dp), strokeWidth = 2.dp)
+                    YummyLoadingIndicator(modifier = Modifier.padding(end = YummySpacing.Medium - 2.dp).size(YummySpacing.Large + 2.dp), strokeWidth = 2.dp)
                     Text(
                         text = stringResource(CoreR.string.common_loading),
                         style = MaterialTheme.typography.bodySmall,

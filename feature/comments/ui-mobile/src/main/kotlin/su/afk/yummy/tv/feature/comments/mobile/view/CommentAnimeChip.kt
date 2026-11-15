@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,9 +13,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import coil3.compose.AsyncImage
 import su.afk.yummy.tv.domain.comments.model.CommentItem
 
@@ -29,12 +29,12 @@ internal fun CommentAnimeChip(
 ) {
     Row(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
+            .clip(YummyShapeTokens.Control)
             .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f))
             .clickable(onClick = onClick)
-            .padding(start = 6.dp, top = 6.dp, bottom = 6.dp, end = 12.dp),
+            .padding(start = YummySpacing.Small - 2.dp, top = YummySpacing.Small - 2.dp, bottom = YummySpacing.Small - 2.dp, end = YummySpacing.Medium),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
     ) {
         AsyncImage(
             model = item.posterUrl,
@@ -42,13 +42,12 @@ internal fun CommentAnimeChip(
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(width = 52.dp, height = 72.dp)
-                .clip(RoundedCornerShape(8.dp))
+                .clip(YummyShapeTokens.Compact)
                 .background(MaterialTheme.colorScheme.surfaceVariant),
         )
         Text(
             text = item.title,
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.SemiBold,
+            style = MaterialTheme.typography.titleSmallEmphasized,
             color = MaterialTheme.colorScheme.primary,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,

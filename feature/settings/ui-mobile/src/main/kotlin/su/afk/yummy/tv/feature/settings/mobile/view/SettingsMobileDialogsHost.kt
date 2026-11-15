@@ -31,6 +31,7 @@ import su.afk.yummy.tv.feature.settings.common.utils.color
 import su.afk.yummy.tv.feature.settings.common.utils.hint
 import su.afk.yummy.tv.feature.settings.common.utils.icon
 import su.afk.yummy.tv.feature.settings.common.utils.label
+import su.afk.yummy.tv.core.designsystem.theme.previewColors
 
 /** Состояние шторок и диалогов, общее для всех категорий мобильных настроек. */
 @Stable

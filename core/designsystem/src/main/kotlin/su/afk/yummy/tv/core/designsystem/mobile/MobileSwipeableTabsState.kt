@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.collect
 @Stable
 class MobileSwipeableTabsState internal constructor(
     val pagerState: PagerState,
+    private val selectedPage: () -> Int,
     private val onPageSelected: (Int) -> Unit,
 ) {
     val settledPage: Int get() = pagerState.settledPage
@@ -34,7 +35,7 @@ class MobileSwipeableTabsState internal constructor(
      */
     fun selectPage(index: Int) {
         if (index !in 0 until pagerState.pageCount) return
-        if (index == pagerState.settledPage) return
+        if (index == selectedPage() && index == pagerState.targetPage) return
         onPageSelected(index)
     }
 }
@@ -66,9 +67,11 @@ fun rememberMobileSwipeableTabsState(
     val currentOnPageSelected = rememberUpdatedState(onPageSelected)
     val currentSelectedPage = rememberUpdatedState(safeSelectedPage)
     val state = remember(pagerState) {
-        MobileSwipeableTabsState(pagerState) { page ->
-            currentOnPageSelected.value(page)
-        }
+        MobileSwipeableTabsState(
+            pagerState = pagerState,
+            selectedPage = { currentSelectedPage.value },
+            onPageSelected = { page -> currentOnPageSelected.value(page) },
+        )
     }
 
     // Внешний state — единственный источник программных переходов.

@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Button
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -61,21 +63,25 @@ private fun ConfirmRow(
     testTag: String,
     onClick: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .testTag(testTag)
-            .clip(YummyShapeTokens.Control)
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.72f))
-            .clickable(onClick = onClick)
-            .padding(horizontal = YummySpacing.Large, vertical = YummySpacing.Medium),
-    ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.bodyLarge,
-            color = titleColor,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth(),
-        )
+    if (titleColor == MaterialTheme.colorScheme.primary) {
+        Button(
+            onClick = onClick,
+            modifier = Modifier.fillMaxWidth().testTag(testTag),
+            shape = YummyShapeTokens.Control,
+        ) {
+            Text(text = text, style = MaterialTheme.typography.labelLarge)
+        }
+    } else {
+        TextButton(
+            onClick = onClick,
+            modifier = Modifier.fillMaxWidth().testTag(testTag),
+            shape = YummyShapeTokens.Control,
+        ) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.labelLarge,
+                color = titleColor,
+            )
+        }
     }
 }

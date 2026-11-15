@@ -664,7 +664,7 @@ internal fun MobileNativePlayer(
         val videoBottomInsetDp = with(density) { ((rootSize.height - videoHeightPx) / 2).toDp() }
         val videoLeftInsetDp = with(density) { ((rootSize.width - videoWidthPx) / 2).toDp() }
         val videoWidthFraction = if (rootSize.width > 0) videoWidthPx.toFloat() / rootSize.width else 1f
-        val controlSize = mobilePlayerControlButtonSize()
+        val controlSize = mobilePlayerControlButtonSize(with(density) { rootSize.width.toDp() })
         val hasSideLetterboxing = videoLeftInsetDp >= 28.dp
         // Замок расположен справа сверху за границей видеокадра.
         val unlockRightOffset = if (hasSideLetterboxing) {

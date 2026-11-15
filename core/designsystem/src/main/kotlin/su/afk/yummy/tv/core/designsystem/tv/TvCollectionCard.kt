@@ -48,7 +48,7 @@ fun TvCollectionCard(
             }
             .tvFocusableClick(onClick = onClick, shape = shape),
         shape = shape,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
         Column {
             PostersCollage(

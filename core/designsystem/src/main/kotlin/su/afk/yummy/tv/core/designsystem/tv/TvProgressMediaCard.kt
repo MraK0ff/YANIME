@@ -87,7 +87,7 @@ fun TvProgressMediaCard(
             ),
         shape = shape,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
         ),
     ) {
         Column {
@@ -95,7 +95,7 @@ fun TvProgressMediaCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(thumbnailHeight)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                    .background(MaterialTheme.colorScheme.surfaceContainer),
                 contentAlignment = Alignment.Center,
             ) {
                 FallbackAsyncImage(

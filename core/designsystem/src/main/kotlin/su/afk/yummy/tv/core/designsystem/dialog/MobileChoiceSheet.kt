@@ -20,7 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
@@ -127,7 +126,6 @@ private fun ChoiceRow(item: ChoiceDialogItem, onClick: () -> Unit) {
 /** Кнопка внизу диалога: «Повторить» ([filled], акцентная) или «Отмена». */
 @Composable
 private fun ChoiceActionRow(text: String, filled: Boolean, onClick: () -> Unit) {
-    val colors = MaterialTheme.colorScheme
     if (filled) {
         Button(
             onClick = onClick,

@@ -1,9 +1,6 @@
 package su.afk.yummy.tv.core.designsystem.dialog
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -13,10 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.baseScreen.BaseBottomSheet
 import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
@@ -43,13 +37,13 @@ internal fun MobileConfirmSheet(
         )
         ConfirmRow(
             text = request.confirmText,
-            titleColor = colorScheme.primary,
+            filled = true,
             testTag = "confirm_dialog_accept",
             onClick = { onAnswer(true) },
         )
         ConfirmRow(
             text = request.dismissText,
-            titleColor = colorScheme.onSurface,
+            filled = false,
             testTag = "confirm_dialog_dismiss",
             onClick = { onAnswer(false) },
         )
@@ -59,11 +53,11 @@ internal fun MobileConfirmSheet(
 @Composable
 private fun ConfirmRow(
     text: String,
-    titleColor: Color,
+    filled: Boolean,
     testTag: String,
     onClick: () -> Unit,
 ) {
-    if (titleColor == MaterialTheme.colorScheme.primary) {
+    if (filled) {
         Button(
             onClick = onClick,
             modifier = Modifier.fillMaxWidth().testTag(testTag),
@@ -77,11 +71,7 @@ private fun ConfirmRow(
             modifier = Modifier.fillMaxWidth().testTag(testTag),
             shape = YummyShapeTokens.Control,
         ) {
-            Text(
-                text = text,
-                style = MaterialTheme.typography.labelLarge,
-                color = titleColor,
-            )
+            Text(text = text, style = MaterialTheme.typography.labelLarge)
         }
     }
 }

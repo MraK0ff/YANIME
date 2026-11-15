@@ -48,13 +48,13 @@ internal fun LibraryMobileContinueWatchingGrid(
         verticalArrangement = Arrangement.spacedBy(spacing),
     ) {
         if (showRemoteLoader) {
-            item(span = { GridItemSpan(maxLineSpan) }) {
+            item(span = { GridItemSpan(maxLineSpan) }, contentType = "library_loading_state") {
                 LibraryMobileLoadingIndicator()
             }
         }
 
         if (isEmpty && !showRemoteLoader) {
-            item(span = { GridItemSpan(maxLineSpan) }) {
+            item(span = { GridItemSpan(maxLineSpan) }, contentType = "library_empty_state") {
                 LibraryMobileEmptyList(onOpenCatalog = onOpenCatalog)
             }
         }
@@ -62,6 +62,7 @@ internal fun LibraryMobileContinueWatchingGrid(
         items(
             items = entries,
             key = { entry -> "${entry.animeId}-${entry.episode}" },
+            contentType = { "continue_watching_card" },
         ) { entry ->
             val episodeLabel = stringResource(
                 R.string.library_episode_number,
@@ -79,7 +80,7 @@ internal fun LibraryMobileContinueWatchingGrid(
         }
 
         remoteError?.let { message ->
-            item(span = { GridItemSpan(maxLineSpan) }) {
+            item(span = { GridItemSpan(maxLineSpan) }, contentType = "error_banner") {
                 ErrorBanner(
                     message = message,
                     enabled = !isRemoteLoading,

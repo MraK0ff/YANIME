@@ -50,7 +50,7 @@ internal fun CommentsList(
         verticalArrangement = Arrangement.spacedBy(YummySpacing.Small),
     ) {
         (appendState as? LoadState.Error)?.error?.let { error ->
-            item(key = "soft_error") {
+            item(key = "soft_error", contentType = "error_banner") {
                 ErrorBanner(
                     message = error.uiMessage(),
                     onRetry = { onEvent(CommentsState.Event.RetrySelected) },
@@ -60,6 +60,7 @@ internal fun CommentsList(
         itemsIndexed(
             items = state.prependedComments,
             key = { _, item -> "prepended_${item.comment.id}" },
+            contentType = { _, _ -> "comment_thread" },
         ) { _, item ->
             item.resolve(state)?.let { resolved ->
                 CommentThread(
@@ -90,6 +91,7 @@ internal fun CommentsList(
         items(
             count = pagingComments.itemCount,
             key = pagingComments.safeItemKey("comment") { it.comment.id },
+            contentType = { "comment_thread" },
         ) { index ->
             val item = pagingComments.getOrNull(index)?.resolve(state) ?: return@items
             if (state.prependedComments.any { it.comment.id == item.comment.id }) return@items
@@ -118,7 +120,7 @@ internal fun CommentsList(
             )
         }
         if (appendState is LoadState.Loading) {
-            item(key = "loading_more") {
+            item(key = "loading_more", contentType = "loading_indicator") {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()

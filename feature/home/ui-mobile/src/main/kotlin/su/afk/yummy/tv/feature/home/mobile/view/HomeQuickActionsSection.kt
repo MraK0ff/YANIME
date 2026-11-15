@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -39,7 +39,7 @@ internal fun HomeQuickActionsSection(
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(YummySpacing.Medium - 2.dp),
+        verticalArrangement = Arrangement.spacedBy(YummySpacing.Small),
     ) {
         MobileSectionHeader(
             title = title,
@@ -76,7 +76,7 @@ private fun HomeQuickActionCard(
 ) {
     Card(
         onClick = onClick,
-        modifier = modifier.height(64.dp),
+        modifier = modifier.heightIn(min = YummySpacing.TouchTarget + YummySpacing.Medium),
         shape = YummyShapeTokens.ProminentCard,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
@@ -86,7 +86,7 @@ private fun HomeQuickActionCard(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = YummySpacing.Medium),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(YummySpacing.Small),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(

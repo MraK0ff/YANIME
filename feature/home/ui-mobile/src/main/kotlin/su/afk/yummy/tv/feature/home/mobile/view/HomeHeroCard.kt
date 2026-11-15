@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.components.FallbackAsyncImage
 import su.afk.yummy.tv.core.designsystem.mobile.cards.MobileRatingBadge
@@ -49,7 +50,7 @@ internal fun HomeHeroCard(
         modifier = modifier
             .fillMaxWidth()
             .height(HERO_CARD_HEIGHT)
-            .clickable(onClick = onClick),
+            .clickable(role = Role.Button, onClick = onClick),
         shape = YummyShapeTokens.HeroSurface,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {

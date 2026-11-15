@@ -189,7 +189,11 @@ internal fun ContinueWatchingSection(
                     fallback = focusRequesterForItem(0),
                 ),
         ) {
-            itemsIndexed(items = items, key = { _, e -> e.focusKey() }) { index, entry ->
+            itemsIndexed(
+                items = items,
+                key = { _, e -> e.focusKey() },
+                contentType = { _, _ -> "continue_watching" },
+            ) { index, entry ->
                 ContinueWatchingCard(
                     entry = entry,
                     isLoading = entry.animeId == launchingAnimeId,

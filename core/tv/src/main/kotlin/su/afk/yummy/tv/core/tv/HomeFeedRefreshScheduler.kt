@@ -20,7 +20,8 @@ class HomeFeedRefreshScheduler @Inject constructor(
     fun schedule() {
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             HOME_FEED_REFRESH_WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,
+            // Upgrade existing installs from the previous six-hour interval.
+            ExistingPeriodicWorkPolicy.UPDATE,
             createRefreshRequest(),
         )
     }
@@ -45,7 +46,7 @@ class HomeFeedRefreshScheduler @Inject constructor(
 
     private companion object {
         const val HOME_FEED_REFRESH_WORK_NAME = "home_feed_refresh"
-        const val HOME_FEED_REFRESH_INTERVAL_HOURS = 6L
+        const val HOME_FEED_REFRESH_INTERVAL_HOURS = 3L
         const val HOME_FEED_REFRESH_BACKOFF_MINUTES = 30L
     }
 }

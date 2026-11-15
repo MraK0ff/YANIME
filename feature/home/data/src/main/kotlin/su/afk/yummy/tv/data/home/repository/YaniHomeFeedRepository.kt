@@ -22,6 +22,8 @@ import su.afk.yummy.tv.core.preferences.settings.currentLanguageCode
 import su.afk.yummy.tv.core.storage.anime.AnimeStorage
 import su.afk.yummy.tv.core.storage.home.HomeFeedCache
 import su.afk.yummy.tv.core.storage.home.HomeFeedStorage
+import su.afk.yummy.tv.core.storage.home.HomeNewReleaseEntry
+import su.afk.yummy.tv.core.storage.home.HOME_FEED_CONTAINER_NEW_RELEASES
 import su.afk.yummy.tv.core.storage.home.isFresh
 import su.afk.yummy.tv.core.storage.offlinefirst.offlineFirstCache
 import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStorage
@@ -29,6 +31,7 @@ import su.afk.yummy.tv.data.home.mapper.LocalFeedContext
 import su.afk.yummy.tv.data.home.mapper.localContinueWatchingItems
 import su.afk.yummy.tv.data.home.mapper.withLocalOverrides
 import su.afk.yummy.tv.data.home.network.YaniHomeApi
+import su.afk.yummy.tv.data.home.utils.YaniNewReleaseTracker
 import su.afk.yummy.tv.data.home.storage.mapper.toHomeContinueWatchingItem
 import su.afk.yummy.tv.data.home.storage.mapper.toHomeFeedCache
 import su.afk.yummy.tv.domain.home.model.ContinueWatchingProgressMigration
@@ -191,10 +194,25 @@ class YaniHomeFeedRepository(
         } catch (error: Exception) {
             analyticsTracker.log(TAG) { "Could not persist episode release history: ${error.message}" }
         }
+        val now = System.currentTimeMillis()
+        val previousCache = homeFeedStore.getFeed(languageCode, watchSignature)
+        val storedHistory = homeFeedStore.getNewReleaseHistory()
+        // Upgrade old installs: previous feed cards did not store their episode number. Keep them
+        // as a baseline so they survive a feed rotation without being mistaken for new releases.
+        val historyForMerge = storedHistory.ifEmpty {
+            previousCache.toLegacyReleaseHistory(now)
+        }
+        val releaseHistory = YaniNewReleaseTracker().merge(
+            videos = dto.response.newVideos,
+            history = historyForMerge,
+            now = now,
+        )
+        homeFeedStore.saveNewReleaseHistory(releaseHistory)
         val cache = dto.toHomeFeedCache(
             language = languageCode,
             watchSignature = watchSignature,
-            cachedAt = System.currentTimeMillis(),
+            cachedAt = now,
+            newReleaseHistory = releaseHistory,
         )
         homeFeedStore.saveFeed(cache)
         analyticsTracker.log(TAG) {

@@ -45,7 +45,7 @@ internal fun AccountMobileQuickActionButton(
         Box(
             modifier = Modifier
                 .size(YummySpacing.TouchTarget)
-                .clip(RoundedCornerShape(16.dp))
+                .clip(YummyShapeTokens.Control)
                 .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)),
             contentAlignment = Alignment.Center,
         ) {

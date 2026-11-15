@@ -3,6 +3,7 @@ package su.afk.yummy.tv.feature.catalog.mobile.view
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip as MaterialFilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
@@ -18,6 +19,7 @@ import androidx.compose.ui.unit.dp
  * Keep the catalog's compact pill geometry and tonal hierarchy, while delegating
  * interaction semantics, focus/ripple handling and selected-state behavior to Material 3.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun FilterChip(
     label: String,
@@ -51,8 +53,10 @@ internal fun FilterChip(
         colors = FilterChipDefaults.filterChipColors(
             containerColor = colors.surfaceContainerLow,
             labelColor = colors.onSurfaceVariant,
+            iconColor = colors.onSurfaceVariant,
             selectedContainerColor = colors.primaryContainer,
             selectedLabelColor = colors.onPrimaryContainer,
+            selectedTrailingIconColor = colors.onPrimaryContainer,
         ),
         border = BorderStroke(1.dp, borderColor),
     )

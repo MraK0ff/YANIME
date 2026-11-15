@@ -17,7 +17,7 @@ internal fun List<AnimeScheduleDay>.toTimelineUi(
     selectedEpochDay: Long? = null,
 ): ScheduleTimelineUi {
     val today = now.toLocalDate()
-    val dayGroups = toUiDayGroups(zone = zone, today = today)
+    val dayGroups = toUiDayGroups(zone = zone, today = today, nowSeconds = now.toEpochSecond())
     val availableEpochDays = dayGroups.map { it.date.toEpochDay() }
     val nextSelectedEpochDay = selectedEpochDay(
         availableEpochDays = availableEpochDays,
@@ -49,37 +49,41 @@ private fun selectedEpochDay(
 private fun List<AnimeScheduleDay>.toUiDayGroups(
     zone: ZoneId,
     today: LocalDate,
+    nowSeconds: Long,
 ): List<ScheduleDayUi> =
     flatMap { it.items }
         .flatMap { item ->
             buildList {
-                // У анонсов prev_date — общая дата-заглушка, поэтому берём его только если серии выходили.
-                item.previousDateEpochSeconds?.takeIf { (item.airedEpisodes ?: 0) > 0 }?.let { previousDate ->
+                // Прошедшая серия появляется в календаре только после публикации видео.
+                item.videoReleases.forEach { release ->
                     add(
                         ScheduleReleaseUi(
                             item = item,
-                            epochSeconds = previousDate,
-                            episode = item.airedEpisodes ?: 0,
+                            epochSeconds = release.firstVideoAtSeconds,
+                            episode = release.episodeNumber,
                             aired = true,
                         )
                     )
                 }
-                item.nextDateEpochSeconds?.let { nextDate ->
-                    add(
-                        ScheduleReleaseUi(
-                            item = item,
-                            epochSeconds = nextDate,
-                            episode = (item.airedEpisodes ?: 0) + 1,
-                            aired = false,
+                // Японское расписание используется только для будущих серий.
+                item.nextDateEpochSeconds
+                    ?.takeIf { it > nowSeconds }
+                    ?.let { nextDate ->
+                        add(
+                            ScheduleReleaseUi(
+                                item = item,
+                                epochSeconds = nextDate,
+                                episode = (item.airedEpisodes ?: 0) + 1,
+                                aired = false,
+                            )
                         )
-                    )
-                }
+                    }
             }
         }
         .filter { release ->
             Instant.ofEpochSecond(release.epochSeconds).atZone(zone).toLocalDate() >= today.minusDays(1)
         }
-        .distinctBy { "${it.item.animeId}:${it.epochSeconds}" }
+        .distinctBy { "${it.item.animeId}:${it.episode}:${it.aired}" }
         .sortedBy { it.epochSeconds }
         .groupBy { release ->
             Instant.ofEpochSecond(release.epochSeconds).atZone(zone).toLocalDate()

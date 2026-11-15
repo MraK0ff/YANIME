@@ -21,6 +21,7 @@ import su.afk.yummy.tv.data.home.repository.YaniRemoteContinueWatchingRepository
 import su.afk.yummy.tv.data.home.tv.HomeTvChannelContentProvider
 import su.afk.yummy.tv.domain.home.repository.HomeFeedRepository
 import su.afk.yummy.tv.domain.home.repository.RemoteContinueWatchingRepository
+import su.afk.yummy.tv.domain.schedule.repository.AnimeScheduleRepository
 import javax.inject.Singleton
 
 @Module
@@ -54,6 +55,7 @@ object HomeDataModule {
         watchProgressStore: WatchProgressStorage,
         animeStorage: AnimeStorage,
         analyticsTracker: AnalyticsTracker,
+        scheduleRepository: AnimeScheduleRepository,
     ): HomeFeedRepository =
         YaniHomeFeedRepository(
             api,
@@ -64,6 +66,7 @@ object HomeDataModule {
             watchProgressStore,
             animeStorage,
             analyticsTracker,
+            scheduleRepository,
         )
 
     @Provides

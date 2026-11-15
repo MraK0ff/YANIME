@@ -10,4 +10,6 @@ data class AnimeScheduleItem(
     val airedEpisodes: Int?,
     val totalEpisodes: Int?,
     val previousDateEpochSeconds: Long? = null,
+    /** Реальные серии, для которых на YummyAnime уже опубликовано видео. */
+    val videoReleases: List<AnimeEpisodeRelease> = emptyList(),
 )

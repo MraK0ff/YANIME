@@ -1,5 +1,6 @@
 package su.afk.yummy.tv.data.home.repository
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -13,7 +14,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
-import su.afk.yummy.tv.core.common.episode.episodeNumberOrNull
 import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.model.anime.AnimeWatchProgress
 import su.afk.yummy.tv.core.preferences.api.YaniAccountSettingsStore
@@ -35,11 +35,23 @@ import su.afk.yummy.tv.domain.home.model.ContinueWatchingProgressMigration
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.domain.home.model.HomeFeed
 import su.afk.yummy.tv.domain.home.repository.HomeFeedRepository
+import su.afk.yummy.tv.data.home.mapper.toAnimeEpisodeReleases
+import su.afk.yummy.tv.domain.schedule.repository.AnimeScheduleRepository
 import su.afk.yummy.tv.data.home.storage.mapper.toHomeFeed as toStoredHomeFeed
 
 private const val FEED_TTL_MS = 60 * 1000L
 private const val FEED_CACHE_SIGNATURE_VERSION = "cw-local1"
 private const val TAG = "YaniHomeFeed"
+
+/**
+ * Returns a whole episode number only for plain numeric episode labels.
+ * Fractional specials (for example "7.5") must not be counted as episode 7.
+ */
+private fun String.toWholeEpisodeNumberOrNull(): Int? {
+    val number = trim().toDoubleOrNull() ?: return null
+    if (!number.isFinite() || number <= 0.0 || number % 1.0 != 0.0) return null
+    return number.toInt()
+}
 
 class YaniHomeFeedRepository(
     private val api: YaniHomeApi,
@@ -50,6 +62,7 @@ class YaniHomeFeedRepository(
     private val watchProgressStore: WatchProgressStorage,
     private val animeStorage: AnimeStorage,
     private val analyticsTracker: AnalyticsTracker,
+    private val scheduleRepository: AnimeScheduleRepository,
 ) : HomeFeedRepository {
 
     /** Параллельные загрузки ленты (экран и канал ТВ) ждут друг друга, а не качают её дважды. */
@@ -108,11 +121,8 @@ class YaniHomeFeedRepository(
                     .groupBy { it.animeId }
                     .mapValues { (_, items) ->
                         items.mapNotNullTo(mutableSetOf()) { entry ->
-                            // Спецвыпуски вроде «7.5» — не серия 7, иначе она ложно считалась бы
-                            // просмотренной.
-                            entry.episode.episodeNumberOrNull()
-                                ?.takeIf { it % 1.0 == 0.0 }
-                                ?.toInt()
+                            // Спецвыпуски вроде «7.5» не должны засчитываться как серия 7.
+                            entry.episode.toWholeEpisodeNumberOrNull()
                         }
                     }
             }
@@ -173,6 +183,14 @@ class YaniHomeFeedRepository(
         analyticsTracker.log(TAG) { "Fetch feed language=$languageCode watchSignature=$watchSignature" }
         val dto = api.getFeed()
         analyticsTracker.log(TAG) { "Feed dto ${dto.summaryForLog()}" }
+        try {
+            // Even an empty feed is a successful poll: the schedule repository can avoid a duplicate request.
+            scheduleRepository.saveEpisodeReleases(dto.response.newVideos.toAnimeEpisodeReleases())
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (error: Exception) {
+            analyticsTracker.log(TAG) { "Could not persist episode release history: ${error.message}" }
+        }
         val cache = dto.toHomeFeedCache(
             language = languageCode,
             watchSignature = watchSignature,

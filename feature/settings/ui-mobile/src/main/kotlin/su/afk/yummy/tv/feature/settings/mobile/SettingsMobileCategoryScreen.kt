@@ -79,7 +79,7 @@ fun SettingsMobileCategoryScreen(
                 .imePadding(),
             contentPadding = PaddingValues(start = YummySpacing.Large, top = YummySpacing.Large, end = YummySpacing.Large, bottom = YummySpacing.XXXLarge),
         ) {
-            item(key = category.name) {
+            item(key = category.name, contentType = category.name) {
                 when (category) {
                     SettingsCategory.GENERAL ->
                         SettingsMobileGeneralContent(state, onEvent, onPickerRequested)

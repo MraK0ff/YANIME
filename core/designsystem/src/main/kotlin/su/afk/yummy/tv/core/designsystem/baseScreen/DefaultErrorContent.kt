@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
@@ -59,7 +60,8 @@ fun DefaultErrorContent(
 ) {
     val context = LocalContext.current
     val animationsEnabled = rememberAnimationsEnabled()
-    var showDetails by remember { mutableStateOf(false) }
+    // A new error must not inherit the expanded diagnostic panel from the previous one.
+    var showDetails by remember(errorItem) { mutableStateOf(false) }
 
     val copyText = remember(errorItem) { errorItem.toClipboardText() }
 
@@ -102,7 +104,9 @@ fun DefaultErrorContent(
                 if (hasDetails) {
                     OutlinedButton(
                         onClick = { showDetails = !showDetails },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .heightIn(min = YummySpacing.TouchTarget),
                     ) {
                         Text(
                             if (showDetails) {
@@ -121,7 +125,6 @@ fun DefaultErrorContent(
                 )
             }
 
-            // ДЕТАЛИ
             AnimatedVisibility(
                 visible = showDetails && hasDetails,
                 enter = if (animationsEnabled) fadeIn(tween(YummyMotion.StandardEffectsMillis)) else EnterTransition.None,
@@ -135,10 +138,7 @@ fun DefaultErrorContent(
                 ) {
                     errorItem.code?.let {
                         Text(
-                            text = stringResource(
-                                R.string.error_http_code,
-                                it.toString(),
-                            ),
+                            text = stringResource(R.string.error_http_code, it.toString()),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
@@ -179,11 +179,12 @@ fun DefaultErrorContent(
                         )
                     }
 
-                    // Copy показываем ТОЛЬКО когда раскрыты детали
-                    Spacer(Modifier.height(12.dp))
+                    Spacer(Modifier.height(YummySpacing.Medium))
                     OutlinedButton(
                         onClick = { context.copyToClipboard(copyText) },
-                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .heightIn(min = YummySpacing.TouchTarget),
                     ) {
                         Text(stringResource(R.string.copy))
                     }
@@ -208,7 +209,7 @@ private fun DefaultErrorRetryButton(
     val borderColor = if (focused) colorScheme.primary else colorScheme.outline.copy(alpha = 0.72f)
 
     Button(
-        modifier = modifier,
+        modifier = modifier.heightIn(min = YummySpacing.TouchTarget),
         onClick = onClick,
         shape = shape,
         interactionSource = interactionSource,

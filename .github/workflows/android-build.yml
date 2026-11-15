@@ -69,8 +69,18 @@ jobs:
             echo "::error::YUMMY_TV_API_BASE_URL must be an HTTPS URL"
             exit 1
           fi
-          printf 'yummytv.apiBaseUrl=%s\n' "$API_BASE_URL" >> local.properties
+          printf 'yummytv.apiBaseUrl=%s\\n' "$API_BASE_URL" >> local.properties
           echo "Configured YummyTV API base URL."
+
+      # Compile Kotlin before the packaging/R8/signing pipeline. This gives a
+      # dedicated, early failure point for unresolved symbols and API mismatches.
+      # The subsequent assemble task reuses Gradle's outputs and remains the
+      # authoritative end-to-end APK verification.
+      - name: Compile application Kotlin
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew :app:compileReleaseDebugKotlin --stacktrace
 
       - name: Build debug APK
         shell: bash
@@ -134,21 +144,21 @@ jobs:
           mkdir -p "$key_dir"
 
           # AOSP's public test signing key (not suitable for production releases).
-          curl -fsSL 'https://android.googlesource.com/platform/build/+/refs/heads/main/target/product/security/testkey.pk8?format=TEXT' \
+          curl -fsSL 'https://android.googlesource.com/platform/build/+/refs/heads/main/target/product/security/testkey.pk8?format=TEXT' \\
             | base64 --decode > "$key_dir/testkey.pk8"
-          curl -fsSL 'https://android.googlesource.com/platform/build/+/refs/heads/main/target/product/security/testkey.x509.pem?format=TEXT' \
+          curl -fsSL 'https://android.googlesource.com/platform/build/+/refs/heads/main/target/product/security/testkey.x509.pem?format=TEXT' \\
             | base64 --decode > "$key_dir/testkey.x509.pem"
 
           # apksigner --key requires unencrypted PKCS#8 in DER format.
           # AOSP's .pk8 file is already in that format; do not convert it to PEM.
-          openssl pkcs8 -inform DER -nocrypt \
-            -in "$key_dir/testkey.pk8" \
+          openssl pkcs8 -inform DER -nocrypt \\
+            -in "$key_dir/testkey.pk8" \\
             -out /dev/null
 
           # Confirm that the downloaded certificate belongs to this private key.
-          openssl pkey -inform DER -in "$key_dir/testkey.pk8" -pubout \
+          openssl pkey -inform DER -in "$key_dir/testkey.pk8" -pubout \\
             -out "$key_dir/key-public.pem"
-          openssl x509 -in "$key_dir/testkey.x509.pem" -pubkey -noout \
+          openssl x509 -in "$key_dir/testkey.x509.pem" -pubkey -noout \\
             > "$key_dir/cert-public.pem"
           diff -u "$key_dir/key-public.pem" "$key_dir/cert-public.pem"
 
@@ -160,9 +170,9 @@ jobs:
           test "${#apks[@]}" -gt 0
 
           for apk in "${apks[@]}"; do
-            "$apksigner" sign \
-              --key "$key_dir/testkey.pk8" \
-              --cert "$key_dir/testkey.x509.pem" \
+            "$apksigner" sign \\
+              --key "$key_dir/testkey.pk8" \\
+              --cert "$key_dir/testkey.x509.pem" \\
               "$apk"
             "$apksigner" verify --verbose --print-certs "$apk"
           done
@@ -211,8 +221,8 @@ jobs:
 
       # Remove legacy non-versioned releases/tags left by earlier CI runs.
       - name: Remove legacy release tags
-        env:
-          GH_TOKEN: ${{ github.token }}
+      env:
+        GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
 

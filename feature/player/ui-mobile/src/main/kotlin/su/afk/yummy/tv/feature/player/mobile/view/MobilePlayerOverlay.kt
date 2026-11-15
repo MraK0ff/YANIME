@@ -70,7 +70,7 @@ internal fun MobilePlayerOverlay(
 ) {
     if (!visible) return
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
-        val expandedControlsOffset = minOf(72.dp, maxHeight * 0.12f)
+        val expandedControlsOffset = minOf(56.dp, maxHeight * 0.10f)
         Box(
             modifier = Modifier.align(Alignment.Center)
                 .offset(y = if (episodesStripVisible) -expandedControlsOffset else 0.dp),
@@ -89,8 +89,8 @@ internal fun MobilePlayerOverlay(
 
         Column(
             modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()
-                .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.38f), Color.Black.copy(alpha = 0.72f))))
-                .padding(top = 28.dp, bottom = 10.dp),
+                .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.30f), Color.Black.copy(alpha = 0.66f))))
+                .padding(top = 24.dp, bottom = 12.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             MobilePlayerProgressRow(

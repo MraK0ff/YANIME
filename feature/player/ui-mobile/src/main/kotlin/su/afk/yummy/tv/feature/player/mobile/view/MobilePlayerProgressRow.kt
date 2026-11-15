@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setProgress
@@ -85,16 +86,16 @@ internal fun MobilePlayerProgressRow(
             Box(modifier = Modifier.fillMaxWidth()) {
                 Row(
                         modifier = Modifier.align(Alignment.CenterStart)
-                            .mobilePlayerGlassSurface()
-                            .clickable(onClick = onTimeCodeClick)
-                            .padding(horizontal = 9.dp, vertical = 4.dp),
+                            .heightIn(min = MobilePlayerMinimumTouchTarget)
+                            .clickable(role = Role.Button, onClick = onTimeCodeClick)
+                            .padding(horizontal = 8.dp),
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
                             text = (if (showRemainingTime) "-${remaining.millisToClockTime().padStart(5, '0')}" else displayTime.millisToClockTime().padStart(5, '0')),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color.White.copy(alpha = 0.96f),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = Color.White,
                         )
                         Text("/", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.58f))
                         Text(
@@ -104,7 +105,7 @@ internal fun MobilePlayerProgressRow(
                         )
                     }
                 Row(
-                    modifier = Modifier.align(Alignment.Center),
+                    modifier = Modifier.align(Alignment.CenterEnd),
                     horizontalArrangement = Arrangement.spacedBy(7.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -113,8 +114,9 @@ internal fun MobilePlayerProgressRow(
                             text = dubbingLabel,
                             modifier = Modifier.clickable(onClick = onTrackSettings),
                             style = MaterialTheme.typography.labelMedium,
-                            color = Color.White.copy(alpha = 0.78f),
+                            color = Color.White.copy(alpha = 0.82f),
                             maxLines = 1,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                         )
                     }
                     if (dubbingLabel.isNotBlank() && balancerLabel.isNotBlank()) {
@@ -165,9 +167,9 @@ private fun MobilePlayerTimeline(
     } else {
         themeAccent
     }
-    val bufferedColor = Color.White
-    // Same hue family as the played segment, mixed toward a neutral grey for lower emphasis.
-    val unplayedColor = lerp(playedColor, Color(0xFF858D97), 0.58f)
+    val bufferedColor = Color.White.copy(alpha = 0.46f)
+    // Keep the inactive rail quiet so the played segment remains the visual anchor.
+    val unplayedColor = Color.White.copy(alpha = 0.24f)
     val safeProgress = progress.coerceIn(0f, 1f)
     Box(
         modifier = modifier
@@ -207,7 +209,7 @@ private fun MobilePlayerTimeline(
     ) {
         Canvas(Modifier.fillMaxWidth().height(48.dp)) {
             val centerY = size.height / 2f
-            val stroke = 5.dp.toPx()
+            val stroke = 4.dp.toPx()
             val radius = stroke / 2f
             val endX = size.width
             val playedX = endX * safeProgress
@@ -237,7 +239,7 @@ private fun MobilePlayerTimeline(
             if (enabled) {
                 drawCircle(
                     color = playedColor,
-                    radius = 7.dp.toPx(),
+                    radius = 5.5.dp.toPx(),
                     center = Offset(playedX.coerceIn(0f, endX), centerY),
                 )
             }

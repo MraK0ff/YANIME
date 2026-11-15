@@ -6,13 +6,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -55,9 +54,18 @@ internal fun MobilePlayerBackButton(
         contentAlignment = Alignment.Center,
         modifier = modifier.padding(top = topInset),
     ) {
-        IconButton(onClick = onBack, modifier = Modifier.mobilePlayerGlassSurface(shape = MobilePlayerInteractiveShape).size(buttonSize)) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(DesignSystemR.string.common_back),
-                tint = Color.White, modifier = Modifier.size(24.dp))
+        IconButton(
+            onClick = onBack,
+            modifier = Modifier
+                .mobilePlayerGlassSurface(shape = MobilePlayerInteractiveShape)
+                .size(buttonSize),
+        ) {
+            Icon(
+                Icons.AutoMirrored.Filled.ArrowBack,
+                stringResource(DesignSystemR.string.common_back),
+                tint = Color.White,
+                modifier = Modifier.size(24.dp),
+            )
         }
     }
 }
@@ -81,115 +89,151 @@ internal fun MobilePlayerTopBar(
     modifier: Modifier = Modifier,
 ) {
     if (!visible) return
-    // All player actions open a page in the single settings sheet; no legacy popup menus.
-    Box(
-        modifier = modifier.fillMaxSize(),
-    ) {
+    Box(modifier = modifier.fillMaxSize()) {
         Box(
-            modifier = Modifier.align(Alignment.TopCenter).fillMaxWidth().height(176.dp)
-                .background(Brush.verticalGradient(listOf(Color.Black.copy(alpha = 0.76f), Color.Black.copy(alpha = 0.34f), Color.Transparent))),
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .fillMaxWidth()
+                .height(164.dp)
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            Color.Black.copy(alpha = 0.70f),
+                            Color.Black.copy(alpha = 0.30f),
+                            Color.Transparent,
+                        ),
+                    ),
+                ),
         )
-        Column(
-            modifier = Modifier.align(Alignment.TopCenter).fillMaxWidth(0.92f).padding(top = 34.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-        ) {
-            if (title.isNotBlank()) {
-                Text(
-                    title,
-                    color = Color.White,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.headlineSmallEmphasized,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
-            if (episode.isNotBlank()) {
-                Row(
-                    modifier = Modifier.heightIn(min = MobilePlayerMinimumTouchTarget)
-                        .mobilePlayerGlassSurface()
-                        .clickable(role = Role.Button, onClickLabel = stringResource(R.string.player_mobile_episode_number, episode), onClick = onEpisodeClick)
-                        .padding(horizontal = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(2.dp),
-                ) {
-                    Text(
-                        buildString {
-                            append(stringResource(R.string.player_mobile_episode_number, episode))
-                            episodeTitle?.takeIf { it.isNotBlank() }?.let { append(" * ").append(it) }
-                        },
-                        color = Color.White.copy(alpha = 0.72f),
-                        maxLines = 1,
-                        style = MaterialTheme.typography.labelLargeEmphasized.copy(color = Color.White),
-                    )
-                    Icon(
-                        imageVector = if (episodeExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                        contentDescription = null,
-                        tint = Color.White.copy(alpha = 0.72f),
-                        modifier = Modifier.size(18.dp),
-                    )
-                }
-            }
-            MobilePlayerEpisodeFlagLabel(episodeFlags, Modifier.padding(top = 2.dp))
-        }
+
+        // One compact control dock, rather than a separate floating glass card for every action.
         Row(
-            Modifier
-                .align(if (episodeExpanded) Alignment.TopEnd else Alignment.BottomEnd)
-                .padding(end = 4.dp, top = if (episodeExpanded) 2.dp else 0.dp, bottom = if (episodeExpanded) 0.dp else 2.dp),
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 8.dp, end = 12.dp)
+                .mobilePlayerGlassSurface(
+                    shape = MobilePlayerInteractiveShape,
+                    fill = MobilePlayerGlassFill.copy(alpha = 0.82f),
+                    elevation = 0.dp,
+                )
+                .padding(horizontal = 4.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(2.dp),
         ) {
             if (!offlinePlayback && qualityOptions.isNotEmpty()) {
                 TopBarQualityAction(qualityLabel, onQualityClick)
             }
             TopBarSpeedAction(selectedSpeed, onSpeedClick)
-            TopBarAction(Icons.Filled.Settings, stringResource(R.string.player_mobile_playback_settings_title)) {
+            TopBarAction(
+                Icons.Filled.Settings,
+                stringResource(R.string.player_mobile_playback_settings_title),
+            ) {
                 onMoreMenuItem(MobilePlayerSettingsPage.Root)
             }
+        }
+
+        Column(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .fillMaxWidth(0.88f)
+                .padding(top = 66.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(1.dp),
+        ) {
+            if (title.isNotBlank()) {
+                Text(
+                    text = title,
+                    color = Color.White,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleMediumEmphasized,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+            if (episode.isNotBlank()) {
+                Row(
+                    modifier = Modifier
+                        .heightIn(min = MobilePlayerMinimumTouchTarget)
+                        .clickable(
+                            role = Role.Button,
+                            onClickLabel = stringResource(R.string.player_mobile_episode_number, episode),
+                            onClick = onEpisodeClick,
+                        )
+                        .padding(horizontal = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    Text(
+                        text = buildString {
+                            append(stringResource(R.string.player_mobile_episode_number, episode))
+                            episodeTitle?.takeIf { it.isNotBlank() }?.let { append(" · ").append(it) }
+                        },
+                        color = Color.White.copy(alpha = 0.82f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                    Icon(
+                        imageVector = if (episodeExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                        contentDescription = null,
+                        tint = Color.White.copy(alpha = 0.78f),
+                        modifier = Modifier.size(18.dp),
+                    )
+                }
+            }
+            MobilePlayerEpisodeFlagLabel(episodeFlags, Modifier.padding(top = 1.dp))
         }
     }
 }
 
 @Composable
 private fun TopBarQualityAction(label: String, onClick: () -> Unit) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier.mobilePlayerGlassSurface()
-            .widthIn(min = 72.dp, max = 112.dp)
-            .size(height = mobilePlayerControlButtonSize(), width = 92.dp)
-            .clickable(role = Role.Button, onClickLabel = stringResource(R.string.player_quality_title), onClick = onClick)
-            .padding(horizontal = 4.dp),
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-            Icon(Icons.Filled.HighQuality, contentDescription = null, tint = Color.White, modifier = Modifier.size(17.dp))
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelLargeEmphasized.copy(color = Color.White),
-                maxLines = 1,
-                softWrap = false,
+    Row(
+        modifier = Modifier
+            .heightIn(min = MobilePlayerMinimumTouchTarget)
+            .clickable(
+                role = Role.Button,
+                onClickLabel = stringResource(R.string.player_quality_title),
+                onClick = onClick,
             )
-        }
+            .padding(horizontal = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Icon(Icons.Filled.HighQuality, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelLarge,
+            color = Color.White,
+            maxLines = 1,
+            softWrap = false,
+        )
     }
 }
 
 @Composable
 private fun TopBarSpeedAction(speed: Float, onClick: () -> Unit) {
     val label = if (speed % 1f == 0f) "${speed.toInt()}x" else "${speed}x"
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier.mobilePlayerGlassSurface()
-            .size(width = 58.dp, height = mobilePlayerControlButtonSize())
-            .clickable(role = Role.Button, onClickLabel = stringResource(R.string.player_speed_title), onClick = onClick),
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-            Icon(Icons.Filled.Speed, contentDescription = null, tint = Color.White, modifier = Modifier.size(17.dp))
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelLarge.copy(color = Color.White, fontWeight = FontWeight.SemiBold),
-                maxLines = 1,
+    Row(
+        modifier = Modifier
+            .heightIn(min = MobilePlayerMinimumTouchTarget)
+            .clickable(
+                role = Role.Button,
+                onClickLabel = stringResource(R.string.player_speed_title),
+                onClick = onClick,
             )
-        }
+            .padding(horizontal = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(3.dp),
+    ) {
+        Icon(Icons.Filled.Speed, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+            color = Color.White,
+            maxLines = 1,
+        )
     }
 }
 
@@ -197,11 +241,15 @@ private fun TopBarSpeedAction(speed: Float, onClick: () -> Unit) {
 private fun TopBarAction(icon: ImageVector, description: String, onClick: () -> Unit) {
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.mobilePlayerGlassSurface()
-            .size(width = 48.dp, height = mobilePlayerControlButtonSize())
-            .clickable(role = Role.Button, onClickLabel = description, onClick = onClick),
+        modifier = Modifier
+            .size(48.dp)
+            .clickable(
+                role = Role.Button,
+                onClickLabel = description,
+                onClick = onClick,
+            ),
     ) {
-        Icon(icon, description, tint = Color.White, modifier = Modifier.size(24.dp))
+        Icon(icon, description, tint = Color.White, modifier = Modifier.size(23.dp))
     }
 }
 
@@ -216,7 +264,14 @@ private fun MobilePlayerEpisodeFlagLabel(flags: EpisodeFlags?, modifier: Modifie
         flags.recap -> stringResource(R.string.player_episode_flag_recap) to FlagRecapColor
         else -> return
     }
-    Text(text, color = color, maxLines = 1, style = MaterialTheme.typography.labelSmall,
+    Text(
+        text,
+        color = color,
+        maxLines = 1,
+        style = MaterialTheme.typography.labelSmall,
         fontWeight = FontWeight.SemiBold,
-        modifier = modifier.mobilePlayerGlassSurface().padding(horizontal = 8.dp, vertical = 3.dp))
+        modifier = modifier
+            .mobilePlayerGlassSurface(elevation = 0.dp)
+            .padding(horizontal = 8.dp, vertical = 3.dp),
+    )
 }

@@ -12,22 +12,22 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-/** Shared shape tokens: interactive surfaces are rounder than passive labels. */
-internal val MobilePlayerInteractiveShape = RoundedCornerShape(16.dp)
-internal val MobilePlayerStaticShape = RoundedCornerShape(10.dp)
+/** Shared player shapes: controls read as a coherent dock, not a collection of floating bubbles. */
+internal val MobilePlayerInteractiveShape = RoundedCornerShape(18.dp)
+internal val MobilePlayerStaticShape = RoundedCornerShape(12.dp)
 
-/** Shared frosted-glass treatment for player chips and controls. */
 internal const val MobilePlayerSelectedContainerAlpha = 0.14f
 internal const val MobilePlayerUnselectedContainerAlpha = 0.46f
 internal val MobilePlayerMinimumTouchTarget = 48.dp
-internal val MobilePlayerGlassFill = Color(0xFF101318).copy(alpha = 0.42f)
-internal val MobilePlayerGlassBorder = Color.White.copy(alpha = 0.18f)
+internal val MobilePlayerGlassFill = Color(0xFF11151B).copy(alpha = 0.72f)
+internal val MobilePlayerGlassBorder = Color.White.copy(alpha = 0.12f)
 
+/** Restrained translucent surface: no heavy shadow over video content. */
 internal fun Modifier.mobilePlayerGlassSurface(
     shape: Shape = MobilePlayerStaticShape,
     fill: Color = MobilePlayerGlassFill,
     borderColor: Color = MobilePlayerGlassBorder,
-    elevation: Dp = 12.dp,
+    elevation: Dp = 0.dp,
 ): Modifier = shadow(elevation = elevation, shape = shape, clip = false)
     .clip(shape)
     .background(fill)

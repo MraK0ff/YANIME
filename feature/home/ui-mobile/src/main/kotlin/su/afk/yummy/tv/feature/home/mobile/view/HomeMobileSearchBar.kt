@@ -34,14 +34,14 @@ internal fun HomeMobileSearchBar(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val shape = YummyShapeTokens.Control
+    val shape = YummyShapeTokens.Pill
     val label = stringResource(R.string.home_mobile_search_placeholder)
     Row(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = YummySpacing.TouchTarget + YummySpacing.Small)
             .clip(shape)
-            .background(MaterialTheme.colorScheme.surfaceContainerLow, shape)
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh, shape)
             .border(1.dp, MaterialTheme.colorScheme.outlineVariant, shape)
             .clickablePointer()
             .clickable(role = Role.Button, onClickLabel = label, onClick = onClick)

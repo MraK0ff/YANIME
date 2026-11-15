@@ -19,7 +19,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -113,7 +113,7 @@ internal fun DetailsMobileHero(
                     modifier = Modifier.padding(end = YummySpacing.XSmall),
                 )
             }
-            IconButton(
+            FilledTonalIconButton(
                 onClick = onNewSearch,
                 modifier = Modifier.size(YummySpacing.TouchTarget + YummySpacing.XSmall),
             ) {
@@ -131,7 +131,6 @@ internal fun DetailsMobileHero(
                     Icon(
                         imageVector = Icons.Filled.Share,
                         contentDescription = stringResource(DetailsR.string.details_share),
-                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.92f),
                     )
                 }
             }
@@ -169,7 +168,7 @@ internal fun DetailsMobileHero(
                 modifier = Modifier
                     .width(posterWidth)
                     .aspectRatio(2f / 3f)
-                    .clip(YummyShapeTokens.Control)
+                    .clip(YummyShapeTokens.ProminentCard)
                     .background(MaterialTheme.colorScheme.surfaceVariant)
                     .clickable(onClick = onPosterClick),
             )
@@ -180,7 +179,7 @@ internal fun DetailsMobileHero(
             Text(
                 text = details.title,
                 modifier = Modifier.fillMaxWidth(),
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineMediumEmphasized,
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
                 maxLines = 3,

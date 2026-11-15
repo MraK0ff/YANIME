@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -14,8 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 @Composable
 internal fun DetailsChip(
@@ -28,10 +27,10 @@ internal fun DetailsChip(
         modifier = Modifier
             .background(
                 color = backgroundColor ?: MaterialTheme.colorScheme.onSurface.copy(alpha = 0.13f),
-                shape = RoundedCornerShape(5.dp),
+                shape = YummyShapeTokens.Compact,
             )
-            .padding(horizontal = 7.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
+            .padding(horizontal = YummySpacing.Small, vertical = YummySpacing.XSmall),
+        horizontalArrangement = Arrangement.spacedBy(YummySpacing.XSmall),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (icon != null) {
@@ -39,13 +38,12 @@ internal fun DetailsChip(
                 imageVector = icon,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.82f),
-                modifier = Modifier.size(12.dp),
+                modifier = Modifier.size(YummySpacing.Medium),
             )
         }
         Text(
             text = label,
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.SemiBold,
+            style = MaterialTheme.typography.labelSmallEmphasized,
             color = textColor ?: MaterialTheme.colorScheme.onSurface.copy(alpha = 0.82f),
             maxLines = 1,
         )

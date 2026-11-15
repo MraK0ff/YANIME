@@ -16,9 +16,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.feature.details.mobile.details.model.DetailsLink
 
 /** Крупная плоская кнопка без шеврона, чтобы боковые отступы были симметричны: «Показать комментарии» на всю ширину; сама учитывает системную навигацию внизу. */
@@ -32,29 +33,28 @@ internal fun DetailsCommentsBar(
         modifier = modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+            .padding(start = YummySpacing.Large, end = YummySpacing.Large, bottom = YummySpacing.Large)
             .testTag(link.testTag),
-        shape = MaterialTheme.shapes.large,
+        shape = YummyShapeTokens.ProminentCard,
         color = MaterialTheme.colorScheme.primaryContainer,
         contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = 56.dp)
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                .heightIn(min = YummySpacing.TouchTarget + YummySpacing.Small)
+                .padding(horizontal = YummySpacing.Large, vertical = YummySpacing.Medium),
+            horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
                 imageVector = link.icon,
                 contentDescription = null,
-                modifier = Modifier.size(24.dp),
+                modifier = Modifier.size(YummySpacing.XXLarge),
             )
             Text(
                 text = link.label,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.titleSmallEmphasized,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f),
@@ -67,7 +67,7 @@ internal fun DetailsCommentsBar(
                 ) {
                     Text(
                         text = link.badge,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                        modifier = Modifier.padding(horizontal = YummySpacing.Small, vertical = YummySpacing.XSmall / 2),
                         style = MaterialTheme.typography.labelMedium,
                     )
                 }

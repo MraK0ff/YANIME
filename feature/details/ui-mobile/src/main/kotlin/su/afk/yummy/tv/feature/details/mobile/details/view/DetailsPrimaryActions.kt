@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
 import su.afk.yummy.tv.core.model.anime.AnimeDetails
 import su.afk.yummy.tv.feature.details.details.DetailsState
@@ -53,7 +54,7 @@ internal fun DetailsPrimaryActions(
     val watchLabel = state.watchLabel(details)
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(YummySpacing.Small),
     ) {
         Button(
             onClick = onWatchSelected,
@@ -66,7 +67,7 @@ internal fun DetailsPrimaryActions(
                 .onboardingTarget(MOBILE_DETAILS_WATCH_TARGET),
         ) {
             Icon(Icons.Filled.PlayArrow, contentDescription = null)
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(YummySpacing.Small))
             Text(
                 text = watchLabel,
                 maxLines = 1,

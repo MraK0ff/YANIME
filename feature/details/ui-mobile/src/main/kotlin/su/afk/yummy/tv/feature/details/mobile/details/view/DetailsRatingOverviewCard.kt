@@ -17,8 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.designsystem.components.UserRatingLabeledChip
 import su.afk.yummy.tv.core.designsystem.components.toRatingTextColor
 import su.afk.yummy.tv.core.designsystem.mobile.MobileSectionHeader
@@ -36,7 +36,7 @@ internal fun DetailsRatingOverviewCard(
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(YummySpacing.Medium - 2.dp),
     ) {
         MobileSectionHeader(
             title = stringResource(R.string.details_rating_button),
@@ -55,12 +55,12 @@ internal fun DetailsRatingOverviewCard(
                 .fillMaxWidth()
                 .testTag("details_rating_card")
                 .clickable(onClick = onClick),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            verticalArrangement = Arrangement.spacedBy(YummySpacing.Large - 2.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
             ) {
                 if (overview.votes > 0) {
                     DetailsRatingAverage(
@@ -85,7 +85,7 @@ internal fun DetailsRatingOverviewCard(
         if (overview.listCounts.isNotEmpty()) {
             MobileSectionHeader(
                 title = stringResource(R.string.details_mobile_list_stats),
-                modifier = Modifier.padding(top = 6.dp),
+                modifier = Modifier.padding(top = YummySpacing.Small - 2.dp),
             )
             DetailsListStats(listCounts = overview.listCounts)
         }
@@ -99,21 +99,20 @@ private fun DetailsRatingAverage(
     modifier: Modifier = Modifier,
 ) {
     val color = average?.toRatingTextColor() ?: MaterialTheme.colorScheme.onSurface
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(YummySpacing.XSmall / 2)) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            horizontalArrangement = Arrangement.spacedBy(YummySpacing.Small),
         ) {
             Icon(
                 imageVector = Icons.Filled.Star,
                 contentDescription = null,
                 tint = color,
-                modifier = Modifier.size(30.dp),
+                modifier = Modifier.size(YummySpacing.XXLarge + YummySpacing.Small / 2),
             )
             Text(
                 text = average?.formatRating() ?: "-",
-                style = MaterialTheme.typography.displaySmall,
-                fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.displaySmallEmphasized,
                 color = color,
                 maxLines = 1,
             )

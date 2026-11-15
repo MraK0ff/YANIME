@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
@@ -38,6 +37,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.designsystem.R
 import su.afk.yummy.tv.core.designsystem.components.FallbackAsyncImage
 import su.afk.yummy.tv.core.designsystem.components.UserRatingChip
@@ -101,7 +102,7 @@ internal fun DetailsMobileHero(
                 .align(Alignment.TopEnd)
                 .statusBarsPadding()
                 .padding(top = topExtra)
-                .padding(end = 4.dp),
+                .padding(end = YummySpacing.XSmall),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             val canShare = details.animeUrl.isNotBlank()
@@ -109,12 +110,12 @@ internal fun DetailsMobileHero(
                 UserRatingChip(
                     rating = userRating,
                     textStyle = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(end = 4.dp),
+                    modifier = Modifier.padding(end = YummySpacing.XSmall),
                 )
             }
             IconButton(
                 onClick = onNewSearch,
-                modifier = Modifier.size(52.dp),
+                modifier = Modifier.size(YummySpacing.TouchTarget + YummySpacing.XSmall),
             ) {
                 Icon(
                     imageVector = Icons.Filled.Search,
@@ -141,7 +142,7 @@ internal fun DetailsMobileHero(
                 .align(Alignment.TopStart)
                 .statusBarsPadding()
                 .padding(top = topExtra)
-                .padding(start = 12.dp)
+                .padding(start = YummySpacing.Medium)
                 .size(52.dp),
         ) {
             Icon(
@@ -156,8 +157,8 @@ internal fun DetailsMobileHero(
                 .fillMaxWidth()
                 .statusBarsPadding()
                 .padding(top = topExtra)
-                .padding(horizontal = 16.dp)
-                .padding(top = 58.dp),
+                .padding(horizontal = YummySpacing.Large)
+                .padding(top = YummySpacing.Section + YummySpacing.Large + 2.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
@@ -168,7 +169,7 @@ internal fun DetailsMobileHero(
                 modifier = Modifier
                     .width(posterWidth)
                     .aspectRatio(2f / 3f)
-                    .clip(RoundedCornerShape(16.dp))
+                    .clip(YummyShapeTokens.Control)
                     .background(MaterialTheme.colorScheme.surfaceVariant)
                     .clickable(onClick = onPosterClick),
             )
@@ -189,7 +190,7 @@ internal fun DetailsMobileHero(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                horizontalArrangement = Arrangement.spacedBy(YummySpacing.Small, Alignment.CenterHorizontally),
             ) {
                 originalTitle?.let {
                     Text(
@@ -237,7 +238,7 @@ internal fun DetailsMobileHero(
                 onWatchSelected = onWatchSelected,
                 onLibraryToggle = onLibraryToggle,
                 onFavoriteToggle = onFavoriteToggle,
-                modifier = Modifier.padding(top = 6.dp, bottom = 12.dp),
+                modifier = Modifier.padding(top = YummySpacing.Small - 2.dp, bottom = YummySpacing.Medium),
             )
         }
     }

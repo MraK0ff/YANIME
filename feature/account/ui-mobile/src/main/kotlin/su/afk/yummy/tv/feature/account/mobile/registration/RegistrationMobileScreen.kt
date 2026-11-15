@@ -12,16 +12,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
@@ -47,10 +41,10 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.Flow
-import su.afk.yummy.tv.core.designsystem.R as CoreR
 import su.afk.yummy.tv.core.designsystem.baseScreen.BaseScreen
 import su.afk.yummy.tv.core.designsystem.components.InlineError
 import su.afk.yummy.tv.core.designsystem.components.YummyLoadingIndicator
+import su.afk.yummy.tv.core.designsystem.mobile.bar.MobileTopBar
 import su.afk.yummy.tv.feature.account.mobile.account.utils.accountErrorMessage
 import su.afk.yummy.tv.feature.account.mobile.view.AccountMobileHCaptcha
 import su.afk.yummy.tv.feature.account.presentation.R
@@ -60,7 +54,6 @@ import su.afk.yummy.tv.feature.account.common.utils.label
 
 private const val YANI_SITE_URL = "https://ru.yummyani.me"
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistrationMobileScreen(
     state: RegistrationState.State,
@@ -90,17 +83,10 @@ fun RegistrationMobileScreen(
     BaseScreen(
         isScroll = false,
         contentModifier = Modifier.navigationBarsPadding(),
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.account_registration_title)) },
-                navigationIcon = {
-                    IconButton(onClick = { onEvent(RegistrationState.Event.BackSelected) }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(CoreR.string.common_back),
-                        )
-                    }
-                },
+        customTopBar = { _ ->
+            MobileTopBar(
+                title = stringResource(R.string.account_registration_title),
+                onBack = { onEvent(RegistrationState.Event.BackSelected) },
             )
         },
     ) {

@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.focus.tvFocusableClick
@@ -63,6 +64,8 @@ fun TvChip(
                 interactionSource = interactionSource,
                 focusedScale = 1.06f,
                 focusedBorderColor = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.primary,
+                role = Role.Tab,
+                selectedState = selected,
             )
             .padding(horizontal = YummySpacing.XLarge, vertical = YummySpacing.Small),
         horizontalArrangement = Arrangement.spacedBy(7.dp),

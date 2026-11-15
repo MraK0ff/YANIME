@@ -1,7 +1,8 @@
 package su.afk.yummy.tv.core.designsystem.mobile.tabs
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -14,7 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,16 +49,19 @@ fun MobileTextTabs(
             if (selectedIndex in titles.indices) listState.animateScrollToItem(selectedIndex)
         }
         LazyRow(
-            modifier = modifier,
+            modifier = modifier.selectableGroup(),
             state = listState,
             contentPadding = PaddingValues(horizontal = 12.dp),
         ) {
-            itemsIndexed(titles) { index, title ->
+            itemsIndexed(
+                items = titles,
+                key = { index, _ -> index },
+            ) { index, title ->
                 MobileTextTab(title, index == selectedIndex, { onSelected(index) })
             }
         }
     } else {
-        Row(modifier = modifier.fillMaxWidth()) {
+        Row(modifier = modifier.fillMaxWidth().selectableGroup()) {
             titles.forEachIndexed { index, title ->
                 MobileTextTab(
                     title = title,
@@ -83,7 +86,7 @@ private fun MobileTextTab(
         // IntrinsicSize.Max: в LazyRow ширина не ограничена, и fillMaxWidth у индикатора иначе дало бы 0.
         modifier = modifier
             .width(IntrinsicSize.Max)
-            .clickable(role = Role.Tab, onClick = onClick),
+            .selectable(selected = selected, onClick = onClick, role = Role.Tab),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
@@ -102,7 +105,7 @@ private fun MobileTextTab(
                 .height(3.dp)
                 .background(
                     if (selected) MaterialTheme.colorScheme.primary else Color.Transparent,
-                    RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp),
+                    MaterialTheme.shapes.extraSmall,
                 ),
         )
     }

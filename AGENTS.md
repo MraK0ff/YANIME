@@ -129,3 +129,28 @@
 
 - Проект распространяется по CC BY-NC 4.0 (см. `LICENSE`, `NOTICE`).
 - При переносе существенных частей кода в другой проект сохраняй `NOTICE`/`LICENSE` и указывай: «Based on YummyTV — https://github.com/Helandy/YummyTV».
+
+## 11. Material 3 Expressive и управление версиями
+
+- `core:designsystem` — единственный источник Material-темы, typography, shapes, motion и семантических UI-токенов. Не создавай параллельную тему внутри feature-модуля.
+- Перед обновлением Compose/Material 3 проверяй не только номер версии, но и доступность используемых публичных API: `MaterialExpressiveTheme`, `MotionScheme.expressive()`, expressive typography/shapes и используемые компоненты.
+- Не понижай библиотеку до stable-версии, если это удаляет API, используемые проектом. Не заменяй API фиктивными локальными реализациями ради прохождения компиляции.
+- Если нужный Expressive API пока доступен только в RC, зафиксируй это исключение в `docs/material3-expressive.md`, используй один согласованный артефакт/версию и проверь release notes. После выхода stable-версии выполни отдельную миграцию с проверкой API и полной сборкой.
+- Не обновляй AGP, Gradle, Kotlin, Compose BOM и Compose Compiler независимо друг от друга. Проверяй официальную матрицу совместимости и plugin DSL проекта.
+
+## 12. Glass UI и backdrop blur
+
+- Прозрачность, tint, граница и скругление — это translucent surface, но не backdrop blur. Не называй такую реализацию frosted glass.
+- `Modifier.blur()` и `RenderEffect` размывают собственный render layer; они не являются универсальным способом размыть пиксели позади composable.
+- Android Window Blur API размывает содержимое за отдельным окном. Применяй её только к реальным отдельным окнам (`Dialog` / `Popup` с соответствующей window-конфигурацией), проверив API level, `WindowManager.isCrossWindowBlurEnabled`, callbacks при изменении доступности blur и поведение при отключённом blur.
+- Не обещай backdrop blur для элементов внутри того же окна. В частности, не предполагай, что обычный Compose overlay сможет размыть видео под `SurfaceView`: сначала проверь тип поверхности, composition order и реальное поведение на устройстве.
+- Для in-window player controls используй контрастную полупрозрачную тональную поверхность как предсказуемый fallback. Это осознанный дизайн, а не неудачная имитация blur.
+- Не создавай отдельный blur layer для каждого элемента списка. Ограничивай blur небольшим количеством крупных поверхностей; учитывай overdraw, offscreen passes, GPU и средний класс устройств.
+- Учитывай системные настройки прозрачности/анимации, контраст текста и доступность. Визуальный смысл и читаемость должны сохраняться без blur.
+
+## 13. Изменения видеоплеера
+
+- Перед изменением player UI прочитай `PlayerMobileScreen`, `MobileNativePlayer`, overlay/gesture controllers, playback UI state и все связанные sheet-компоненты.
+- Не меняй lifecycle ExoPlayer, `PlayerView` / `SurfaceView`, service, PiP, audio focus, track selection или episode navigation в рамках чисто визуального изменения.
+- Не связывай Compose UI с внутренним экземпляром Player напрямую, если для этого уже есть presentation/controller contract.
+- При изменении player state проверяй быстрые переключения серии, повторное создание Activity, смену ориентации, PiP, фон/возврат и ошибки resolver. Не теряй последний рабочий поток во время загрузки следующего.

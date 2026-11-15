@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.graphics.vector.ImageVector
 import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
@@ -61,9 +62,14 @@ fun MobileSettingToggleRow(
         Switch(
             checked = checked,
             onCheckedChange = null,
+            modifier = Modifier.clearAndSetSemantics {},
             colors = SwitchDefaults.colors(
                 checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
                 checkedTrackColor = MaterialTheme.colorScheme.primary,
+                disabledCheckedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                disabledCheckedTrackColor = MaterialTheme.colorScheme.primary,
+                disabledUncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                disabledUncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant,
             ),
         )
     }

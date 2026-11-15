@@ -33,7 +33,6 @@ import su.afk.yummy.tv.feature.settings.SettingsState
 import su.afk.yummy.tv.feature.settings.model.DetailsButtonMoveDirection
 import su.afk.yummy.tv.feature.settings.model.SettingsTvPicker
 import su.afk.yummy.tv.feature.settings.utils.hint
-import su.afk.yummy.tv.core.designsystem.theme.previewColor
 import su.afk.yummy.tv.core.designsystem.theme.previewColors
 import su.afk.yummy.tv.feature.settings.common.utils.availableAppThemes
 import su.afk.yummy.tv.feature.settings.common.utils.color
@@ -135,7 +134,6 @@ internal fun SettingsTvPickerPanel(
                 selected = state.appTheme,
                 labelOf = { it.label() },
                 hintOf = { it.hint() },
-                colorOf = { it.previewColor() },
                 previewColorsOf = { it.previewColors() },
                 focusRequester = entryFocusRequester,
                 onSelected = { select(SettingsState.Event.AppThemeSelected(it)) },

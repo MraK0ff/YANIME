@@ -2,7 +2,7 @@ package su.afk.yummy.tv.feature.settings.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.Role
 import su.afk.yummy.tv.feature.settings.common.utils.color
 import su.afk.yummy.tv.feature.settings.common.utils.hint
 import su.afk.yummy.tv.feature.settings.common.utils.label
@@ -68,7 +69,13 @@ internal fun QualityRow(
             .clip(shape)
             .border(width = 2.dp, color = borderColor, shape = shape)
             .background(bgColor, shape)
-            .clickable(interactionSource = interactionSource, indication = null, onClick = onClick)
+            .selectable(
+                selected = selected,
+                interactionSource = interactionSource,
+                indication = null,
+                role = Role.RadioButton,
+                onClick = onClick,
+            )
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp),

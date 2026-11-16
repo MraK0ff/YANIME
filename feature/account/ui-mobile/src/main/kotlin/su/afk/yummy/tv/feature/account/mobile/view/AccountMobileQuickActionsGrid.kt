@@ -25,7 +25,7 @@ internal fun AccountMobileQuickActionsGrid(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clip(YummyShapeTokens.Large)
+            .clip(YummyShapeTokens.Card)
             .background(MaterialTheme.colorScheme.surfaceContainerLow)
             .padding(horizontal = YummySpacing.XSmall, vertical = YummySpacing.Small),
         verticalArrangement = Arrangement.spacedBy(YummySpacing.Small),

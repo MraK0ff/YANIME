@@ -153,12 +153,12 @@ private fun ScheduleDayReleases(
             .mobileContentMaxWidth()
             .fillMaxSize(),
         contentPadding = PaddingValues(
-            start = YummySpacing.Large,
+            start = YummySpacing.Medium,
             top = YummySpacing.Small,
-            end = YummySpacing.Large,
+            end = YummySpacing.Medium,
             bottom = MobileBottomBarDefaults.contentBottomPadding,
         ),
-        verticalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
+        verticalArrangement = Arrangement.spacedBy(YummySpacing.Small + 2.dp),
     ) {
         items(
             items = group.items,

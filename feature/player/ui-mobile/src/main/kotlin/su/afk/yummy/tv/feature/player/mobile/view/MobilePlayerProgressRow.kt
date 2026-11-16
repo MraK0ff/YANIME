@@ -168,9 +168,9 @@ private fun MobilePlayerTimeline(
     } else {
         themeAccent
     }
-    val bufferedColor = Color.White.copy(alpha = 0.46f)
+    val bufferedColor = Color.White.copy(alpha = 0.34f)
     // Keep the inactive rail quiet so the played segment remains the visual anchor.
-    val unplayedColor = Color.White.copy(alpha = 0.24f)
+    val unplayedColor = Color.White.copy(alpha = 0.18f)
     val safeProgress = progress.coerceIn(0f, 1f)
     Box(
         modifier = modifier
@@ -210,7 +210,7 @@ private fun MobilePlayerTimeline(
     ) {
         Canvas(Modifier.fillMaxWidth().height(48.dp)) {
             val centerY = size.height / 2f
-            val stroke = 4.dp.toPx()
+            val stroke = 3.dp.toPx()
             val radius = stroke / 2f
             val endX = size.width
             val playedX = endX * safeProgress
@@ -240,7 +240,7 @@ private fun MobilePlayerTimeline(
             if (enabled) {
                 drawCircle(
                     color = playedColor,
-                    radius = 5.5.dp.toPx(),
+                    radius = 5.dp.toPx(),
                     center = Offset(playedX.coerceIn(0f, endX), centerY),
                 )
             }

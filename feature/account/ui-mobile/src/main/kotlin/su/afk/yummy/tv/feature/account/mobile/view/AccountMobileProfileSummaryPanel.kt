@@ -16,7 +16,7 @@ internal fun AccountMobileProfileSummaryPanel(
     stats: UserStats?,
     isStatsLoading: Boolean = false,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(YummySpacing.Large - 2.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(YummySpacing.Medium - 2.dp)) {
         AccountMobileSurfacePanel {
             AccountMobileProfileHeatmap(
                 history = summary.watchHistory,

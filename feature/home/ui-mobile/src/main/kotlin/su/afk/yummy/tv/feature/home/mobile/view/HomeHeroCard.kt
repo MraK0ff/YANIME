@@ -120,7 +120,7 @@ internal fun HomeHeroCard(
                 ) {
                     Text(
                         text = item.title,
-                        style = MaterialTheme.typography.titleLargeEmphasized,
+                        style = MaterialTheme.typography.titleMediumEmphasized,
                         color = MaterialTheme.colorScheme.onSurface,
                         minLines = 2,
                         maxLines = 2,
@@ -130,9 +130,10 @@ internal fun HomeHeroCard(
                     if (item.description.isNotBlank()) {
                         Text(
                             text = item.description,
+                            modifier = Modifier.weight(1f),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 5,
+                            maxLines = 7,
                             overflow = TextOverflow.Ellipsis,
                         )
                     }

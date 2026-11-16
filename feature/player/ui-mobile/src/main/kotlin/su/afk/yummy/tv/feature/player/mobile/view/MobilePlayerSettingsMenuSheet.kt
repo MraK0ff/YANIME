@@ -8,15 +8,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Audiotrack
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.HighQuality
-import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Cast
 import androidx.compose.material.icons.filled.AspectRatio
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Bedtime
 import androidx.compose.material.icons.filled.BrightnessMedium
 import androidx.compose.material.icons.filled.GraphicEq
-import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.ScreenRotation
 import androidx.compose.material.icons.filled.Subtitles
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,7 +33,6 @@ import su.afk.yummy.tv.feature.player.mobile.model.MobilePlayerSettingsMenuActio
 import su.afk.yummy.tv.feature.player.mobile.model.MobilePlayerSettingsMenuModel
 import su.afk.yummy.tv.feature.player.mobile.model.MobilePlayerSettingsPage
 import su.afk.yummy.tv.feature.player.presentation.R
-import su.afk.yummy.tv.core.designsystem.utils.dubbingDisplayName
 
 /**
  * Единое меню настроек плеера в стиле YouTube: одна шторка с главным списком (качество, скорость,
@@ -258,6 +254,17 @@ private fun MobilePlayerMenuRoot(
                 onClick = { onNavigate(MobilePlayerSettingsPage.Subtitles) },
             )
         }
+        if (model.showDetails) {
+            MobilePlayerMenuRow(
+                icon = Icons.Filled.Info,
+                label = stringResource(R.string.player_mobile_details),
+                trailing = MobilePlayerMenuRowTrailing.None,
+                onClick = {
+                    onDismiss()
+                    actions.onDetails()
+                },
+            )
+        }
         MobilePlayerMenuRow(
             icon = Icons.Filled.Bedtime,
             label = stringResource(R.string.player_sleep_title),
@@ -281,7 +288,7 @@ private fun MobilePlayerMenuRoot(
         )
         MobilePlayerMenuRow(
             icon = Icons.Filled.BrightnessMedium,
-            label = stringResource(R.string.player_menu_display),
+            label = stringResource(R.string.player_menu_brightness_volume),
             trailing = MobilePlayerMenuRowTrailing.Navigate(),
             onClick = { onNavigate(MobilePlayerSettingsPage.Display) },
         )
@@ -293,49 +300,8 @@ private fun MobilePlayerMenuRoot(
                 onClick = { onNavigate(MobilePlayerSettingsPage.CastAndPip) },
             )
         }
-        if (model.showDetails) {
-            MobilePlayerMenuRow(
-                icon = Icons.Filled.Info,
-                label = stringResource(R.string.player_mobile_details),
-                trailing = MobilePlayerMenuRowTrailing.None,
-                onClick = {
-                    onDismiss()
-                    actions.onDetails()
-                },
-            )
-        }
 
-        // Quick-access controls remain together below the less frequently reached settings.
-        MobilePlayerMenuRow(
-            icon = Icons.Filled.HighQuality,
-            label = stringResource(R.string.player_quality_title),
-            trailing = MobilePlayerMenuRowTrailing.Navigate(
-                playerQualityButtonLabel(
-                    activeQuality = model.selectedQuality,
-                    adaptiveQuality = model.adaptiveQuality,
-                    adaptiveLimitQuality = model.adaptiveLimitQuality,
-                    adaptiveLimitBest = model.adaptiveLimitBest,
-                ),
-            ),
-            onClick = { onNavigate(MobilePlayerSettingsPage.Quality) },
-        )
-        MobilePlayerMenuRow(
-            icon = Icons.Filled.Speed,
-            label = stringResource(R.string.player_speed_title),
-            trailing = MobilePlayerMenuRowTrailing.Navigate(
-                if (model.speed % 1f == 0f) "${model.speed.toInt()}x" else "${model.speed}x",
-            ),
-            onClick = { onNavigate(MobilePlayerSettingsPage.Speed) },
-        )
-        if (model.dubbingNames.isNotEmpty()) {
-            MobilePlayerMenuRow(
-                icon = Icons.Filled.Mic,
-                label = stringResource(R.string.player_mobile_track_settings_title),
-                trailing = MobilePlayerMenuRowTrailing.Navigate(
-                    model.dubbingNames.getOrNull(model.selectedDubbingIndex)?.dubbingDisplayName(),
-                ),
-                onClick = { onNavigate(MobilePlayerSettingsPage.Sources) },
-            )
-        }
+
+
     }
 }

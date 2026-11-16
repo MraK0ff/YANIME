@@ -34,9 +34,9 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 
 @Composable
+@Suppress("UNUSED_PARAMETER")
 internal fun MobilePlayerActionButton(
     icon: ImageVector,
     /** Подпись для TalkBack: у кнопки нет текста, иначе она объявляется просто «кнопкой». */
@@ -58,20 +58,12 @@ internal fun MobilePlayerActionButton(
     surface: Boolean = false,
     loading: Boolean = false,
 ) {
-    val shape = YummyShapeTokens.Pill
     val contentColor = when {
         !enabled -> Color.White.copy(alpha = 0.26f)
-        primary -> MaterialTheme.colorScheme.onPrimary
         else -> Color.White
     }
     val holdProgress = remember { Animatable(0f) }
     val buttonSize = mobilePlayerControlButtonSize(primary) * sizeMultiplier
-    val borderColor = MobilePlayerGlassBorder
-    val surfaceFill = when {
-        !enabled -> Color.Black.copy(alpha = 0.10f)
-        primary -> MaterialTheme.colorScheme.primary
-        else -> MobilePlayerGlassFill
-    }
 
     val baseViewConfiguration = LocalViewConfiguration.current
     val quickLongPressConfiguration = remember(baseViewConfiguration) {
@@ -115,7 +107,7 @@ internal fun MobilePlayerActionButton(
     ) {
         if (loading) {
             CircularProgressIndicator(
-                color = if (primary) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.primary,
                 strokeWidth = 3.dp,
                 modifier = Modifier.size(buttonSize * 0.62f),
             )

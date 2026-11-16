@@ -53,7 +53,7 @@ internal fun MobilePlayerCenterControls(
             onClick = onPlayPause,
             primary = true,
             loading = loading,
-            sizeMultiplier = 1.08f,
+            sizeMultiplier = 1f,
             iconScale = 0.72f,
         )
 
@@ -71,5 +71,5 @@ internal fun MobilePlayerCenterControls(
     }
 }
 
-private val CENTER_CONTROLS_GAP = 10.dp
-private val CENTER_SWITCH_SLOT = 64.dp
+private val CENTER_CONTROLS_GAP = 8.dp
+private val CENTER_SWITCH_SLOT = 56.dp

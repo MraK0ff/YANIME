@@ -34,9 +34,9 @@ import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.utils.formatting.formatFeedDateTime
 import su.afk.yummy.tv.domain.posts.model.PostSummary
 
-private val CardShape = YummyShapeTokens.ProminentCard
-private val CardHeight = 196.dp
-private val PreviewWidth = 320.dp
+private val CardShape = YummyShapeTokens.Card
+private val CardHeight = 184.dp
+private val PreviewWidth = 288.dp
 
 @Composable
 fun PostTvCard(post: PostSummary, onClick: () -> Unit, modifier: Modifier = Modifier) {
@@ -62,7 +62,7 @@ fun PostTvCard(post: PostSummary, onClick: () -> Unit, modifier: Modifier = Modi
                 Modifier
                     .weight(1f)
                     .fillMaxHeight()
-                    .padding(horizontal = YummySpacing.XXLarge, vertical = YummySpacing.XLarge),
+                    .padding(horizontal = YummySpacing.XLarge, vertical = YummySpacing.Large),
                 verticalArrangement = Arrangement.spacedBy(YummySpacing.Small),
             ) {
                 Text(
@@ -74,7 +74,7 @@ fun PostTvCard(post: PostSummary, onClick: () -> Unit, modifier: Modifier = Modi
                 )
                 Text(
                     post.title,
-                    style = MaterialTheme.typography.headlineMediumEmphasized,
+                    style = MaterialTheme.typography.titleLargeEmphasized,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,

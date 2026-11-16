@@ -77,6 +77,7 @@ fun BaseBottomSheet(
     /** Ограничение строк заголовка: длинные названия тайтлов иначе съедают полшторки. */
     titleMaxLines: Int = Int.MAX_VALUE,
     titleContent: (@Composable () -> Unit)? = null,
+    dragHandle: (@Composable () -> Unit)? = null,
     contentPadding: PaddingValues = PaddingValues(start = YummySpacing.Large, end = YummySpacing.Large, bottom = YummySpacing.Large),
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     scrollableContent: Boolean = false,
@@ -89,6 +90,7 @@ fun BaseBottomSheet(
         modifier = modifier,
         sheetState = sheetState,
         onDismissRequest = onDismissRequest,
+        dragHandle = dragHandle ?: { androidx.compose.material3.BottomSheetDefaults.DragHandle() },
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
         contentWindowInsets = { WindowInsets(0.dp) },
     ) {

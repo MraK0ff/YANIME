@@ -39,7 +39,6 @@ internal fun MobilePlayerCenterControls(
                     contentDescription = stringResource(R.string.player_mobile_previous_episode),
                     onClick = onPrevEpisode,
                     iconScale = 0.66f,
-                    surface = true,
                 )
             }
         }

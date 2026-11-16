@@ -57,7 +57,7 @@ internal fun LibraryTopTabs(
             top = LibraryTopTabsTopPadding,
             end = TvScreenPadding.Horizontal,
         ),
-        horizontalArrangement = Arrangement.spacedBy(YummySpacing.Small, Alignment.CenterHorizontally),
+        horizontalArrangement = Arrangement.spacedBy(YummySpacing.XSmall, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         itemsIndexed(tabs, key = { _, tab -> tab.name }) { index, tab ->
@@ -89,4 +89,4 @@ internal fun LibraryTopTabs(
     }
 }
 
-private val LibraryTopTabsTopPadding = YummySpacing.Medium + 2.dp
+private val LibraryTopTabsTopPadding = YummySpacing.Small + 2.dp

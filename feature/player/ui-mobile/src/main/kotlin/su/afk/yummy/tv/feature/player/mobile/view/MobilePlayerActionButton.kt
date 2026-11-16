@@ -76,7 +76,6 @@ internal fun MobilePlayerActionButton(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .size(buttonSize)
-            .then(Modifier)
             .then(
                 if (onHold == null && onLongPress != null) {
                     Modifier.pointerInput(enabled, onLongPress, onClick) {

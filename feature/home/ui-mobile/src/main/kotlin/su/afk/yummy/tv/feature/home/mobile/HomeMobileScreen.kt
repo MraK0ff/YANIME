@@ -225,7 +225,7 @@ fun HomeMobileScreen(
                         top = 12.dp,
                         bottom = MobileBottomBarDefaults.contentBottomPadding,
                     ),
-                    verticalArrangement = Arrangement.spacedBy(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
                     val feed = state.feed
 

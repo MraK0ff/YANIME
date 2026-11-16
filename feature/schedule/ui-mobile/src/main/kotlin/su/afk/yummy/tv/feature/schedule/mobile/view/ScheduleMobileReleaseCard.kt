@@ -65,21 +65,21 @@ internal fun ScheduleMobileReleaseCard(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 126.dp),
-        shape = YummyShapeTokens.ProminentCard,
+            .heightIn(min = 116.dp),
+        shape = YummyShapeTokens.Card,
         colors = CardDefaults.cardColors(containerColor = rowBackground),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = YummySpacing.Large, vertical = YummySpacing.Medium),
+                .padding(horizontal = YummySpacing.Medium, vertical = YummySpacing.Small + 2.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Box(
                 modifier = Modifier
-                    .width(74.dp)
-                    .height(106.dp)
+                    .width(68.dp)
+                    .height(98.dp)
                     .clip(YummyShapeTokens.Control)
                     .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)),
             ) {

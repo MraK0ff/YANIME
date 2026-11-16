@@ -7,11 +7,9 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -69,22 +67,11 @@ internal fun MobilePlayerEndPrompt(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             if (secondaryLabel != null) {
-                OutlinedButton(
-                    onClick = onSecondary,
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = Color.White,
-                    ),
-                ) {
+                TextButton(onClick = onSecondary) {
                     Text(secondaryLabel, maxLines = 1)
                 }
             }
-            Button(
-                onClick = onPrimary,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                ),
-            ) {
+            TextButton(onClick = onPrimary) {
                 Text(primaryLabel, maxLines = 1)
             }
         }

@@ -103,7 +103,7 @@ internal fun BoxScope.TvPlayerControlsOverlay(
                     Brush.verticalGradient(
                         listOf(
                             Color.Transparent,
-                            Color.Black.copy(alpha = 0.88f)
+                            Color.Black.copy(alpha = 0.76f)
                         )
                     )
                 ),
@@ -113,9 +113,9 @@ internal fun BoxScope.TvPlayerControlsOverlay(
                     .fillMaxWidth()
                     // Подсказка «Серии» сама занимает низ, поэтому нижний отступ при ней меньше.
                     .padding(
-                        start = 48.dp,
-                        end = 48.dp,
-                        top = 20.dp,
+                        start = 40.dp,
+                        end = 40.dp,
+                        top = 16.dp,
                         bottom = if (playback.episodes.isNotEmpty()) 6.dp else 20.dp,
                     ),
                 verticalArrangement = Arrangement.spacedBy(4.dp),

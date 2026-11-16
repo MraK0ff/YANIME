@@ -10,6 +10,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -60,6 +61,7 @@ internal fun MobilePlayerActionButton(
 ) {
     val contentColor = when {
         !enabled -> Color.White.copy(alpha = 0.26f)
+        primary -> MaterialTheme.colorScheme.onPrimary
         else -> Color.White
     }
     val holdProgress = remember { Animatable(0f) }
@@ -76,6 +78,7 @@ internal fun MobilePlayerActionButton(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .size(buttonSize)
+            .then(if (surface && primary) Modifier.mobilePlayerGlassSurface(shape = CircleShape, fill = MaterialTheme.colorScheme.primary, borderColor = MobilePlayerGlassBorder, elevation = 0.dp) else Modifier)
             .then(
                 if (onHold == null && onLongPress != null) {
                     Modifier.pointerInput(enabled, onLongPress, onClick) {
@@ -106,7 +109,7 @@ internal fun MobilePlayerActionButton(
     ) {
         if (loading) {
             CircularProgressIndicator(
-                color = MaterialTheme.colorScheme.primary,
+                color = if (primary) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary,
                 strokeWidth = 3.dp,
                 modifier = Modifier.size(buttonSize * 0.62f),
             )

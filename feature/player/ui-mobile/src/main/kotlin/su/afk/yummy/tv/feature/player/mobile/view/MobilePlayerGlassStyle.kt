@@ -11,17 +11,17 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-/** Shared player shapes: controls read as a coherent dock, not a collection of floating bubbles. */
-internal val MobilePlayerInteractiveShape = RoundedCornerShape(18.dp)
-internal val MobilePlayerStaticShape = RoundedCornerShape(12.dp)
+/** Shared restrained player geometry: compact controls with one coherent visual language. */
+internal val MobilePlayerInteractiveShape = RoundedCornerShape(16.dp)
+internal val MobilePlayerStaticShape = RoundedCornerShape(10.dp)
 
-internal const val MobilePlayerSelectedContainerAlpha = 0.14f
-internal const val MobilePlayerUnselectedContainerAlpha = 0.46f
+internal const val MobilePlayerSelectedContainerAlpha = 0.12f
+internal const val MobilePlayerUnselectedContainerAlpha = 0.34f
 internal val MobilePlayerMinimumTouchTarget = 48.dp
-internal val MobilePlayerGlassFill = Color(0xFF11151B).copy(alpha = 0.72f)
-internal val MobilePlayerGlassBorder = Color.White.copy(alpha = 0.12f)
+internal val MobilePlayerGlassFill = Color(0xFF17191D).copy(alpha = 0.78f)
+internal val MobilePlayerGlassBorder = Color.White.copy(alpha = 0.08f)
 
-/** Restrained translucent surface: no heavy shadow over video content. */
+/** Subtle translucent surface: keep the video legible and avoid floating-card decoration. */
 internal fun Modifier.mobilePlayerGlassSurface(
     shape: Shape = MobilePlayerStaticShape,
     fill: Color = MobilePlayerGlassFill,

@@ -21,7 +21,7 @@ internal fun AccountMobileSurfacePanel(
         modifier = modifier
             .fillMaxWidth()
             .clip(YummyShapeTokens.Card)
-            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .background(MaterialTheme.colorScheme.surfaceContainerLow)
             .padding(YummySpacing.XLarge),
         content = content,
     )

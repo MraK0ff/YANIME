@@ -149,8 +149,8 @@ private fun BloggerVideosListContent(
             modifier = Modifier
                 .mobileContentMaxWidth()
                 .fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            contentPadding = PaddingValues(14.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             items(
                 videos.itemCount,

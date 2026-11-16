@@ -260,4 +260,5 @@
     <string name="player_time_display_elapsed_value">Переглянуто · %1$s</string>
     <string name="player_time_display_remaining_value">Залишилося · %1$s</string>
     <string name="player_time_display_finish_value">Завершиться · %1$s</string>
+    <string name="player_menu_brightness_volume">Яскравість і гучність</string>
 </resources>

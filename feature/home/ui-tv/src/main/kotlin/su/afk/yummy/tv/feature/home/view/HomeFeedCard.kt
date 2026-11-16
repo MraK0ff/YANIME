@@ -58,7 +58,7 @@ internal fun HomeFeedCard(
     leftFocusRequester: FocusRequester? = null,
     upFocusRequester: FocusRequester? = null,
     downFocusRequester: FocusRequester? = null,
-    focusedScale: Float = 1.04f,
+    focusedScale: Float = 1.025f,
     forceFocused: Boolean = false,
 ) {
     var isFocused by remember { mutableStateOf(false) }
@@ -90,13 +90,13 @@ internal fun HomeFeedCard(
                 focusedScale = focusedScale,
             )
             .border(
-                width = 3.dp,
+                width = 2.dp,
                 color = if (active) MaterialTheme.colorScheme.primary else Color.Transparent,
                 shape = shape,
             ),
         shape = shape,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
         ),
     ) {
         Column {

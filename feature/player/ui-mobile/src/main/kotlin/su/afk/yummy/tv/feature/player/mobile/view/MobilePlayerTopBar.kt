@@ -129,7 +129,7 @@ internal fun MobilePlayerTopBar(
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .fillMaxWidth(0.88f)
-                .padding(top = 46.dp),
+                .padding(top = 56.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(1.dp),
         ) {

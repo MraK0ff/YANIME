@@ -67,7 +67,7 @@ fun MobilePosterCard(
     Card(
         modifier = modifier,
         shape = YummyShapeTokens.Card,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
     ) {
         Column(
             Modifier

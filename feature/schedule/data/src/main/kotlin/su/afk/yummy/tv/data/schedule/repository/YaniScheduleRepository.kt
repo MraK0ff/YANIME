@@ -21,8 +21,6 @@ import su.afk.yummy.tv.data.home.mapper.toAnimeEpisodeReleases
 import su.afk.yummy.tv.data.schedule.storage.mapper.toAnimeScheduleCache
 import su.afk.yummy.tv.domain.schedule.model.AnimeEpisodeRelease
 import su.afk.yummy.tv.domain.schedule.model.AnimeScheduleDay
-import su.afk.yummy.tv.domain.schedule.model.AnimeScheduleItem
-import su.afk.yummy.tv.core.model.anime.AnimePoster
 import su.afk.yummy.tv.domain.schedule.repository.AnimeScheduleRepository
 import su.afk.yummy.tv.data.schedule.storage.mapper.toScheduleDays as toStoredScheduleDays
 

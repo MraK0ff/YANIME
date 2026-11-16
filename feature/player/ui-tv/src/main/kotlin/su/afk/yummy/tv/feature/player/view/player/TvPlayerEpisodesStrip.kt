@@ -59,10 +59,10 @@ import su.afk.yummy.tv.feature.player.model.PlayerEpisodeProgress
 import su.afk.yummy.tv.feature.player.presentation.R
 
 /** Высота ленты: она перекрывает ряд управления, видео остаётся на месте. */
-private val STRIP_HEIGHT = 212.dp
+private val STRIP_HEIGHT = 196.dp
 
-private val CARD_WIDTH = 200.dp
-private val CARD_SHAPE = RoundedCornerShape(10.dp)
+private val CARD_WIDTH = 188.dp
+private val CARD_SHAPE = RoundedCornerShape(12.dp)
 private const val UNAVAILABLE_ALPHA = 0.6f
 
 /** Горизонтальная лента серий под видео: превью, номер, прогресс; текущая серия получает фокус при открытии. */

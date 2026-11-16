@@ -32,11 +32,7 @@ internal fun MobilePlayerBalancerSheet(
     BaseBottomSheet(
         onDismissRequest = onDismiss,
         scrollableContent = true,
-        dragHandle = {
-            Box(Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 4.dp), contentAlignment = Alignment.Center) {
-                Text(stringResource(R.string.player_balancer_name_prefix), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
-            }
-        },
+        dragHandle = { MobilePlayerPanelDragTitle(stringResource(R.string.player_balancer_name_prefix)) },
     ) {
         HideSheetWindowSystemBars()
         Column(

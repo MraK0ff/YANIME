@@ -36,7 +36,7 @@ import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 /** Фиксированная высота: длина названия и описания не должна менять высоту карусели. */
-private val HERO_CARD_HEIGHT = 236.dp
+private val HERO_CARD_HEIGHT = 224.dp
 private val HERO_POSTER_SHAPE = YummyShapeTokens.ProminentCard
 
 @Composable
@@ -66,7 +66,7 @@ internal fun HomeHeroCard(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .matchParentSize()
-                    .blur(28.dp)
+                    .blur(22.dp)
                     .background(MaterialTheme.colorScheme.surfaceVariant),
             )
             Box(
@@ -75,9 +75,9 @@ internal fun HomeHeroCard(
                     .background(
                         Brush.horizontalGradient(
                             colorStops = arrayOf(
-                                0f to Color.Black.copy(alpha = 0.45f),
-                                0.45f to MaterialTheme.colorScheme.surface.copy(alpha = 0.72f),
-                                1f to MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
+                                0f to Color.Black.copy(alpha = 0.38f),
+                                0.45f to MaterialTheme.colorScheme.surface.copy(alpha = 0.78f),
+                                1f to MaterialTheme.colorScheme.surface.copy(alpha = 0.94f),
                             ),
                         ),
                     ),
@@ -93,7 +93,7 @@ internal fun HomeHeroCard(
                     modifier = Modifier
                         .fillMaxHeight()
                         .aspectRatio(2f / 3f)
-                        .shadow(8.dp, HERO_POSTER_SHAPE)
+                        .shadow(4.dp, HERO_POSTER_SHAPE)
                         .clip(HERO_POSTER_SHAPE)
                         .background(MaterialTheme.colorScheme.surfaceVariant),
                 ) {

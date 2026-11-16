@@ -55,7 +55,7 @@ internal fun MobilePlayerActionButton(
     onLongPress: (() -> Unit)? = null,
     sizeMultiplier: Float = 1f,
     iconScale: Float = 0.55f,
-    surface: Boolean = true,
+    surface: Boolean = false,
     loading: Boolean = false,
 ) {
     val shape = YummyShapeTokens.Pill
@@ -84,7 +84,7 @@ internal fun MobilePlayerActionButton(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .size(buttonSize)
-            .then(if (surface) Modifier.mobilePlayerGlassSurface(shape = shape, fill = surfaceFill, borderColor = borderColor, elevation = 0.dp) else Modifier)
+            .then(Modifier)
             .then(
                 if (onHold == null && onLongPress != null) {
                     Modifier.pointerInput(enabled, onLongPress, onClick) {

@@ -94,14 +94,14 @@ internal fun TvPlayerEpisodeRow(
                 onFocused = onInteraction,
                 modifier = Modifier
                     .focusProperties { up = upFocusRequester }
-                    .width(48.dp),
+                    .width(44.dp),
                 contentPadding = PaddingValues(horizontal = 0.dp, vertical = 9.dp),
             ) { color ->
                 Icon(
                     imageVector = Icons.Filled.SkipPrevious,
                     contentDescription = stringResource(R.string.player_previous_episode),
                     tint = color,
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(18.dp),
                 )
             }
         }

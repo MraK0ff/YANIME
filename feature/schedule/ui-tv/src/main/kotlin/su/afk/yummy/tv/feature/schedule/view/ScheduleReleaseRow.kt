@@ -74,11 +74,11 @@ internal fun ScheduleReleaseRow(
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
     val active = focused || selected
-    val shape = YummyShapeTokens.ProminentCard
+    val shape = YummyShapeTokens.Card
     val rowScale = if (focused) 1.025f else 1f
     val rowBackground = when {
-        focused -> MaterialTheme.colorScheme.primaryContainer
-        selected -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.72f)
+        focused -> MaterialTheme.colorScheme.surfaceContainerHigh
+        selected -> MaterialTheme.colorScheme.surfaceContainerHigh
         aired -> AiredColor.copy(alpha = 0.12f)
         else -> MaterialTheme.colorScheme.surfaceContainerLow
     }

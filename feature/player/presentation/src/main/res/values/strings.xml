@@ -260,4 +260,5 @@
     <string name="player_time_display_elapsed_value">Watched · %1$s</string>
     <string name="player_time_display_remaining_value">Remaining · %1$s</string>
     <string name="player_time_display_finish_value">Ends · %1$s</string>
+    <string name="player_menu_brightness_volume">Brightness and volume</string>
 </resources>

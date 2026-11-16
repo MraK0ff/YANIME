@@ -2,6 +2,7 @@ package su.afk.yummy.tv.feature.player.mobile.view
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,16 +18,15 @@ import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.ScreenRotation
 import androidx.compose.material.icons.filled.Subtitles
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.text.font.FontWeight
 import su.afk.yummy.tv.core.designsystem.baseScreen.BaseBottomSheet
 import su.afk.yummy.tv.core.designsystem.baseScreen.HideSheetWindowSystemBars
 import su.afk.yummy.tv.feature.player.mobile.model.MobilePlayerSettingsMenuActions
@@ -62,7 +62,11 @@ internal fun MobilePlayerSettingsMenuSheet(
     val navigate: (MobilePlayerSettingsPage) -> Unit = { nextPage ->
         pageStack = pageStack + nextPage
     }
-    BaseBottomSheet(onDismissRequest = onDismiss, scrollableContent = true) {
+    BaseBottomSheet(
+        onDismissRequest = onDismiss,
+        scrollableContent = true,
+        dragHandle = { MobilePlayerPanelDragTitle(stringResource(R.string.player_mobile_playback_settings_title)) },
+    ) {
         HideSheetWindowSystemBars()
         // Back follows the actual nested page stack; direct toolbar entries close in one step.
         BackHandler(enabled = pageStack.size > 1, onBack = goBack)
@@ -223,14 +227,6 @@ private fun MobilePlayerMenuRoot(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        Text(
-            text = stringResource(R.string.player_mobile_playback_settings_title),
-            style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.SemiBold,
-            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
-        )
-
         // First show settings that do not have a dedicated shortcut on the player surface.
         if (model.showAudioTracks) {
             MobilePlayerMenuRow(

@@ -349,7 +349,7 @@ fun AccountMobileScreen(
                     .mobileContentMaxWidth()
                     .fillMaxSize(),
                 contentPadding = PaddingValues(bottom = MobileBottomBarDefaults.contentBottomPadding),
-                verticalArrangement = Arrangement.spacedBy(14.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 item(key = "profile", contentType = "account_profile") {
                     // Баннер остаётся под статус-баром, плашка лежит поверх него, а кнопки и аватар сдвинуты вниз.

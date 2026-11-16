@@ -102,8 +102,8 @@ fun SettingsMobileScreen(
     ) {
         LazyColumn(
             modifier = Modifier.mobileContentMaxWidth(),
-            contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(18.dp),
+            contentPadding = PaddingValues(start = 16.dp, top = 12.dp, end = 16.dp, bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             item(key = "categories", contentType = "settings_categories") {
                 SettingsMobileSection {

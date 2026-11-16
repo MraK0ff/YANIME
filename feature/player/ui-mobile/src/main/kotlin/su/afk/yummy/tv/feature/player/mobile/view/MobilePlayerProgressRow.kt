@@ -72,7 +72,7 @@ internal fun MobilePlayerProgressRow(
             modifier = Modifier.align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .offset(y = -videoBottomInset)
-                .padding(horizontal = 20.dp, vertical = 6.dp),
+                .padding(start = 20.dp, top = 4.dp, end = 20.dp, bottom = 0.dp),
         ) {
             MobilePlayerTimeline(
                 progress = seekProgress.coerceIn(0f, 1f),

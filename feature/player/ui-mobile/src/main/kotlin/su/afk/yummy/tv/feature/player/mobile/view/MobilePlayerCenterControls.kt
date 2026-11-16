@@ -33,16 +33,15 @@ internal fun MobilePlayerCenterControls(
         horizontalArrangement = Arrangement.spacedBy(CENTER_CONTROLS_GAP),
     ) {
         Box(Modifier.size(CENTER_SWITCH_SLOT), contentAlignment = Alignment.Center) {
-            if (hasPrevEpisode) {
-                MobilePlayerActionButton(
-                    icon = Icons.Filled.SkipPrevious,
-                    contentDescription = stringResource(R.string.player_mobile_previous_episode),
-                    onClick = onPrevEpisode,
-                    iconScale = 0.66f,
-                )
-            }
+            if (hasPrevEpisode) MobilePlayerActionButton(
+                icon = Icons.Filled.SkipPrevious,
+                contentDescription = stringResource(R.string.player_mobile_previous_episode),
+                onClick = onPrevEpisode,
+                sizeMultiplier = CENTER_SWITCH_SCALE,
+                iconScale = CENTER_SWITCH_ICON_SCALE,
+                surface = false,
+            )
         }
-
         val playPauseDescription = stringResource(
             if (wantsPlay) R.string.player_mobile_pip_pause else R.string.player_mobile_pip_play,
         )
@@ -52,23 +51,23 @@ internal fun MobilePlayerCenterControls(
             onClick = onPlayPause,
             primary = true,
             loading = loading,
-            sizeMultiplier = 1f,
-            iconScale = 0.72f,
+            sizeMultiplier = 1.18f,
+            iconScale = 0.76f,
         )
-
         Box(Modifier.size(CENTER_SWITCH_SLOT), contentAlignment = Alignment.Center) {
-            if (hasNextEpisode) {
-                MobilePlayerActionButton(
-                    icon = Icons.Filled.SkipNext,
-                    contentDescription = stringResource(R.string.player_mobile_next_episode),
-                    onClick = onNextEpisode,
-                    iconScale = 0.66f,
-                    surface = true,
-                )
-            }
+            if (hasNextEpisode) MobilePlayerActionButton(
+                icon = Icons.Filled.SkipNext,
+                contentDescription = stringResource(R.string.player_mobile_next_episode),
+                onClick = onNextEpisode,
+                sizeMultiplier = CENTER_SWITCH_SCALE,
+                iconScale = CENTER_SWITCH_ICON_SCALE,
+                surface = false,
+            )
         }
     }
 }
 
-private val CENTER_CONTROLS_GAP = 8.dp
-private val CENTER_SWITCH_SLOT = 56.dp
+private const val CENTER_SWITCH_SCALE = 1.035f
+private const val CENTER_SWITCH_ICON_SCALE = 0.88f
+private val CENTER_CONTROLS_GAP = 20.dp
+private val CENTER_SWITCH_SLOT = 80.dp

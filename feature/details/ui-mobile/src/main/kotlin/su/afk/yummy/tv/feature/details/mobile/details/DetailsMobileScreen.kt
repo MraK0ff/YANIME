@@ -163,7 +163,7 @@ fun DetailsMobileScreen(
                 .fillMaxSize()
                 .testTag("details_root"),
             contentPadding = PaddingValues(bottom = 0.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             item(key = "hero", contentType = "details_hero") {
                 // Фон шапки остаётся под статус-баром, плашка лежит поверх него, а контент шапки сдвинут вниз.

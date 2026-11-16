@@ -45,13 +45,13 @@ internal fun SettingsMobileNavigationRow(
             Box(
                 modifier = Modifier
                     .size(YummySpacing.XXXLarge + YummySpacing.Small)
-                    .background(MaterialTheme.colorScheme.primaryContainer, YummyShapeTokens.Control),
+                    .background(MaterialTheme.colorScheme.surfaceContainerHigh, YummyShapeTokens.Control),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(YummySpacing.XXLarge),
                 )
             }

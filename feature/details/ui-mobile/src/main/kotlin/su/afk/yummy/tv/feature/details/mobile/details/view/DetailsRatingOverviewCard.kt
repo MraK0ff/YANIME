@@ -55,7 +55,7 @@ internal fun DetailsRatingOverviewCard(
                 .fillMaxWidth()
                 .testTag("details_rating_card")
                 .clickable(onClick = onClick),
-            verticalArrangement = Arrangement.spacedBy(YummySpacing.Large - 2.dp),
+            verticalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -112,7 +112,7 @@ private fun DetailsRatingAverage(
             )
             Text(
                 text = average?.formatRating() ?: "-",
-                style = MaterialTheme.typography.displaySmallEmphasized,
+                style = MaterialTheme.typography.headlineMediumEmphasized,
                 color = color,
                 maxLines = 1,
             )

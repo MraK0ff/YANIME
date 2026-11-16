@@ -552,7 +552,7 @@ internal fun MobileNativePlayer(
             .fillMaxSize()
             .testTag("player_view")
             .background(Color.Black)
-            .onSizeChanged { gestures.playerSize = it }
+            .onSizeChanged { gestures.updatePlayerSize(it) }
             .focusRequester(keyboardFocusRequester)
             .focusable()
             .onKeyEvent { event ->

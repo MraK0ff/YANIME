@@ -53,16 +53,16 @@ internal fun AccountHeader(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 28.dp, vertical = 24.dp),
+                .padding(horizontal = 24.dp, vertical = 20.dp),
             verticalAlignment = Alignment.Bottom,
-            horizontalArrangement = Arrangement.spacedBy(20.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             AccountAvatar(avatarUrl = summary?.avatarUrl?.ifBlank { null } ?: state.avatarUrl, nickname = state.nickname)
-            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
                     text = summary?.nickname?.ifBlank { null }
                         ?: state.nickname.ifBlank { stringResource(R.string.account_unknown_user) },
-                    style = MaterialTheme.typography.displaySmall,
+                    style = MaterialTheme.typography.headlineMedium,
                     color = MaterialTheme.colorScheme.onBackground,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -98,7 +98,7 @@ internal fun AccountHeader(
                 hint = stringResource(R.string.account_logout_hint),
                 onClick = { onEvent(AccountState.Event.LogoutSelected) },
                 modifier = Modifier
-                    .width(320.dp)
+                    .width(280.dp)
                     .focusProperties {
                         downFocusRequester?.let { down = it }
                     },

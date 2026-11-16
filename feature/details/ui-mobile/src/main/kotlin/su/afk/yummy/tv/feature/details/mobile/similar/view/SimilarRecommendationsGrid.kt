@@ -43,15 +43,15 @@ internal fun SimilarRecommendationsGrid(
 ) {
     val transition = rememberInfiniteTransition(label = "similar_mobile_loading")
     val alpha by transition.animateFloat(
-        initialValue = 0.42f,
-        targetValue = 0.86f,
+        initialValue = 0.34f,
+        targetValue = 0.72f,
         animationSpec = infiniteRepeatable(
             animation = tween(durationMillis = 850),
             repeatMode = RepeatMode.Reverse,
         ),
         label = "similar_mobile_loading_alpha",
     )
-    val skeletonColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+    val skeletonColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.09f)
 
     MobilePosterGrid(
         contentPadding = PaddingValues(bottom = 8.dp),

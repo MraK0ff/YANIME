@@ -173,22 +173,8 @@ class YaniScheduleRepository(
                 item.copy(videoReleases = byAnime[item.animeId].orEmpty().sortedBy { it.firstVideoAtSeconds })
             })
         }
-        val additional = byAnime.filterKeys { it !in existingIds }.mapNotNull { (animeId, items) ->
-            val latest = items.maxByOrNull { it.firstVideoAtSeconds } ?: return@mapNotNull null
-            AnimeScheduleItem(
-                animeId = animeId,
-                title = latest.title.ifBlank { "Anime $animeId" },
-                poster = latest.posterUrl?.takeIf(String::isNotBlank)?.let { AnimePoster(small = null, medium = null, big = null, fullsize = null, mega = it) },
-                nextDateEpochSeconds = null,
-                previousDateEpochSeconds = null,
-                airedEpisodes = null,
-                totalEpisodes = null,
-                videoReleases = items.sortedBy { it.firstVideoAtSeconds },
-            )
-        }
-        return if (additional.isEmpty()) updated else updated + AnimeScheduleDay(
-            title = "YummyAnime",
-            items = additional,
-        )
+        // Feed history enriches schedule entries only. It must never inject unrelated titles
+        // (old catalog videos, specials, re-uploads) into the release calendar.
+        return updated
     }
 }

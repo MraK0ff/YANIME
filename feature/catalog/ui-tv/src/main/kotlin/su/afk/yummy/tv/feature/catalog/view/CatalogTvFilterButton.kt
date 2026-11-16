@@ -53,7 +53,7 @@ internal fun FilterButton(
             contentColor = if (focused) colors.onPrimary else colors.onSurface,
         ),
         border = BorderStroke(
-            width = if (focused) 2.dp else 1.dp,
+            width = if (focused) 2.dp else 0.75.dp,
             color = if (focused) colors.primary else colors.outline,
         ),
         contentPadding = PaddingValues(0.dp),

@@ -57,7 +57,6 @@ internal fun MobilePlayerBackButton(
         IconButton(
             onClick = onBack,
             modifier = Modifier
-                .mobilePlayerGlassSurface(shape = MobilePlayerInteractiveShape)
                 .size(buttonSize),
         ) {
             Icon(
@@ -106,17 +105,12 @@ internal fun MobilePlayerTopBar(
                 ),
         )
 
-        // One compact control dock, rather than a separate floating glass card for every action.
+        // Controls sit directly over the video; no decorative button dock.
         Row(
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(top = 8.dp, end = 12.dp)
-                .mobilePlayerGlassSurface(
-                    shape = MobilePlayerInteractiveShape,
-                    fill = MobilePlayerGlassFill.copy(alpha = 0.74f),
-                    elevation = 0.dp,
-                )
-                .padding(horizontal = 3.dp, vertical = 3.dp),
+
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(2.dp),
         ) {
@@ -136,7 +130,7 @@ internal fun MobilePlayerTopBar(
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .fillMaxWidth(0.88f)
-                .padding(top = 66.dp),
+                .padding(top = 46.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(1.dp),
         ) {
@@ -147,7 +141,7 @@ internal fun MobilePlayerTopBar(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleMediumEmphasized,
+                    style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
@@ -270,8 +264,6 @@ private fun MobilePlayerEpisodeFlagLabel(flags: EpisodeFlags?, modifier: Modifie
         maxLines = 1,
         style = MaterialTheme.typography.labelSmall,
         fontWeight = FontWeight.SemiBold,
-        modifier = modifier
-            .mobilePlayerGlassSurface(elevation = 0.dp)
-            .padding(horizontal = 8.dp, vertical = 3.dp),
+        modifier = modifier.padding(horizontal = 4.dp, vertical = 2.dp),
     )
 }

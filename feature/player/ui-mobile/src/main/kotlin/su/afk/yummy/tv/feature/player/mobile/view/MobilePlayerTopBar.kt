@@ -98,8 +98,8 @@ internal fun MobilePlayerTopBar(
                 .background(
                     Brush.verticalGradient(
                         listOf(
-                            Color.Black.copy(alpha = 0.70f),
-                            Color.Black.copy(alpha = 0.30f),
+                            Color.Black.copy(alpha = 0.56f),
+                            Color.Black.copy(alpha = 0.20f),
                             Color.Transparent,
                         ),
                     ),
@@ -113,10 +113,10 @@ internal fun MobilePlayerTopBar(
                 .padding(top = 8.dp, end = 12.dp)
                 .mobilePlayerGlassSurface(
                     shape = MobilePlayerInteractiveShape,
-                    fill = MobilePlayerGlassFill.copy(alpha = 0.82f),
+                    fill = MobilePlayerGlassFill.copy(alpha = 0.74f),
                     elevation = 0.dp,
                 )
-                .padding(horizontal = 4.dp, vertical = 4.dp),
+                .padding(horizontal = 3.dp, vertical = 3.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(2.dp),
         ) {

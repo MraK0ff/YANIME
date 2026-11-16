@@ -83,7 +83,6 @@ internal fun MobilePlayerUnlockButton(
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .size(buttonSize)
-                    .mobilePlayerGlassSurface(shape = CircleShape, elevation = 0.dp)
                     .semantics {
                         role = Role.Button
                         contentDescription = unlockLabel
@@ -168,7 +167,6 @@ internal fun MobilePlayerLockButton(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .size(buttonSize)
-                .mobilePlayerGlassSurface(shape = CircleShape, elevation = 0.dp)
                 .clickable(role = Role.Button, onClickLabel = lockLabel, onClick = onLock)
                 .semantics {
                     role = Role.Button

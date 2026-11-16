@@ -81,12 +81,12 @@ fun DialogsMobileScreen(
                             .mobileContentMaxWidth()
                             .fillMaxSize(),
                         contentPadding = PaddingValues(
-                            start = if (isCompact) 0.dp else 16.dp,
+                            start = if (isCompact) 0.dp else 14.dp,
                             top = 12.dp,
-                            end = if (isCompact) 0.dp else 16.dp,
+                            end = if (isCompact) 0.dp else 14.dp,
                             bottom = 24.dp,
                         ),
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         when {
                             dialogs.loadState.refresh is LoadState.Loading -> item {

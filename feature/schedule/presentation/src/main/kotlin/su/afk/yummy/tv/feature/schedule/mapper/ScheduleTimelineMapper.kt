@@ -55,7 +55,9 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
         .flatMap { item ->
             buildList {
                 // Прошедшая серия появляется в календаре только после публикации видео.
-                item.videoReleases.forEach { release ->
+                item.videoReleases
+                    .filter { it.firstVideoAtSeconds <= nowSeconds }
+                    .forEach { release ->
                     add(
                         ScheduleReleaseUi(
                             item = item,

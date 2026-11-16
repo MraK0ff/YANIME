@@ -90,7 +90,7 @@ internal fun VideoDownloadMobileCard(
         onClick = onClick,
         enabled = item.status == VideoDownloadStatus.Downloaded,
         modifier = modifier.fillMaxWidth(),
-        shape = YummyShapeTokens.ProminentCard,
+        shape = YummyShapeTokens.Card,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
     ) {
         Row(

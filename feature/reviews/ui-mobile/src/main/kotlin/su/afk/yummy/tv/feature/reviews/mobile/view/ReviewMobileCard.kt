@@ -47,7 +47,7 @@ internal fun ReviewMobileCard(
     ElevatedCard(
         onClick = onOpen,
         modifier = Modifier.fillMaxWidth(),
-        shape = YummyShapeTokens.ProminentCard,
+        shape = YummyShapeTokens.Card,
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         ),
@@ -87,7 +87,7 @@ internal fun ReviewMobileCard(
 
         Column(
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             ReviewAuthorRow(review = review, onAuthor = onAuthor)
             Row(

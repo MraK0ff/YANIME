@@ -75,7 +75,7 @@ internal fun ScheduleMobileDateChip(
                         .clip(RoundedCornerShape(11.dp))
                         .background(
                             color = if (selected) {
-                                MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.18f)
+                                MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.12f)
                             } else {
                                 MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
                             },

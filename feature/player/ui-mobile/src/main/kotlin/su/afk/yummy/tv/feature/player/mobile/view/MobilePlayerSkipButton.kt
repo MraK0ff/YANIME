@@ -35,6 +35,7 @@ import su.afk.yummy.tv.feature.player.model.PlayerSkipType
 import su.afk.yummy.tv.feature.player.presentation.R
 
 @Composable
+@Suppress("UNUSED_PARAMETER")
 internal fun MobilePlayerSkipButton(
     skip: PlayerActiveSkip?,
     onClick: () -> Unit,
@@ -69,14 +70,13 @@ internal fun MobilePlayerSkipButton(
                     style = MaterialTheme.typography.labelLarge,
                     color = textColor,
                     modifier = Modifier
-                                                .clickable(
+                    .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                             onClick = onStay,
                         )
                         .heightIn(min = MobilePlayerMinimumTouchTarget)
-                        .heightIn(min = MobilePlayerMinimumTouchTarget)
-                    .padding(horizontal = 16.dp, vertical = 11.dp),
+                        .padding(horizontal = 16.dp, vertical = 11.dp),
                 )
             }
             Row(

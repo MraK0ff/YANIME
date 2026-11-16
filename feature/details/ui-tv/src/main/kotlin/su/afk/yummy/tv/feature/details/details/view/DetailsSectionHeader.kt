@@ -34,12 +34,12 @@ internal fun DetailsSectionHeader(
     ) {
         Text(
             text = title,
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface,
         )
         if (actionLabel != null) {
-            val shape = RoundedCornerShape(8.dp)
+            val shape = RoundedCornerShape(10.dp)
             Text(
                 text = actionLabel,
                 style = MaterialTheme.typography.labelLarge,

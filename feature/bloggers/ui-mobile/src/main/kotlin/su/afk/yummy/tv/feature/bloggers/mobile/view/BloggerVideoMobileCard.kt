@@ -52,11 +52,11 @@ fun BloggerVideoMobileCard(
     ElevatedCard(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
-        shape = YummyShapeTokens.ProminentCard,
+        shape = YummyShapeTokens.Card,
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         ),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 0.dp),
     ) {
         Box(
             modifier = Modifier
@@ -72,7 +72,7 @@ fun BloggerVideoMobileCard(
             )
             Surface(
                 modifier = Modifier.align(Alignment.Center),
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.94f),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.86f),
                 contentColor = MaterialTheme.colorScheme.onPrimary,
                 shape = CircleShape,
                 shadowElevation = 6.dp,
@@ -81,8 +81,8 @@ fun BloggerVideoMobileCard(
                     imageVector = Icons.Filled.PlayArrow,
                     contentDescription = stringResource(R.string.blogger_video_watch),
                     modifier = Modifier
-                        .padding(12.dp)
-                        .size(28.dp),
+                        .padding(10.dp)
+                        .size(24.dp),
                 )
             }
             Row(
@@ -102,8 +102,8 @@ fun BloggerVideoMobileCard(
         }
 
         Column(
-            modifier = Modifier.padding(YummySpacing.Large),
-            verticalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
+            modifier = Modifier.padding(YummySpacing.Medium),
+            verticalArrangement = Arrangement.spacedBy(YummySpacing.Small),
         ) {
             Text(
                 text = video.title,

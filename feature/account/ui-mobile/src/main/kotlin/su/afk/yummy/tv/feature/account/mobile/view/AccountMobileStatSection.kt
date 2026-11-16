@@ -30,7 +30,7 @@ internal fun AccountMobileStatSection(
                 Icon(
                     imageVector = it,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.68f),
                     modifier = Modifier.size(YummySpacing.Large + YummySpacing.XSmall / 2),
                 )
             }
@@ -40,7 +40,7 @@ internal fun AccountMobileStatSection(
                 color = MaterialTheme.colorScheme.onBackground,
             )
         }
-        Spacer(modifier = Modifier.height(YummySpacing.Medium))
+        Spacer(modifier = Modifier.height(YummySpacing.Small))
         content()
     }
 }

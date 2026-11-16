@@ -31,7 +31,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.feature.player.common.model.PlayerActiveSkip
-import su.afk.yummy.tv.feature.player.common.view.autoSkipProgressFill
 import su.afk.yummy.tv.feature.player.model.PlayerSkipType
 import su.afk.yummy.tv.feature.player.presentation.R
 
@@ -46,13 +45,11 @@ internal fun MobilePlayerSkipButton(
 ) {
     var lastType by remember { mutableStateOf(PlayerSkipType.Opening) }
     skip?.type?.let { lastType = it }
-    val shape = MobilePlayerInteractiveShape
     val displayedCountdown by animateIntAsState(
         targetValue = countdownSeconds ?: 0,
         animationSpec = tween(durationMillis = 180),
         label = "skipCountdown",
     )
-    val accent = MaterialTheme.colorScheme.primary
     val textColor = Color.White
 
     AnimatedVisibility(
@@ -84,14 +81,7 @@ internal fun MobilePlayerSkipButton(
             }
             Row(
                 modifier = Modifier
-                    .mobilePlayerGlassSurface(
-                        shape = shape,
-                        fill = accent.copy(alpha = 0.18f),
-                        borderColor = accent.copy(alpha = 0.34f),
-                        elevation = 4.dp,
-                    )
-                    .autoSkipProgressFill(countdownProgress, accent.copy(alpha = 0.28f), 24.dp)
-                    .clickable(
+                        .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
                         onClick = onClick,

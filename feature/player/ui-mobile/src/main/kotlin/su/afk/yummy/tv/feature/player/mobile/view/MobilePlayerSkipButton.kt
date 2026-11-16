@@ -72,8 +72,7 @@ internal fun MobilePlayerSkipButton(
                     style = MaterialTheme.typography.labelLarge,
                     color = textColor,
                     modifier = Modifier
-                        .mobilePlayerGlassSurface(shape = shape, elevation = 4.dp)
-                        .clickable(
+                                                .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                             onClick = onStay,

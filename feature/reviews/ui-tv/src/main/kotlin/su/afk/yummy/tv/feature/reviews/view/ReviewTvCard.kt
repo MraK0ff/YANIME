@@ -59,7 +59,7 @@ internal fun ReviewTvCard(
     onOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val shape = YummyShapeTokens.ProminentCard
+    val shape = YummyShapeTokens.Card
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -89,8 +89,8 @@ internal fun ReviewTvCard(
                 modifier = Modifier
                     .weight(1f)
                     .heightIn(min = 190.dp)
-                    .padding(YummySpacing.Large),
-                verticalArrangement = Arrangement.spacedBy(YummySpacing.Small),
+                    .padding(YummySpacing.Medium),
+                verticalArrangement = Arrangement.spacedBy(YummySpacing.XSmall),
             ) {
                 if (showAnime && review.animeTitle.isNotBlank()) {
                     Text(

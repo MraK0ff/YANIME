@@ -128,8 +128,8 @@ internal fun MobilePlayerTopBar(
         Column(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .fillMaxWidth(0.88f)
-                .padding(top = 56.dp),
+                .fillMaxWidth(0.94f)
+                .padding(top = 36.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(1.dp),
         ) {
@@ -137,10 +137,10 @@ internal fun MobilePlayerTopBar(
                 Text(
                     text = title,
                     color = Color.White,
-                    maxLines = 1,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
@@ -153,19 +153,19 @@ internal fun MobilePlayerTopBar(
                             onClickLabel = stringResource(R.string.player_mobile_episode_number, episode),
                             onClick = onEpisodeClick,
                         )
-                        .padding(horizontal = 12.dp),
+                        .padding(horizontal = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     Text(
                         text = buildString {
                             append(stringResource(R.string.player_mobile_episode_number, episode))
-                            episodeTitle?.takeIf { it.isNotBlank() }?.let { append(" · ").append(it) }
+                            episodeTitle?.takeIf { it.isNotBlank() }?.let { append(" * ").append(it) }
                         },
-                        color = Color.White.copy(alpha = 0.82f),
+                        color = Color.White.copy(alpha = 0.72f),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.labelLarge,
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
                     )
                     Icon(
                         imageVector = if (episodeExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,

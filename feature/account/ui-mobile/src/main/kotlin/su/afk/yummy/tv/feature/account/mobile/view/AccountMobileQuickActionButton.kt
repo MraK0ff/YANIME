@@ -46,14 +46,14 @@ internal fun AccountMobileQuickActionButton(
             modifier = Modifier
                 .size(YummySpacing.TouchTarget)
                 .clip(YummyShapeTokens.Control)
-                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)),
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(22.dp),
+                modifier = Modifier.size(20.dp),
             )
         }
         Text(

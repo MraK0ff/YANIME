@@ -46,8 +46,8 @@ internal fun CommentsList(
         modifier = Modifier
             .mobileContentMaxWidth()
             .fillMaxSize(),
-        contentPadding = PaddingValues(start = YummySpacing.Medium, end = YummySpacing.Medium, top = topInset + YummySpacing.Small, bottom = YummySpacing.Small),
-        verticalArrangement = Arrangement.spacedBy(YummySpacing.Small),
+        contentPadding = PaddingValues(start = YummySpacing.Small + 2.dp, end = YummySpacing.Small + 2.dp, top = topInset + YummySpacing.Small, bottom = YummySpacing.Small),
+        verticalArrangement = Arrangement.spacedBy(YummySpacing.XSmall),
     ) {
         (appendState as? LoadState.Error)?.error?.let { error ->
             item(key = "soft_error", contentType = "error_banner") {

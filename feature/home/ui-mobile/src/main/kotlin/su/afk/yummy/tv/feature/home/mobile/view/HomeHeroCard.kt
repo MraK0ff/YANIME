@@ -133,7 +133,7 @@ internal fun HomeHeroCard(
                             modifier = Modifier.weight(1f),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 12,
+                            maxLines = 14,
                             overflow = TextOverflow.Ellipsis,
                         )
                     }

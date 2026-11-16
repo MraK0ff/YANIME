@@ -31,12 +31,12 @@ internal fun AccountMobileListStatCard(
             Icon(
                 imageVector = Icons.Filled.Schedule,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.68f),
                 modifier = Modifier.size(18.dp),
             )
             Text(
                 text = stat.seconds.toDurationLabel(),
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
             )
         }

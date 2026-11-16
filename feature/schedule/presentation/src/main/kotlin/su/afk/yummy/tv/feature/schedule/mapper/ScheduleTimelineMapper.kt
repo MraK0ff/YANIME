@@ -54,7 +54,8 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
     flatMap { it.items }
         .flatMap { item ->
             buildList {
-                // Прошедшая серия появляется в календаре только после публикации видео.
+                // Feed may include a scheduled video with a future timestamp. It is not an aired episode;
+                // future entries must come from the schedule API's nextDate instead.
                 item.videoReleases
                     .filter { it.firstVideoAtSeconds <= nowSeconds }
                     .forEach { release ->

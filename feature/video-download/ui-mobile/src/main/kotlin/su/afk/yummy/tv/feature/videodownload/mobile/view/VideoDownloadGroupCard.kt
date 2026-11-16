@@ -52,8 +52,8 @@ internal fun VideoDownloadGroupCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = YummyShapeTokens.ProminentCard,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        shape = YummyShapeTokens.Card,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
     ) {
         Row(
             modifier = Modifier
@@ -61,14 +61,14 @@ internal fun VideoDownloadGroupCard(
                 .clickable(role = Role.Button, onClick = onToggle)
                 .padding(start = YummySpacing.Medium, top = YummySpacing.Small + YummySpacing.XSmall, bottom = YummySpacing.Small + YummySpacing.XSmall, end = YummySpacing.XSmall),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
+            horizontalArrangement = Arrangement.spacedBy(YummySpacing.Small + 2.dp),
         ) {
             FallbackAsyncImage(
                 models = listOfNotNull(group.posterUrl.takeIf { it.isNotBlank() }),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .size(width = 56.dp, height = 80.dp)
+                    .size(width = 52.dp, height = 74.dp)
                     .clip(YummyShapeTokens.Control),
             )
             Column(

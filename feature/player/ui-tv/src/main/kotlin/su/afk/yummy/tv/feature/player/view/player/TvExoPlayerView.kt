@@ -512,6 +512,13 @@ internal fun TvExoPlayerView(
             modifier = Modifier.align(Alignment.TopEnd),
         )
 
+        TvPlayerTimeOverlay(
+            settings = state.timeDisplaySettings,
+            displayTimeMs = progress.displayTimeMs,
+            durationMs = progress.duration,
+            controlsActive = controllerVisible,
+        )
+
         TvPlayerControlsOverlay(
             visible = controllerVisible,
             hidden = panels.isOpen(TvPlayerPanel.Episodes) && playback.episodes.isNotEmpty(),

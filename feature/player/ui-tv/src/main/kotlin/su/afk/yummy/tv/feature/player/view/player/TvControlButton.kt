@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.skeleton.rememberAnimationsEnabled
@@ -48,8 +49,8 @@ internal fun TvControlButton(
     val bgColor by animateColorAsState(
         targetValue = when {
             focused -> colors.primary
-            primary -> colors.primary.copy(alpha = 0.88f)
-            else -> Color.Black.copy(alpha = 0.42f)
+            primary -> colors.primary.copy(alpha = 0.94f)
+            else -> Color(0xFF101318).copy(alpha = 0.72f)
         },
         animationSpec = colorAnimationSpec,
         label = "tvControlButtonBackground",
@@ -60,7 +61,7 @@ internal fun TvControlButton(
         label = "tvControlButtonContent",
     )
     val borderColor by animateColorAsState(
-        targetValue = if (focused) colors.primary else Color.White.copy(alpha = 0.6f),
+        targetValue = if (focused) colors.primary.copy(alpha = 0.92f) else Color.White.copy(alpha = 0.18f),
         animationSpec = colorAnimationSpec,
         label = "tvControlButtonBorder",
     )
@@ -73,6 +74,7 @@ internal fun TvControlButton(
                 if (it.isFocused) onFocused()
             }
             .tvPlayerFocusScale(focused)
+            .shadow(if (focused) 12.dp else 5.dp, shape, clip = false)
             .border(1.dp, borderColor, shape)
             .background(bgColor, shape)
             .autoSkipProgressFill(fillProgress, textColor.copy(alpha = 0.22f), 8.dp)

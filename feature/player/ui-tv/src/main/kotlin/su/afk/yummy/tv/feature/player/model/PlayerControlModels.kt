@@ -2,6 +2,7 @@ package su.afk.yummy.tv.feature.player.model
 
 internal enum class PanelReturnFocusTarget {
     Quality,
+    Subtitles,
     Dubbing,
     Balancer,
     Episodes,

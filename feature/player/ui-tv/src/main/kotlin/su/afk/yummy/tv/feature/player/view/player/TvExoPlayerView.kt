@@ -526,6 +526,16 @@ internal fun TvExoPlayerView(
             highlightedSkipKey = skipUi.highlightedSkipKey,
             qualityCount = playback.qualityLabels.size,
             currentQualityLabel = activeQuality.orEmpty(),
+            speeds = speeds,
+            activeSpeed = activeSpeed,
+            onCycleSpeed = {
+                if (speeds.isNotEmpty()) {
+                    val currentIndex = speeds.indexOf(activeSpeed).coerceAtLeast(0)
+                    val nextIndex = (currentIndex + 1) % speeds.size
+                    onPlayerEvent(PlayerState.Event.SpeedSelected(speeds[nextIndex]))
+                    onInteraction()
+                }
+            },
             adaptiveQuality = playback.adaptiveQuality,
             showAllohaButton = trackMenu.showAudioChoice,
             onPlayPause = { if (wantsPlay) player.pause() else player.play() },

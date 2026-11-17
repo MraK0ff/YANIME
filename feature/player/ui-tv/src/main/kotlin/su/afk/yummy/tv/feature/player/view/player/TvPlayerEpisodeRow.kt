@@ -34,6 +34,7 @@ import su.afk.yummy.tv.core.designsystem.focus.tvFocusRestorer
 import su.afk.yummy.tv.core.designsystem.utils.dubbingDisplayName
 import su.afk.yummy.tv.feature.player.model.PlayerFinalEpisodeAction
 import su.afk.yummy.tv.feature.player.presentation.R
+import su.afk.yummy.tv.feature.player.utils.speedLabel
 import su.afk.yummy.tv.feature.player.utils.withoutDubbingTitlePrefix
 
 @Composable
@@ -50,6 +51,9 @@ internal fun TvPlayerEpisodeRow(
     playerName: String,
     dubbing: String,
     currentQualityLabel: String,
+    speeds: List<Float>,
+    activeSpeed: Float,
+    onCycleSpeed: () -> Unit,
     adaptiveQuality: Boolean,
     qualityFocusRequester: FocusRequester? = null,
     dubbingFocusRequester: FocusRequester? = null,
@@ -179,6 +183,21 @@ internal fun TvPlayerEpisodeRow(
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
+            }
+            Spacer(Modifier.width(8.dp))
+        }
+        if (speeds.isNotEmpty()) {
+            TvControlButton(
+                onClick = onCycleSpeed,
+                onFocused = onInteraction,
+                modifier = Modifier.focusProperties { up = upFocusRequester },
+            ) { color ->
+                Text(
+                    text = activeSpeed.speedLabel(),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = color,
+                    maxLines = 1,
+                )
             }
             Spacer(Modifier.width(8.dp))
         }

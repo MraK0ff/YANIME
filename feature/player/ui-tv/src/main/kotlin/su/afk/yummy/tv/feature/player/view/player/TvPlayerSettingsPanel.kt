@@ -123,7 +123,6 @@ internal fun TvPlayerSettingsPanel(
                     rowFocus = rowFocus,
                     resizeMode = resizeMode,
                     zoomLevel = zoomLevel,
-                    timeDisplaySettings = timeDisplaySettings,
                     showVolume = showVolume,
                     volumePercent = volumePercent,
                     onVolumeChange = onVolumeChange,

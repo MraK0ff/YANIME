@@ -59,6 +59,7 @@ internal fun BoxScope.TvPlayerControlsOverlay(
     onCycleSpeed: () -> Unit,
     adaptiveQuality: Boolean,
     showAllohaButton: Boolean,
+    showSubtitleButton: Boolean,
     onPlayPause: () -> Unit,
     onSeekTo: (positionMs: Long) -> Unit,
     onInteraction: () -> Unit,
@@ -73,6 +74,7 @@ internal fun BoxScope.TvPlayerControlsOverlay(
     onToggleEpisodes: () -> Unit,
     onTogglePlayerSettings: () -> Unit,
     onToggleAlloha: () -> Unit,
+    onToggleSubtitles: () -> Unit,
     /** Ряд управления остаётся в композиции (держит фокус), но невидим, пока поверх него лента серий. */
     hidden: Boolean = false,
 ) {
@@ -239,8 +241,11 @@ internal fun BoxScope.TvPlayerControlsOverlay(
                     onTogglePlayerSettings = onTogglePlayerSettings,
                     allohaFocusRequester = focus.alloha,
                     showAllohaButton = showAllohaButton,
+                    showSubtitleButton = showSubtitleButton,
+                    subtitlesFocusRequester = focus.subtitles,
                     nextEpisodeFocusRequester = focus.nextEpisodeControl,
                     onToggleAlloha = onToggleAlloha,
+                    onToggleSubtitles = onToggleSubtitles,
                 )
                 if (playback.episodes.isNotEmpty()) {
                     TvPlayerEpisodesHint()

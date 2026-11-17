@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -100,10 +101,15 @@ internal fun TvPlayerSettingsPanel(
         Column(
             modifier = Modifier
                 .fillMaxHeight()
-                .width(400.dp)
+                .width(384.dp)
                 .background(
-                    YummySemanticColors.PanelScrim,
-                    RoundedCornerShape(topStart = 16.dp, bottomStart = 16.dp),
+                    YummySemanticColors.PanelScrim.copy(alpha = 0.96f),
+                    RoundedCornerShape(topStart = 18.dp, bottomStart = 18.dp),
+                )
+                .border(
+                    1.dp,
+                    androidx.compose.ui.graphics.Color.White.copy(alpha = 0.12f),
+                    RoundedCornerShape(topStart = 18.dp, bottomStart = 18.dp),
                 )
                 .focusProperties {
                     onExit = {
@@ -124,7 +130,7 @@ internal fun TvPlayerSettingsPanel(
                 }
                 .focusGroup()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp, vertical = 32.dp),
+                .padding(horizontal = 22.dp, vertical = 28.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             when (val current = page) {

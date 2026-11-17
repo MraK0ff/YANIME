@@ -648,7 +648,7 @@ internal fun TvExoPlayerView(
                 onInteraction()
             },
             onSubtitleTrackSelected = { idx ->
-                // Панель не закрываем: рядом настройки оформления, их удобно крутить на живых сабах.
+                // Панель остаётся открытой, чтобы можно было быстро переключать дорожки и сравнивать их.
                 trackMenu.selectSubtitle(idx, player.currentPosition.coerceAtLeast(0L), onPlayerEvent)
                 onInteraction()
             },

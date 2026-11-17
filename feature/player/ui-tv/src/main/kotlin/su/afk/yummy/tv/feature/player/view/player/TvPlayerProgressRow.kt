@@ -3,6 +3,7 @@ package su.afk.yummy.tv.feature.player.view.player
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
@@ -33,6 +34,9 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplayMode
+import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
+import su.afk.yummy.tv.feature.player.common.model.StepSeekDirection
 import su.afk.yummy.tv.core.utils.formatting.millisToClockTime
 import su.afk.yummy.tv.feature.player.common.utils.openingRange
 import su.afk.yummy.tv.feature.player.common.view.bufferedTrackOverlay
@@ -42,6 +46,7 @@ internal fun TvPlayerProgressRow(
     wantsPlay: Boolean,
     displayTime: Long,
     duration: Long,
+    timeDisplaySettings: PlayerTimeDisplaySettings,
     isSeeking: Boolean,
     seekProgress: Float,
     bufferedProgress: Float,
@@ -54,16 +59,22 @@ internal fun TvPlayerProgressRow(
     progressDownFocusRequester: FocusRequester,
     onPlayPause: () -> Unit,
     onSeekChange: (Float) -> Unit,
+    onStepSeek: (StepSeekDirection) -> Unit,
     onSeekFinished: () -> Unit,
     onInteraction: () -> Unit,
 ) {
     var sliderJustFocused by remember { mutableStateOf(false) }
     var sliderFocused by remember { mutableStateOf(false) }
 
+    val showElapsed = timeDisplaySettings.elapsed != PlayerTimeDisplayMode.NEVER
+    val showDuration = timeDisplaySettings.duration != PlayerTimeDisplayMode.NEVER
+    val elapsedText = displayTime.millisToClockTime()
+    val durationText = duration.millisToClockTime()
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         TvControlButton(
             onClick = { onPlayPause(); onInteraction() },
@@ -74,21 +85,28 @@ internal fun TvPlayerProgressRow(
                 down = progressFocusRequester
             },
             primary = true,
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 14.dp, vertical = 12.dp),
         ) { color ->
             Icon(
                 imageVector = if (wantsPlay) Icons.Filled.Pause else Icons.Filled.PlayArrow,
                 contentDescription = null,
                 tint = color,
-                modifier = Modifier.then(Modifier).let {
-                    it
-                },
+                modifier = Modifier.size(26.dp),
             )
         }
-        Text(
-            text = displayTime.millisToClockTime(),
-            style = MaterialTheme.typography.labelMedium,
-            color = Color.White,
-        )
+        if (showElapsed && !timeDisplaySettings.separateTimecodes) {
+            Text(
+                text = if (showDuration) "$elapsedText / $durationText" else elapsedText,
+                style = MaterialTheme.typography.labelLarge,
+                color = Color.White,
+            )
+        } else if (showElapsed) {
+            Text(
+                text = elapsedText,
+                style = MaterialTheme.typography.labelLarge,
+                color = Color.White,
+            )
+        }
         PlayerBufferedSlider(
             value = when {
                 isSeeking -> seekProgress
@@ -106,6 +124,7 @@ internal fun TvPlayerProgressRow(
                 }
             },
             onValueChangeFinished = onSeekFinished,
+            onStepSeek = onStepSeek,
             focused = sliderFocused,
             modifier = Modifier
                 .weight(1f)
@@ -115,6 +134,21 @@ internal fun TvPlayerProgressRow(
                     down = progressDownFocusRequester
                 }
                 .onPreviewKeyEvent { event ->
+                    if (event.type == KeyEventType.KeyDown) {
+                        when (event.key) {
+                            Key.DirectionLeft -> {
+                                onStepSeek(StepSeekDirection.Backward)
+                                onInteraction()
+                                return@onPreviewKeyEvent true
+                            }
+                            Key.DirectionRight -> {
+                                onStepSeek(StepSeekDirection.Forward)
+                                onInteraction()
+                                return@onPreviewKeyEvent true
+                            }
+                            else -> Unit
+                        }
+                    }
                     when (event.key) {
                         Key.DirectionUp -> {
                             when (event.type) {
@@ -124,7 +158,6 @@ internal fun TvPlayerProgressRow(
                             }
                             true
                         }
-
                         Key.DirectionDown -> {
                             when (event.type) {
                                 KeyEventType.KeyDown -> progressDownFocusRequester.requestFocus()
@@ -133,7 +166,6 @@ internal fun TvPlayerProgressRow(
                             }
                             true
                         }
-
                         else -> false
                     }
                 }
@@ -142,11 +174,13 @@ internal fun TvPlayerProgressRow(
                     if (it.isFocused) sliderJustFocused = true
                 },
         )
-        Text(
-            text = duration.millisToClockTime(),
-            style = MaterialTheme.typography.labelMedium,
-            color = Color.White,
-        )
+        if (showDuration && timeDisplaySettings.separateTimecodes) {
+            Text(
+                text = durationText,
+                style = MaterialTheme.typography.labelLarge,
+                color = Color.White,
+            )
+        }
     }
 }
 
@@ -158,6 +192,7 @@ private fun PlayerBufferedSlider(
     openingRange: ClosedFloatingPointRange<Float>?,
     onValueChange: (Float) -> Unit,
     onValueChangeFinished: () -> Unit,
+    onStepSeek: (StepSeekDirection) -> Unit,
     focused: Boolean,
     modifier: Modifier = Modifier,
 ) {
@@ -165,17 +200,17 @@ private fun PlayerBufferedSlider(
     val buffered = bufferedProgress.coerceIn(activeProgress, 1f)
     val focusedColor = MaterialTheme.colorScheme.primary
     val sliderColor by animateColorAsState(
-        targetValue = if (focused) focusedColor else Color.White,
+        targetValue = focusedColor,
         animationSpec = tween(TV_PLAYER_FOCUS_ANIMATION_DURATION_MS),
         label = "tvPlayerProgressColor",
     )
     val bufferedColor by animateColorAsState(
-        targetValue = if (focused) focusedColor.copy(alpha = 0.58f) else Color.White.copy(alpha = 0.42f),
+        targetValue = focusedColor.copy(alpha = if (focused) 0.62f else 0.42f),
         animationSpec = tween(TV_PLAYER_FOCUS_ANIMATION_DURATION_MS),
         label = "tvPlayerBufferedProgressColor",
     )
     val inactiveTrackColor by animateColorAsState(
-        targetValue = if (focused) focusedColor.copy(alpha = 0.30f) else Color.White.copy(alpha = 0.30f),
+        targetValue = Color.White.copy(alpha = if (focused) 0.26f else 0.20f),
         animationSpec = tween(TV_PLAYER_FOCUS_ANIMATION_DURATION_MS),
         label = "tvPlayerInactiveProgressColor",
     )
@@ -204,7 +239,9 @@ private fun PlayerBufferedSlider(
                     bufferedProgress = buffered,
                     color = bufferedColor,
                     openingRange = openingRange,
-                    openingColor = MaterialTheme.colorScheme.primary,
+                    openingColor = focusedColor.copy(alpha = 0.9f),
+                    playedColor = focusedColor,
+                    trackHeight = if (focused) 6.dp else 5.dp,
                 ),
             )
         },

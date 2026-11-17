@@ -382,6 +382,7 @@ internal fun TvExoPlayerView(
             panels.close(
                 returnFocusTarget = when (panels.activePanel) {
                     TvPlayerPanel.Quality -> PanelReturnFocusTarget.Quality
+                    TvPlayerPanel.Subtitles -> PanelReturnFocusTarget.Subtitles
                     TvPlayerPanel.Dubbing -> PanelReturnFocusTarget.Dubbing
                     TvPlayerPanel.Balancer -> PanelReturnFocusTarget.Balancer
                     TvPlayerPanel.Episodes -> PanelReturnFocusTarget.Episodes

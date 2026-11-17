@@ -64,6 +64,7 @@ internal fun TvPlayerSelectionPanel(
     selectedIndex: Int,
     selectedFocusRequester: FocusRequester,
     modifier: Modifier = Modifier,
+    headerContent: (@Composable () -> Unit)? = null,
     enabledItems: List<Boolean> = emptyList(),
     disabledItemMeta: String? = null,
     /** Названия пунктов вне фокуса — акцентным цветом (озвучки и балансеры). */
@@ -113,9 +114,9 @@ internal fun TvPlayerSelectionPanel(
         Column(
             modifier = Modifier
                 .width(336.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(YummySemanticColors.PanelScrim.copy(alpha = 0.96f))
-                .border(1.dp, Color.White.copy(alpha = 0.14f), RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(18.dp))
+                .background(YummySemanticColors.PanelScrim.copy(alpha = 0.92f))
+                .border(1.dp, Color.White.copy(alpha = 0.11f), RoundedCornerShape(18.dp))
                 .heightIn(max = maxPanelHeight)
                 .padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -126,6 +127,7 @@ internal fun TvPlayerSelectionPanel(
                 color = Color.White.copy(alpha = 0.62f),
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
             )
+            headerContent?.invoke()
             LazyColumn(
                 state = listState,
                 modifier = Modifier

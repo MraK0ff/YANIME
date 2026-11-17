@@ -113,11 +113,11 @@ internal fun TvPlayerSelectionPanel(
         Column(
             modifier = Modifier
                 .width(336.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(YummySemanticColors.PanelScrim)
-                .border(1.dp, Color.White.copy(alpha = 0.12f), RoundedCornerShape(12.dp))
+                .clip(RoundedCornerShape(16.dp))
+                .background(YummySemanticColors.PanelScrim.copy(alpha = 0.96f))
+                .border(1.dp, Color.White.copy(alpha = 0.14f), RoundedCornerShape(16.dp))
                 .heightIn(max = maxPanelHeight)
-                .padding(10.dp),
+                .padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(

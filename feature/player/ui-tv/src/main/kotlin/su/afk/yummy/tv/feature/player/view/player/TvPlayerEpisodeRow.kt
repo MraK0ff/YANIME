@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.RecordVoiceOver
+import androidx.compose.material.icons.filled.ClosedCaption
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.Settings
@@ -63,6 +64,8 @@ internal fun TvPlayerEpisodeRow(
     allohaFocusRequester: FocusRequester? = null,
     nextEpisodeFocusRequester: FocusRequester? = null,
     showAllohaButton: Boolean = false,
+    showSubtitleButton: Boolean = false,
+    subtitlesFocusRequester: FocusRequester? = null,
     upFocusRequester: FocusRequester,
     onInteraction: () -> Unit,
     onPrevEpisode: () -> Unit,
@@ -74,6 +77,7 @@ internal fun TvPlayerEpisodeRow(
     onToggleEpisodes: () -> Unit = {},
     onTogglePlayerSettings: () -> Unit = {},
     onToggleAlloha: () -> Unit = {},
+    onToggleSubtitles: () -> Unit = {},
 ) {
     // Серии отдельной кнопки не имеют: «вниз» с ряда кнопок раскрывает ленту серий. Фокус-группа с
     // restorer'ом нужна, чтобы после закрытия ленты фокус вернулся на кнопку, с которой её открыли.
@@ -197,6 +201,25 @@ internal fun TvPlayerEpisodeRow(
                     style = MaterialTheme.typography.labelLarge,
                     color = color,
                     maxLines = 1,
+                )
+            }
+            Spacer(Modifier.width(8.dp))
+        }
+        if (showSubtitleButton) {
+            TvControlButton(
+                onClick = onToggleSubtitles,
+                onFocused = onInteraction,
+                focusRequester = subtitlesFocusRequester,
+                modifier = Modifier
+                    .focusProperties { up = upFocusRequester }
+                    .width(48.dp),
+                contentPadding = PaddingValues(horizontal = 0.dp, vertical = 9.dp),
+            ) { color ->
+                Icon(
+                    imageVector = Icons.Filled.ClosedCaption,
+                    contentDescription = stringResource(R.string.player_subtitle_track_title),
+                    tint = color,
+                    modifier = Modifier.size(20.dp),
                 )
             }
             Spacer(Modifier.width(8.dp))

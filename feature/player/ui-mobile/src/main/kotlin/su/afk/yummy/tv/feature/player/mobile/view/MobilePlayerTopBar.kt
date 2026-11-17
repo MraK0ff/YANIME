@@ -129,9 +129,9 @@ internal fun MobilePlayerTopBar(
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .fillMaxWidth(0.94f)
-                .padding(top = 36.dp),
+                .padding(top = 52.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(1.dp),
+            verticalArrangement = Arrangement.spacedBy(0.dp),
         ) {
             if (title.isNotBlank()) {
                 Text(
@@ -140,7 +140,7 @@ internal fun MobilePlayerTopBar(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
@@ -160,7 +160,7 @@ internal fun MobilePlayerTopBar(
                     Text(
                         text = buildString {
                             append(stringResource(R.string.player_mobile_episode_number, episode))
-                            episodeTitle?.takeIf { it.isNotBlank() }?.let { append(" * ").append(it) }
+                            episodeTitle?.takeIf { it.isNotBlank() }?.let { append(" • ").append(it) }
                         },
                         color = Color.White.copy(alpha = 0.72f),
                         maxLines = 1,

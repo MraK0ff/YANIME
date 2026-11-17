@@ -73,21 +73,30 @@ internal fun TvPlayerTimeOverlay(
                     .padding(end = 40.dp, top = 88.dp),
             )
         }
-        if (showElapsedIdle) {
+        if (showElapsedIdle && showDurationIdle && !settings.separateTimecodes) {
             TvTimeChip(
-                text = displayTimeMs.millisToClockTime(),
+                text = "${displayTimeMs.millisToClockTime()} / ${durationMs.millisToClockTime()}",
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .padding(start = 40.dp, bottom = 40.dp),
             )
-        }
-        if (showDurationIdle) {
-            TvTimeChip(
-                text = durationMs.millisToClockTime(),
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(end = 40.dp, bottom = 40.dp),
-            )
+        } else {
+            if (showElapsedIdle) {
+                TvTimeChip(
+                    text = displayTimeMs.millisToClockTime(),
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(start = 40.dp, bottom = 40.dp),
+                )
+            }
+            if (showDurationIdle) {
+                TvTimeChip(
+                    text = durationMs.millisToClockTime(),
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(end = 40.dp, bottom = 40.dp),
+                )
+            }
         }
     }
 }

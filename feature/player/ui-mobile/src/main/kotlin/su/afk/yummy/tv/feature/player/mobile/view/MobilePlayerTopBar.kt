@@ -129,7 +129,7 @@ internal fun MobilePlayerTopBar(
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .fillMaxWidth(0.94f)
-                .padding(top = 52.dp),
+                .padding(top = 60.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(0.dp),
         ) {
@@ -140,14 +140,14 @@ internal fun MobilePlayerTopBar(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
             if (episode.isNotBlank()) {
                 Row(
                     modifier = Modifier
-                        .heightIn(min = MobilePlayerMinimumTouchTarget)
+                        .heightIn(min = 32.dp)
                         .clickable(
                             role = Role.Button,
                             onClickLabel = stringResource(R.string.player_mobile_episode_number, episode),

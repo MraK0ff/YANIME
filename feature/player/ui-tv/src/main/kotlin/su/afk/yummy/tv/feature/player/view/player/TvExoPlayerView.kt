@@ -517,6 +517,7 @@ internal fun TvExoPlayerView(
             hidden = panels.isOpen(TvPlayerPanel.Episodes) && playback.episodes.isNotEmpty(),
             focus = focus,
             progress = progress,
+            timeDisplaySettings = state.timeDisplaySettings,
             wantsPlay = playbackShouldPlay,
             playback = playback,
             animeTitle = state.animeTitle,
@@ -542,6 +543,10 @@ internal fun TvExoPlayerView(
             showSubtitleButton = trackMenu.showSubtitleChoice,
             onPlayPause = { if (wantsPlay) player.pause() else player.play() },
             onSeekTo = seekController::seekTo,
+            onStepSeek = { direction ->
+                seekController.stepSeek(direction)
+                onInteraction()
+            },
             onInteraction = ::onInteraction,
             onSkipActiveSegment = { skipActiveSegment() },
             onStayAutoSkip = {

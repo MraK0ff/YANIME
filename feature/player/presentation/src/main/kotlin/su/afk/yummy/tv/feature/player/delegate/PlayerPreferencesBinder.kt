@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.model.settings.PlayerOrientationMode
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleStyleSettings
+import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.core.model.settings.PreferredVideoQuality
 import su.afk.yummy.tv.core.preferences.settings.SourceStarsSettingsStore
 import su.afk.yummy.tv.core.utils.logging.AppLogRecordingSettings
@@ -49,6 +50,7 @@ internal class PlayerPreferencesBinder @Inject constructor(
                 copy(adaptiveCeilingHeight = it.height ?: QualityAdaptationPolicy.DEFAULT_CEILING_HEIGHT)
             }
             host.bind(playerSubtitleStyle) { copy(subtitleStyle = it) }
+            host.bind(playerTimeDisplaySettings) { copy(timeDisplaySettings = it) }
             host.bind(playerPlaybackSpeed) { copy(selectedSpeed = it) }
         }
     }
@@ -71,6 +73,11 @@ internal class PlayerPreferencesBinder @Inject constructor(
     fun saveSubtitleStyle(host: PlayerStateHost, style: PlayerSubtitleStyleSettings) {
         host.update { copy(subtitleStyle = style) }
         host.scope.launch { settings.saveSubtitleStyle(style) }
+    }
+
+    fun saveTimeDisplaySettings(host: PlayerStateHost, value: PlayerTimeDisplaySettings) {
+        host.update { copy(timeDisplaySettings = value) }
+        host.scope.launch { settings.saveTimeDisplaySettings(value) }
     }
 
     fun setVolumeStabilization(host: PlayerStateHost, enabled: Boolean) {

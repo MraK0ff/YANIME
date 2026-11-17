@@ -6,7 +6,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
-import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.core.model.settings.PlayerZoomLevel
 import su.afk.yummy.tv.feature.player.common.PlayerVolumeController
 import su.afk.yummy.tv.feature.player.model.TvPlayerSettingsPage
@@ -22,7 +21,6 @@ internal fun TvPlayerSettingsRoot(
     rowFocus: Map<TvPlayerSettingsPage, FocusRequester>,
     resizeMode: PlayerResizeMode,
     zoomLevel: PlayerZoomLevel,
-    timeDisplaySettings: PlayerTimeDisplaySettings,
     showVolume: Boolean,
     volumePercent: Int,
     onVolumeChange: (Int) -> Unit,

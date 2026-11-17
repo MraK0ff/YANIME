@@ -34,7 +34,7 @@ internal fun TvPlayerInfoBar(
     modifier: Modifier = Modifier,
 ) {
     AnimatedVisibility(
-        visible = visible && (animeTitle.isNotBlank() || episode.isNotBlank() || dubbing.isNotBlank()),
+        visible = visible && (animeTitle.isNotBlank() || episode.isNotBlank()),
         modifier = modifier
             .windowInsetsPadding(WindowInsets.safeDrawing)
             .padding(top = 16.dp, start = 16.dp),
@@ -62,17 +62,6 @@ internal fun TvPlayerInfoBar(
                         .padding(horizontal = 10.dp, vertical = 5.dp),
                 )
             }
-            if (dubbing.isNotBlank()) {
-                Text(
-                    text = dubbing.dubbingDisplayName(),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = Color.White.copy(alpha = 0.85f),
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(Color.Black.copy(alpha = 0.55f))
-                        .padding(horizontal = 8.dp, vertical = 3.dp),
-                )
-            }
         }
     }
 }
@@ -93,7 +82,7 @@ internal fun TvPlayerNameBadge(
         else -> null
     }
     AnimatedVisibility(
-        visible = visible && (playerName.isNotBlank() || flagLabel != null),
+        visible = visible && flagLabel != null,
         modifier = modifier
             .windowInsetsPadding(WindowInsets.safeDrawing)
             .padding(top = 16.dp, end = 16.dp),
@@ -104,17 +93,6 @@ internal fun TvPlayerNameBadge(
             horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            if (playerName.isNotBlank()) {
-                Text(
-                    text = playerName.uppercase(),
-                    style = MaterialTheme.typography.labelSmall.overline(),
-                    color = Color.Black,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(Color.White.copy(alpha = 0.90f))
-                        .padding(horizontal = 8.dp, vertical = 3.dp),
-                )
-            }
             if (flagLabel != null) {
                 Text(
                     text = flagLabel.first,

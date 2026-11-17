@@ -2,7 +2,6 @@ package su.afk.yummy.tv.feature.player.mobile.view
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
@@ -16,18 +15,11 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
@@ -67,7 +59,7 @@ internal fun MobilePlayerProgressRow(
             .height(72.dp),
     ) {
         Box(
-            modifier = Modifier.fillMaxSize().offset(y = -videoBottomInset),
+            modifier = Modifier.fillMaxSize().offset(y = -videoBottomInset).padding(horizontal = 20.dp),
         ) {
             MobilePlayerTimeline(
                 progress = seekProgress.coerceIn(0f, 1f),

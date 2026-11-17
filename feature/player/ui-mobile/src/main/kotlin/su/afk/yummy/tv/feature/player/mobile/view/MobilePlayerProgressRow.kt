@@ -2,16 +2,13 @@ package su.afk.yummy.tv.feature.player.mobile.view
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.icons.Icons
@@ -63,16 +60,14 @@ internal fun MobilePlayerProgressRow(
     onTrackSettings: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
+    // 72 dp: timeline center is 48 dp above the bottom edge; metadata is centered at 24 dp.
     Box(
         modifier = modifier
             .fillMaxWidth(videoWidthFraction.coerceIn(0.1f, 1f))
-
+            .height(72.dp),
     ) {
-        Column(
-            modifier = Modifier.align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .offset(y = -videoBottomInset)
-                .padding(start = 20.dp, top = 4.dp, end = 20.dp, bottom = 0.dp),
+        Box(
+            modifier = Modifier.fillMaxSize().offset(y = -videoBottomInset),
         ) {
             MobilePlayerTimeline(
                 progress = seekProgress.coerceIn(0f, 1f),
@@ -80,31 +75,41 @@ internal fun MobilePlayerProgressRow(
                 enabled = duration > 0L,
                 onValueChange = onSeekChange,
                 onValueChangeFinished = onSeekFinished,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 8.dp)
+                    .fillMaxWidth()
+                    .height(32.dp),
             )
-            Spacer(Modifier.height(8.dp))
-            val remaining = (duration - displayTime).coerceAtLeast(0L)
-            Box(modifier = Modifier.fillMaxWidth()) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 32.dp)
+                    .fillMaxWidth()
+                    .height(32.dp),
+            ) {
+                val remaining = (duration - displayTime).coerceAtLeast(0L)
                 Row(
-                        modifier = Modifier.align(Alignment.CenterStart)
-                            .heightIn(min = MobilePlayerMinimumTouchTarget)
-                            .clickable(role = Role.Button, onClick = onTimeCodeClick)
-                            .padding(horizontal = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = (if (showRemainingTime) "-${remaining.millisToClockTime().padStart(5, '0')}" else displayTime.millisToClockTime().padStart(5, '0')),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = Color.White,
-                        )
-                        Text("/", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.58f))
-                        Text(
-                            text = duration.millisToClockTime().padStart(5, '0'),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color.White.copy(alpha = 0.62f),
-                        )
-                    }
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .height(32.dp)
+                        .clickable(role = Role.Button, onClick = onTimeCodeClick)
+                        .padding(horizontal = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = if (showRemainingTime) "-" + remaining.millisToClockTime().padStart(5, '0') else displayTime.millisToClockTime().padStart(5, '0'),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = Color.White,
+                    )
+                    Text("/", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.58f))
+                    Text(
+                        text = duration.millisToClockTime().padStart(5, '0'),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White.copy(alpha = 0.62f),
+                    )
+                }
                 Row(
                     modifier = Modifier.align(Alignment.CenterEnd),
                     horizontalArrangement = Arrangement.spacedBy(7.dp),
@@ -159,22 +164,14 @@ private fun MobilePlayerTimeline(
     onValueChangeFinished: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val themeAccent = MaterialTheme.colorScheme.primary
-    val accentChroma = maxOf(themeAccent.red, themeAccent.green, themeAccent.blue) -
-        minOf(themeAccent.red, themeAccent.green, themeAccent.blue)
-    // Graphite uses a near-white neutral accent; soften it so the white buffer remains distinguishable.
-    val playedColor = if (themeAccent.luminance() > 0.78f && accentChroma < 0.12f) {
-        Color(0xFFB7BEC7)
-    } else {
-        themeAccent
-    }
+    val playedColor = mobilePlayerTimelinePlayedColor(MaterialTheme.colorScheme.primary)
     val bufferedColor = Color.White.copy(alpha = 0.34f)
     // Keep the inactive rail quiet so the played segment remains the visual anchor.
     val unplayedColor = Color.White.copy(alpha = 0.18f)
     val safeProgress = progress.coerceIn(0f, 1f)
     Box(
         modifier = modifier
-            .height(48.dp)
+            .height(32.dp)
             .semantics {
                 progressBarRangeInfo = ProgressBarRangeInfo(safeProgress, 0f..1f)
                 if (enabled) setProgress { target ->
@@ -208,7 +205,7 @@ private fun MobilePlayerTimeline(
                 }
             },
     ) {
-        Canvas(Modifier.fillMaxWidth().height(48.dp)) {
+        Canvas(Modifier.fillMaxWidth().height(32.dp)) {
             val centerY = size.height / 2f
             val stroke = 3.dp.toPx()
             val radius = stroke / 2f

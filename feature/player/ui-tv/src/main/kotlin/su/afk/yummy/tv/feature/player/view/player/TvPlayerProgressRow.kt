@@ -106,6 +106,12 @@ internal fun TvPlayerProgressRow(
                 style = MaterialTheme.typography.labelLarge,
                 color = Color.White,
             )
+        } else if (showDuration && !timeDisplaySettings.separateTimecodes) {
+            Text(
+                text = durationText,
+                style = MaterialTheme.typography.labelLarge,
+                color = Color.White,
+            )
         }
         PlayerBufferedSlider(
             value = when {

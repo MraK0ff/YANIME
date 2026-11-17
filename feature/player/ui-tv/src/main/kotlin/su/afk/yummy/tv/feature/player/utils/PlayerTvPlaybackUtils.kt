@@ -19,6 +19,7 @@ internal fun String.withoutDubbingTitlePrefix(title: String): String {
 internal fun PanelReturnFocusTarget.toPlayerControlFocusTarget(): PlayerControlFocusTarget =
     when (this) {
         PanelReturnFocusTarget.Quality -> PlayerControlFocusTarget.Quality
+        PanelReturnFocusTarget.Subtitles -> PlayerControlFocusTarget.Subtitles
         PanelReturnFocusTarget.Dubbing -> PlayerControlFocusTarget.Dubbing
         PanelReturnFocusTarget.Balancer -> PlayerControlFocusTarget.Balancer
         PanelReturnFocusTarget.Episodes -> PlayerControlFocusTarget.Episodes

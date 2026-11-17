@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -45,3 +46,15 @@ internal fun mobilePlayerControlButtonSize(availableWidth: Dp, primary: Boolean 
         availableWidth >= 392.dp -> if (primary) 64.dp else MobilePlayerMinimumTouchTarget
         else -> if (primary) 60.dp else MobilePlayerMinimumTouchTarget
     }
+
+/** Shared accent used by both the played timeline segment and the primary playback button. */
+internal fun mobilePlayerTimelinePlayedColor(accent: Color): Color {
+    val chroma = maxOf(accent.red, accent.green, accent.blue) -
+        minOf(accent.red, accent.green, accent.blue)
+    // Graphite uses a near-white neutral accent; soften it so the white buffer remains distinguishable.
+    return if (accent.luminance() > 0.78f && chroma < 0.12f) {
+        Color(0xFFB7BEC7)
+    } else {
+        accent
+    }
+}

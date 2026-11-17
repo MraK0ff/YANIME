@@ -112,7 +112,8 @@ internal fun BoxScope.TvPlayerControlsOverlay(
                     Brush.verticalGradient(
                         listOf(
                             Color.Transparent,
-                            Color.Black.copy(alpha = 0.76f)
+                            Color.Black.copy(alpha = 0.14f),
+                            Color.Black.copy(alpha = 0.70f)
                         )
                     )
                 ),
@@ -124,8 +125,8 @@ internal fun BoxScope.TvPlayerControlsOverlay(
                     .padding(
                         start = 40.dp,
                         end = 40.dp,
-                        top = 16.dp,
-                        bottom = if (playback.episodes.isNotEmpty()) 6.dp else 20.dp,
+                        top = 20.dp,
+                        bottom = if (playback.episodes.isNotEmpty()) 8.dp else 24.dp,
                     ),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {

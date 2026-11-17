@@ -90,8 +90,8 @@ internal fun MobilePlayerOverlay(
         Column(
             modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()
                 .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.20f), Color.Black.copy(alpha = 0.52f))))
-                .padding(vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+                .padding(top = 8.dp, bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             MobilePlayerProgressRow(
                 modifier = Modifier.align(Alignment.CenterHorizontally),

@@ -2,15 +2,17 @@ package su.afk.yummy.tv.feature.player.view.player
 
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.utils.balancerFallbackIcon
 import su.afk.yummy.tv.core.designsystem.utils.balancerLogoRes
 import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
-import su.afk.yummy.tv.core.model.settings.PlayerSubtitleStyleSettings
+import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.core.model.settings.PlayerZoomLevel
 import su.afk.yummy.tv.feature.player.model.PanelReturnFocusTarget
 import su.afk.yummy.tv.feature.player.model.PlayerPlaybackUiState
@@ -19,7 +21,7 @@ import su.afk.yummy.tv.feature.player.model.TvPlayerPanel
 import su.afk.yummy.tv.feature.player.model.TvPlayerPanelsState
 import su.afk.yummy.tv.feature.player.presentation.R
 
-/** Панели выбора (качество, озвучка, балансер, Alloha) и боковое меню настроек плеера справа. */
+/** Панели качества, озвучки, субтитров, балансера, Alloha и настроек плеера. */
 @Composable
 internal fun BoxScope.TvPlayerPanelsHost(
     panels: TvPlayerPanelsState,
@@ -27,16 +29,13 @@ internal fun BoxScope.TvPlayerPanelsHost(
     playback: PlayerPlaybackUiState,
     qualities: List<String>,
     activeQuality: String?,
-    speeds: List<Float>,
-    activeSpeed: Float,
     resizeMode: PlayerResizeMode,
     zoomLevel: PlayerZoomLevel,
+    timeDisplaySettings: PlayerTimeDisplaySettings,
     volumePercent: Int,
     showVolume: Boolean,
-    subtitleStyle: PlayerSubtitleStyleSettings,
     showStabilization: Boolean,
     stabilizationEnabled: Boolean,
-    showAdaptiveQuality: Boolean,
     adaptiveQualityEnabled: Boolean,
     audioTrackNames: List<String>,
     selectedAudioTrackIndex: Int,
@@ -45,11 +44,10 @@ internal fun BoxScope.TvPlayerPanelsHost(
     onQualitySelected: (index: Int) -> Unit,
     onDubbingSelected: (index: Int) -> Unit,
     onBalancerSelected: (index: Int) -> Unit,
-    onSpeedSelected: (index: Int) -> Unit,
     onResizeModeSelected: (PlayerResizeMode) -> Unit,
     onZoomLevelSelected: (PlayerZoomLevel) -> Unit,
+    onTimeDisplaySettingsChange: (PlayerTimeDisplaySettings) -> Unit,
     onVolumeChange: (Int) -> Unit,
-    onSubtitleStyleChange: (PlayerSubtitleStyleSettings) -> Unit,
     onStabilizationChange: (Boolean) -> Unit,
     onAdaptiveQualityChange: (Boolean) -> Unit,
     onAudioTrackSelected: (index: Int) -> Unit,
@@ -65,6 +63,19 @@ internal fun BoxScope.TvPlayerPanelsHost(
         modifier = Modifier
             .align(Alignment.BottomEnd)
             .padding(end = 48.dp, bottom = 72.dp),
+        headerContent = if (qualities.size > 1) {
+            {
+                TvPlayerSettingsMenuRow(
+                    label = stringResource(R.string.player_adaptive_quality_title),
+                    value = stringResource(if (adaptiveQualityEnabled) R.string.player_toggle_on else R.string.player_toggle_off),
+                    toggleChecked = adaptiveQualityEnabled,
+                    showChevron = false,
+                    onClick = { onAdaptiveQualityChange(!adaptiveQualityEnabled) },
+                )
+            }
+        } else {
+            null
+        },
         itemMeta = { stringResource(R.string.player_quality_meta) },
         onItemSelected = onQualitySelected,
         onExitDown = { onExitPanelDown(PanelReturnFocusTarget.Quality) },
@@ -79,6 +90,20 @@ internal fun BoxScope.TvPlayerPanelsHost(
             .padding(start = 48.dp, bottom = 72.dp),
         onItemSelected = onDubbingSelected,
         onExitDown = { onExitPanelDown(PanelReturnFocusTarget.Dubbing) },
+    )
+
+    TvPlayerSelectionPanel(
+        visible = panels.isOpen(TvPlayerPanel.Subtitles),
+        title = stringResource(R.string.player_subtitle_track_title),
+        items = subtitleTrackNames,
+        selectedIndex = selectedSubtitleTrackIndex,
+        selectedFocusRequester = focus.selectedSubtitles,
+        modifier = Modifier
+            .align(Alignment.BottomEnd)
+            .padding(end = 48.dp, bottom = 72.dp),
+        itemMeta = { stringResource(R.string.player_subtitle_track_title) },
+        onItemSelected = onSubtitleTrackSelected,
+        onExitDown = { onExitPanelDown(PanelReturnFocusTarget.Subtitles) },
     )
 
     TvPlayerSelectionPanel(
@@ -111,27 +136,18 @@ internal fun BoxScope.TvPlayerPanelsHost(
     TvPlayerSettingsPanel(
         visible = panels.isOpen(TvPlayerPanel.PlayerSettings),
         entryFocusRequester = focus.selectedPlayerSettings,
-        speeds = speeds,
-        activeSpeed = activeSpeed,
-        onSpeedSelected = onSpeedSelected,
         resizeMode = resizeMode,
         zoomLevel = zoomLevel,
         onResizeModeSelected = onResizeModeSelected,
         onZoomLevelSelected = onZoomLevelSelected,
-        subtitleTrackNames = subtitleTrackNames,
-        selectedSubtitleTrackIndex = selectedSubtitleTrackIndex,
-        onSubtitleTrackSelected = onSubtitleTrackSelected,
-        subtitleStyle = subtitleStyle,
-        onSubtitleStyleChange = onSubtitleStyleChange,
+        timeDisplaySettings = timeDisplaySettings,
+        onTimeDisplaySettingsChange = onTimeDisplaySettingsChange,
         showVolume = showVolume,
         volumePercent = volumePercent,
         onVolumeChange = onVolumeChange,
         showStabilization = showStabilization,
         stabilizationEnabled = stabilizationEnabled,
         onStabilizationChange = onStabilizationChange,
-        showAdaptiveQuality = showAdaptiveQuality,
-        adaptiveQualityEnabled = adaptiveQualityEnabled,
-        onAdaptiveQualityChange = onAdaptiveQualityChange,
         onClose = { onExitPanelDown(PanelReturnFocusTarget.PlayerSettings) },
         modifier = Modifier.align(Alignment.CenterEnd),
     )

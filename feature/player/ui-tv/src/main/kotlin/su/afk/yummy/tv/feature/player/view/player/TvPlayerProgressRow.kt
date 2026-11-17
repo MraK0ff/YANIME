@@ -124,7 +124,6 @@ internal fun TvPlayerProgressRow(
                 }
             },
             onValueChangeFinished = onSeekFinished,
-            onStepSeek = onStepSeek,
             focused = sliderFocused,
             modifier = Modifier
                 .weight(1f)
@@ -192,7 +191,6 @@ private fun PlayerBufferedSlider(
     openingRange: ClosedFloatingPointRange<Float>?,
     onValueChange: (Float) -> Unit,
     onValueChangeFinished: () -> Unit,
-    onStepSeek: (StepSeekDirection) -> Unit,
     focused: Boolean,
     modifier: Modifier = Modifier,
 ) {

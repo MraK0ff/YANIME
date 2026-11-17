@@ -539,6 +539,7 @@ internal fun TvExoPlayerView(
             },
             adaptiveQuality = playback.adaptiveQuality,
             showAllohaButton = trackMenu.showAudioChoice,
+            showSubtitleButton = trackMenu.showSubtitleChoice,
             onPlayPause = { if (wantsPlay) player.pause() else player.play() },
             onSeekTo = seekController::seekTo,
             onInteraction = ::onInteraction,
@@ -570,6 +571,9 @@ internal fun TvExoPlayerView(
             onToggleAlloha = {
                 togglePanel(TvPlayerPanel.Alloha, PanelReturnFocusTarget.Alloha)
             },
+            onToggleSubtitles = {
+                togglePanel(TvPlayerPanel.Subtitles, PanelReturnFocusTarget.Subtitles)
+            },
         )
 
         TvPlayerPanelsHost(
@@ -578,16 +582,13 @@ internal fun TvExoPlayerView(
             playback = playback,
             qualities = playback.qualityLabels,
             activeQuality = activeQuality,
-            speeds = speeds,
-            activeSpeed = activeSpeed,
             resizeMode = state.resizeMode,
             zoomLevel = state.zoomLevel,
+            timeDisplaySettings = state.timeDisplaySettings,
             volumePercent = playerVolumePercent,
             showVolume = advancedVolumeEnabled,
-            subtitleStyle = state.subtitleStyle,
             showStabilization = state.volumeStabilizationSupported,
             stabilizationEnabled = state.volumeStabilizationEnabled,
-            showAdaptiveQuality = playback.qualityLabels.size > 1,
             adaptiveQualityEnabled = playback.adaptiveQuality,
             audioTrackNames = trackMenu.audioOptions.map(PlayerTrackOption::label),
             selectedAudioTrackIndex = trackMenu.selectedAudioIndex,
@@ -615,10 +616,6 @@ internal fun TvExoPlayerView(
                 panels.close(PanelReturnFocusTarget.Balancer)
                 onInteraction()
             },
-            onSpeedSelected = { idx ->
-                onPlayerEvent(PlayerState.Event.SpeedSelected(speeds[idx]))
-                onInteraction()
-            },
             onResizeModeSelected = { mode ->
                 onPlayerEvent(PlayerState.Event.ResizeModeSelected(mode))
                 onInteraction()
@@ -630,9 +627,9 @@ internal fun TvExoPlayerView(
                 onInteraction()
             },
             onVolumeChange = { volumeController.setPercent(it) },
-            onSubtitleStyleChange = { onPlayerEvent(PlayerState.Event.SubtitleStyleChanged(it)) },
             onStabilizationChange = { onPlayerEvent(PlayerState.Event.VolumeStabilizationToggled(it)) },
             onAdaptiveQualityChange = { onPlayerEvent(PlayerState.Event.AdaptiveQualityToggled(it)) },
+            onTimeDisplaySettingsChange = { onPlayerEvent(PlayerState.Event.TimeDisplaySettingsChanged(it)) },
             onAudioTrackSelected = { idx ->
                 trackMenu.selectAudio(idx, player.currentPosition.coerceAtLeast(0L), onPlayerEvent)
                 panels.close(PanelReturnFocusTarget.Alloha)

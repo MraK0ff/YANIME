@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalViewConfiguration
@@ -61,7 +62,7 @@ internal fun MobilePlayerActionButton(
 ) {
     val contentColor = when {
         !enabled -> Color.White.copy(alpha = 0.26f)
-        primary -> MaterialTheme.colorScheme.onPrimary
+        primary -> if (mobilePlayerTimelinePlayedColor(MaterialTheme.colorScheme.primary).luminance() > 0.45f) Color(0xFF17191D) else Color.White
         else -> Color.White
     }
     val holdProgress = remember { Animatable(0f) }
@@ -78,7 +79,7 @@ internal fun MobilePlayerActionButton(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .size(buttonSize)
-            .then(if (surface && primary) Modifier.mobilePlayerGlassSurface(shape = CircleShape, fill = MaterialTheme.colorScheme.primary, borderColor = MobilePlayerGlassBorder, elevation = 0.dp) else Modifier)
+            .then(if (surface && primary) Modifier.mobilePlayerGlassSurface(shape = CircleShape, fill = mobilePlayerTimelinePlayedColor(MaterialTheme.colorScheme.primary), borderColor = MobilePlayerGlassBorder, elevation = 0.dp) else Modifier)
             .then(
                 if (onHold == null && onLongPress != null) {
                     Modifier.pointerInput(enabled, onLongPress, onClick) {
@@ -109,7 +110,7 @@ internal fun MobilePlayerActionButton(
     ) {
         if (loading) {
             CircularProgressIndicator(
-                color = if (primary) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary,
+                color = if (primary) contentColor else MaterialTheme.colorScheme.primary,
                 strokeWidth = 3.dp,
                 modifier = Modifier.size(buttonSize * 0.62f),
             )

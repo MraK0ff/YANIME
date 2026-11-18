@@ -22,7 +22,6 @@ import su.afk.yummy.tv.core.designsystem.locals.LocalPosterCardSize
 import su.afk.yummy.tv.core.designsystem.onboarding.LocalOnboardingController
 import su.afk.yummy.tv.core.designsystem.onboarding.OnboardingSpotlightOverlay
 import su.afk.yummy.tv.core.designsystem.onboarding.OnboardingTourEffect
-import su.afk.yummy.tv.core.designsystem.onboarding.OnboardingWelcome
 import su.afk.yummy.tv.core.designsystem.onboarding.rememberOnboardingController
 import su.afk.yummy.tv.core.designsystem.mobile.bar.LocalMobileBottomBarUpFocusRequester
 import su.afk.yummy.tv.core.designsystem.seasonal.LocalSeasonalDecorationsEnabled
@@ -91,9 +90,6 @@ class MobileMainGraph @Inject internal constructor(
                 ChoiceDialogHost(isTelevision = false)
                 val onboarding = rememberOnboardingController()
                 val tabRootReady = atTabRoot && !isRequiredUpdateDestination && !isFullscreenDestination
-                if (state.onboardingWelcomePending && tabRootReady) {
-                    OnboardingWelcome(onFinished = { onEvent(MainState.Event.OnboardingWelcomeFinished) })
-                }
                 SeasonalPrompt(
                     theme = state.seasonalPrompt,
                     isTelevision = false,

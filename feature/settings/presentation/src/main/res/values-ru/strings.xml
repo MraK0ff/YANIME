@@ -415,4 +415,19 @@
     <string name="settings_torrent_check_indexer_unexpected">%1$s: неожиданный ответ (HTTP %2$d)</string>
     <string name="settings_torrent_warning_indexer_unavailable">Источник торрентов не появится: все включённые индексаторы недоступны</string>
     <string name="settings_torrent_warning_no_indexer">Источник торрентов не появится: включите JacRed или Jackett (с адресом)</string>
+    <string name="settings_details_sections_title">Разделы страницы аниме</string>
+    <string name="settings_details_sections_hint">Выберите и расположите разделы на странице аниме</string>
+    <string name="settings_details_sections_tv_note">На ТВ информация и описание остаются в шапке; можно изменить только их видимость</string>
+    <string name="settings_section_sections_order">Разделы и порядок</string>
+    <string name="settings_video_enhancement_label">Улучшение видео</string>
+    <string name="settings_details_section_info">Информация</string>
+    <string name="settings_details_section_description">Описание</string>
+    <string name="settings_details_section_screenshots">Скриншоты</string>
+    <string name="settings_details_section_video">Видео</string>
+    <string name="settings_details_section_rating">Рейтинг</string>
+    <string name="settings_details_section_universe">Вселенная</string>
+    <string name="settings_details_section_similar">Похожие тайтлы</string>
+    <string name="settings_details_section_collections">Подборки</string>
+    <string name="settings_details_section_reviews">Рецензии</string>
+    <string name="settings_details_section_comments">Комментарии</string>
 </resources>

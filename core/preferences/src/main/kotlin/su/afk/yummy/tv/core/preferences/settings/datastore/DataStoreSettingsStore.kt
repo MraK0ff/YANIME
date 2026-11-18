@@ -147,6 +147,7 @@ internal class DataStoreSettingsStore @Inject constructor(
             tvPlayerVolumeKeysEnabled = prefs[tvPlayerVolumeKeysEnabledKey] ?: false,
             advancedPlayerVolumeEnabled = prefs[advancedPlayerVolumeEnabledKey] ?: false,
             volumeStabilizationEnabled = prefs[volumeStabilizationEnabledKey] ?: false,
+            videoEnhancementMode = prefs.videoEnhancementMode(),
             audioFocusDisabled = prefs[audioFocusDisabledKey] ?: false,
             playerBufferProfile = prefs.enum(playerBufferProfileKey, PlayerBufferProfile.SMALL),
             browserUserAgentProfile = prefs.enum(

@@ -18,29 +18,33 @@ import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleTextColor
 import su.afk.yummy.tv.core.model.settings.PlayerZoomLevel
 import su.afk.yummy.tv.core.model.settings.PreferredVideoQuality
+import su.afk.yummy.tv.core.model.settings.VideoEnhancementMode
 import su.afk.yummy.tv.core.model.settings.WatchedThresholds
+import su.afk.yummy.tv.core.preferences.BuildConfig
 import su.afk.yummy.tv.core.preferences.settings.PlayerSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.adaptiveVideoQualityEnabledKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.advancedPlayerVolumeEnabledKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.advancedPlayerVolumePercentKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.audioFocusDisabledKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.autoManageLibraryListsKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.autoPlayNextEpisodeKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.autoSkipDelaySecondsKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.autoSkipOpeningsEndingsKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.browserUserAgentProfileKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.deblurEnabledKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.holdToConfirmEnabledKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.mobilePlayerBrightnessPercentKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.mobilePlayerAutoBrightnessEnabledKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.mobilePlayerGestureTutorialDismissedKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.nextEpisodeSwitchDelaySecondsKey
-import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.holdToConfirmEnabledKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.pictureInPictureEnabledKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.playerBufferProfileKey
-import su.afk.yummy.tv.core.preferences.BuildConfig
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.playerControlsAutoHideSecondsKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.playerOrientationModeKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.playerPlaybackSpeedKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.playerTimeDisplaySettingsKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.playerResizeModeKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.playerZoomLevelKey
-import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.adaptiveVideoQualityEnabledKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.preferredVideoQualityKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.showOpeningOnTimelineKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.subtitleBackgroundKey
@@ -48,11 +52,10 @@ import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.subtitle
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.subtitleOffsetKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.subtitleTextColorKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.subtitleTextSizeKey
-import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.autoManageLibraryListsKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.suggestNextEpisodeOnWatchedKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.tvPlayerControlsTutorialDismissedKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.tvPlayerVolumeKeysEnabledKey
-import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.audioFocusDisabledKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.videoEnhancementModeKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.volumeStabilizationEnabledKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.watchedLongRemainingMinutesKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.watchedMediumRemainingMinutesKey
@@ -95,7 +98,6 @@ internal class DataStorePlayerSettingsStore @Inject constructor(
         (prefs[playerControlsAutoHideSecondsKey] ?: DEFAULT_CONTROLS_AUTO_HIDE_SECONDS)
             .coerceIn(MIN_CONTROLS_AUTO_HIDE_SECONDS, MAX_CONTROLS_AUTO_HIDE_SECONDS)
     }
-
 
     override val pictureInPictureEnabled: Flow<Boolean> =
         store.boolean(pictureInPictureEnabledKey, true)
@@ -151,6 +153,9 @@ internal class DataStorePlayerSettingsStore @Inject constructor(
 
     override val volumeStabilizationEnabled: Flow<Boolean> =
         store.boolean(volumeStabilizationEnabledKey, false)
+
+    override val videoEnhancementMode: Flow<VideoEnhancementMode> =
+        store.data.map { prefs -> prefs.videoEnhancementMode() }.distinctUntilChanged()
 
     override val audioFocusDisabled: Flow<Boolean> =
         store.boolean(audioFocusDisabledKey, false)
@@ -332,6 +337,12 @@ internal class DataStorePlayerSettingsStore @Inject constructor(
     override suspend fun setVolumeStabilizationEnabled(enabled: Boolean) =
         store.setBoolean(volumeStabilizationEnabledKey, enabled)
 
+    override suspend fun setVideoEnhancementMode(mode: VideoEnhancementMode) =
+        store.edit { prefs ->
+            prefs[videoEnhancementModeKey] = mode.name
+            prefs.remove(deblurEnabledKey)
+        }
+
     override suspend fun setAudioFocusDisabled(disabled: Boolean) =
         store.setBoolean(audioFocusDisabledKey, disabled)
 
@@ -388,7 +399,7 @@ internal class DataStorePlayerSettingsStore @Inject constructor(
         const val DEFAULT_VOLUME_PERCENT = 100
         const val DEFAULT_PLAYBACK_SPEED = 1f
         const val MIN_PLAYBACK_SPEED = 0.25f
-        const val MAX_PLAYBACK_SPEED = 4f
+        const val MAX_PLAYBACK_SPEED = 3f
         const val MAX_VOLUME_PERCENT = 100
         const val MIN_BRIGHTNESS_PERCENT = 1
         const val DEFAULT_AUTO_SKIP_DELAY_SECONDS = 1

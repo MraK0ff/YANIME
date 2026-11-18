@@ -78,6 +78,9 @@ internal fun MobilePlayerTopBar(
     episodeFlags: EpisodeFlags?,
     qualityLabel: String,
     qualityOptions: List<String>,
+    dubbingLabel: String = "",
+    balancerLabel: String = "",
+    onTrackSettings: () -> Unit = {},
     onEpisodeClick: () -> Unit,
     onMoreMenuItem: (MobilePlayerSettingsPage) -> Unit,
     onQualityClick: () -> Unit,
@@ -111,17 +114,30 @@ internal fun MobilePlayerTopBar(
                 .align(Alignment.TopEnd)
                 .padding(top = 8.dp, end = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(2.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            if (!offlinePlayback && qualityOptions.isNotEmpty()) {
-                TopBarQualityAction(qualityLabel, onQualityClick)
+            if (dubbingLabel.isNotBlank()) {
+                Text(
+                    text = dubbingLabel,
+                    modifier = Modifier.clickable(onClick = onTrackSettings),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = Color.White,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
-            TopBarSpeedAction(selectedSpeed, onSpeedClick)
-            TopBarAction(
-                Icons.Filled.Settings,
-                stringResource(R.string.player_mobile_playback_settings_title),
-            ) {
-                onMoreMenuItem(MobilePlayerSettingsPage.Root)
+            if (dubbingLabel.isNotBlank() && balancerLabel.isNotBlank()) {
+                Text("|", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.55f))
+            }
+            if (balancerLabel.isNotBlank()) {
+                Text(
+                    text = balancerLabel,
+                    modifier = Modifier.clickable(onClick = onTrackSettings),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = Color.White,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
         }
 

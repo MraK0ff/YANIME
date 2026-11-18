@@ -502,6 +502,7 @@ internal fun TvExoPlayerView(
             visible = controllerVisible,
             animeTitle = state.animeTitle,
             episode = playback.activeEpisode,
+            episodeTitle = playback.activeEpisodeTitle,
             dubbing = playback.activeDubbingLabel,
             modifier = Modifier.align(Alignment.TopCenter),
         )

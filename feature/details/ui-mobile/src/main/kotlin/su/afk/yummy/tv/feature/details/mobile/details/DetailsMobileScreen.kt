@@ -1,14 +1,13 @@
 package su.afk.yummy.tv.feature.details.mobile.details
 
-import su.afk.yummy.tv.core.designsystem.onboarding.OnboardingTourEffect
-import su.afk.yummy.tv.feature.details.utils.DETAILS_ONBOARDING_TOUR_ID
-import su.afk.yummy.tv.feature.details.mobile.details.utils.mobileDetailsTourSteps
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
@@ -18,7 +17,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -31,12 +29,13 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
-import su.afk.yummy.tv.core.designsystem.R as CoreR
 import su.afk.yummy.tv.core.designsystem.baseScreen.BaseScreen
 import su.afk.yummy.tv.core.designsystem.components.OfflineBanner
+import su.afk.yummy.tv.core.designsystem.components.RandomAnimeFloatingButton
 import su.afk.yummy.tv.core.designsystem.error.asString
 import su.afk.yummy.tv.core.designsystem.locals.LocalIsOffline
 import su.afk.yummy.tv.core.designsystem.mobile.NotificationPermissionGateHost
@@ -44,18 +43,22 @@ import su.afk.yummy.tv.core.designsystem.mobile.bar.MobileTopBar
 import su.afk.yummy.tv.core.designsystem.mobile.layout.mobileContentMaxWidth
 import su.afk.yummy.tv.core.designsystem.mobile.rememberNotificationPermissionGate
 import su.afk.yummy.tv.core.designsystem.mobile.state.MobileMessage
+import su.afk.yummy.tv.core.designsystem.mvi.collectAsEffect
+import su.afk.yummy.tv.core.designsystem.onboarding.OnboardingTourEffect
 import su.afk.yummy.tv.core.designsystem.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.core.model.ErrorItem
 import su.afk.yummy.tv.core.model.anime.posterUrls
+import su.afk.yummy.tv.core.model.settings.DetailsSectionKind
 import su.afk.yummy.tv.core.model.text.UiText
 import su.afk.yummy.tv.core.utils.formatting.toCompactCount
 import su.afk.yummy.tv.core.utils.system.shareText
 import su.afk.yummy.tv.domain.account.model.UserAnimeList
 import su.afk.yummy.tv.feature.details.details.DetailsState
+import su.afk.yummy.tv.feature.details.mobile.details.utils.mobileDetailsTourSteps
 import su.afk.yummy.tv.feature.details.mobile.details.utils.tightenVerticalSpacing
 import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsCollectionsSection
 import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsCommentsBar
-import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsInfoBlock
+import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsDescriptionBlock
 import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsInfoSheet
 import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsLinkRow
 import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsLinksCard
@@ -64,6 +67,7 @@ import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsMobileSkeleton
 import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsPickerSheets
 import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsRatingOverviewCard
 import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsRatingOverviewSkeleton
+import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsRelationsBlock
 import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsScreenshotsRow
 import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsSecondaryActions
 import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsUniverseSection
@@ -73,6 +77,8 @@ import su.afk.yummy.tv.feature.details.mobile.details.view.buildDetailsLinks
 import su.afk.yummy.tv.feature.details.mobile.details.view.commentsDetailsLink
 import su.afk.yummy.tv.feature.details.mobile.details.view.similarDetailsLink
 import su.afk.yummy.tv.feature.details.presentation.R
+import su.afk.yummy.tv.feature.details.utils.DETAILS_ONBOARDING_TOUR_ID
+import su.afk.yummy.tv.core.designsystem.R as CoreR
 
 @Preview(name = "Default", device = "spec:width=412dp,height=915dp,dpi=420", showBackground = true)
 @Composable
@@ -118,12 +124,10 @@ fun DetailsMobileScreen(
     val listState = rememberLazyListState()
     val notificationPermissionGate = rememberNotificationPermissionGate()
     val context = LocalContext.current
-    LaunchedEffect(effect) {
-        effect.collect { detailsEffect ->
-            when (detailsEffect) {
-                is DetailsState.Effect.ShareAnime ->
-                    context.shareText(text = detailsEffect.url, subject = detailsEffect.title)
-            }
+    effect.collectAsEffect { detailsEffect ->
+        when (detailsEffect) {
+            is DetailsState.Effect.ShareAnime ->
+                context.shareText(text = detailsEffect.url, subject = detailsEffect.title)
         }
     }
     val isOffline = LocalIsOffline.current
@@ -131,8 +135,23 @@ fun DetailsMobileScreen(
     BaseScreen(
         isScroll = false,
         contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal),
+        // Деталка открыта из кубика каталога — кубик остаётся, чтобы листать случайные тайтлы дальше.
+        floatingActionButtonEnd = if (state.isRandomAnimeEnabled && details != null) {
+            {
+                RandomAnimeFloatingButton(
+                    description = stringResource(R.string.details_random_anime),
+                    isLoading = state.isRandomAnimeLoading,
+                    onClick = { onEvent(DetailsState.Event.RandomAnimeSelected) },
+                )
+            }
+        } else {
+            null
+        },
+        floatingActionButtonBottomPadding = 8.dp,
         customTopBar = {
-            if (details == null) {
+            // Пока идёт первая загрузка, кнопку «назад» рисует сам скелетон на месте шапки: панель
+            // Scaffold исчезала при появлении деталей раньше, чем гаснет скелетон, и постер прыгал вверх.
+            if (details == null && !state.isLoading) {
                 MobileTopBar(
                     title = "",
                     onBack = { onEvent(DetailsState.Event.BackSelected) },
@@ -140,7 +159,7 @@ fun DetailsMobileScreen(
             }
         },
         isLoading = state.isLoading && details == null,
-        loadingContent = { DetailsMobileSkeleton() },
+        loadingContent = { DetailsMobileSkeleton(onBack = { onEvent(DetailsState.Event.BackSelected) }) },
         error = error?.let { ErrorItem(title = it, message = it) },
         onRetry = { onEvent(DetailsState.Event.RetrySelected) },
         isEmpty = details == null,
@@ -162,7 +181,10 @@ fun DetailsMobileScreen(
                 .mobileContentMaxWidth()
                 .fillMaxSize()
                 .testTag("details_root"),
-            contentPadding = PaddingValues(bottom = 0.dp),
+            // Нижний отступ у ленты, а не у блока: последним может оказаться любой раздел.
+            contentPadding = PaddingValues(
+                bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp,
+            ),
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             item(key = "hero", contentType = "details_hero") {

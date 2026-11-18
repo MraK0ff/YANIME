@@ -11,6 +11,7 @@ internal enum class MobilePlayerSettingsPage {
     SleepTimer,
     Resize,
     Display,
+    VideoEnhancement,
     Orientation,
     TimeDisplay,
     CastAndPip,

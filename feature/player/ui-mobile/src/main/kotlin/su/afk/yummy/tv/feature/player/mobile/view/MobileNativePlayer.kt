@@ -732,8 +732,8 @@ internal fun MobileNativePlayer(
                     onEvent(PlayerState.Event.Back)
                 }
             },
-            buttonSize = 48.dp,
-            modifier = Modifier.align(Alignment.TopStart).offset(x = videoLeftDp, y = videoTopDp),
+            buttonSize = controlSize,
+            modifier = Modifier.align(Alignment.TopStart).offset(x = unlockRightOffset, y = videoTopDp + 8.dp),
         )
 
         if (settingsMenuOpen && !isInPictureInPictureMode && !tutorialBlocksPlayback) {

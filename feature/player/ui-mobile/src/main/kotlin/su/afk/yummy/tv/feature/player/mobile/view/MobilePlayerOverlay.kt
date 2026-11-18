@@ -67,6 +67,10 @@ internal fun MobilePlayerOverlay(
     onTimeCodeClick: () -> Unit = {},
     dubbingLabel: String = "",
     balancerLabel: String = "",
+    qualityLabel: String = "",
+    selectedSpeed: Float = 1f,
+    onQualityClick: () -> Unit = {},
+    onSpeedClick: () -> Unit = {},
 ) {
     if (!visible) return
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
@@ -107,8 +111,11 @@ internal fun MobilePlayerOverlay(
                 showRemainingTime = showRemainingTime,
                 onTimeCodeClick = onTimeCodeClick,
                 dubbingLabel = dubbingLabel,
-                balancerLabel = balancerLabel,
-                onTrackSettings = onTrackSettings,
+                qualityLabel = qualityLabel,
+                selectedSpeed = selectedSpeed,
+                onQualityClick = onQualityClick,
+                onSpeedClick = onSpeedClick,
+                onMoreActions = onMoreActions,
             )
             if (episodesAvailable) {
                 AnimatedVisibility(

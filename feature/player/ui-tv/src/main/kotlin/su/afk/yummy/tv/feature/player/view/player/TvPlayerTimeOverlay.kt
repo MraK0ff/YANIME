@@ -78,7 +78,7 @@ internal fun TvPlayerTimeOverlay(
                 TvTimeChip(values = listOf(clock, finishAt))
             } else {
                 if (showClock) TvTimeChip(values = listOf(clock))
-                if (showFinish) TvTimeChip(values = listOf(finishAt))
+                if (showFinish) TvTimeChip(values = listOf(finishAt), finishOnly = true)
             }
             if (showCombinedIdle) {
                 TvTimeChip(text = "${displayTimeMs.millisToClockTime()} / ${durationMs.millisToClockTime()}")
@@ -94,6 +94,7 @@ internal fun TvPlayerTimeOverlay(
 private fun TvTimeChip(
     values: List<String>,
     modifier: Modifier = Modifier,
+    finishOnly: Boolean = false,
 ) {
     val shape = RoundedCornerShape(12.dp)
     Row(
@@ -107,7 +108,7 @@ private fun TvTimeChip(
     ) {
         values.forEachIndexed { index, value ->
             Icon(
-                imageVector = if (index == 0) Icons.Filled.AccessTime else Icons.Filled.Flag,
+                imageVector = if (finishOnly || index > 0) Icons.Filled.Flag else Icons.Filled.AccessTime,
                 contentDescription = null,
                 tint = Color.White.copy(alpha = 0.9f),
                 modifier = Modifier.size(16.dp),

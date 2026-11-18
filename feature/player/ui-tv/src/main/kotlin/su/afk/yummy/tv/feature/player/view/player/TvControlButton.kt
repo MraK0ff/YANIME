@@ -25,7 +25,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.nativeKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.draw.shadow
@@ -52,6 +51,7 @@ internal fun TvControlButton(
     val interactionSource = remember { MutableInteractionSource() }
     var focused by remember { mutableStateOf(false) }
     var longPressTriggered by remember { mutableStateOf(false) }
+    var activationRepeatCount by remember { mutableStateOf(0) }
     val animationsEnabled = rememberAnimationsEnabled()
     val colorAnimationSpec = if (animationsEnabled) tween<Color>(YummyMotion.FastEffectsMillis) else snap()
     val shape = YummyShapeTokens.Control
@@ -94,7 +94,7 @@ internal fun TvControlButton(
                 if (!activationKey) return@onPreviewKeyEvent false
                 when (event.type) {
                     KeyEventType.KeyDown -> {
-                        if (event.nativeKeyEvent.repeatCount > 0 && !longPressTriggered) {
+                        if (++activationRepeatCount >= 2 && !longPressTriggered) {
                             longPressTriggered = true
                             onLongClick()
                             true
@@ -103,6 +103,7 @@ internal fun TvControlButton(
                     KeyEventType.KeyUp -> {
                         val consumed = longPressTriggered
                         longPressTriggered = false
+                        activationRepeatCount = 0
                         consumed
                     }
                     else -> false

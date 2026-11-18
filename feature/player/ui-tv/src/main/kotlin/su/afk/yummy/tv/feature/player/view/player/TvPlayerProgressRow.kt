@@ -2,6 +2,7 @@ package su.afk.yummy.tv.feature.player.view.player
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Row
@@ -28,6 +29,9 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -39,7 +43,6 @@ import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.feature.player.common.model.StepSeekDirection
 import su.afk.yummy.tv.core.utils.formatting.millisToClockTime
 import su.afk.yummy.tv.feature.player.common.utils.openingRange
-import su.afk.yummy.tv.feature.player.common.view.bufferedTrackOverlay
 
 @Composable
 internal fun TvPlayerProgressRow(
@@ -233,21 +236,53 @@ private fun PlayerBufferedSlider(
         onValueChangeFinished = onValueChangeFinished,
         modifier = modifier,
         colors = colors,
-        track = { sliderState ->
-            SliderDefaults.Track(
-                sliderState = sliderState,
-                enabled = true,
-                colors = colors,
-                modifier = Modifier.bufferedTrackOverlay(
-                    activeProgress = activeProgress,
-                    bufferedProgress = buffered,
-                    color = bufferedColor,
-                    openingRange = openingRange,
-                    openingColor = focusedColor.copy(alpha = 0.9f),
-                    playedColor = focusedColor,
-                    trackHeight = if (focused) 6.dp else 5.dp,
-                ),
-            )
+        thumb = {
+            Canvas(Modifier.size(if (focused) 14.dp else 10.dp)) {
+                drawCircle(
+                    color = sliderColor,
+                    radius = size.minDimension / 2f,
+                )
+            }
+        },
+        track = { state ->
+            Canvas(
+                Modifier
+                    .fillMaxWidth()
+                    .size(height = 32.dp, width = 1.dp),
+            ) {
+                val centerY = size.height / 2f
+                val trackHeight = if (focused) 4.dp.toPx() else 3.dp.toPx()
+                val radius = trackHeight / 2f
+                val end = size.width
+                val played = end * state.value.coerceIn(0f, 1f)
+                val bufferedEnd = end * buffered.coerceIn(state.value.coerceIn(0f, 1f), 1f)
+                drawRoundRect(
+                    color = Color.White.copy(alpha = 0.18f),
+                    topLeft = Offset(0f, centerY - radius),
+                    size = Size(end, trackHeight),
+                    cornerRadius = CornerRadius(radius, radius),
+                )
+                if (bufferedEnd > played) drawRoundRect(
+                    color = Color.White.copy(alpha = 0.34f),
+                    topLeft = Offset(played, centerY - radius),
+                    size = Size(bufferedEnd - played, trackHeight),
+                    cornerRadius = CornerRadius(radius, radius),
+                )
+                if (played > 0f) drawRoundRect(
+                    color = sliderColor,
+                    topLeft = Offset(0f, centerY - radius),
+                    size = Size(played, trackHeight),
+                    cornerRadius = CornerRadius(radius, radius),
+                )
+                openingRange?.let { range ->
+                    drawRoundRect(
+                        color = focusedColor.copy(alpha = 0.95f),
+                        topLeft = Offset(end * range.start.coerceIn(0f, 1f), centerY - radius),
+                        size = Size(end * (range.endInclusive - range.start).coerceAtLeast(0f), trackHeight),
+                        cornerRadius = CornerRadius(radius, radius),
+                    )
+                }
+            }
         },
     )
 }

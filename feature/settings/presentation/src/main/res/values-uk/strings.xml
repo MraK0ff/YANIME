@@ -135,6 +135,18 @@
     <string name="settings_theme_ocean_hint">Глибокі сині поверхні та прохолодний світлий акцент</string>
     <string name="settings_theme_graphite">Графіт</string>
     <string name="settings_theme_graphite_hint">Мінімальна сіра тема зі стриманим контрастом</string>
+
+    <string name="settings_theme_lavender">Лаванда</string>
+    <string name="settings_theme_lavender_hint">М’який фіолетовий акцент на спокійній темній палітрі</string>
+    <string name="settings_theme_ruby">Рубін</string>
+    <string name="settings_theme_ruby_hint">Насичений червоний акцент і збалансовані темні поверхні</string>
+    <string name="settings_theme_forest">Ліс</string>
+    <string name="settings_theme_forest_hint">Глибокий зелений акцент у природних відтінках</string>
+    <string name="settings_theme_sunset">Захід сонця</string>
+    <string name="settings_theme_sunset_hint">Теплі коралові й помаранчеві відтінки заходу сонця</string>
+    <string name="settings_theme_gold">Золото</string>
+    <string name="settings_theme_gold_hint">Елегантний золотий акцент на темній основі</string>
+
     <string name="settings_theme_dynamic">Dynamic color</string>
     <string name="settings_theme_dynamic_hint">Палітра Material You з шпалер системи (Android 12+)</string>
     <string name="settings_poster_card_size_compact">Компактний</string>
@@ -397,5 +409,10 @@
     <string name="settings_torrent_check_unexpected">Несподівана відповідь (HTTP %1$d). Схоже, це не адреса TorrServer</string>
     <string name="settings_torrent_warning_no_server">Джерело торентів не з\'явиться: не вказано адресу TorrServer</string>
     <string name="settings_torrent_warning_server_unavailable">Джерело торентів не з\'явиться: TorrServer недоступний</string>
+    <string name="settings_torrent_check_indexer_ok">%1$s: доступний</string>
+    <string name="settings_torrent_check_indexer_unreachable">%1$s: недоступний</string>
+    <string name="settings_torrent_check_indexer_unauthorized">%1$s: потрібна авторизація</string>
+    <string name="settings_torrent_check_indexer_unexpected">%1$s: неочікувана відповідь (HTTP %2$d)</string>
+    <string name="settings_torrent_warning_indexer_unavailable">Джерело торентів не з’явиться: усі ввімкнені індексатори недоступні</string>
     <string name="settings_torrent_warning_no_indexer">Джерело торентів не з\'явиться: увімкніть JacRed або Jackett (з адресою)</string>
 </resources>

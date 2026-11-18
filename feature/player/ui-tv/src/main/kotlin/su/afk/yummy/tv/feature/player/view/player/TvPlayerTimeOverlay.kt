@@ -77,8 +77,8 @@ internal fun TvPlayerTimeOverlay(
             TvTimeChip(
                 text = "${displayTimeMs.millisToClockTime()} / ${durationMs.millisToClockTime()}",
                 modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(start = 40.dp, bottom = 40.dp),
+                    .align(Alignment.TopEnd)
+                    .padding(end = 40.dp, top = 132.dp),
             )
         } else {
             if (showElapsedIdle) {

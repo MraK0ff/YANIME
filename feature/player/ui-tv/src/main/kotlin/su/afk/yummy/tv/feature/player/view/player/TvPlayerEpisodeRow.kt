@@ -114,6 +114,52 @@ internal fun TvPlayerEpisodeRow(
             }
         }
         Spacer(Modifier.weight(1f))
+        if (speeds.isNotEmpty()) {
+            TvControlButton(
+                onClick = onCycleSpeed,
+                onFocused = onInteraction,
+                modifier = Modifier.focusProperties { up = upFocusRequester },
+            ) { color ->
+                Text(
+                    text = activeSpeed.speedLabel(),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = color,
+                    maxLines = 1,
+                )
+            }
+            Spacer(Modifier.width(8.dp))
+        }
+        if (qualityCount > 0) {
+            TvControlButton(
+                onClick = onToggleQuality,
+                onFocused = onInteraction,
+                focusRequester = qualityFocusRequester,
+                modifier = Modifier
+                    .focusProperties { up = upFocusRequester }
+                    .widthIn(min = 92.dp),
+            ) { color ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    // Буква перед качеством: это выбор адаптации, а не пользователя.
+                    if (adaptiveQuality) {
+                        Text(
+                            text = stringResource(R.string.player_adaptive_quality_badge),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = color,
+                            maxLines = 1,
+                        )
+                    }
+                    Text(
+                        text = currentQualityLabel,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = color,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+            Spacer(Modifier.width(8.dp))
+        }
         if (allDubbingNames.size > 1) {
             val label = allDubbingNames
                 .getOrElse(currentDubbingIndex) { dubbing }
@@ -155,52 +201,6 @@ internal fun TvPlayerEpisodeRow(
                     color = color,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                )
-            }
-            Spacer(Modifier.width(8.dp))
-        }
-        if (qualityCount > 0) {
-            TvControlButton(
-                onClick = onToggleQuality,
-                onFocused = onInteraction,
-                focusRequester = qualityFocusRequester,
-                modifier = Modifier
-                    .focusProperties { up = upFocusRequester }
-                    .widthIn(min = 92.dp),
-            ) { color ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    // Буква перед качеством: это выбор адаптации, а не пользователя.
-                    if (adaptiveQuality) {
-                        Text(
-                            text = stringResource(R.string.player_adaptive_quality_badge),
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = color,
-                            maxLines = 1,
-                        )
-                    }
-                    Text(
-                        text = currentQualityLabel,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = color,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-            }
-            Spacer(Modifier.width(8.dp))
-        }
-        if (speeds.isNotEmpty()) {
-            TvControlButton(
-                onClick = onCycleSpeed,
-                onFocused = onInteraction,
-                modifier = Modifier.focusProperties { up = upFocusRequester },
-            ) { color ->
-                Text(
-                    text = activeSpeed.speedLabel(),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = color,
-                    maxLines = 1,
                 )
             }
             Spacer(Modifier.width(8.dp))

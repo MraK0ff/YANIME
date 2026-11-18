@@ -3,8 +3,8 @@ package su.afk.yummy.tv.feature.player.view.player
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
@@ -16,8 +16,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.theme.overline
@@ -37,29 +37,31 @@ internal fun TvPlayerInfoBar(
         visible = visible && (animeTitle.isNotBlank() || episode.isNotBlank()),
         modifier = modifier
             .windowInsetsPadding(WindowInsets.safeDrawing)
-            .padding(top = 16.dp, start = 16.dp),
+            .padding(top = 24.dp, start = 48.dp, end = 48.dp),
         enter = fadeIn(),
         exit = fadeOut(),
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            if (animeTitle.isNotBlank() || episode.isNotBlank()) {
-                val infoText = when {
-                    animeTitle.isNotBlank() && episode.isNotBlank() -> stringResource(
-                        R.string.player_info_title_episode,
-                        animeTitle,
-                        episode,
-                    )
-                    animeTitle.isNotBlank() -> animeTitle
-                    else -> stringResource(R.string.player_episode_number, episode)
-                }
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            if (animeTitle.isNotBlank()) {
                 Text(
-                    text = infoText,
-                    style = MaterialTheme.typography.bodyMedium,
+                    text = animeTitle,
+                    style = MaterialTheme.typography.titleMedium,
                     color = Color.White,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(Color.Black.copy(alpha = 0.55f))
-                        .padding(horizontal = 10.dp, vertical = 5.dp),
+                    textAlign = TextAlign.Center,
+                    maxLines = 2,
+                )
+            }
+            if (episode.isNotBlank()) {
+                Text(
+                    text = stringResource(R.string.player_episode_number, episode),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = Color.White.copy(alpha = 0.82f),
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
                 )
             }
         }

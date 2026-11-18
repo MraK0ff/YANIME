@@ -33,8 +33,6 @@ import su.afk.yummy.tv.feature.playersetup.navigator.PlayerSetupDestination
 import su.afk.yummy.tv.feature.update.navigator.UpdateDestination
 import javax.inject.Inject
 
-private const val MAIN_ONBOARDING_WELCOME_ID = "main_onboarding_welcome"
-
 @HiltViewModel
 class MainViewModel @Inject internal constructor(
     override val errorHandler: ErrorHandler,
@@ -68,10 +66,6 @@ class MainViewModel @Inject internal constructor(
                 settingsStore.setSeasonalAnnouncedKey(seasonalAnnouncementKey(appClock.nowMillis()))
             }
 
-            MainState.Event.OnboardingWelcomeFinished -> viewModelScope.launch {
-                settingsStore.markOnboardingTourSeen(MAIN_ONBOARDING_WELCOME_ID)
-            }
-
             MainState.Event.OnboardingMainTourFinished -> viewModelScope.launch {
                 settingsStore.markOnboardingTourSeen(MAIN_ONBOARDING_TOUR_ID)
             }
@@ -81,12 +75,8 @@ class MainViewModel @Inject internal constructor(
     private fun observeOnboarding() {
         settingsStore.onboardingToursSeen
             .onEach { tours ->
-                val welcomeSeen = MAIN_ONBOARDING_WELCOME_ID in tours
                 setState {
-                    copy(
-                        onboardingWelcomePending = !welcomeSeen,
-                        showMainOnboardingTour = welcomeSeen && MAIN_ONBOARDING_TOUR_ID !in tours,
-                    )
+                    copy(showMainOnboardingTour = MAIN_ONBOARDING_TOUR_ID !in tours)
                 }
             }
             .launchIn(viewModelScope)

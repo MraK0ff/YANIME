@@ -37,8 +37,8 @@ internal fun MobilePlayerCenterControls(
                 icon = Icons.Filled.SkipPrevious,
                 contentDescription = stringResource(R.string.player_mobile_previous_episode),
                 onClick = onPrevEpisode,
-                sizeMultiplier = CENTER_SWITCH_SCALE * 0.75f,
-                iconScale = CENTER_SWITCH_ICON_SCALE * 0.75f,
+                sizeMultiplier = CENTER_SWITCH_SCALE,
+                iconScale = CENTER_SWITCH_ICON_SCALE,
                 surface = false,
             )
         }
@@ -51,8 +51,8 @@ internal fun MobilePlayerCenterControls(
             onClick = onPlayPause,
             primary = true,
             loading = loading,
-            sizeMultiplier = 0.99f,
-            iconScale = 0.75f,
+            sizeMultiplier = 1.32f,
+            iconScale = 1f,
             surface = true,
         )
         Box(Modifier.size(CENTER_SWITCH_SLOT), contentAlignment = Alignment.Center) {

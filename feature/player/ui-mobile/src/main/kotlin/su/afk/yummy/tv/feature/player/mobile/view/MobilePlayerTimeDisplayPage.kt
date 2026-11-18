@@ -24,11 +24,12 @@ internal fun MobilePlayerTimeDisplayPage(
     onSettingsChange: (PlayerTimeDisplaySettings) -> Unit,
     onBack: () -> Unit,
 ) {
-    LaunchedEffect(settings.elapsed, settings.duration) {
+    LaunchedEffect(settings.elapsed, settings.duration, settings.separateTimecodes) {
         val elapsed = settings.elapsed.takeUnless { it == PlayerTimeDisplayMode.NEVER } ?: PlayerTimeDisplayMode.CONTROLS
         val duration = settings.duration.takeUnless { it == PlayerTimeDisplayMode.NEVER } ?: PlayerTimeDisplayMode.CONTROLS
-        if (elapsed != settings.elapsed || duration != settings.duration) {
-            onSettingsChange(settings.copy(elapsed = elapsed, duration = duration))
+        val sharedDuration = if (settings.separateTimecodes) duration else elapsed
+        if (elapsed != settings.elapsed || sharedDuration != settings.duration) {
+            onSettingsChange(settings.copy(elapsed = elapsed, duration = sharedDuration))
         }
     }
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -45,7 +46,7 @@ internal fun MobilePlayerTimeDisplayPage(
             label = stringResource(R.string.player_time_display_separate),
             trailing = MobilePlayerMenuRowTrailing.Toggle(settings.separateTimecodes),
             onClick = {
-                onSettingsChange(settings.copy(separateTimecodes = !settings.separateTimecodes))
+                onSettingsChange(settings.copy(separateTimecodes = !settings.separateTimecodes, duration = settings.elapsed))
             },
         )
         if (settings.separateTimecodes) {
@@ -60,6 +61,13 @@ internal fun MobilePlayerTimeDisplayPage(
                 mode = settings.duration,
                 allowNever = false,
                 onSelected = { onSettingsChange(settings.copy(duration = it)) },
+            )
+        } else {
+            TimeDisplayModeRow(
+                label = stringResource(R.string.player_time_display_combined),
+                mode = settings.elapsed,
+                allowNever = false,
+                onSelected = { onSettingsChange(settings.copy(elapsed = it, duration = it)) },
             )
         }
         TimeDisplayModeRow(

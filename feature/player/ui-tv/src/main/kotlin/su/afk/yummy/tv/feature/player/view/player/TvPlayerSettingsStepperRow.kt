@@ -36,7 +36,6 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 
 /**
  * Строка боковой панели ТВ-плеера: название слева, значение справа, ← / → меняют значение на шаг

@@ -75,27 +75,30 @@ internal fun MobilePlayerMenuRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .clip(iconShape)
-                .background(
-                    if (isSelected) MaterialTheme.colorScheme.primaryContainer
-                    else MaterialTheme.colorScheme.surfaceContainerHighest,
-                ),
-            contentAlignment = Alignment.Center,
-        ) {
-            when {
-                isSelected -> Icon(
-                    Icons.Filled.Check,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                )
-                icon != null -> Icon(
-                    icon,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+        if (isSelected || icon != null) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(iconShape)
+                    .background(
+                        if (isSelected) MaterialTheme.colorScheme.primaryContainer
+                        else MaterialTheme.colorScheme.surfaceContainerHighest,
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (isSelected) {
+                    Icon(
+                        Icons.Filled.Check,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    )
+                } else if (icon != null) {
+                    Icon(
+                        icon,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
         }
         Column(modifier = Modifier.weight(1f)) {

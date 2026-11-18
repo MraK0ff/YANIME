@@ -34,6 +34,8 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 
 /**
  * Строка боковой панели ТВ-плеера: название слева, значение справа, ← / → меняют значение на шаг
@@ -98,6 +100,8 @@ internal fun TvPlayerSettingsStepperRow(
                 text = label,
                 style = MaterialTheme.typography.bodyMedium,
                 color = contentColor,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f),
             )
             if (focused) {
@@ -112,6 +116,9 @@ internal fun TvPlayerSettingsStepperRow(
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = contentColor,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.widthIn(max = 156.dp),
             )
             if (focused) {
                 Icon(

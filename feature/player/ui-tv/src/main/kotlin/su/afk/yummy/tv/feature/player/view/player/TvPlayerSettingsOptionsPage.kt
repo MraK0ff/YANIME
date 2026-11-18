@@ -107,24 +107,26 @@ internal fun TvPlayerSettingsOptionsPage(
                     )
                 },
             )
-            TvPlayerSettingsStepperRow(
-                label = stringResource(R.string.player_time_display_elapsed),
-                value = modeLabel(timeDisplaySettings.elapsed),
-                onStep = { direction ->
-                    onTimeDisplaySettingsChange(
-                        timeDisplaySettings.copy(elapsed = nextMode(timeDisplaySettings.elapsed, direction, false)),
-                    )
-                },
-            )
-            TvPlayerSettingsStepperRow(
-                label = stringResource(R.string.player_time_display_duration),
-                value = modeLabel(timeDisplaySettings.duration),
-                onStep = { direction ->
-                    onTimeDisplaySettingsChange(
-                        timeDisplaySettings.copy(duration = nextMode(timeDisplaySettings.duration, direction, false)),
-                    )
-                },
-            )
+            if (timeDisplaySettings.separateTimecodes) {
+                TvPlayerSettingsStepperRow(
+                    label = stringResource(R.string.player_time_display_elapsed),
+                    value = modeLabel(timeDisplaySettings.elapsed),
+                    onStep = { direction ->
+                        onTimeDisplaySettingsChange(
+                            timeDisplaySettings.copy(elapsed = nextMode(timeDisplaySettings.elapsed, direction, false)),
+                        )
+                    },
+                )
+                TvPlayerSettingsStepperRow(
+                    label = stringResource(R.string.player_time_display_duration),
+                    value = modeLabel(timeDisplaySettings.duration),
+                    onStep = { direction ->
+                        onTimeDisplaySettingsChange(
+                            timeDisplaySettings.copy(duration = nextMode(timeDisplaySettings.duration, direction, false)),
+                        )
+                    },
+                )
+            }
             TvPlayerSettingsStepperRow(
                 label = stringResource(R.string.player_time_display_finish_at),
                 value = modeLabel(timeDisplaySettings.finishAt),

@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.feature.account.mobile.account
 
 import android.widget.Toast
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -53,6 +54,7 @@ import su.afk.yummy.tv.core.designsystem.mobile.bar.MobileBottomBarDefaults
 import su.afk.yummy.tv.core.designsystem.mobile.layout.mobileContentMaxWidth
 import su.afk.yummy.tv.core.designsystem.mobile.rememberMobileSwipeableTabsState
 import su.afk.yummy.tv.core.designsystem.mobile.state.MobileMessage
+import su.afk.yummy.tv.core.designsystem.mvi.collectAsEffect
 import su.afk.yummy.tv.core.designsystem.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.feature.account.account.AccountState
 import su.afk.yummy.tv.feature.account.account.model.AccountUiError
@@ -115,17 +117,15 @@ fun AccountMobileScreen(
         }
     }
 
-    LaunchedEffect(effect) {
-        effect.collect { effectItem ->
-            when (effectItem) {
-                AccountState.Effect.HideKeyboard -> {
-                    keyboardController?.hide()
-                    focusManager.clearFocus()
-                }
-
-                AccountState.Effect.ShowCaptchaHint -> Toast.makeText(context, captchaHint, Toast.LENGTH_SHORT).show()
-                AccountState.Effect.DiscardAutofill -> autofillManager?.cancel()
+    effect.collectAsEffect { effectItem ->
+        when (effectItem) {
+            AccountState.Effect.HideKeyboard -> {
+                keyboardController?.hide()
+                focusManager.clearFocus()
             }
+
+            AccountState.Effect.ShowCaptchaHint -> Toast.makeText(context, captchaHint, Toast.LENGTH_SHORT).show()
+            AccountState.Effect.DiscardAutofill -> autofillManager?.cancel()
         }
     }
 
@@ -406,8 +406,10 @@ fun AccountMobileScreen(
                     MobileSwipeableTabsPager(
                         state = tabsState,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
+                            .animateContentSize()
+                            .fillMaxWidth(),
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        pageSpacing = 16.dp,
                         key = { page -> accountTabs[page].name },
                     ) { page ->
                         when (accountTabs[page]) {

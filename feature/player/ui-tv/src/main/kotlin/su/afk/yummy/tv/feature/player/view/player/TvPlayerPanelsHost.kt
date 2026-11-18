@@ -19,6 +19,7 @@ import su.afk.yummy.tv.core.designsystem.utils.balancerFallbackIcon
 import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
 import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.core.model.settings.PlayerZoomLevel
+import su.afk.yummy.tv.core.model.settings.VideoEnhancementMode
 import su.afk.yummy.tv.feature.player.common.utils.formatCompactCount
 import su.afk.yummy.tv.feature.player.model.PanelReturnFocusTarget
 import su.afk.yummy.tv.feature.player.model.PlayerPlaybackUiState

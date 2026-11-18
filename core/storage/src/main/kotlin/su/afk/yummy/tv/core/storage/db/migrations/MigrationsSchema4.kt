@@ -514,3 +514,43 @@ internal val MIGRATION_70_71 = object : Migration(70, 71) {
         )
     }
 }
+
+
+/**
+ * Repairs installs that already recorded version 71 before home_new_release_history
+ * was included in the Room entity schema. Keep existing user data and normalize the
+ * database identity hash to the current generated schema.
+ */
+internal val MIGRATION_71_72 = object : Migration(71, 72) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS home_new_release_history (
+                animeId INTEGER NOT NULL,
+                title TEXT NOT NULL,
+                animeUrl TEXT NOT NULL,
+                description TEXT NOT NULL,
+                episodeNumber INTEGER NOT NULL,
+                episodeTitle TEXT NOT NULL,
+                videoId INTEGER,
+                dubTitle TEXT,
+                playerTitle TEXT,
+                posterSmallUrl TEXT,
+                posterMediumUrl TEXT,
+                posterBigUrl TEXT,
+                posterFullsizeUrl TEXT,
+                posterMegaUrl TEXT,
+                firstSeenAt INTEGER NOT NULL,
+                lastDetectedAt INTEGER NOT NULL,
+                lastUpdatedAt INTEGER NOT NULL,
+                position INTEGER NOT NULL,
+                PRIMARY KEY(animeId)
+            )
+            """.trimIndent()
+        )
+        db.execSQL(
+            "CREATE INDEX IF NOT EXISTS index_home_new_release_history_position " +
+                "ON home_new_release_history(position)"
+        )
+    }
+}

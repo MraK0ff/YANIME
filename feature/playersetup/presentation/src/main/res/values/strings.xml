@@ -48,6 +48,11 @@
     <string name="player_setup_theme_sakura">Sakura</string>
     <string name="player_setup_theme_mint">Mint</string>
     <string name="player_setup_theme_ocean">Ocean</string>
+    <string name="player_setup_theme_lavender">Lavender</string>
+    <string name="player_setup_theme_ruby">Ruby</string>
+    <string name="player_setup_theme_forest">Forest</string>
+    <string name="player_setup_theme_sunset">Sunset</string>
+    <string name="player_setup_theme_gold">Gold</string>
     <string name="player_setup_theme_dynamic">Dynamic (Material You)</string>
     <string name="player_setup_background_system">System</string>
     <string name="player_setup_background_light">Light</string>

@@ -31,14 +31,13 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.components.drawExpressiveWavyTimelineTrack
 import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplayMode
 import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.feature.player.common.model.StepSeekDirection
@@ -252,35 +251,30 @@ private fun PlayerBufferedSlider(
                     .height(32.dp),
             ) {
                 val centerY = size.height / 2f
-                val trackHeight = if (focused) 4.dp.toPx() else 3.dp.toPx()
-                val radius = trackHeight / 2f
-                val end = size.width
-                val played = end * state.value.coerceIn(0f, 1f)
-                val bufferedEnd = end * buffered.coerceIn(state.value.coerceIn(0f, 1f), 1f)
-                drawRoundRect(
-                    color = Color.White.copy(alpha = 0.18f),
-                    topLeft = Offset(0f, centerY - radius),
-                    size = Size(end, trackHeight),
-                    cornerRadius = CornerRadius(radius, radius),
-                )
-                if (bufferedEnd > played) drawRoundRect(
-                    color = Color.White.copy(alpha = 0.34f),
-                    topLeft = Offset(played, centerY - radius),
-                    size = Size(bufferedEnd - played, trackHeight),
-                    cornerRadius = CornerRadius(radius, radius),
-                )
-                if (played > 0f) drawRoundRect(
-                    color = sliderColor,
-                    topLeft = Offset(0f, centerY - radius),
-                    size = Size(played, trackHeight),
-                    cornerRadius = CornerRadius(radius, radius),
+                drawExpressiveWavyTimelineTrack(
+                    progress = state.value,
+                    bufferedProgress = buffered,
+                    playedColor = sliderColor,
+                    focused = focused,
+                    inactiveColor = inactiveTrackColor,
+                    bufferedColor = bufferedColor,
                 )
                 openingRange?.let { range ->
-                    drawRoundRect(
-                        color = focusedColor.copy(alpha = 0.95f),
-                        topLeft = Offset(end * range.start.coerceIn(0f, 1f), centerY - radius),
-                        size = Size(end * (range.endInclusive - range.start).coerceAtLeast(0f), trackHeight),
-                        cornerRadius = CornerRadius(radius, radius),
+                    val markerColor = focusedColor.copy(alpha = 0.95f)
+                    val markerHalfHeight = 5.dp.toPx()
+                    val startX = size.width * range.start.coerceIn(0f, 1f)
+                    val endX = size.width * range.endInclusive.coerceIn(0f, 1f)
+                    drawLine(
+                        color = markerColor,
+                        start = Offset(startX, centerY - markerHalfHeight),
+                        end = Offset(startX, centerY + markerHalfHeight),
+                        strokeWidth = 2.dp.toPx(),
+                    )
+                    drawLine(
+                        color = markerColor,
+                        start = Offset(endX, centerY - markerHalfHeight),
+                        end = Offset(endX, centerY + markerHalfHeight),
+                        strokeWidth = 2.dp.toPx(),
                     )
                 }
             }

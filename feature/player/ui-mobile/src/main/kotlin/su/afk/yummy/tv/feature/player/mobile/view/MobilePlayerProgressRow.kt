@@ -162,16 +162,20 @@ private fun MobilePlayerTimeline(
     enabled: Boolean,
     onValueChange: (Float) -> Unit,
     onValueChangeFinished: () -> Unit,
+    isPlaying: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val playedColor = mobilePlayerTimelinePlayedColor(MaterialTheme.colorScheme.primary)
-    val waveTransition = rememberInfiniteTransition(label = "mobileTimelineWave")
-    val wavePhase = waveTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(durationMillis = 2200, easing = LinearEasing)),
-        label = "mobileTimelineWavePhase",
-    ).value
+    val wavePhase = if (isPlaying) {
+        rememberInfiniteTransition(label = "mobileTimelineWave").animateFloat(
+            initialValue = 0f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(tween(durationMillis = 2200, easing = LinearEasing)),
+            label = "mobileTimelineWavePhase",
+        ).value
+    } else {
+        0f
+    }
     val safeProgress = progress.coerceIn(0f, 1f)
     Box(
         modifier = modifier

@@ -46,7 +46,7 @@
         <string name="player_speed_title">Швидкість</string>
     <string name="player_resize_title">Масштаб</string>
     <string name="player_volume_title">Гучність</string>
-    <string name="player_audio_track_title">Alloha</string>
+    <string name="player_audio_track_title">Аудіодоріжка</string>
     <string name="player_subtitles_off">Вимкнено</string>
     <string name="player_track_fallback">Доріжка %1$d</string>
     <string name="player_quality_meta">Відеопотік</string>

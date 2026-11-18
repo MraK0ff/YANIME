@@ -430,4 +430,7 @@
     <string name="settings_details_section_collections">Подборки</string>
     <string name="settings_details_section_reviews">Рецензии</string>
     <string name="settings_details_section_comments">Комментарии</string>
+    <string name="settings_video_enhancement_off">Выкл.</string>
+    <string name="settings_video_enhancement_sharpen">Резкость</string>
+    <string name="settings_video_enhancement_quality">Восстановление качества</string>
 </resources>

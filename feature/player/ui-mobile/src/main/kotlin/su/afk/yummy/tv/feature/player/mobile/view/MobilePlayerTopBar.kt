@@ -129,7 +129,7 @@ internal fun MobilePlayerTopBar(
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .fillMaxWidth(0.94f)
-                .padding(top = 60.dp),
+                .padding(top = 30.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(0.dp),
         ) {
@@ -140,7 +140,7 @@ internal fun MobilePlayerTopBar(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
@@ -165,7 +165,7 @@ internal fun MobilePlayerTopBar(
                         color = Color.White.copy(alpha = 0.72f),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
                     )
                     Icon(
                         imageVector = if (episodeExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,

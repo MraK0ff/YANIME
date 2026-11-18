@@ -81,10 +81,10 @@ internal fun TvPlayerTimeOverlay(
                 if (showFinish) TvTimeChip(values = listOf(finishAt), finishOnly = true)
             }
             if (showCombinedIdle) {
-                TvTimeChip(text = "${displayTimeMs.millisToClockTime()} / ${durationMs.millisToClockTime()}")
+                TvTimeChip(values = listOf("${displayTimeMs.millisToClockTime()} / ${durationMs.millisToClockTime()}"))
             } else {
-                if (showElapsedIdle) TvTimeChip(text = displayTimeMs.millisToClockTime())
-                if (showDurationIdle) TvTimeChip(text = durationMs.millisToClockTime())
+                if (showElapsedIdle) TvTimeChip(values = listOf(displayTimeMs.millisToClockTime()))
+                if (showDurationIdle) TvTimeChip(values = listOf(durationMs.millisToClockTime()), finishOnly = true)
             }
         }
     }

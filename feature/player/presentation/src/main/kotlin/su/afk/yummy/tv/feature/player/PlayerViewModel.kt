@@ -20,6 +20,7 @@ import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.model.settings.PlayerMobileVideoTransformSettings
 import su.afk.yummy.tv.core.model.settings.PreferredVideoQuality
+import su.afk.yummy.tv.core.model.settings.VideoEnhancementMode
 import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.network.connectivity.NetworkConnectivityMonitor
 import su.afk.yummy.tv.feature.player.PlayerViewModel.Companion.CHANGE_PLAYER_HINT_DELAY_MS
@@ -123,8 +124,32 @@ class PlayerViewModel @AssistedInject internal constructor(
     /** Порядок важен: решения принимает первое поведение, чей `handles` подошёл. */
     private val sourceBehaviors: List<PlayerSourceBehavior> = listOf(allohaSource, defaultSource)
 
+    /**
+     * Живая позиция с секундного тика плеера, ещё не перенесённая в State (`-1` — нет).
+     *
+     * Позицию раз в секунду не кладём в State: каждый новый State перерисовывал бы весь экран плеера,
+     * которому она нужна только стартовым значением нового потока. Она переносится в State перед любым
+     * другим событием ([commitLivePosition]), а чтения вне событий идут через [liveState].
+     */
+    private var livePositionMs = NO_LIVE_POSITION
+    private var liveDurationMs = 0L
+
+    /** [currentState] с ещё не перенесённой живой позицией: для чтений вне [onEvent]. */
+    private val liveState: PlayerState.State
+        get() = currentState.let { state ->
+            if (livePositionMs == NO_LIVE_POSITION) {
+                state
+            } else {
+                state.copy(
+                    resumeFromMs = livePositionMs,
+                    playbackPositionMs = livePositionMs,
+                    playbackDurationMs = liveDurationMs,
+                )
+            }
+        }
+
     private val host = object : PlayerSourceHost {
-        override val state: PlayerState.State get() = currentState
+        override val state: PlayerState.State get() = liveState
         override val scope: CoroutineScope get() = viewModelScope
         override val changePlayerHint: PlayerChangePlayerHint get() = this@PlayerViewModel.changePlayerHint
 
@@ -278,6 +303,7 @@ class PlayerViewModel @AssistedInject internal constructor(
     }
 
     override fun onEvent(event: PlayerState.Event) {
+        if (event !is PlayerState.Event.PlaybackPositionChanged) commitLivePosition()
         when (event) {
             is PlayerState.Event.NavigateToDestination -> loadDestination(event.destination)
 
@@ -630,13 +656,8 @@ class PlayerViewModel @AssistedInject internal constructor(
                 val position = event.positionMs.coerceAtLeast(0L)
                 val duration = event.durationMs.coerceAtLeast(0L)
                 sourceBehaviors.forEach { it.onPlaybackPositionChanged(position) }
-                setState {
-                    copy(
-                        resumeFromMs = position,
-                        playbackPositionMs = position,
-                        playbackDurationMs = duration,
-                    )
-                }
+                livePositionMs = position
+                liveDurationMs = duration
                 if (event.isPlayed) {
                     playbackProgressHandler.recordWatchedTick(currentState, position, duration)
                 }
@@ -655,12 +676,18 @@ class PlayerViewModel @AssistedInject internal constructor(
             is PlayerState.Event.SaveProgress -> {
                 val s = currentState
                 val snapshot = event.snapshot
+                val request = playbackProgressHandler.progressSaveRequest(
+                    state = s,
+                    snapshot = snapshot,
+                    forceRemoteSync = event.forceRemoteSync,
+                    leaving = event.leaving,
+                )
+                // Уход из приложения: запись в app-scope, viewModelScope может отмениться раньше.
+                if (event.leaving) navigation.saveProgress(request)
                 viewModelScope.launch {
                     // Фоновое сохранение: сбой Room не должен уводить на экран ошибки посреди просмотра.
                     runSuspendCatching {
-                        playbackProgressHandler.saveProgress(
-                            playbackProgressHandler.progressSaveRequest(s, snapshot),
-                        )
+                        if (!event.leaving) playbackProgressHandler.saveProgress(request)
                         libraryAutoListHandler.onProgressSaved(
                             animeId = s.animeId,
                             positionMs = snapshot.positionMs,
@@ -676,12 +703,30 @@ class PlayerViewModel @AssistedInject internal constructor(
     private fun activeSourceBehavior(): PlayerSourceBehavior? =
         sourceBehaviors.firstOrNull { it.handles(currentState) }
 
+    /** Переносит живую позицию в State: дальше её читают редьюсеры и UI при смене потока. */
+    private fun commitLivePosition() {
+        if (livePositionMs == NO_LIVE_POSITION) return
+        val position = livePositionMs
+        val duration = liveDurationMs
+        livePositionMs = NO_LIVE_POSITION
+        setState {
+            copy(
+                resumeFromMs = position,
+                playbackPositionMs = position,
+                playbackDurationMs = duration,
+            )
+        }
+    }
+
     private fun resetSourceBehaviors() {
         sourceBehaviors.forEach { it.reset() }
     }
 
     private fun loadDownloadedDestination(downloadId: Long) {
         changePlayerHint.cancel()
+        // Скачанный файл играет без сети: живая сессия онлайн-источника не нужна.
+        sourceStreamHandler.releaseStreamSessions()
+        navigation.saveProgressOnClear(host)
         viewModelScope.launch {
             val item = offlineSources.findDownloaded(downloadId)
             if (item == null) {
@@ -954,8 +999,8 @@ class PlayerViewModel @AssistedInject internal constructor(
             val stateResumeMs = sourceBehaviors
                 .firstNotNullOfOrNull { it.recoveryResumePositionMs() }
                 ?.takeIf { canPreserveCurrent }
-                ?: currentState.playbackPositionMs.takeIf { canPreserveCurrent && it > 0L }
-                ?: currentState.resumeFromMs.takeIf { canPreserveCurrent && it > 0L }
+                ?: liveState.playbackPositionMs.takeIf { canPreserveCurrent && it > 0L }
+                ?: liveState.resumeFromMs.takeIf { canPreserveCurrent && it > 0L }
             val destinationResumeMs = pendingDestinationResumeMs.takeIf { canPreserveCurrent }
             setState {
                 sourceStreamHandler.preparingStreamResolve(
@@ -965,6 +1010,9 @@ class PlayerViewModel @AssistedInject internal constructor(
             }
             val resolveStartedAtMs = System.currentTimeMillis()
             val s = currentState
+            // Переход на другой источник: сокет и отчёты Alloha больше не нужны. Новая Alloha-сессия
+            // сама заменяет прошлую, поэтому закрываем только при уходе с Alloha.
+            if (!allohaSource.handles(s)) sourceStreamHandler.releaseStreamSessions()
             val pendingResume = s.dubbingResumeMs.takeIf { canPreserveCurrent && it > 0L }
                 ?: destinationResumeMs
                 ?: stateResumeMs
@@ -978,8 +1026,8 @@ class PlayerViewModel @AssistedInject internal constructor(
                     selectedQualityOverride = selectedQualityOverride,
                     forceRefresh = forceRefresh,
                     retryAttempts = sourceBehaviors.maxOfOrNull { it.retryAttempts } ?: 0,
-                    positionMs = { currentState.playbackPositionMs },
-                    durationMs = { currentState.playbackDurationMs },
+                    positionMs = { liveState.playbackPositionMs },
+                    durationMs = { liveState.playbackDurationMs },
                     onStatus = { status ->
                         setState { withResolveStep(status, System.currentTimeMillis() - resolveStartedAtMs) }
                     },
@@ -1057,6 +1105,7 @@ class PlayerViewModel @AssistedInject internal constructor(
     override fun onCleared() {
         resetSourceBehaviors()
         changePlayerHint.cancel()
+        sourceStreamHandler.releaseStreamSessions()
         super.onCleared()
     }
 
@@ -1064,3 +1113,5 @@ class PlayerViewModel @AssistedInject internal constructor(
         private const val CHANGE_PLAYER_HINT_DELAY_MS = 10_000L
     }
 }
+
+private const val NO_LIVE_POSITION = -1L

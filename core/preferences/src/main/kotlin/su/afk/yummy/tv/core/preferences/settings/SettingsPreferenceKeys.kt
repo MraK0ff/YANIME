@@ -40,6 +40,7 @@ internal object SettingsPreferenceKeys {
         intPreferencesKey("player_controls_auto_hide_seconds")
 
     val pictureInPictureEnabledKey = booleanPreferencesKey("picture_in_picture_enabled")
+
     /** Нужно ли удерживать кнопку разблокировки экрана (иначе разблокировка по тапу). */
     val holdToConfirmEnabledKey = booleanPreferencesKey("hold_to_confirm_enabled")
     val playerOrientationModeKey = stringPreferencesKey("player_orientation_mode")
@@ -68,6 +69,11 @@ internal object SettingsPreferenceKeys {
     val playerTimeDisplaySettingsKey = stringPreferencesKey("player_time_display_settings")
     val volumeStabilizationEnabledKey =
         booleanPreferencesKey("volume_stabilization_enabled")
+
+    /** Старый флаг Deblur: читается только для переноса в [videoEnhancementModeKey]. */
+    val deblurEnabledKey =
+        booleanPreferencesKey("deblur_enabled")
+    val videoEnhancementModeKey = stringPreferencesKey("video_enhancement_mode")
     val audioFocusDisabledKey =
         booleanPreferencesKey("audio_focus_disabled")
     val playerBufferProfileKey = stringPreferencesKey("player_buffer_profile")
@@ -81,6 +87,7 @@ internal object SettingsPreferenceKeys {
     val subtitleEdgeKey = stringPreferencesKey("subtitle_edge")
     val libraryTabOrderKey = stringPreferencesKey("library_tab_order")
     val homeBlocksKey = stringPreferencesKey("home_blocks")
+    val detailsSectionsKey = stringPreferencesKey("details_sections")
     val hiddenRecommendationIdsKey = stringSetPreferencesKey("hidden_recommendation_ids")
     val appThemeKey = stringPreferencesKey("app_theme")
     val backgroundStyleKey = stringPreferencesKey("background_style")
@@ -102,7 +109,7 @@ internal object SettingsPreferenceKeys {
     val communityPromptFirstUseTimeMsKey =
         longPreferencesKey("community_prompt_first_use_time_ms")
     val boostyPromptDismissedKey = booleanPreferencesKey("boosty_prompt_dismissed")
-    val lastSeenAnnouncementIdKey =stringPreferencesKey("last_seen_announcement_id")
+    val lastSeenAnnouncementIdKey = stringPreferencesKey("last_seen_announcement_id")
     val notificationPermissionRequestedKey =
         booleanPreferencesKey("notification_permission_requested")
     val episodePushPromptShownKey = booleanPreferencesKey("episode_push_prompt_shown")
@@ -111,7 +118,6 @@ internal object SettingsPreferenceKeys {
         booleanPreferencesKey("preview_channel_prompt_answered")
     val detailsSectionsHintDismissedKey =
         booleanPreferencesKey("details_sections_hint_dismissed")
-    val onboardingWelcomeSeenKey = booleanPreferencesKey("onboarding_welcome_seen")
     val onboardingToursSeenKey = stringSetPreferencesKey("onboarding_tours_seen")
     val videoExportDirectoryUriKey = stringPreferencesKey("video_export_directory_uri")
     val videoExportDirectoryNameKey = stringPreferencesKey("video_export_directory_name")
@@ -149,6 +155,7 @@ internal object SettingsPreferenceKeys {
     val torrServerUserKey = stringPreferencesKey("torrserver_user")
     val torrServerPasswordKey = stringPreferencesKey("torrserver_password")
     val torrentIndexerKey = stringPreferencesKey("torrent_indexer")
+
     /** Адрес JacRed (раньше — общий адрес индексатора). */
     val torrentIndexerUrlKey = stringPreferencesKey("torrent_indexer_url")
     val jacRedEnabledKey = booleanPreferencesKey("torrent_jacred_enabled")

@@ -430,4 +430,7 @@
     <string name="settings_details_section_collections">Добірки</string>
     <string name="settings_details_section_reviews">Рецензії</string>
     <string name="settings_details_section_comments">Коментарі</string>
+    <string name="settings_video_enhancement_off">Вимк.</string>
+    <string name="settings_video_enhancement_sharpen">Різкість</string>
+    <string name="settings_video_enhancement_quality">Відновлення якості</string>
 </resources>

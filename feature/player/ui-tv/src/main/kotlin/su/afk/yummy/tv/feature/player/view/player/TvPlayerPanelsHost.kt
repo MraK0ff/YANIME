@@ -59,6 +59,8 @@ internal fun BoxScope.TvPlayerPanelsHost(
     onTimeDisplaySettingsChange: (PlayerTimeDisplaySettings) -> Unit,
     onVolumeChange: (Int) -> Unit,
     onStabilizationChange: (Boolean) -> Unit,
+    videoEnhancementMode: VideoEnhancementMode,
+    onVideoEnhancementModeChange: (VideoEnhancementMode) -> Unit,
     onAdaptiveQualityChange: (Boolean) -> Unit,
     onAudioTrackSelected: (index: Int) -> Unit,
     onSubtitleTrackSelected: (index: Int) -> Unit,

@@ -236,14 +236,8 @@ private fun PlayerBufferedSlider(
         onValueChangeFinished = onValueChangeFinished,
         modifier = modifier,
         colors = colors,
-        thumb = {
-            Canvas(Modifier.size(if (focused) 14.dp else 10.dp)) {
-                drawCircle(
-                    color = sliderColor,
-                    radius = size.minDimension / 2f,
-                )
-            }
-        },
+        // No detached thumb: the wave and buffered rail meet at one continuous baseline.
+        thumb = {},
         track = { state ->
             Canvas(
                 Modifier

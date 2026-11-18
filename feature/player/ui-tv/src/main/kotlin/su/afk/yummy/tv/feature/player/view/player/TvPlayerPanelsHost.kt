@@ -20,6 +20,7 @@ import su.afk.yummy.tv.core.designsystem.utils.balancerLogoRes
 import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
 import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.core.model.settings.PlayerZoomLevel
+import su.afk.yummy.tv.feature.player.common.utils.formatCompactCount
 import su.afk.yummy.tv.feature.player.model.PanelReturnFocusTarget
 import su.afk.yummy.tv.feature.player.model.PlayerPlaybackUiState
 import su.afk.yummy.tv.feature.player.model.TvPlayerFocusRequesters
@@ -161,7 +162,7 @@ internal fun BoxScope.TvPlayerPanelsHost(
             }
         },
         modifier = Modifier
-            .align(if (panels.isOpen(TvPlayerPanel.Balancer)) Alignment.BottomStart else Alignment.BottomStart)
+            .align(Alignment.BottomStart)
             .padding(start = 48.dp, bottom = 72.dp),
         onItemSelected = { index ->
             if (index < dubbingCount) onDubbingSelected(index) else onBalancerSelected(index - dubbingCount)

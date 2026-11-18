@@ -613,6 +613,15 @@ class PlayerViewModel @AssistedInject internal constructor(
             is PlayerState.Event.AdaptiveQualityToggled ->
                 preferences.setAdaptiveQuality(host, event.enabled)
 
+            PlayerState.Event.VideoEnhancementOverloaded -> {
+                if (currentState.videoEnhancementMode != VideoEnhancementMode.OFF) {
+                    setEffect(PlayerState.Effect.ShowToast(strings.get(R.string.player_toast_video_enhancement_overload)))
+                }
+            }
+
+            is PlayerState.Event.VideoEnhancementModeSelected ->
+                preferences.setVideoEnhancementMode(host, event.mode)
+
             is PlayerState.Event.VolumeStabilizationToggled ->
                 preferences.setVolumeStabilization(host, event.enabled)
 

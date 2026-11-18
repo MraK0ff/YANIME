@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 
 internal enum class TvPlayerPanel {
     Quality,
+    Speed,
     Dubbing,
     Balancer,
     Episodes,

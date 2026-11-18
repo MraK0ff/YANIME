@@ -503,7 +503,7 @@ internal fun TvExoPlayerView(
             animeTitle = state.animeTitle,
             episode = playback.activeEpisode,
             dubbing = playback.activeDubbingLabel,
-            modifier = Modifier.align(Alignment.TopStart),
+            modifier = Modifier.align(Alignment.TopCenter),
         )
 
         TvPlayerNameBadge(

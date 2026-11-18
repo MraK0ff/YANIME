@@ -15,7 +15,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -132,7 +131,7 @@ internal fun MobilePlayerProgressRow(
                         maxLines = 1,
                     )
                     Icon(
-                        imageVector = Settings,
+                        imageVector = Icons.Filled.Settings,
                         contentDescription = null,
                         tint = Color.White,
                         modifier = Modifier.size(20.dp).clickable(onClick = onMoreActions),

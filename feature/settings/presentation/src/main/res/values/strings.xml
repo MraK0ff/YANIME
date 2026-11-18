@@ -433,4 +433,7 @@ Search indexer: https://jac-red.ru or Jackett: https://github.com/jackett/jacket
     <string name="settings_details_section_collections">Collections</string>
     <string name="settings_details_section_reviews">Reviews</string>
     <string name="settings_details_section_comments">Comments</string>
+    <string name="settings_video_enhancement_off">Off</string>
+    <string name="settings_video_enhancement_sharpen">Sharpen</string>
+    <string name="settings_video_enhancement_quality">Quality restoration</string>
 </resources>

@@ -22,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
@@ -35,6 +34,7 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.components.drawExpressiveWavyTimelineTrack
 import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.core.utils.formatting.millisToClockTime
 
@@ -202,38 +202,16 @@ private fun MobilePlayerTimeline(
     ) {
         Canvas(Modifier.fillMaxWidth().height(32.dp)) {
             val centerY = size.height / 2f
-            val stroke = 3.dp.toPx()
-            val radius = stroke / 2f
-            val endX = size.width
-            val playedX = endX * safeProgress
-            val bufferedX = endX * bufferedProgress.coerceIn(safeProgress, 1f)
-            drawRoundRect(
-                color = unplayedColor,
-                topLeft = Offset(0f, centerY - radius),
-                size = Size(endX, stroke),
-                cornerRadius = androidx.compose.ui.geometry.CornerRadius(radius, radius),
+            drawExpressiveWavyTimelineTrack(
+                progress = safeProgress,
+                bufferedProgress = bufferedProgress,
+                playedColor = playedColor,
             )
-            if (bufferedX > playedX) {
-                drawRoundRect(
-                    color = bufferedColor,
-                    topLeft = Offset(playedX, centerY - radius),
-                    size = Size(bufferedX - playedX, stroke),
-                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(radius, radius),
-                )
-            }
-            if (playedX > 0f) {
-                drawRoundRect(
-                    color = playedColor,
-                    topLeft = Offset(0f, centerY - radius),
-                    size = Size(playedX, stroke),
-                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(radius, radius),
-                )
-            }
             if (enabled) {
                 drawCircle(
                     color = playedColor,
-                    radius = 5.dp.toPx(),
-                    center = Offset(playedX.coerceIn(0f, endX), centerY),
+                    radius = 3.5.dp.toPx(),
+                    center = Offset(size.width * safeProgress, centerY),
                 )
             }
         }

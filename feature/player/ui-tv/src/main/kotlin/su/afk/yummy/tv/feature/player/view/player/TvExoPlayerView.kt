@@ -536,6 +536,7 @@ internal fun TvExoPlayerView(
             focus = focus,
             progress = progress,
             timeDisplaySettings = state.timeDisplaySettings,
+            videoEnhancementMode = state.videoEnhancementMode,
             wantsPlay = playbackShouldPlay,
             playback = playback,
             animeTitle = state.animeTitle,

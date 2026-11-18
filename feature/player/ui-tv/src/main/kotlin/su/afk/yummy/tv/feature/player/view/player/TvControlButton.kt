@@ -5,7 +5,8 @@ import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -29,9 +30,11 @@ import su.afk.yummy.tv.core.designsystem.theme.YummyMotion
 import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.feature.player.common.view.autoSkipProgressFill
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun TvControlButton(
     onClick: () -> Unit,
+    onLongClick: (() -> Unit)? = null,
     onFocused: () -> Unit = {},
     focusRequester: FocusRequester? = null,
     modifier: Modifier = Modifier,
@@ -78,7 +81,12 @@ internal fun TvControlButton(
             .border(1.dp, borderColor, shape)
             .background(bgColor, shape)
             .autoSkipProgressFill(fillProgress, textColor.copy(alpha = 0.22f), 8.dp)
-            .clickable(interactionSource = interactionSource, indication = null, onClick = onClick)
+            .combinedClickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick,
+                onLongClick = onLongClick,
+            )
             .padding(contentPadding),
     ) {
         content(textColor)

@@ -53,11 +53,11 @@ internal fun MobilePlayerProgressRow(
     onTrackSettings: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
-    // 72 dp: timeline center is 48 dp above the bottom edge; metadata is centered at 24 dp.
+    // Symmetric layout: timecode at the top, timeline below it, with matching outer spacing.
     Box(
         modifier = modifier
             .fillMaxWidth(videoWidthFraction.coerceIn(0.1f, 1f))
-            .height(72.dp),
+            .height(88.dp),
     ) {
         Box(
             modifier = Modifier.fillMaxSize().offset(y = -videoBottomInset).padding(horizontal = 20.dp),
@@ -69,15 +69,15 @@ internal fun MobilePlayerProgressRow(
                 onValueChange = onSeekChange,
                 onValueChangeFinished = onSeekFinished,
                 modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = 8.dp)
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 8.dp)
                     .fillMaxWidth()
                     .height(32.dp),
             )
             Box(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .padding(top = 32.dp)
+                    .padding(top = 8.dp)
                     .fillMaxWidth()
                     .height(32.dp),
             ) {

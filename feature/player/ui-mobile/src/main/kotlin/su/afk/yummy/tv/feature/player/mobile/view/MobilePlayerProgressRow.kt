@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -51,6 +53,11 @@ internal fun MobilePlayerProgressRow(
     dubbingLabel: String = "",
     balancerLabel: String = "",
     onTrackSettings: () -> Unit = {},
+    qualityLabel: String = "",
+    selectedSpeed: Float = 1f,
+    onQualityClick: () -> Unit = {},
+    onSpeedClick: () -> Unit = {},
+    onMoreActions: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     // Symmetric layout: timecode at the top, timeline below it, with matching outer spacing.
@@ -108,39 +115,28 @@ internal fun MobilePlayerProgressRow(
                     horizontalArrangement = Arrangement.spacedBy(7.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    if (dubbingLabel.isNotBlank()) {
+                    if (qualityLabel.isNotBlank()) {
                         Text(
-                            text = dubbingLabel,
-                            modifier = Modifier.clickable(onClick = onTrackSettings),
+                            text = qualityLabel,
+                            modifier = Modifier.clickable(onClick = onQualityClick),
                             style = MaterialTheme.typography.labelMedium,
-                            color = Color.White.copy(alpha = 0.82f),
+                            color = Color.White.copy(alpha = 0.9f),
                             maxLines = 1,
-                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                         )
                     }
-                    if (dubbingLabel.isNotBlank() && balancerLabel.isNotBlank()) {
-                        Text("|", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.32f))
-                    }
-                    if (balancerLabel.isNotBlank()) {
-                        Row(
-                            modifier = Modifier.clickable(onClick = onTrackSettings),
-                            horizontalArrangement = Arrangement.spacedBy(1.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                text = balancerLabel,
-                                style = MaterialTheme.typography.labelMedium,
-                                color = Color.White.copy(alpha = 0.78f),
-                                maxLines = 1,
-                            )
-                            Icon(
-                                imageVector = Icons.Filled.KeyboardArrowDown,
-                                contentDescription = null,
-                                tint = Color.White.copy(alpha = 0.72f),
-                                modifier = Modifier.size(18.dp),
-                            )
-                        }
-                    }
+                    Text(
+                        text = if (selectedSpeed % 1f == 0f) "${selectedSpeed.toInt()}x" else "${selectedSpeed}x",
+                        modifier = Modifier.clickable(onClick = onSpeedClick),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = Color.White.copy(alpha = 0.9f),
+                        maxLines = 1,
+                    )
+                    Icon(
+                        imageVector = Settings,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp).clickable(onClick = onMoreActions),
+                    )
                 }
             }
         }

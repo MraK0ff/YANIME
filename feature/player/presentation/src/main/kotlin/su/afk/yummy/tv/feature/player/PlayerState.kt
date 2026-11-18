@@ -10,6 +10,7 @@ import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleStyleSettings
 import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.core.model.settings.PlayerZoomLevel
+import su.afk.yummy.tv.core.model.settings.VideoEnhancementMode
 import su.afk.yummy.tv.core.mvi.UiEffect
 import su.afk.yummy.tv.core.mvi.UiEvent
 import su.afk.yummy.tv.core.mvi.UiState
@@ -99,6 +100,8 @@ class PlayerState {
         val tvPlayerVolumeKeysEnabled: Boolean = false,
         val advancedPlayerVolumeEnabled: Boolean = false,
         val volumeStabilizationEnabled: Boolean = false,
+        /** Улучшение картинки: выключено, резкость или Anime4K. */
+        val videoEnhancementMode: VideoEnhancementMode = VideoEnhancementMode.OFF,
         /** DynamicsProcessing есть только с API 28 — ниже тумблер стабилизации не показываем. */
         val volumeStabilizationSupported: Boolean = PlatformInfo.isAtLeastPie,
         val mobileVideoScale: Float = 1f,
@@ -261,7 +264,13 @@ class PlayerState {
         ) : Event
 
         /** Плеер запросил сохранение снимка прогресса просмотра. */
-        data class SaveProgress(val snapshot: PlayerProgressSnapshot) : Event
+        data class SaveProgress(
+            val snapshot: PlayerProgressSnapshot,
+            /** Отправить на сервер сразу, минуя интервал плановой синхронизации (пауза, уход в фон). */
+            val forceRemoteSync: Boolean = false,
+            /** Уход из приложения (ON_PAUSE): отправка через очередь мутаций, переживает смерть процесса. */
+            val leaving: Boolean = false,
+        ) : Event
 
         /** Пользователь выбрал пропуск сегмента указанного типа и диапазона. */
         data class SkipSegmentSelected(

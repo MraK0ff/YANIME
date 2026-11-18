@@ -160,9 +160,6 @@ private fun MobilePlayerTimeline(
     modifier: Modifier = Modifier,
 ) {
     val playedColor = mobilePlayerTimelinePlayedColor(MaterialTheme.colorScheme.primary)
-    val bufferedColor = Color.White.copy(alpha = 0.34f)
-    // Keep the inactive rail quiet so the played segment remains the visual anchor.
-    val unplayedColor = Color.White.copy(alpha = 0.18f)
     val safeProgress = progress.coerceIn(0f, 1f)
     Box(
         modifier = modifier

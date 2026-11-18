@@ -38,8 +38,9 @@ internal fun TvPlayerTimeOverlay(
 ) {
     val showClock = settings.systemClock.shouldShow(controlsActive)
     val showFinish = durationMs > 0L && settings.finishAt.shouldShow(controlsActive)
-    val showElapsedIdle = !controlsActive && settings.elapsed == PlayerTimeDisplayMode.ALWAYS && durationMs > 0L
-    val showDurationIdle = !controlsActive && settings.duration == PlayerTimeDisplayMode.ALWAYS && durationMs > 0L
+    val showCombinedIdle = !settings.separateTimecodes && !controlsActive && settings.elapsed == PlayerTimeDisplayMode.ALWAYS && durationMs > 0L
+    val showElapsedIdle = settings.separateTimecodes && !controlsActive && settings.elapsed == PlayerTimeDisplayMode.ALWAYS && durationMs > 0L
+    val showDurationIdle = settings.separateTimecodes && !controlsActive && settings.duration == PlayerTimeDisplayMode.ALWAYS && durationMs > 0L
     var nowMs by remember { mutableLongStateOf(System.currentTimeMillis()) }
 
     LaunchedEffect(showClock, showFinish) {
@@ -73,7 +74,7 @@ internal fun TvPlayerTimeOverlay(
                     .padding(end = 40.dp, top = 88.dp),
             )
         }
-        if (showElapsedIdle && showDurationIdle && !settings.separateTimecodes) {
+        if (showCombinedIdle) {
             TvTimeChip(
                 text = "${displayTimeMs.millisToClockTime()} / ${durationMs.millisToClockTime()}",
                 modifier = Modifier

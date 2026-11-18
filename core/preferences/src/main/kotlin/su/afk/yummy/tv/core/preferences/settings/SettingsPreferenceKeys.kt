@@ -145,10 +145,6 @@ internal object SettingsPreferenceKeys {
         stringSetPreferencesKey("episode_push_known_notification_ids")
     val episodePushKnownSubscribedEpisodesKey =
         stringSetPreferencesKey("episode_push_known_subscribed_episodes")
-    /** Старый флаг Deblur: читается только для переноса в [videoEnhancementModeKey]. */
-    val deblurEnabledKey =
-        booleanPreferencesKey("deblur_enabled")
-    val videoEnhancementModeKey = stringPreferencesKey("video_enhancement_mode")
 
     val torrentEnabledKey = booleanPreferencesKey("torrent_enabled")
     val torrServerUrlKey = stringPreferencesKey("torrserver_url")

@@ -126,6 +126,15 @@ internal fun TvPlayerSettingsOptionsPage(
                         )
                     },
                 )
+            } else {
+                TvPlayerSettingsStepperRow(
+                    label = stringResource(R.string.player_time_display_combined),
+                    value = modeLabel(timeDisplaySettings.elapsed),
+                    onStep = { direction ->
+                        val mode = nextMode(timeDisplaySettings.elapsed, direction, false)
+                        onTimeDisplaySettingsChange(timeDisplaySettings.copy(elapsed = mode, duration = mode))
+                    },
+                )
             }
             TvPlayerSettingsStepperRow(
                 label = stringResource(R.string.player_time_display_finish_at),
@@ -143,7 +152,7 @@ internal fun TvPlayerSettingsOptionsPage(
                 showChevron = false,
                 onClick = {
                     onTimeDisplaySettingsChange(
-                        timeDisplaySettings.copy(separateTimecodes = !timeDisplaySettings.separateTimecodes),
+                        timeDisplaySettings.copy(separateTimecodes = !timeDisplaySettings.separateTimecodes, duration = timeDisplaySettings.elapsed),
                     )
                 },
             )

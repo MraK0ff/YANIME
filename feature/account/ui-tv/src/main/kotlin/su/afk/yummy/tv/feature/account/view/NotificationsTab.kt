@@ -44,6 +44,7 @@ import su.afk.yummy.tv.feature.account.presentation.R
 import su.afk.yummy.tv.feature.account.utils.accountErrorMessage
 import su.afk.yummy.tv.feature.account.common.utils.isEmpty
 import su.afk.yummy.tv.feature.account.common.utils.label
+import su.afk.yummy.tv.core.designsystem.focus.tvBackKeyForwarding
 
 @Composable
 internal fun NotificationsTab(
@@ -223,6 +224,7 @@ internal fun NotificationsTab(
     if (notificationsTabState.showReadAllConfirm) {
         AlertDialog(
             onDismissRequest = { notificationsTabState.showReadAllConfirm = false },
+            modifier = Modifier.tvBackKeyForwarding(),
             title = { Text(stringResource(R.string.account_mark_all_read_title)) },
             text = { Text(stringResource(R.string.account_mark_all_read_message)) },
             confirmButton = {
@@ -242,6 +244,7 @@ internal fun NotificationsTab(
     if (notificationsTabState.showDeleteAllConfirm) {
         AlertDialog(
             onDismissRequest = { notificationsTabState.showDeleteAllConfirm = false },
+            modifier = Modifier.tvBackKeyForwarding(),
             title = { Text(stringResource(R.string.account_delete_all_notifications_title)) },
             text = { Text(stringResource(R.string.account_delete_all_notifications_message)) },
             confirmButton = {

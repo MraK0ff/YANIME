@@ -1,6 +1,10 @@
 package su.afk.yummy.tv.feature.player.view.player
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
@@ -205,6 +209,13 @@ private fun PlayerBufferedSlider(
 ) {
     val activeProgress = value.coerceIn(0f, 1f)
     val buffered = bufferedProgress.coerceIn(activeProgress, 1f)
+    val waveTransition = rememberInfiniteTransition(label = "tvTimelineWave")
+    val wavePhase = waveTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(durationMillis = 2200, easing = LinearEasing)),
+        label = "tvTimelineWavePhase",
+    ).value
     val focusedColor = MaterialTheme.colorScheme.primary
     val sliderColor by animateColorAsState(
         targetValue = focusedColor,
@@ -252,6 +263,7 @@ private fun PlayerBufferedSlider(
                     focused = focused,
                     inactiveColor = inactiveTrackColor,
                     bufferedColor = bufferedColor,
+                    wavePhase = wavePhase,
                 )
                 openingRange?.let { range ->
                     val markerColor = focusedColor.copy(alpha = 0.95f)

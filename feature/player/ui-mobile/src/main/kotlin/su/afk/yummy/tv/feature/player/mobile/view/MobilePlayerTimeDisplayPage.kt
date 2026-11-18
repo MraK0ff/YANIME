@@ -43,6 +43,13 @@ internal fun MobilePlayerTimeDisplayPage(
             onSelected = { onSettingsChange(settings.copy(systemClock = it)) },
         )
         MobilePlayerMenuRow(
+            label = stringResource(R.string.player_time_display_combine_clock_finish),
+            trailing = MobilePlayerMenuRowTrailing.Toggle(settings.combineClockAndFinishAt),
+            onClick = {
+                onSettingsChange(settings.copy(combineClockAndFinishAt = !settings.combineClockAndFinishAt))
+            },
+        )
+        MobilePlayerMenuRow(
             label = stringResource(R.string.player_time_display_separate),
             trailing = MobilePlayerMenuRowTrailing.Toggle(settings.separateTimecodes),
             onClick = {

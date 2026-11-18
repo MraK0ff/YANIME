@@ -128,7 +128,13 @@ internal fun SettingsTvPlayerContent(
     val enhancementModes = VideoEnhancementMode.entries
     SettingsSliderRow(
         label = stringResource(R.string.settings_video_enhancement_label),
-        valueText = state.videoEnhancementMode.label(),
+        valueText = stringResource(
+            when (state.videoEnhancementMode) {
+                VideoEnhancementMode.OFF -> R.string.settings_video_enhancement_off
+                VideoEnhancementMode.SHARPEN -> R.string.settings_video_enhancement_sharpen
+                VideoEnhancementMode.QUALITY -> R.string.settings_video_enhancement_quality
+            },
+        ),
         value = enhancementModes.indexOf(state.videoEnhancementMode).coerceAtLeast(0),
         valueRange = 0..enhancementModes.lastIndex,
         enabled = true,

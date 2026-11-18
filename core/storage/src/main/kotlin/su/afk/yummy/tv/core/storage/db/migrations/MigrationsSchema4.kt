@@ -554,3 +554,45 @@ internal val MIGRATION_71_72 = object : Migration(71, 72) {
         )
     }
 }
+
+
+/**
+ * Recreates the account notification cache using the current Room entity definition.
+ * Older builds could leave this cache table with an incompatible column layout.
+ * Notifications are server-backed cache data and will be fetched again after migration.
+ */
+internal val MIGRATION_72_73 = object : Migration(72, 73) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("DROP TABLE IF EXISTS account_notifications")
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS account_notifications (
+                userId INTEGER NOT NULL,
+                language TEXT NOT NULL,
+                `limit` INTEGER NOT NULL,
+                `offset` INTEGER NOT NULL,
+                position INTEGER NOT NULL,
+                notificationId INTEGER NOT NULL,
+                dateSeconds INTEGER NOT NULL,
+                title TEXT NOT NULL,
+                text TEXT NOT NULL,
+                clickUri TEXT NOT NULL,
+                type TEXT NOT NULL,
+                subType TEXT NOT NULL,
+                viewed INTEGER NOT NULL,
+                objectId INTEGER,
+                animeSlug TEXT,
+                isNewEpisode INTEGER NOT NULL,
+                linksJson TEXT NOT NULL DEFAULT '[]',
+                subjectTitle TEXT,
+                animeId INTEGER,
+                PRIMARY KEY(userId, language, `limit`, `offset`, position)
+            )
+            """.trimIndent()
+        )
+        db.execSQL(
+            "CREATE INDEX IF NOT EXISTS index_account_notifications_page " +
+                "ON account_notifications(userId, language, `limit`, `offset`)"
+        )
+    }
+}

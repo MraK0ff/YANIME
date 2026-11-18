@@ -55,6 +55,8 @@ internal fun TvPlayerEpisodeRow(
     speeds: List<Float>,
     activeSpeed: Float,
     onCycleSpeed: () -> Unit,
+    onOpenSpeedPanel: () -> Unit,
+    speedFocusRequester: FocusRequester? = null,
     adaptiveQuality: Boolean,
     qualityFocusRequester: FocusRequester? = null,
     dubbingFocusRequester: FocusRequester? = null,
@@ -117,7 +119,9 @@ internal fun TvPlayerEpisodeRow(
         if (speeds.isNotEmpty()) {
             TvControlButton(
                 onClick = onCycleSpeed,
+                onLongClick = onOpenSpeedPanel,
                 onFocused = onInteraction,
+                focusRequester = speedFocusRequester,
                 modifier = Modifier.focusProperties { up = upFocusRequester },
             ) { color ->
                 Text(

@@ -33,6 +33,8 @@ import su.afk.yummy.tv.feature.playersetup.navigator.PlayerSetupDestination
 import su.afk.yummy.tv.feature.update.navigator.UpdateDestination
 import javax.inject.Inject
 
+private const val MAIN_ONBOARDING_WELCOME_ID = "main_onboarding_welcome"
+
 @HiltViewModel
 class MainViewModel @Inject internal constructor(
     override val errorHandler: ErrorHandler,

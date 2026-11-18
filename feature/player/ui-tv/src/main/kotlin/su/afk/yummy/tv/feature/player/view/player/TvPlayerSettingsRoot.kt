@@ -68,7 +68,7 @@ internal fun TvPlayerSettingsRoot(
             when (videoEnhancementMode) {
                 VideoEnhancementMode.OFF -> R.string.player_toggle_off
                 VideoEnhancementMode.SHARPEN -> R.string.player_video_enhancement_sharpen
-                VideoEnhancementMode.ANIME4K -> R.string.player_video_enhancement_quality
+                VideoEnhancementMode.QUALITY -> R.string.player_video_enhancement_quality
             },
         ),
     )

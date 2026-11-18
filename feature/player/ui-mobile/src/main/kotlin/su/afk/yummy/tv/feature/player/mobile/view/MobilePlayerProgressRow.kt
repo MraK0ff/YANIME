@@ -14,6 +14,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.HighQuality
+import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -75,15 +77,15 @@ internal fun MobilePlayerProgressRow(
                 onValueChange = onSeekChange,
                 onValueChangeFinished = onSeekFinished,
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 8.dp)
+                    .align(Alignment.TopCenter)
+                    .padding(top = 8.dp)
                     .fillMaxWidth()
                     .height(32.dp),
             )
             Box(
                 modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = 8.dp)
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 16.dp)
                     .fillMaxWidth()
                     .height(32.dp),
             ) {
@@ -111,31 +113,36 @@ internal fun MobilePlayerProgressRow(
                 }
                 Row(
                     modifier = Modifier.align(Alignment.CenterEnd),
-                    horizontalArrangement = Arrangement.spacedBy(7.dp),
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    if (qualityLabel.isNotBlank()) {
+                    Row(
+                        modifier = Modifier.height(40.dp).clickable(onClick = onQualityClick).padding(horizontal = 5.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        Icon(Icons.Filled.HighQuality, contentDescription = null, tint = Color.White, modifier = Modifier.size(21.dp))
+                        Text(qualityLabel, style = MaterialTheme.typography.labelLarge, color = Color.White, maxLines = 1)
+                    }
+                    Row(
+                        modifier = Modifier.height(40.dp).clickable(onClick = onSpeedClick).padding(horizontal = 5.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        Icon(Icons.Filled.Speed, contentDescription = null, tint = Color.White, modifier = Modifier.size(21.dp))
                         Text(
-                            text = qualityLabel,
-                            modifier = Modifier.clickable(onClick = onQualityClick),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = Color.White.copy(alpha = 0.9f),
+                            text = if (selectedSpeed % 1f == 0f) "${selectedSpeed.toInt()}x" else "${selectedSpeed}x",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = Color.White,
                             maxLines = 1,
                         )
                     }
-                    Text(
-                        text = if (selectedSpeed % 1f == 0f) "${selectedSpeed.toInt()}x" else "${selectedSpeed}x",
-                        modifier = Modifier.clickable(onClick = onSpeedClick),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Color.White.copy(alpha = 0.9f),
-                        maxLines = 1,
-                    )
-                    Icon(
-                        imageVector = Icons.Filled.Settings,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(20.dp).clickable(onClick = onMoreActions),
-                    )
+                    Box(
+                        modifier = Modifier.size(40.dp).clickable(onClick = onMoreActions),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(Icons.Filled.Settings, contentDescription = null, tint = Color.White, modifier = Modifier.size(24.dp))
+                    }
                 }
             }
         }

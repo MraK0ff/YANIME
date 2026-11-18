@@ -196,6 +196,8 @@ internal fun BoxScope.TvPlayerPanelsHost(
         onResizeModeSelected = onResizeModeSelected,
         onZoomLevelSelected = onZoomLevelSelected,
         timeDisplaySettings = timeDisplaySettings,
+        videoEnhancementMode = videoEnhancementMode,
+        onVideoEnhancementModeChange = onVideoEnhancementModeChange,
         onTimeDisplaySettingsChange = onTimeDisplaySettingsChange,
         showVolume = showVolume,
         volumePercent = volumePercent,

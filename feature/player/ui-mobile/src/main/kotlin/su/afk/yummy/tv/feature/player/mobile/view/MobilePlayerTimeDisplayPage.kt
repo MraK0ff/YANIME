@@ -48,18 +48,20 @@ internal fun MobilePlayerTimeDisplayPage(
                 onSettingsChange(settings.copy(separateTimecodes = !settings.separateTimecodes))
             },
         )
-        TimeDisplayModeRow(
-            label = stringResource(R.string.player_time_display_elapsed),
-            mode = settings.elapsed,
-            allowNever = false,
-            onSelected = { onSettingsChange(settings.copy(elapsed = it)) },
-        )
-        TimeDisplayModeRow(
-            label = stringResource(R.string.player_time_display_duration),
-            mode = settings.duration,
-            allowNever = false,
-            onSelected = { onSettingsChange(settings.copy(duration = it)) },
-        )
+        if (settings.separateTimecodes) {
+            TimeDisplayModeRow(
+                label = stringResource(R.string.player_time_display_elapsed),
+                mode = settings.elapsed,
+                allowNever = false,
+                onSelected = { onSettingsChange(settings.copy(elapsed = it)) },
+            )
+            TimeDisplayModeRow(
+                label = stringResource(R.string.player_time_display_duration),
+                mode = settings.duration,
+                allowNever = false,
+                onSelected = { onSettingsChange(settings.copy(duration = it)) },
+            )
+        }
         TimeDisplayModeRow(
             label = stringResource(R.string.player_time_display_finish_at),
             mode = settings.finishAt,

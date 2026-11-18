@@ -67,7 +67,7 @@ class MainViewModel @Inject internal constructor(
             }
 
             MainState.Event.OnboardingWelcomeFinished -> viewModelScope.launch {
-                settingsStore.markOnboardingWelcomeSeen()
+                settingsStore.markOnboardingTourSeen(MAIN_ONBOARDING_WELCOME_ID)
             }
 
             MainState.Event.OnboardingMainTourFinished -> viewModelScope.launch {
@@ -77,10 +77,9 @@ class MainViewModel @Inject internal constructor(
     }
 
     private fun observeOnboarding() {
-        combine(settingsStore.onboardingWelcomeSeen, settingsStore.onboardingToursSeen) { welcomeSeen, tours ->
-            welcomeSeen to tours
-        }
-            .onEach { (welcomeSeen, tours) ->
+        settingsStore.onboardingToursSeen
+            .onEach { tours ->
+                val welcomeSeen = MAIN_ONBOARDING_WELCOME_ID in tours
                 setState {
                     copy(
                         onboardingWelcomePending = !welcomeSeen,
@@ -94,6 +93,7 @@ class MainViewModel @Inject internal constructor(
     init {
         analytics.eventScreenOpened()
         observeSettings()
+        observeOnboarding()
         observeConnectivity()
         observeListStatuses()
         observeFeatureToggleUpdates()

@@ -2,6 +2,13 @@ package su.afk.yummy.tv.feature.player.mobile.view
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material3.Icon
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.WindowInsets
@@ -55,6 +62,7 @@ internal fun MobilePlayerTimeOverlay(
     val finishAt = clockFormat.format(Date(nowMs + remainingMs))
     val showClock = shouldShow(settings.systemClock, controlsActive)
     val showFinish = durationMs > 0L && shouldShow(settings.finishAt, controlsActive)
+    val combineClockAndFinish = settings.combineClockAndFinishAt && showClock && showFinish
     // Split time chips belong to the idle player only; active controls show one combined timecode.
     val showCombined = !settings.separateTimecodes && !controlsActive && durationMs > 0L && shouldShow(settings.elapsed, controlsActive)
     val showElapsed = settings.separateTimecodes && !controlsActive && durationMs > 0L && shouldShow(settings.elapsed, controlsActive)
@@ -63,18 +71,19 @@ internal fun MobilePlayerTimeOverlay(
     val edgeBottomPadding = if (videoBottomInset > 0.dp) videoBottomInset / 2 else 12.dp
 
     Box(modifier = modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top))) {
-        if (showClock) {
+        if (combineClockAndFinish) {
             TimeChip(
-                value = systemClock,
-                modifier = Modifier.align(Alignment.TopStart)
-                    .padding(start = 8.dp, top = edgeTopPadding),
+                values = listOf(systemClock, finishAt),
+                modifier = Modifier.align(Alignment.TopEnd).padding(end = 8.dp, top = edgeTopPadding),
             )
-        }
-        if (showFinish) {
-            TimeChip(
-                value = finishAt,
-                modifier = Modifier.align(Alignment.TopEnd)
-                    .padding(end = 8.dp, top = edgeTopPadding),
+        } else {
+            if (showClock) TimeChip(
+                values = listOf(systemClock),
+                modifier = Modifier.align(Alignment.TopStart).padding(start = 8.dp, top = edgeTopPadding),
+            )
+            if (showFinish) TimeChip(
+                values = listOf(finishAt),
+                modifier = Modifier.align(Alignment.TopEnd).padding(end = 8.dp, top = edgeTopPadding),
             )
         }
         if (showCombined) {
@@ -106,14 +115,21 @@ internal fun MobilePlayerTimeOverlay(
 }
 
 @Composable
-private fun TimeChip(value: String, modifier: Modifier = Modifier) {
-    Text(
-        text = value,
-        style = MaterialTheme.typography.labelMedium,
-        color = Color.White,
-        maxLines = 1,
-        modifier = modifier.mobilePlayerGlassSurface().padding(horizontal = 7.dp, vertical = 5.dp),
-    )
+private fun TimeChip(values: List<String>, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier.mobilePlayerGlassSurface().padding(horizontal = 8.dp, vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        values.forEachIndexed { index, value ->
+            if (index == 0) {
+                Icon(Icons.Filled.AccessTime, contentDescription = null, tint = Color.White.copy(alpha = 0.9f), modifier = Modifier.size(14.dp))
+            } else {
+                Icon(Icons.Filled.Flag, contentDescription = null, tint = Color.White.copy(alpha = 0.9f), modifier = Modifier.size(14.dp))
+            }
+            Text(text = value, style = MaterialTheme.typography.labelMedium, color = Color.White, maxLines = 1)
+        }
+    }
 }
 
 @Composable

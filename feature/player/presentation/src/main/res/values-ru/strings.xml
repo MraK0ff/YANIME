@@ -263,4 +263,9 @@
     <string name="player_time_display_remaining_value">Осталось · %1$s</string>
     <string name="player_time_display_finish_value">Закончится · %1$s</string>
     <string name="player_menu_brightness_volume">Яркость и громкость</string>
+    <string name="player_toast_video_enhancement_overload">Устройство не успевает за улучшением видео — выберите «Резкость» или выключите</string>
+    <string name="player_video_enhancement_title">Улучшение видео</string>
+    <string name="player_video_enhancement_hint">Резкость — лёгкая, Anime4K чистит линии, но тяжелее</string>
+    <string name="player_video_enhancement_sharpen">Резкость</string>
+    <string name="player_video_enhancement_quality">Anime4K</string>
 </resources>

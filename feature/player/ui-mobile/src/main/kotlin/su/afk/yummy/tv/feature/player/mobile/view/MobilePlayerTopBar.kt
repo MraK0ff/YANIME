@@ -112,15 +112,21 @@ internal fun MobilePlayerTopBar(
         Row(
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(top = 8.dp, end = 12.dp),
+                .heightIn(min = 40.dp)
+                .clickable(
+                    role = Role.Button,
+                    onClickLabel = stringResource(R.string.player_mobile_playback_settings_title),
+                    onClick = onTrackSettings,
+                )
+                .padding(horizontal = 10.dp, vertical = 4.dp)
+                .padding(top = 4.dp, end = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(5.dp),
         ) {
             if (dubbingLabel.isNotBlank()) {
                 Text(
                     text = dubbingLabel,
-                    modifier = Modifier.clickable(onClick = onTrackSettings),
-                    style = MaterialTheme.typography.labelLarge,
+                    style = MaterialTheme.typography.labelMedium,
                     color = Color.White,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -132,13 +138,18 @@ internal fun MobilePlayerTopBar(
             if (balancerLabel.isNotBlank()) {
                 Text(
                     text = balancerLabel,
-                    modifier = Modifier.clickable(onClick = onTrackSettings),
-                    style = MaterialTheme.typography.labelLarge,
+                    style = MaterialTheme.typography.labelMedium,
                     color = Color.White,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
             }
+            Icon(
+                imageVector = Icons.Filled.KeyboardArrowDown,
+                contentDescription = null,
+                tint = Color.White.copy(alpha = 0.9f),
+                modifier = Modifier.size(20.dp),
+            )
         }
 
         Column(
@@ -156,7 +167,7 @@ internal fun MobilePlayerTopBar(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                     modifier = Modifier.fillMaxWidth(),
                 )
             }

@@ -684,6 +684,15 @@ internal fun MobileNativePlayer(
                 adaptiveLimitBest = ui.adaptiveLimitBest,
             ),
             qualityOptions = ui.qualityLabels,
+            dubbingLabel = ui.activeDubbingLabel.dubbingDisplayName().removePrefix("Озвучка ").removePrefix("озвучка "),
+            balancerLabel = ui.activeBalancerLabel,
+            onTrackSettings = {
+                endFlow.hideAll()
+                settingsMenuPage = MobilePlayerSettingsPage.Sources
+                settingsMenuOpen = true
+                overlay.visible = true
+                overlay.cancelHide()
+            },
             onEpisodeClick = {
                 onEpisodesExpandedChange(!episodesExpanded)
                 if (!episodesExpanded) overlay.cancelHide() else overlay.show()
@@ -910,6 +919,27 @@ internal fun MobileNativePlayer(
             onTimeCodeClick = { showRemainingTime = !showRemainingTime },
             dubbingLabel = ui.activeDubbingLabel.dubbingDisplayName().removePrefix("Озвучка ").removePrefix("озвучка "),
             balancerLabel = ui.activeBalancerLabel,
+            qualityLabel = playerQualityButtonLabel(
+                activeQuality = selectedQuality,
+                adaptiveQuality = ui.adaptiveQuality,
+                adaptiveLimitQuality = ui.adaptiveLimitLabel,
+                adaptiveLimitBest = ui.adaptiveLimitBest,
+            ),
+            selectedSpeed = selectedSpeed,
+            onQualityClick = {
+                endFlow.hideAll()
+                settingsMenuPage = MobilePlayerSettingsPage.Quality
+                settingsMenuOpen = true
+                overlay.visible = true
+                overlay.cancelHide()
+            },
+            onSpeedClick = {
+                endFlow.hideAll()
+                settingsMenuPage = MobilePlayerSettingsPage.Speed
+                settingsMenuOpen = true
+                overlay.visible = true
+                overlay.cancelHide()
+            },
         )
 
         MobilePlayerTimeOverlay(

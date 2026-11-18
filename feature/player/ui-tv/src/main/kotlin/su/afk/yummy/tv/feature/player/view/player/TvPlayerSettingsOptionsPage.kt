@@ -146,6 +146,17 @@ internal fun TvPlayerSettingsOptionsPage(
                 },
             )
             TvPlayerSettingsMenuRow(
+                label = stringResource(R.string.player_time_display_combine_clock_finish),
+                value = stringResource(if (timeDisplaySettings.combineClockAndFinishAt) R.string.player_toggle_on else R.string.player_toggle_off),
+                toggleChecked = timeDisplaySettings.combineClockAndFinishAt,
+                showChevron = false,
+                onClick = {
+                    onTimeDisplaySettingsChange(
+                        timeDisplaySettings.copy(combineClockAndFinishAt = !timeDisplaySettings.combineClockAndFinishAt),
+                    )
+                },
+            )
+            TvPlayerSettingsMenuRow(
                 label = stringResource(R.string.player_time_display_separate),
                 value = stringResource(if (timeDisplaySettings.separateTimecodes) R.string.player_toggle_on else R.string.player_toggle_off),
                 toggleChecked = timeDisplaySettings.separateTimecodes,

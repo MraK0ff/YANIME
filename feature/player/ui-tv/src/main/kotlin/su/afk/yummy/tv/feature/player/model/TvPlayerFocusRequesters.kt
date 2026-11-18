@@ -34,6 +34,7 @@ internal class TvPlayerFocusRequesters {
     fun control(target: PlayerControlFocusTarget): FocusRequester =
         when (target) {
             PlayerControlFocusTarget.Quality -> quality
+            PlayerControlFocusTarget.Speed -> speed
             PlayerControlFocusTarget.Subtitles -> subtitles
             PlayerControlFocusTarget.Dubbing -> dubbing
             PlayerControlFocusTarget.Balancer -> balancer

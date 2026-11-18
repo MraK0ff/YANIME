@@ -229,6 +229,12 @@ class PlayerState {
         /** Пользователь выбрал в ползунке лимита пункт «Лучшее»: потолка нет, в настройки пишется «Лучшее». */
         data object AdaptiveQualityLimitBestSelected : Event
 
+        /** Пользователь выбрал режим улучшения картинки (выкл., резкость или Anime4K). */
+        data class VideoEnhancementModeSelected(val mode: VideoEnhancementMode) : Event
+
+        /** Декодер не справляется с включённым улучшением картинки. */
+        data object VideoEnhancementOverloaded : Event
+
         /** Пользователь включил или выключил стабилизацию громкости в боковой панели плеера. */
         data class VolumeStabilizationToggled(val enabled: Boolean) : Event
 

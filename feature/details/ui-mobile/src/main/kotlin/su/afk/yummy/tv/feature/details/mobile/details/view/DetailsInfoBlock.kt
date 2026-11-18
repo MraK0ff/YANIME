@@ -52,16 +52,16 @@ internal fun DetailsInfoBlock(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(YummySpacing.Medium - 2.dp),
     ) {
-        RelationRow(
+        DetailsInfoRelationRow(
             icon = Icons.Outlined.Business,
             groups = listOf(
-                RelationGroup(
+                DetailsInfoRelationGroup(
                     label = stringResource(R.string.details_mobile_studios),
                     items = details.studios.map { studio ->
                         Triple(studio.title, studio.id) { studio.id?.let { onStudioSelected(it, studio.url) } }
                     },
                 ),
-                RelationGroup(
+                DetailsInfoRelationGroup(
                     label = stringResource(R.string.details_mobile_creators),
                     items = details.creators.map { creator ->
                         Triple(creator.title, creator.id) { creator.id?.let(onDirectorSelected) }
@@ -69,10 +69,10 @@ internal fun DetailsInfoBlock(
                 ),
             ),
         )
-        RelationRow(
+        DetailsInfoRelationRow(
             icon = Icons.Outlined.Category,
             groups = listOf(
-                RelationGroup(
+                DetailsInfoRelationGroup(
                     label = stringResource(R.string.details_full_genres),
                     items = details.genres.map { genre ->
                         Triple(genre.title, genre.id) { genre.id?.let(onGenreSelected) }
@@ -107,7 +107,7 @@ internal fun DetailsInfoBlock(
     }
 }
 
-private class RelationGroup(
+private class DetailsInfoRelationGroup(
     val label: String,
     val items: List<Triple<String, Int?, () -> Unit>>,
 )
@@ -115,12 +115,12 @@ private class RelationGroup(
 /** Строка «иконка Подпись: элемент, элемент Подпись: …»; элементы с id кликабельны. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun RelationRow(
+private fun DetailsInfoRelationRow(
     icon: ImageVector,
-    groups: List<RelationGroup>,
+    groups: List<DetailsInfoRelationGroup>,
 ) {
     val visible = groups
-        .map { group -> RelationGroup(group.label, group.items.filter { it.first.isNotBlank() }) }
+        .map { group -> DetailsInfoRelationGroup(group.label, group.items.filter { it.first.isNotBlank() }) }
         .filter { it.items.isNotEmpty() }
     if (visible.isEmpty()) return
     Row(

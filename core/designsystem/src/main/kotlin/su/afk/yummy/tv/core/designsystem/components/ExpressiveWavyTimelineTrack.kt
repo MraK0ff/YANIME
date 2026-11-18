@@ -67,7 +67,6 @@ fun DrawScope.drawExpressiveWavyTimelineTrack(
     val amplitude = min(5.dp.toPx(), size.height * 0.24f)
     val fadeDistance = wavelength * 0.72f
     val phase = wavePhase * (2f * PI.toFloat())
-    val phaseOrigin = sin(phase)
     val wave = Path().apply {
         moveTo(0f, centerY)
         var x = 0f
@@ -77,7 +76,7 @@ fun DrawScope.drawExpressiveWavyTimelineTrack(
                 1f,
                 min(x / fadeDistance, (playedX - x) / fadeDistance).coerceAtLeast(0f),
             )
-            val oscillation = sin((x / wavelength) * (2f * PI.toFloat()) + phase) - phaseOrigin
+            val oscillation = sin((x / wavelength) * (2f * PI.toFloat()) - phase)
             val y = centerY + oscillation * amplitude * edgeFade
             lineTo(x, y)
         }

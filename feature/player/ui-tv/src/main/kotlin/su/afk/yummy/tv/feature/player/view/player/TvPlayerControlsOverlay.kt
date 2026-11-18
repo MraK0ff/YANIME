@@ -60,6 +60,7 @@ internal fun BoxScope.TvPlayerControlsOverlay(
     speeds: List<Float>,
     activeSpeed: Float,
     onCycleSpeed: () -> Unit,
+    onOpenSpeedPanel: () -> Unit,
     adaptiveQuality: Boolean,
     showAllohaButton: Boolean,
     showSubtitleButton: Boolean,
@@ -88,13 +89,8 @@ internal fun BoxScope.TvPlayerControlsOverlay(
     } else {
         snap()
     }
-    val progressDownFocusRequester = when {
-        playback.dubbingNames.size > 1 -> focus.dubbing
-        playback.balancerNames.size > 1 -> focus.balancer
-        qualityCount > 0 -> focus.quality
-        showAllohaButton -> focus.alloha
-        else -> focus.playerSettings
-    }
+    // Первый переход вниз с таймлайна всегда попадает на скорость.
+    val progressDownFocusRequester = focus.speed
 
     AnimatedVisibility(
         visible = visible,
@@ -230,6 +226,8 @@ internal fun BoxScope.TvPlayerControlsOverlay(
                     speeds = speeds,
                     activeSpeed = activeSpeed,
                     onCycleSpeed = onCycleSpeed,
+                    onOpenSpeedPanel = onOpenSpeedPanel,
+                    speedFocusRequester = focus.speed,
                     adaptiveQuality = adaptiveQuality,
                     qualityFocusRequester = focus.quality,
                     dubbingFocusRequester = focus.dubbing,

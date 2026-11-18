@@ -62,8 +62,8 @@ internal fun TvPlayerTimeOverlay(
             TvTimeChip(
                 text = clock,
                 modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(start = 40.dp, top = 88.dp),
+                    .align(Alignment.TopEnd)
+                    .padding(end = 40.dp, top = 40.dp),
             )
         }
         if (showFinish) {
@@ -79,7 +79,7 @@ internal fun TvPlayerTimeOverlay(
                 text = "${displayTimeMs.millisToClockTime()} / ${durationMs.millisToClockTime()}",
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(end = 40.dp, top = 132.dp),
+                    .padding(end = 40.dp, top = 88.dp),
             )
         } else {
             if (showElapsedIdle) {
@@ -95,7 +95,7 @@ internal fun TvPlayerTimeOverlay(
                     text = durationMs.millisToClockTime(),
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
-                        .padding(end = 40.dp, bottom = 40.dp),
+                        .padding(end = 40.dp, top = 88.dp),
                 )
             }
         }

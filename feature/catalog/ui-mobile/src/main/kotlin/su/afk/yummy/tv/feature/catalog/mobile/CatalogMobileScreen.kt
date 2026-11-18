@@ -41,6 +41,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import su.afk.yummy.tv.core.designsystem.baseScreen.BaseScreen
 import su.afk.yummy.tv.core.designsystem.components.ErrorBanner
 import su.afk.yummy.tv.core.designsystem.components.OfflineBanner
+import su.afk.yummy.tv.core.designsystem.locals.LocalYaniMirrorActive
 import su.afk.yummy.tv.core.designsystem.components.YummyLoadingIndicator
 import su.afk.yummy.tv.core.designsystem.error.uiMessage
 import su.afk.yummy.tv.core.designsystem.locals.LocalIsOffline
@@ -65,7 +66,7 @@ import su.afk.yummy.tv.feature.catalog.mobile.view.CatalogMobileClearButton
 import su.afk.yummy.tv.feature.catalog.mobile.view.CatalogMobileFilterButton
 import su.afk.yummy.tv.feature.catalog.mobile.view.CatalogMobileFilterPanel
 import su.afk.yummy.tv.feature.catalog.mobile.view.CatalogMobileSearchHistory
-import su.afk.yummy.tv.feature.catalog.mobile.view.RandomAnimeFloatingButton
+import su.afk.yummy.tv.core.designsystem.components.RandomAnimeFloatingButton
 import su.afk.yummy.tv.feature.catalog.navigator.CatalogDestination
 import su.afk.yummy.tv.feature.catalog.presentation.R
 import su.afk.yummy.tv.core.designsystem.R as CoreR
@@ -98,6 +99,7 @@ fun CatalogMobileScreen(
     val hasActiveSearch = state.isSearchActive
     val isRowLayout = state.titleCardLayout == TitleCardLayout.ROW
     val isOffline = LocalIsOffline.current
+    val isYaniMirrorActive = LocalYaniMirrorActive.current
     val initialError = (refreshState as? LoadState.Error)
         ?.takeIf { results.itemCount == 0 }
         ?.error
@@ -120,6 +122,7 @@ fun CatalogMobileScreen(
         isScroll = false,
         floatingActionButtonEnd = {
             RandomAnimeFloatingButton(
+                description = stringResource(R.string.search_random_anime),
                 isLoading = state.isRandomAnimeLoading,
                 onClick = { onEvent(CatalogState.Event.RandomAnimeSelected) },
             )
@@ -132,9 +135,9 @@ fun CatalogMobileScreen(
             state = gridState,
             singleColumn = isRowLayout,
         ) {
-            if (isOffline) {
+            if (isOffline || isYaniMirrorActive) {
                 item(span = { GridItemSpan(maxLineSpan) }, contentType = "offline_banner") {
-                    OfflineBanner(isOffline = true, horizontalPadding = 0.dp)
+                    OfflineBanner(isOffline = isOffline, horizontalPadding = 0.dp)
                 }
             }
             item(span = { GridItemSpan(maxLineSpan) }, contentType = "query_field") {

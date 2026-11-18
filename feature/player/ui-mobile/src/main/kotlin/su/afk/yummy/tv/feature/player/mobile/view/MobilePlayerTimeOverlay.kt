@@ -79,10 +79,12 @@ internal fun MobilePlayerTimeOverlay(
         } else {
             if (showClock) TimeChip(
                 values = listOf(systemClock),
+                finishOnly = false,
                 modifier = Modifier.align(Alignment.TopStart).padding(start = 8.dp, top = edgeTopPadding),
             )
             if (showFinish) TimeChip(
                 values = listOf(finishAt),
+                finishOnly = true,
                 modifier = Modifier.align(Alignment.TopEnd).padding(end = 8.dp, top = edgeTopPadding),
             )
         }
@@ -115,15 +117,15 @@ internal fun MobilePlayerTimeOverlay(
 }
 
 @Composable
-private fun TimeChip(values: List<String>, modifier: Modifier = Modifier) {
+private fun TimeChip(values: List<String>, modifier: Modifier = Modifier, finishOnly: Boolean = false) {
     Row(
         modifier = modifier.mobilePlayerGlassSurface().padding(horizontal = 8.dp, vertical = 6.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         values.forEachIndexed { index, value ->
-            if (index == 0) {
-                Icon(Icons.Filled.AccessTime, contentDescription = null, tint = Color.White.copy(alpha = 0.9f), modifier = Modifier.size(14.dp))
+            if (finishOnly || index > 0) {
+                Icon(Icons.Filled.Flag, contentDescription = null, tint = Color.White.copy(alpha = 0.9f), modifier = Modifier.size(14.dp))
             } else {
                 Icon(Icons.Filled.Flag, contentDescription = null, tint = Color.White.copy(alpha = 0.9f), modifier = Modifier.size(14.dp))
             }

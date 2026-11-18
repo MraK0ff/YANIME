@@ -22,6 +22,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.nativeKeyEvent
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -45,6 +51,7 @@ internal fun TvControlButton(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     var focused by remember { mutableStateOf(false) }
+    var longPressTriggered by remember { mutableStateOf(false) }
     val animationsEnabled = rememberAnimationsEnabled()
     val colorAnimationSpec = if (animationsEnabled) tween<Color>(YummyMotion.FastEffectsMillis) else snap()
     val shape = YummyShapeTokens.Control
@@ -81,6 +88,26 @@ internal fun TvControlButton(
             .border(1.dp, borderColor, shape)
             .background(bgColor, shape)
             .autoSkipProgressFill(fillProgress, textColor.copy(alpha = 0.22f), 8.dp)
+            .onPreviewKeyEvent { event ->
+                if (onLongClick == null) return@onPreviewKeyEvent false
+                val activationKey = event.key == Key.DirectionCenter || event.key == Key.Enter
+                if (!activationKey) return@onPreviewKeyEvent false
+                when (event.type) {
+                    KeyEventType.KeyDown -> {
+                        if (event.nativeKeyEvent.repeatCount > 0 && !longPressTriggered) {
+                            longPressTriggered = true
+                            onLongClick()
+                            true
+                        } else longPressTriggered
+                    }
+                    KeyEventType.KeyUp -> {
+                        val consumed = longPressTriggered
+                        longPressTriggered = false
+                        consumed
+                    }
+                    else -> false
+                }
+            }
             .combinedClickable(
                 interactionSource = interactionSource,
                 indication = null,

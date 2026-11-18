@@ -3,6 +3,7 @@ package su.afk.yummy.tv.feature.player.view.player
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -58,45 +59,20 @@ internal fun TvPlayerTimeOverlay(
     val finishAt = clockFormat.format(Date(nowMs + remainingMs))
 
     Box(modifier = modifier.fillMaxSize()) {
-        if (showClock) {
-            TvTimeChip(
-                text = clock,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(end = 40.dp, top = 40.dp),
-            )
-        }
-        if (showFinish) {
-            TvTimeChip(
-                text = finishAt,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(end = 40.dp, top = 88.dp),
-            )
-        }
-        if (showCombinedIdle) {
-            TvTimeChip(
-                text = "${displayTimeMs.millisToClockTime()} / ${durationMs.millisToClockTime()}",
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(end = 40.dp, top = 88.dp),
-            )
-        } else {
-            if (showElapsedIdle) {
-                TvTimeChip(
-                    text = displayTimeMs.millisToClockTime(),
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(end = 40.dp, top = 132.dp),
-                )
-            }
-            if (showDurationIdle) {
-                TvTimeChip(
-                    text = durationMs.millisToClockTime(),
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(end = 40.dp, top = 88.dp),
-                )
+        Column(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 28.dp, end = 40.dp),
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
+        ) {
+            if (showClock) TvTimeChip(text = clock)
+            if (showFinish) TvTimeChip(text = finishAt)
+            if (showCombinedIdle) {
+                TvTimeChip(text = "${displayTimeMs.millisToClockTime()} / ${durationMs.millisToClockTime()}")
+            } else {
+                if (showElapsedIdle) TvTimeChip(text = displayTimeMs.millisToClockTime())
+                if (showDurationIdle) TvTimeChip(text = durationMs.millisToClockTime())
             }
         }
     }

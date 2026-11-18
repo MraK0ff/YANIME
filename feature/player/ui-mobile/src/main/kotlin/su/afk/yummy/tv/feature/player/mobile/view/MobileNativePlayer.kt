@@ -773,6 +773,7 @@ internal fun MobileNativePlayer(
                     showPictureInPicture = supportsPictureInPicture && !castConnection.isCasting,
                     pictureInPictureEnabled = state.pictureInPictureEnabled,
                     timeDisplaySettings = timeDisplaySettings,
+                    videoEnhancementMode = state.videoEnhancementMode,
                     showCast = castSupported,
                 ),
                 actions = MobilePlayerSettingsMenuActions(
@@ -824,6 +825,7 @@ internal fun MobileNativePlayer(
                     onTimeDisplaySettingsChange = { settings ->
                         settingsScope.launch { playerSettingsStore.setPlayerTimeDisplaySettings(settings) }
                     },
+                    onVideoEnhancementModeChange = { onEvent(PlayerState.Event.VideoEnhancementModeSelected(it)) },
                 ),
                 onDismiss = {
                     settingsMenuOpen = false

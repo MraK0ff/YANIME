@@ -4,6 +4,7 @@ import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
 import su.afk.yummy.tv.core.model.settings.PlayerOrientationMode
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleStyleSettings
 import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
+import su.afk.yummy.tv.core.model.settings.VideoEnhancementMode
 
 /** Всё, что единое меню настроек показывает: значения пунктов и доступность необязательных. */
 internal data class MobilePlayerSettingsMenuModel(
@@ -42,6 +43,7 @@ internal data class MobilePlayerSettingsMenuModel(
     val showPictureInPicture: Boolean,
     val pictureInPictureEnabled: Boolean,
     val timeDisplaySettings: PlayerTimeDisplaySettings,
+    val videoEnhancementMode: VideoEnhancementMode,
     val showCast: Boolean,
 )
 
@@ -66,4 +68,5 @@ internal class MobilePlayerSettingsMenuActions(
     val onDetails: () -> Unit,
     val onPictureInPictureChange: (Boolean) -> Unit,
     val onTimeDisplaySettingsChange: (PlayerTimeDisplaySettings) -> Unit,
+    val onVideoEnhancementModeChange: (VideoEnhancementMode) -> Unit,
 )

@@ -100,7 +100,7 @@ fun EpisodesTvScreen(
             animeId = state.animeId,
             episodeGroups = state.visibleEpisodeGroups,
             watchFilter = state.watchFilter,
-            onWatchFilterSelected = { onEvent(EpisodesState.Event.WatchFilterSelected(it)) },
+            onWatchFilterSelected = { onEvent(EpisodesState.Event.WatchFilterSelected(it, anchorEpisode)) },
             bestDubbing = state.bestDubbing,
             watchProgress = state.watchProgress,
             restoreFocusRequest = restoreEpisodesFocusRequest,

@@ -263,4 +263,9 @@
     <string name="player_time_display_remaining_value">Remaining · %1$s</string>
     <string name="player_time_display_finish_value">Ends · %1$s</string>
     <string name="player_menu_brightness_volume">Brightness and volume</string>
+    <string name="player_toast_video_enhancement_overload">Device can\'t keep up with video enhancement — choose Sharpen or turn it off</string>
+    <string name="player_video_enhancement_title">Video enhancement</string>
+    <string name="player_video_enhancement_hint">Sharpen is light; Anime4K cleans up lines but is heavier</string>
+    <string name="player_video_enhancement_sharpen">Sharpen</string>
+    <string name="player_video_enhancement_quality">Anime4K</string>
 </resources>

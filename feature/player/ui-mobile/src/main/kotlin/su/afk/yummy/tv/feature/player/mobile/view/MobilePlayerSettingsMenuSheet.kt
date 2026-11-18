@@ -168,6 +168,33 @@ internal fun MobilePlayerSettingsMenuSheet(
                 onBack = goBack,
             )
 
+            MobilePlayerSettingsPage.VideoEnhancement -> Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                MobilePlayerMenuPageHeader(
+                    title = stringResource(R.string.player_video_enhancement_title),
+                    onBack = goBack,
+                )
+                listOf(
+                    su.afk.yummy.tv.core.model.settings.VideoEnhancementMode.OFF to R.string.player_toggle_off,
+                    su.afk.yummy.tv.core.model.settings.VideoEnhancementMode.SHARPEN to R.string.player_video_enhancement_sharpen,
+                    su.afk.yummy.tv.core.model.settings.VideoEnhancementMode.QUALITY to R.string.player_video_enhancement_quality,
+                ).forEach { (mode, labelRes) ->
+                    MobilePlayerMenuRow(
+                        label = stringResource(labelRes),
+                        subtitle = if (mode == su.afk.yummy.tv.core.model.settings.VideoEnhancementMode.QUALITY) {
+                            stringResource(R.string.player_video_enhancement_hint)
+                        } else null,
+                        trailing = MobilePlayerMenuRowTrailing.Choice(model.videoEnhancementMode == mode),
+                        onClick = {
+                            actions.onVideoEnhancementModeChange(mode)
+                            goBack()
+                        },
+                    )
+                }
+            }
+
             MobilePlayerSettingsPage.Display -> Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -181,6 +208,20 @@ internal fun MobilePlayerSettingsMenuSheet(
                     label = stringResource(R.string.player_mobile_orientation),
                     trailing = MobilePlayerMenuRowTrailing.Navigate(),
                     onClick = { navigate(MobilePlayerSettingsPage.Orientation) },
+                )
+                MobilePlayerMenuRow(
+                    label = stringResource(R.string.player_video_enhancement_title),
+                    subtitle = stringResource(R.string.player_video_enhancement_hint),
+                    trailing = MobilePlayerMenuRowTrailing.Navigate(
+                        value = stringResource(
+                            when (model.videoEnhancementMode) {
+                                su.afk.yummy.tv.core.model.settings.VideoEnhancementMode.OFF -> R.string.player_toggle_off
+                                su.afk.yummy.tv.core.model.settings.VideoEnhancementMode.SHARPEN -> R.string.player_video_enhancement_sharpen
+                                su.afk.yummy.tv.core.model.settings.VideoEnhancementMode.QUALITY -> R.string.player_video_enhancement_quality
+                            },
+                        ),
+                    ),
+                    onClick = { navigate(MobilePlayerSettingsPage.VideoEnhancement) },
                 )
                 MobilePlayerMenuRow(
                     icon = Icons.Filled.BrightnessMedium,

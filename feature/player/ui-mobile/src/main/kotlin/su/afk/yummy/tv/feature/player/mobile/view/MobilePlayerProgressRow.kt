@@ -61,6 +61,7 @@ internal fun MobilePlayerProgressRow(
     onTrackSettings: () -> Unit = {},
     qualityLabel: String = "",
     selectedSpeed: Float = 1f,
+    isPlaying: Boolean,
     onQualityClick: () -> Unit = {},
     onSpeedClick: () -> Unit = {},
     onMoreActions: () -> Unit = {},
@@ -79,6 +80,7 @@ internal fun MobilePlayerProgressRow(
                 progress = seekProgress.coerceIn(0f, 1f),
                 bufferedProgress = bufferedProgress.coerceIn(seekProgress.coerceIn(0f, 1f), 1f),
                 enabled = duration > 0L,
+                isPlaying = isPlaying,
                 onValueChange = onSeekChange,
                 onValueChangeFinished = onSeekFinished,
                 modifier = Modifier

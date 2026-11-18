@@ -3,6 +3,13 @@ package su.afk.yummy.tv.feature.player.view.player
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material3.Icon
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -39,6 +46,7 @@ internal fun TvPlayerTimeOverlay(
 ) {
     val showClock = settings.systemClock.shouldShow(controlsActive)
     val showFinish = durationMs > 0L && settings.finishAt.shouldShow(controlsActive)
+    val combineClockAndFinish = settings.combineClockAndFinishAt && showClock && showFinish
     val showCombinedIdle = !settings.separateTimecodes && !controlsActive && settings.elapsed == PlayerTimeDisplayMode.ALWAYS && durationMs > 0L
     val showElapsedIdle = settings.separateTimecodes && !controlsActive && settings.elapsed == PlayerTimeDisplayMode.ALWAYS && durationMs > 0L
     val showDurationIdle = settings.separateTimecodes && !controlsActive && settings.duration == PlayerTimeDisplayMode.ALWAYS && durationMs > 0L
@@ -62,12 +70,16 @@ internal fun TvPlayerTimeOverlay(
         Column(
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(top = 28.dp, end = 40.dp),
+                .padding(top = 112.dp, end = 40.dp),
             horizontalAlignment = Alignment.End,
             verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
         ) {
-            if (showClock) TvTimeChip(text = clock)
-            if (showFinish) TvTimeChip(text = finishAt)
+            if (combineClockAndFinish) {
+                TvTimeChip(values = listOf(clock, finishAt))
+            } else {
+                if (showClock) TvTimeChip(values = listOf(clock))
+                if (showFinish) TvTimeChip(values = listOf(finishAt))
+            }
             if (showCombinedIdle) {
                 TvTimeChip(text = "${displayTimeMs.millisToClockTime()} / ${durationMs.millisToClockTime()}")
             } else {
@@ -80,21 +92,29 @@ internal fun TvPlayerTimeOverlay(
 
 @Composable
 private fun TvTimeChip(
-    text: String,
+    values: List<String>,
     modifier: Modifier = Modifier,
 ) {
     val shape = RoundedCornerShape(12.dp)
-    Text(
-        text = text,
-        style = MaterialTheme.typography.labelLarge,
-        color = Color.White,
-        maxLines = 1,
+    Row(
         modifier = modifier
             .clip(shape)
             .background(Color(0xFF101318).copy(alpha = 0.68f), shape)
             .border(1.dp, Color.White.copy(alpha = 0.12f), shape)
             .padding(horizontal = 12.dp, vertical = 7.dp),
-    )
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        values.forEachIndexed { index, value ->
+            Icon(
+                imageVector = if (index == 0) Icons.Filled.AccessTime else Icons.Filled.Flag,
+                contentDescription = null,
+                tint = Color.White.copy(alpha = 0.9f),
+                modifier = Modifier.size(16.dp),
+            )
+            Text(text = value, style = MaterialTheme.typography.labelLarge, color = Color.White, maxLines = 1)
+        }
+    }
 }
 
 private fun PlayerTimeDisplayMode.shouldShow(controlsActive: Boolean): Boolean =

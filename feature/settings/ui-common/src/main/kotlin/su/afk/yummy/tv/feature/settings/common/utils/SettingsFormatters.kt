@@ -6,6 +6,7 @@ import androidx.compose.ui.res.stringResource
 import su.afk.yummy.tv.core.designsystem.theme.isDynamicColorSupported
 import su.afk.yummy.tv.core.model.seasonal.SeasonalTheme
 import su.afk.yummy.tv.core.model.settings.TorrentSort
+import su.afk.yummy.tv.core.model.settings.VideoEnhancementMode
 import su.afk.yummy.tv.core.model.settings.AppTheme
 import su.afk.yummy.tv.core.model.settings.BackgroundStyle
 import su.afk.yummy.tv.core.model.settings.NavTransitionStyle
@@ -307,6 +308,15 @@ fun PlayerSubtitleBackground.label(): String = stringResource(
         PlayerSubtitleBackground.NONE -> R.string.settings_subtitle_background_none
         PlayerSubtitleBackground.TRANSLUCENT -> R.string.settings_subtitle_background_translucent
         PlayerSubtitleBackground.SOLID -> R.string.settings_subtitle_background_solid
+    },
+)
+
+@Composable
+fun VideoEnhancementMode.label(): String = stringResource(
+    when (this) {
+        VideoEnhancementMode.OFF -> R.string.settings_video_enhancement_off
+        VideoEnhancementMode.SHARPEN -> R.string.settings_video_enhancement_sharpen
+        VideoEnhancementMode.QUALITY -> R.string.settings_video_enhancement_quality
     },
 )
 

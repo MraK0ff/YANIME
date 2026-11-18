@@ -18,6 +18,7 @@ import su.afk.yummy.tv.feature.player.model.TvPlayerFocusRequesters
 import su.afk.yummy.tv.feature.player.model.TvPlayerPanel
 import su.afk.yummy.tv.feature.player.model.TvPlayerPanelsState
 import su.afk.yummy.tv.feature.player.presentation.R
+import su.afk.yummy.tv.feature.player.utils.speedLabel
 
 /** Панели качества, озвучки, субтитров, балансера, Alloha и настроек плеера. */
 @Composable
@@ -27,6 +28,9 @@ internal fun BoxScope.TvPlayerPanelsHost(
     playback: PlayerPlaybackUiState,
     qualities: List<String>,
     activeQuality: String?,
+    speeds: List<Float>,
+    activeSpeed: Float,
+    onSpeedSelected: (Float) -> Unit,
     resizeMode: PlayerResizeMode,
     zoomLevel: PlayerZoomLevel,
     timeDisplaySettings: PlayerTimeDisplaySettings,
@@ -52,6 +56,22 @@ internal fun BoxScope.TvPlayerPanelsHost(
     onSubtitleTrackSelected: (index: Int) -> Unit,
     onExitPanelDown: (PanelReturnFocusTarget) -> Unit,
 ) {
+    TvPlayerSelectionPanel(
+        visible = panels.isOpen(TvPlayerPanel.Speed),
+        title = stringResource(R.string.player_speed_title),
+        items = speeds.map { it.speedLabel() },
+        selectedIndex = speeds.indexOf(activeSpeed).coerceAtLeast(0),
+        selectedFocusRequester = focus.selectedSpeed,
+        modifier = Modifier
+            .align(Alignment.BottomEnd)
+            .padding(end = 48.dp, bottom = 72.dp),
+        itemMeta = { null },
+        onItemSelected = { index ->
+            speeds.getOrNull(index)?.let(onSpeedSelected)
+        },
+        onExitDown = { onExitPanelDown(PanelReturnFocusTarget.Speed) },
+    )
+
     TvPlayerSelectionPanel(
         visible = panels.isOpen(TvPlayerPanel.Quality),
         title = stringResource(R.string.player_quality_title),

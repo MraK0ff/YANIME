@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -248,7 +249,7 @@ private fun PlayerBufferedSlider(
             Canvas(
                 Modifier
                     .fillMaxWidth()
-                    .size(height = 32.dp, width = 1.dp),
+                    .height(32.dp),
             ) {
                 val centerY = size.height / 2f
                 val trackHeight = if (focused) 4.dp.toPx() else 3.dp.toPx()

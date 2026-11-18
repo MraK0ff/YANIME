@@ -382,6 +382,7 @@ internal fun TvExoPlayerView(
             panels.close(
                 returnFocusTarget = when (panels.activePanel) {
                     TvPlayerPanel.Quality -> PanelReturnFocusTarget.Quality
+                    TvPlayerPanel.Speed -> PanelReturnFocusTarget.Speed
                     TvPlayerPanel.Subtitles -> PanelReturnFocusTarget.Subtitles
                     TvPlayerPanel.Dubbing -> PanelReturnFocusTarget.Dubbing
                     TvPlayerPanel.Balancer -> PanelReturnFocusTarget.Balancer
@@ -545,6 +546,9 @@ internal fun TvExoPlayerView(
                     onInteraction()
                 }
             },
+            onOpenSpeedPanel = {
+                togglePanel(TvPlayerPanel.Speed, PanelReturnFocusTarget.Speed)
+            },
             adaptiveQuality = playback.adaptiveQuality,
             showAllohaButton = trackMenu.showAudioChoice,
             showSubtitleButton = trackMenu.showSubtitleChoice,
@@ -594,6 +598,13 @@ internal fun TvExoPlayerView(
             playback = playback,
             qualities = playback.qualityLabels,
             activeQuality = activeQuality,
+            speeds = speeds,
+            activeSpeed = activeSpeed,
+            onSpeedSelected = { speed ->
+                onPlayerEvent(PlayerState.Event.SpeedSelected(speed))
+                panels.close(PanelReturnFocusTarget.Speed)
+                onInteraction()
+            },
             resizeMode = state.resizeMode,
             zoomLevel = state.zoomLevel,
             timeDisplaySettings = state.timeDisplaySettings,

@@ -32,6 +32,7 @@ internal fun TvPlayerInfoBar(
     visible: Boolean,
     animeTitle: String,
     episode: String,
+    episodeTitle: String? = null,
     dubbing: String,
     modifier: Modifier = Modifier,
 ) {
@@ -59,7 +60,10 @@ internal fun TvPlayerInfoBar(
             }
             if (episode.isNotBlank()) {
                 Text(
-                    text = stringResource(R.string.player_episode_number, episode),
+                    text = buildString {
+                        append(stringResource(R.string.player_episode_number, episode))
+                        episodeTitle?.takeIf { it.isNotBlank() }?.let { append(" • ").append(it) }
+                    },
                     style = MaterialTheme.typography.labelLarge,
                     color = Color.White.copy(alpha = 0.82f),
                     textAlign = TextAlign.Center,

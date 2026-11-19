@@ -132,19 +132,23 @@ fun ScheduleMobileScreen(
             MobileSwipeableTabsPager(
                 state = tabsState,
                 modifier = Modifier.weight(1f),
-                key = { page -> dayGroups[page].date.toEpochDay() },
+                key = { page -> dayGroups.getOrNull(page)?.date?.toEpochDay() ?: page },
             ) { page ->
-                PullToRefreshBox(
-                    isRefreshing = state.isRefreshing,
-                    onRefresh = { onEvent(ScheduleState.Event.RefreshRequested) },
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    ScheduleDayReleases(
-                        group = dayGroups[page],
-                        now = schedule.now,
-                        zone = schedule.zone,
-                        onAnimeSelected = { onEvent(ScheduleState.Event.AnimeSelected(it)) },
-                    )
+                // Pager can briefly emit its previous page index while the filtered page count
+                // is being applied. Never index the new list with that stale index.
+                dayGroups.getOrNull(page)?.let { group ->
+                    PullToRefreshBox(
+                        isRefreshing = state.isRefreshing,
+                        onRefresh = { onEvent(ScheduleState.Event.RefreshRequested) },
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        ScheduleDayReleases(
+                            group = group,
+                            now = schedule.now,
+                            zone = schedule.zone,
+                            onAnimeSelected = { onEvent(ScheduleState.Event.AnimeSelected(it)) },
+                        )
+                    }
                 }
             }
         }

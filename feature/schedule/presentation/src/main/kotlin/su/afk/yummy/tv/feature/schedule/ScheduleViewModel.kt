@@ -20,6 +20,7 @@ import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.preferences.settings.contentLanguageChanges
 import su.afk.yummy.tv.domain.home.usecase.ObserveLibraryNewEpisodeAnimeIdsUseCase
 import su.afk.yummy.tv.domain.library.usecase.ObserveLibraryFavoriteAnimeIdsUseCase
+import su.afk.yummy.tv.domain.library.usecase.ObserveLibraryItemsUseCase
 import su.afk.yummy.tv.domain.schedule.usecase.GetAnimeScheduleUseCase
 import su.afk.yummy.tv.feature.details.IDetailsNavigator
 import su.afk.yummy.tv.feature.schedule.mapper.toTimelineUi
@@ -42,12 +43,14 @@ class ScheduleViewModel @Inject internal constructor(
     private val settingsStore: SettingsStore,
     private val observeLibraryNewEpisodeAnimeIds: ObserveLibraryNewEpisodeAnimeIdsUseCase,
     private val observeLibraryFavoriteAnimeIds: ObserveLibraryFavoriteAnimeIdsUseCase,
+    private val observeLibraryItems: ObserveLibraryItemsUseCase,
 ) : BaseViewModel<ScheduleState.State, ScheduleState.Event, ScheduleState.Effect>() {
 
     override fun createInitialState() = ScheduleState.State()
 
     private var prioritizedAnimeIds: Set<Int> = emptySet()
     private var favoriteAnimeIds: Set<Int> = emptySet()
+    private var allLibraryAnimeIds: Set<Int> = emptySet()
 
     init {
         analytics.eventScreenOpened()
@@ -66,6 +69,12 @@ class ScheduleViewModel @Inject internal constructor(
             .launchIn(viewModelScope)
         observeLibraryFavoriteAnimeIds()
             .onEach(::updateFavoriteAnimeIds)
+            .launchIn(viewModelScope)
+        observeLibraryItems()
+            .onEach { items ->
+                allLibraryAnimeIds = items.mapTo(HashSet()) { it.animeId }
+                rebuildTimeline()
+            }
             .launchIn(viewModelScope)
         accountSettingsStore.contentLanguageChanges()
             .onEach { load() }
@@ -115,6 +124,7 @@ class ScheduleViewModel @Inject internal constructor(
                     prioritizedAnimeIds = ids,
                     favoriteAnimeIds = favoriteAnimeIds,
                     libraryOnly = currentState.libraryFilter == ScheduleState.LibraryFilter.LIBRARY,
+                    libraryAnimeIds = allLibraryAnimeIds,
                 ),
             )
         }
@@ -145,6 +155,7 @@ class ScheduleViewModel @Inject internal constructor(
                 prioritizedAnimeIds = prioritizedAnimeIds,
                 favoriteAnimeIds = favoriteAnimeIds,
                 libraryOnly = libraryFilter == ScheduleState.LibraryFilter.LIBRARY,
+                libraryAnimeIds = allLibraryAnimeIds,
             ))
         }
     }

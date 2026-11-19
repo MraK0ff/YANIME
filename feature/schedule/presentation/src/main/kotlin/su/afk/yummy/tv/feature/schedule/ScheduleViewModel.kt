@@ -141,6 +141,7 @@ class ScheduleViewModel @Inject internal constructor(
                     prioritizedAnimeIds = prioritizedAnimeIds,
                     favoriteAnimeIds = ids,
                     libraryOnly = currentState.libraryFilter == ScheduleState.LibraryFilter.LIBRARY,
+                    libraryAnimeIds = allLibraryAnimeIds,
                 ),
             )
         }
@@ -208,6 +209,7 @@ class ScheduleViewModel @Inject internal constructor(
                                 prioritizedAnimeIds = prioritizedAnimeIds,
                                 favoriteAnimeIds = favoriteAnimeIds,
                                 libraryOnly = libraryFilter == ScheduleState.LibraryFilter.LIBRARY,
+                                libraryAnimeIds = allLibraryAnimeIds,
                             ),
                         )
                     }

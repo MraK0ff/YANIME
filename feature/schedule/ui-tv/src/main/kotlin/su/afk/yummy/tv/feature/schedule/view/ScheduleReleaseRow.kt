@@ -72,7 +72,7 @@ internal fun ScheduleReleaseRow(
 ) {
     val item = release.item
     val releaseAt = Instant.ofEpochSecond(release.epochSeconds).atZone(zone)
-    val aired = releaseAt.isAfter(now).not()
+    val aired = release.aired
     val remainingLabels = scheduleRemainingLabels()
     val listStatus = LocalLibraryListStatuses.current[item.animeId]
     val accentColor = if (aired && listStatus == null) AiredColor else MaterialTheme.colorScheme.onSurfaceVariant
@@ -179,10 +179,14 @@ internal fun ScheduleReleaseRow(
                     Spacer(modifier = Modifier.height(4.dp))
                 }
                 Text(
-                    text = if (aired) {
-                        stringResource(R.string.schedule_episode_aired, release.episode)
-                    } else {
-                        stringResource(
+                    text = when {
+                        aired -> stringResource(R.string.schedule_episode_aired, release.episode)
+                        release.isAwaitingVideo -> stringResource(
+                            R.string.schedule_episode_waiting,
+                            release.episode,
+                            releaseAt.remainingText(now, remainingLabels),
+                        )
+                        else -> stringResource(
                             R.string.schedule_episode_future,
                             release.episode,
                             releaseAt.remainingText(now, remainingLabels),

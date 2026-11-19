@@ -19,6 +19,8 @@ internal fun List<AnimeScheduleDay>.toTimelineUi(
     favoriteAnimeIds: Set<Int> = emptySet(),
     libraryOnly: Boolean = false,
     libraryAnimeIds: Set<Int> = emptySet(),
+    hideWatched: Boolean = false,
+    watchedEpisodes: Map<Int, Set<Int>> = emptyMap(),
 ): ScheduleTimelineUi {
     val today = now.toLocalDate()
     val dayGroups = toUiDayGroups(
@@ -29,6 +31,8 @@ internal fun List<AnimeScheduleDay>.toTimelineUi(
         favoriteAnimeIds = favoriteAnimeIds,
         libraryOnly = libraryOnly,
         libraryAnimeIds = libraryAnimeIds,
+        hideWatched = hideWatched,
+        watchedEpisodes = watchedEpisodes,
     )
     val availableEpochDays = dayGroups.map { it.date.toEpochDay() }
     val nextSelectedEpochDay = selectedEpochDay(
@@ -66,6 +70,8 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
     favoriteAnimeIds: Set<Int>,
     libraryOnly: Boolean,
     libraryAnimeIds: Set<Int>,
+    hideWatched: Boolean,
+    watchedEpisodes: Map<Int, Set<Int>>,
 ): List<ScheduleDayUi> =
     flatMap { it.items }
         .flatMap { item ->
@@ -114,6 +120,9 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
                         )
                     }
             }
+        }
+        .filter { release ->
+            !hideWatched || release.episode !in watchedEpisodes[release.item.animeId].orEmpty()
         }
         .filter { release ->
             !libraryOnly || release.item.animeId in libraryAnimeIds || release.isFromSelectedList || release.isFavorite

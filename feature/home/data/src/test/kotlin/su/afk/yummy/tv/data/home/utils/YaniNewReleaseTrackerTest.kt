@@ -117,8 +117,21 @@ class YaniNewReleaseTrackerTest {
             airedEpisodeCounts = mapOf(1 to 8),
         )
 
-        assertEquals(7, updated.single().episodeNumber)
-        assertEquals(0L, updated.single().lastUpdatedAt)
+        assertTrue(updated.isEmpty())
+    }
+
+    @Test
+    fun `episode beyond the known available count is promoted`() {
+        val baseline = tracker.merge(listOf(video(1, "8")), emptyList(), 100L)
+        val updated = tracker.merge(
+            videos = listOf(video(1, "9")),
+            history = baseline,
+            now = 200L,
+            airedEpisodeCounts = mapOf(1 to 8),
+        )
+
+        assertEquals(9, updated.single().episodeNumber)
+        assertEquals(200L, updated.single().lastUpdatedAt)
     }
 
     @Test

@@ -15,9 +15,15 @@ internal fun List<AnimeScheduleDay>.toTimelineUi(
     zone: ZoneId = ZoneId.systemDefault(),
     now: ZonedDateTime = ZonedDateTime.now(zone),
     selectedEpochDay: Long? = null,
+    prioritizedAnimeIds: Set<Int> = emptySet(),
 ): ScheduleTimelineUi {
     val today = now.toLocalDate()
-    val dayGroups = toUiDayGroups(zone = zone, today = today, nowSeconds = now.toEpochSecond())
+    val dayGroups = toUiDayGroups(
+        zone = zone,
+        today = today,
+        nowSeconds = now.toEpochSecond(),
+        prioritizedAnimeIds = prioritizedAnimeIds,
+    )
     val availableEpochDays = dayGroups.map { it.date.toEpochDay() }
     val nextSelectedEpochDay = selectedEpochDay(
         availableEpochDays = availableEpochDays,
@@ -50,6 +56,7 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
     zone: ZoneId,
     today: LocalDate,
     nowSeconds: Long,
+    prioritizedAnimeIds: Set<Int>,
 ): List<ScheduleDayUi> =
     flatMap { it.items }
         .flatMap { item ->
@@ -121,7 +128,10 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
                             .thenBy { it.epochSeconds },
                     )
                 }
-                .sortedBy { it.epochSeconds }
+                .sortedWith(
+                    compareByDescending<ScheduleReleaseUi> { it.item.animeId in prioritizedAnimeIds }
+                        .thenBy { it.epochSeconds },
+                )
             ScheduleDayUi(
                 date = date,
                 weekdayLabel = date.dayOfWeek

@@ -628,11 +628,6 @@ internal fun MobileNativePlayer(
         )
 
 
-        PlayerBufferingIndicator(
-            visible = (isBuffering || showRecoveryIndicator) && !overlay.visible,
-            modifier = Modifier.align(Alignment.Center),
-        )
-
         MobilePlayerGestureLayer(
             enabled = !isInPictureInPictureMode && !tutorialBlocksPlayback,
             locked = locked,
@@ -848,6 +843,12 @@ internal fun MobileNativePlayer(
                 initialPage = settingsMenuPage,
             )
         }
+
+        // Индикатор рисуется поверх жестового слоя и центральных кнопок управления.
+        PlayerBufferingIndicator(
+            visible = isBuffering || showRecoveryIndicator,
+            modifier = Modifier.align(Alignment.Center),
+        )
 
         MobilePlayerOverlay(
             modifier = Modifier.align(Alignment.Center),

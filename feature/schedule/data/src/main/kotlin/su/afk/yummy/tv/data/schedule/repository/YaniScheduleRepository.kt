@@ -16,6 +16,8 @@ import su.afk.yummy.tv.core.storage.document.DocumentCacheStorage
 import su.afk.yummy.tv.core.storage.anime.AnimeStorage
 import su.afk.yummy.tv.core.storage.offlinefirst.offlineFirstCache
 import su.afk.yummy.tv.core.storage.schedule.AnimeScheduleStorage
+import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStorage
+import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressEntry
 import su.afk.yummy.tv.core.storage.schedule.isFresh
 import su.afk.yummy.tv.data.schedule.network.YaniScheduleApi
 import su.afk.yummy.tv.data.home.network.YaniHomeApi
@@ -67,6 +69,7 @@ class YaniScheduleRepository(
     private val documentCache: DocumentCacheStorage,
     private val homeApi: YaniHomeApi,
     private val animeStorage: AnimeStorage,
+    private val watchProgressStorage: WatchProgressStorage,
 ) : AnimeScheduleRepository {
     private val releaseHistoryMutex = Mutex()
     private val feedRefreshMutex = Mutex()
@@ -95,7 +98,14 @@ class YaniScheduleRepository(
         } catch (_: Exception) {
             emptyMap()
         }
-        schedule.withVideoReleaseHistory(releases).withAvailableEpisodeCounts(counts)
+        val watchHistory = try {
+            watchProgressStorage.allMeaningfulVideoProgress()
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            emptyList()
+        }
+        schedule.withVideoReleaseHistory(releases, watchHistory).withAvailableEpisodeCounts(counts)
     }
 
     override suspend fun saveEpisodeReleases(releases: List<AnimeEpisodeRelease>) {
@@ -158,12 +168,27 @@ class YaniScheduleRepository(
         })
     }
 
-    private fun List<AnimeScheduleDay>.withVideoReleaseHistory(releases: List<AnimeEpisodeRelease>) = map { day ->
+    private fun List<AnimeScheduleDay>.withVideoReleaseHistory(
+        releases: List<AnimeEpisodeRelease>,
+        watchHistory: List<WatchProgressEntry>,
+    ) = map { day ->
         day.copy(items = day.items.map { item ->
             val animeReleases = releases.filter { it.animeId == item.animeId }
+            val preferredSource = watchHistory.asSequence()
+                .filter { it.animeId == item.animeId }
+                .filter { it.playerName.isNotBlank() || it.dubbing.isNotBlank() }
+                .groupBy { it.playerName.trim() to it.dubbing.trim() }
+                .entries
+                .maxWithOrNull(compareBy<Map.Entry<Pair<String, String>, List<WatchProgressEntry>>> { it.value.size }
+                    .thenBy { it.value.maxOfOrNull { entry -> entry.updatedAt } ?: 0L })
+                ?.key
             item.copy(
                 videoReleases = animeReleases.sortedBy { it.firstVideoAtSeconds },
-                releasePrediction = ReleasePredictionCalculator.predict(animeReleases, System.currentTimeMillis() / 1000L),
+                releasePrediction = ReleasePredictionCalculator.predict(
+                    animeReleases,
+                    System.currentTimeMillis() / 1000L,
+                    preferredSource,
+                ),
             )
         })
     }

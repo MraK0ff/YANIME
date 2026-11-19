@@ -13,7 +13,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -35,6 +38,7 @@ import su.afk.yummy.tv.core.designsystem.dimensions.currentMobilePosterTitleStyl
 import su.afk.yummy.tv.core.designsystem.dimensions.currentMobilePosterTitleWeight
 import su.afk.yummy.tv.core.designsystem.dimensions.currentMobilePosterWidth
 import su.afk.yummy.tv.core.designsystem.locals.LocalLibraryListStatuses
+import su.afk.yummy.tv.core.designsystem.locals.LocalLibraryFavoriteAnimeIds
 import su.afk.yummy.tv.core.designsystem.mobile.input.clickablePointer
 import su.afk.yummy.tv.core.designsystem.mobile.input.onSecondaryClick
 import su.afk.yummy.tv.core.designsystem.seasonal.seasonalCardDecor
@@ -113,6 +117,23 @@ fun MobilePosterCard(
                     )
                 }
                 val listStatus = animeId?.let { LocalLibraryListStatuses.current[it] }
+                val isFavorite = animeId?.let { it in LocalLibraryFavoriteAnimeIds.current } == true
+                if (isFavorite) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(YummySpacing.Small)
+                            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.88f), YummyShapeTokens.Control)
+                            .padding(5.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Favorite,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.size(16.dp),
+                        )
+                    }
+                }
                 Box(
                     Modifier
                         .matchParentSize()

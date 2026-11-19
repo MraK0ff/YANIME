@@ -20,7 +20,7 @@ internal class YaniNewReleaseTracker {
         /** Non-null means a schedule snapshot was successfully read; missing ids are unknown. */
         airedEpisodeCounts: Map<Int, Int>? = null,
     ): List<HomeNewReleaseEntry> {
-        if (videos.isEmpty()) return history.sortedBy { it.position }
+        if (videos.isEmpty()) return history.withoutAlreadyAiredEpisodes(airedEpisodeCounts)
 
         val candidates = videos.mapIndexedNotNull { index, video ->
             val animeId = video.animeId?.takeIf { it > 0 } ?: return@mapIndexedNotNull null
@@ -30,7 +30,7 @@ internal class YaniNewReleaseTracker {
             Candidate(index, animeId, episodeNumber, video, title)
         }.groupBy { it.animeId }
 
-        if (candidates.isEmpty()) return history.sortedBy { it.position }
+        if (candidates.isEmpty()) return history.withoutAlreadyAiredEpisodes(airedEpisodeCounts)
 
         val previousById = history.associateBy { it.animeId }
         val isInitialSnapshot = previousById.isEmpty()
@@ -94,13 +94,30 @@ internal class YaniNewReleaseTracker {
             }
         }
 
-        return merged.values.sortedWith(
+        return merged.values
+            .filter { entry ->
+                val airedCount = airedEpisodeCounts?.get(entry.animeId)
+                airedCount == null || entry.episodeNumber >= airedCount
+            }
+            .sortedWith(
             compareByDescending<HomeNewReleaseEntry> { it.lastUpdatedAt > 0L }
                 .thenByDescending { it.lastUpdatedAt }
                 .thenBy { it.position }
                 .thenBy { it.animeId },
         ).mapIndexed { index, entry -> entry.copy(position = index) }
     }
+
+    /**
+     * Remove cards left behind by an older app version when the feed only observed an old dub.
+     * Keep entries when the current episode count is unknown; absence of data is not proof of staleness.
+     */
+    private fun List<HomeNewReleaseEntry>.withoutAlreadyAiredEpisodes(
+        airedEpisodeCounts: Map<Int, Int>?,
+    ): List<HomeNewReleaseEntry> =
+        filter { entry ->
+            val airedCount = airedEpisodeCounts?.get(entry.animeId)
+            airedCount == null || entry.episodeNumber >= airedCount
+        }.sortedBy { it.position }
 
     private data class Candidate(
         val index: Int,

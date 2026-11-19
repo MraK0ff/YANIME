@@ -12,7 +12,9 @@ interface HomeFeedStorage {
 
     suspend fun deleteContinueWatchingByAnimeId(animeId: Int)
 
+    /** Reads the cached Home presentation projection, not canonical release facts. */
     suspend fun getNewReleaseHistory(): List<HomeNewReleaseEntry>
 
+    /** Saves the derived Home presentation projection. */
     suspend fun saveNewReleaseHistory(entries: List<HomeNewReleaseEntry>)
 }

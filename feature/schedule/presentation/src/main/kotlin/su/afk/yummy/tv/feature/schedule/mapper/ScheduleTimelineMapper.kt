@@ -83,6 +83,7 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
                 currentAiredEpisode != null &&
                 japaneseReleaseAt != null &&
                 japaneseReleaseAt <= nowSeconds &&
+                Instant.ofEpochSecond(japaneseReleaseAt).atZone(zone).toLocalDate() >= today.minusDays(1) &&
                 !hasCurrentEpisodeVideo
             ) {
                 nextVideoCheckAt(japaneseReleaseAt, nowSeconds)

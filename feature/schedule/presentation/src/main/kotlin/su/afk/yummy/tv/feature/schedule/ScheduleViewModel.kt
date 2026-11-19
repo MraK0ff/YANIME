@@ -128,32 +128,15 @@ class ScheduleViewModel @Inject internal constructor(
 
     private fun updatePrioritizedAnimeIds(ids: Set<Int>) {
         prioritizedAnimeIds = ids
-        val now = Instant.ofEpochMilli(appClock.nowMillis())
-            .atZone(ZoneId.systemDefault())
-        setState {
-            copy(
-                tvSchedule = days.toList().toTimelineUi(
-                    now = now,
-                    selectedEpochDay = tvSchedule.selectedEpochDay,
-                    prioritizedAnimeIds = ids,
-                    favoriteAnimeIds = favoriteAnimeIds,
-                    libraryOnly = currentState.libraryFilter == ScheduleState.LibraryFilter.LIBRARY,
-                    libraryAnimeIds = allLibraryAnimeIds,
-                                hideWatched = hideWatched,
-                                watchedEpisodes = watchedEpisodes,
-                hideWatched = hideWatched,
-                watchedEpisodes = watchedEpisodes,
-                    hideWatched = currentState.hideWatched,
-                    watchedEpisodes = watchedEpisodes,
-                    hideWatched = currentState.hideWatched,
-                    watchedEpisodes = watchedEpisodes,
-                ),
-            )
-        }
+        rebuildTimeline()
     }
 
     private fun updateFavoriteAnimeIds(ids: Set<Int>) {
         favoriteAnimeIds = ids
+        rebuildTimeline()
+    }
+
+    private fun rebuildTimeline() {
         val now = Instant.ofEpochMilli(appClock.nowMillis()).atZone(ZoneId.systemDefault())
         setState {
             copy(
@@ -161,25 +144,13 @@ class ScheduleViewModel @Inject internal constructor(
                     now = now,
                     selectedEpochDay = tvSchedule.selectedEpochDay,
                     prioritizedAnimeIds = prioritizedAnimeIds,
-                    favoriteAnimeIds = ids,
-                    libraryOnly = currentState.libraryFilter == ScheduleState.LibraryFilter.LIBRARY,
+                    favoriteAnimeIds = favoriteAnimeIds,
+                    libraryOnly = libraryFilter == ScheduleState.LibraryFilter.LIBRARY,
                     libraryAnimeIds = allLibraryAnimeIds,
+                    hideWatched = hideWatched,
+                    watchedEpisodes = watchedEpisodes,
                 ),
             )
-        }
-    }
-
-    private fun rebuildTimeline() {
-        val now = Instant.ofEpochMilli(appClock.nowMillis()).atZone(ZoneId.systemDefault())
-        setState {
-            copy(tvSchedule = days.toList().toTimelineUi(
-                now = now,
-                selectedEpochDay = tvSchedule.selectedEpochDay,
-                prioritizedAnimeIds = prioritizedAnimeIds,
-                favoriteAnimeIds = favoriteAnimeIds,
-                libraryOnly = libraryFilter == ScheduleState.LibraryFilter.LIBRARY,
-                libraryAnimeIds = allLibraryAnimeIds,
-            ))
         }
     }
 

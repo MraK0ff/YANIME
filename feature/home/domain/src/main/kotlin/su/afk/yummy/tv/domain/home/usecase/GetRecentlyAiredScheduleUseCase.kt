@@ -27,7 +27,7 @@ class GetRecentlyAiredScheduleUseCase @Inject constructor(
                     .asSequence()
                     .filter { release ->
                         if (availableCount != null) release.episodeNumber > availableCount
-                        else release.episodeNumber >= airedCount!!
+                        else release.episodeNumber > airedCount!!
                     }
                     .filter { it.firstVideoAtSeconds in 1..nowSeconds }
                     .sortedWith(

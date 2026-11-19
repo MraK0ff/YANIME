@@ -58,7 +58,7 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
                 // future entries must come from the schedule API's nextDate instead.
                 val knownEpisodeCount = (item.availableEpisodeCount ?: item.airedEpisodes)?.takeIf { it > 0 }
                 // Feed publication timestamps can belong to a late dub of an old episode.
-                // Keep only the newest episode supported by the schedule's aired count.
+                // Prefer the locally known video count; fall back to the schedule's aired count.
                 val latestEligibleRelease = item.videoReleases
                     .asSequence()
                     .filter { knownEpisodeCount != null && it.episodeNumber >= knownEpisodeCount }

@@ -36,6 +36,7 @@ import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.showLibr
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.showCatalogTitleYearKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.showEpisodeFlagsKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.episodeWatchFilterKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.scheduleLibraryFilterKey
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -52,6 +53,7 @@ internal class DataStoreAppearanceSettingsStore @Inject constructor(
     override val showCatalogTitleYear: Flow<Boolean> = store.boolean(showCatalogTitleYearKey, false)
     override val showEpisodeFlags: Flow<Boolean> = store.boolean(showEpisodeFlagsKey, true)
     override val episodeWatchFilter: Flow<String> = store.string(episodeWatchFilterKey)
+    override val scheduleLibraryFilter: Flow<String> = store.string(scheduleLibraryFilterKey)
 
     override val seasonalDecorationsEnabled: Flow<Boolean> =
         store.boolean(seasonalDecorationsEnabledKey, true)
@@ -113,6 +115,9 @@ internal class DataStoreAppearanceSettingsStore @Inject constructor(
 
     override suspend fun setShowCatalogTitleYear(enabled: Boolean) =
         store.setBoolean(showCatalogTitleYearKey, enabled)
+
+    override suspend fun setScheduleLibraryFilter(filter: String) =
+        store.edit { prefs -> prefs[scheduleLibraryFilterKey] = filter }
 
     override suspend fun setEpisodeWatchFilter(filter: String) =
         store.edit { prefs -> prefs[episodeWatchFilterKey] = filter }

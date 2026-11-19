@@ -64,7 +64,7 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
                     .asSequence()
                     .filter { release ->
                         if (availableCount != null) release.episodeNumber > availableCount
-                        else airedCount != null && release.episodeNumber >= airedCount
+                        else airedCount != null && release.episodeNumber > airedCount
                     }
                     .filter { it.firstVideoAtSeconds in 1..nowSeconds }
                     .sortedWith(

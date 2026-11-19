@@ -110,6 +110,23 @@ class ScheduleTimelineMapperTest {
     }
 
     @Test
+    fun `selected library titles are prioritized within each schedule day`() {
+        val publishedAt = nowSeconds - 3_600L
+        val timeline = listOf(
+            AnimeScheduleDay(
+                "day",
+                listOf(
+                    item(animeId = 1, releases = listOf(release(episode = 2, publishedAt = publishedAt))),
+                    item(animeId = 2, releases = listOf(release(episode = 3, publishedAt = publishedAt))),
+                    item(animeId = 3, releases = listOf(release(episode = 4, publishedAt = publishedAt))),
+                ),
+            ),
+        ).toTimelineUi(zone, now, prioritizedAnimeIds = setOf(2, 3))
+
+        assertEquals(listOf(2, 3, 1), timeline.dayGroups.single().items.map { it.item.animeId })
+    }
+
+    @Test
     fun `future schedule remains visible and is not marked aired`() {
         val future = nowSeconds + DAY
         val timeline = listOf(day(item(nextDate = future, airedEpisodes = 4))).toTimelineUi(zone, now)
@@ -224,14 +241,15 @@ class ScheduleTimelineMapperTest {
     private fun day(item: AnimeScheduleItem) = AnimeScheduleDay("day", listOf(item))
 
     private fun item(
+        animeId: Int = 1,
         previousDate: Long? = null,
         nextDate: Long? = null,
         airedEpisodes: Int? = 3,
         availableEpisodeCount: Int? = null,
         releases: List<AnimeEpisodeRelease> = emptyList(),
     ) = AnimeScheduleItem(
-        animeId = 1,
-        title = "Anime",
+        animeId = animeId,
+        title = "Anime $animeId",
         poster = null,
         nextDateEpochSeconds = nextDate,
         previousDateEpochSeconds = previousDate,

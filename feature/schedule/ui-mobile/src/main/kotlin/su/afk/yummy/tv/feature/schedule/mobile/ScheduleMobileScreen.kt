@@ -8,12 +8,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import java.io.IOException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import su.afk.yummy.tv.core.designsystem.R as CoreR
@@ -76,6 +78,14 @@ fun ScheduleMobileScreen(
     effect: Flow<ScheduleState.Effect>,
     onEvent: (ScheduleState.Event) -> Unit,
 ) {
+    // Refresh the Yani feed and recompute the rolling video-availability estimate while visible.
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(SCHEDULE_LIVE_REFRESH_INTERVAL_MS)
+            onEvent(ScheduleState.Event.RefreshRequested)
+        }
+    }
+
     val schedule = state.tvSchedule
     val dayGroups = schedule.dayGroups
     val selectedPage = dayGroups.indexOfFirst { it.date.toEpochDay() == schedule.selectedEpochDay }.coerceIn(0, (dayGroups.size - 1).coerceAtLeast(0))
@@ -188,3 +198,5 @@ private fun ScheduleDayReleases(
         }
     }
 }
+
+private const val SCHEDULE_LIVE_REFRESH_INTERVAL_MS = 60_000L

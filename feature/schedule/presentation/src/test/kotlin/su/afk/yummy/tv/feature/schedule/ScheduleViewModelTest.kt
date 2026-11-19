@@ -73,6 +73,7 @@ class ScheduleViewModelTest : BaseUnitTest() {
         appClock = appClock,
         settingsStore = mockk {
             every { newEpisodesSources } returns flowOf(NewEpisodesSource.DEFAULT)
+            every { scheduleLibraryFilter } returns flowOf("ALL")
         },
         observeLibraryNewEpisodeAnimeIds = mockk {
             every { invoke(any()) } returns emptyFlow()

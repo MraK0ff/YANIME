@@ -9,6 +9,7 @@ import su.afk.yummy.tv.core.network.yani.YaniMirrorFallback
 import su.afk.yummy.tv.core.preferences.api.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.schedule.AnimeScheduleStorage
 import su.afk.yummy.tv.core.storage.anime.AnimeStorage
+import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStorage
 import su.afk.yummy.tv.core.storage.document.DocumentCacheStorage
 import su.afk.yummy.tv.data.schedule.network.YaniScheduleApi
 import su.afk.yummy.tv.data.home.network.YaniHomeApi
@@ -35,6 +36,7 @@ object ScheduleDataModule {
         documentCache: DocumentCacheStorage,
         homeApi: YaniHomeApi,
         animeStorage: AnimeStorage,
+        watchProgressStorage: WatchProgressStorage,
     ): AnimeScheduleRepository =
-        YaniScheduleRepository(api, scheduleStore, settingsStore, documentCache, homeApi, animeStorage)
+        YaniScheduleRepository(api, scheduleStore, settingsStore, documentCache, homeApi, animeStorage, watchProgressStorage)
 }

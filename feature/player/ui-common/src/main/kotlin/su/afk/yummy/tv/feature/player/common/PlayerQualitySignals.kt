@@ -14,6 +14,10 @@ import javax.inject.Singleton
  */
 @Singleton
 class PlayerQualitySignals @Inject constructor() {
+    @Volatile
+    var lastBandwidthBps: Long = 0L
+        private set
+
     private val mutableEvents = MutableSharedFlow<Signal>(
         extraBufferCapacity = BUFFER_CAPACITY,
         onBufferOverflow = BufferOverflow.DROP_OLDEST,
@@ -25,6 +29,7 @@ class PlayerQualitySignals @Inject constructor() {
     }
 
     fun emitBandwidth(bitsPerSecond: Long) {
+        lastBandwidthBps = bitsPerSecond
         mutableEvents.tryEmit(Signal.Bandwidth(bitsPerSecond))
     }
 

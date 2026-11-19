@@ -36,8 +36,16 @@ internal fun ScheduleMobileDateChip(
     modifier: Modifier = Modifier,
 ) {
     val shape = RoundedCornerShape(22.dp)
-    val backgroundTarget = if (selected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerLow
-    val contentTarget = if (selected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+    val backgroundTarget = when {
+        selected -> MaterialTheme.colorScheme.primary
+        group.isToday -> MaterialTheme.colorScheme.tertiaryContainer
+        else -> MaterialTheme.colorScheme.surfaceContainerLow
+    }
+    val contentTarget = when {
+        selected -> MaterialTheme.colorScheme.onPrimary
+        group.isToday -> MaterialTheme.colorScheme.onTertiaryContainer
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
     val background by animateColorAsState(backgroundTarget, spring(), label = "schedule_date_background")
     val contentColor by animateColorAsState(contentTarget, spring(), label = "schedule_date_content")
 
@@ -47,7 +55,7 @@ internal fun ScheduleMobileDateChip(
             .height(84.dp)
             .clip(shape)
             .background(background, shape)
-            .then(if (selected) Modifier.border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.28f), shape) else Modifier)
+            
             .clickable(onClick = onSelected)
             .padding(horizontal = 8.dp, vertical = 10.dp),
     ) {
@@ -74,7 +82,9 @@ internal fun ScheduleMobileDateChip(
                         .clip(RoundedCornerShape(11.dp))
                         .background(
                             color = if (selected) {
-                                MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.12f)
+                                MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.12f)
+                            } else if (group.isToday) {
+                                MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.12f)
                             } else {
                                 MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f)
                             },

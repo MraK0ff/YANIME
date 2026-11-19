@@ -232,6 +232,24 @@ class YaniHomeFeedRepository(
         } catch (error: Exception) {
             analyticsTracker.log(TAG) { "Could not persist episode release history: ${error.message}" }
         }
+        // A feed upload is not enough to prove that an episode is new: an alternate dub
+        // of an older episode can appear in new_videos long after the episode itself aired.
+        // Use the schedule's aired count as a conservative lower bound before promoting cards.
+        val airedEpisodeCounts = try {
+            scheduleRepository.getSchedule()
+                .flatMap { it.items }
+                .mapNotNull { item ->
+                    item.airedEpisodes
+                        ?.takeIf { it > 0 }
+                        ?.let { airedCount -> item.animeId to airedCount }
+                }
+                .toMap()
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (error: Exception) {
+            analyticsTracker.log(TAG) { "Could not read aired episode counts: ${error.message}" }
+            emptyMap()
+        }
         val now = System.currentTimeMillis()
         val previousCache = homeFeedStore.getFeed(languageCode, watchSignature)
         val storedHistory = homeFeedStore.getNewReleaseHistory()
@@ -244,6 +262,7 @@ class YaniHomeFeedRepository(
             videos = dto.response.newVideos,
             history = historyForMerge,
             now = now,
+            airedEpisodeCounts = airedEpisodeCounts,
         )
         homeFeedStore.saveNewReleaseHistory(releaseHistory)
         val cache = dto.toHomeFeedCache(

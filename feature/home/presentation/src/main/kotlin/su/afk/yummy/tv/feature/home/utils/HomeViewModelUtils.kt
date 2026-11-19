@@ -60,6 +60,7 @@ internal fun HomeFeed.withShuffledHero(random: Random): HomeFeed =
 internal fun HomeFeed.withRecentReleaseMetadata(
     recentlyAired: List<HomeFeedItem>,
     prioritizedAnimeIds: Set<Int> = emptySet(),
+    watchedEpisodes: Map<Int, Set<Int>> = emptyMap(),
 ): HomeFeed {
     if (recentlyAired.isEmpty() && prioritizedAnimeIds.isEmpty()) return this
     val latestById = recentlyAired.associateBy { it.id }
@@ -75,16 +76,14 @@ internal fun HomeFeed.withRecentReleaseMetadata(
                             airedAtSeconds = release?.airedAtSeconds ?: item.airedAtSeconds,
                             isFromSelectedList = item.id in prioritizedAnimeIds,
                         )
-                    },
+                    }
+                    .filterNot { it.isEpisodeWatched(watchedEpisodes) },
             )
         },
     )
 }
 
-/**
- * Adds recently released episodes for titles in [libraryAnimeIds]. Watched releases remain visible
- * with [HomeFeedItem.isWatched] set, so the user can still see that a new episode was published.
- */
+/** Adds only unwatched recent episodes for titles in [libraryAnimeIds]. */
 internal fun HomeFeed.withMyNewEpisodes(
     recentlyAired: List<HomeFeedItem>,
     libraryAnimeIds: Set<Int>,
@@ -93,12 +92,8 @@ internal fun HomeFeed.withMyNewEpisodes(
 ): HomeFeed {
     val items = recentlyAired
         .filter { it.id in libraryAnimeIds }
-        .map { item ->
-            item.copy(
-                isWatched = item.isEpisodeWatched(watchedEpisodes),
-                isFromSelectedList = true,
-            )
-        }
+        .filterNot { it.isEpisodeWatched(watchedEpisodes) }
+        .map { item -> item.copy(isFromSelectedList = true) }
     if (items.isEmpty()) return this
     val section = HomeFeedSection(HomeFeedSectionType.MY_NEW_EPISODES, title, items)
     return copy(sections = listOf(section) + sections)

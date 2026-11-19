@@ -79,6 +79,7 @@ internal fun ScheduleReleaseRow(
     val rowBackground = when {
         focused -> MaterialTheme.colorScheme.surfaceContainerHigh
         selected -> MaterialTheme.colorScheme.surfaceContainerHigh
+        release.isFromSelectedList -> MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.42f)
         aired -> AiredColor.copy(alpha = 0.12f)
         else -> MaterialTheme.colorScheme.surfaceContainerLow
     }
@@ -113,7 +114,11 @@ internal fun ScheduleReleaseRow(
                 .background(rowBackground, shape)
                 .border(
                     width = if (active) 2.dp else 0.dp,
-                    color = if (active) MaterialTheme.colorScheme.primary else Color.Transparent,
+                    color = when {
+                        active -> MaterialTheme.colorScheme.primary
+                        release.isFromSelectedList -> MaterialTheme.colorScheme.tertiary
+                        else -> Color.Transparent
+                    },
                     shape = shape,
                 ),
         )

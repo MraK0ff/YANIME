@@ -27,4 +27,12 @@ data class EpisodeReleaseEntry(
     val title: String,
     val posterUrl: String?,
     val firstDetectedAtSeconds: Long,
+    val animeUrl: String? = null,
+    val description: String? = null,
+    val episodeTitle: String? = null,
+    val posterSmallUrl: String? = null,
+    val posterMediumUrl: String? = null,
+    val posterBigUrl: String? = null,
+    val posterFullsizeUrl: String? = null,
+    val posterMegaUrl: String? = null,
 )

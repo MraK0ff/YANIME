@@ -22,6 +22,7 @@ interface AppearanceSettingsStore {
     val showCatalogTitleYear: Flow<Boolean>
 
     /** Показывать у серий пометки «филлер» и «рекап». */
+    val scheduleLibraryFilter: Flow<String>
     val episodeWatchFilter: Flow<String>
     val showEpisodeFlags: Flow<Boolean>
     val showLibraryTitleYear: Flow<Boolean>
@@ -56,6 +57,7 @@ interface AppearanceSettingsStore {
     suspend fun setPosterCardSize(size: PosterCardSize)
     suspend fun setTitleCardLayout(layout: TitleCardLayout)
     suspend fun setShowCatalogTitleYear(enabled: Boolean)
+    suspend fun setScheduleLibraryFilter(filter: String)
     suspend fun setEpisodeWatchFilter(filter: String)
     suspend fun setShowEpisodeFlags(enabled: Boolean)
     suspend fun setShowLibraryTitleYear(enabled: Boolean)

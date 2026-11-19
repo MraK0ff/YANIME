@@ -75,16 +75,17 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
             // A Japanese broadcast is not proof that a YummyAnime video exists.
             // Keep the aired episode visible and advance its availability estimate every 10 minutes.
             val currentAiredEpisode = airedCount
+            val japaneseReleaseAt = item.previousDateEpochSeconds
             val hasCurrentEpisodeVideo = currentAiredEpisode != null && item.videoReleases.any {
                 it.episodeNumber == currentAiredEpisode && it.firstVideoAtSeconds in 1..nowSeconds
             }
             val awaitingVideoAt = if (
                 currentAiredEpisode != null &&
-                item.previousDateEpochSeconds != null &&
-                item.previousDateEpochSeconds <= nowSeconds &&
+                japaneseReleaseAt != null &&
+                japaneseReleaseAt <= nowSeconds &&
                 !hasCurrentEpisodeVideo
             ) {
-                nextVideoCheckAt(item.previousDateEpochSeconds, nowSeconds)
+                nextVideoCheckAt(japaneseReleaseAt, nowSeconds)
             } else {
                 null
             }
@@ -100,9 +101,10 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
                 ))
             }
 
-            val prediction = item.releasePrediction?.takeIf {
-                it.confidence != ReleasePrediction.Confidence.UNKNOWN &&
-                    it.expectedAtEpochSeconds != null && it.expectedAtEpochSeconds > nowSeconds
+            val prediction = item.releasePrediction?.takeIf { value ->
+                val expectedAt = value.expectedAtEpochSeconds
+                value.confidence != ReleasePrediction.Confidence.UNKNOWN &&
+                    expectedAt != null && expectedAt > nowSeconds
             }
             val nextAt = prediction?.expectedAtEpochSeconds
                 ?: item.nextDateEpochSeconds?.takeIf { it > nowSeconds }

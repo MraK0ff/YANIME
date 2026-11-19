@@ -206,7 +206,7 @@ class ScheduleTimelineMapperTest {
         val timeline = listOf(
             day(
                 item(
-                    airedEpisodes = 3,
+                    airedEpisodes = 2,
                     releases = listOf(
                         release(episode = 3, publishedAt = laterDuplicateAt),
                         release(episode = 3, publishedAt = firstPublishedAt),
@@ -226,7 +226,7 @@ class ScheduleTimelineMapperTest {
     private fun item(
         previousDate: Long? = null,
         nextDate: Long? = null,
-        airedEpisodes: Int? = 4,
+        airedEpisodes: Int? = 3,
         availableEpisodeCount: Int? = null,
         releases: List<AnimeEpisodeRelease> = emptyList(),
     ) = AnimeScheduleItem(

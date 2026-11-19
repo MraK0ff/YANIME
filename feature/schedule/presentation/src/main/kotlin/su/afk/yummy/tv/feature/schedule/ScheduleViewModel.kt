@@ -2,7 +2,9 @@ package su.afk.yummy.tv.feature.schedule
 
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -14,7 +16,9 @@ import su.afk.yummy.tv.core.model.text.UiText
 import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.preferences.api.YaniAccountSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.preferences.settings.contentLanguageChanges
+import su.afk.yummy.tv.domain.home.usecase.ObserveLibraryNewEpisodeAnimeIdsUseCase
 import su.afk.yummy.tv.domain.schedule.usecase.GetAnimeScheduleUseCase
 import su.afk.yummy.tv.feature.details.IDetailsNavigator
 import su.afk.yummy.tv.feature.schedule.mapper.toTimelineUi
@@ -23,6 +27,7 @@ import java.time.Instant
 import java.time.ZoneId
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class ScheduleViewModel @Inject internal constructor(
     override val errorHandler: ErrorHandler,
@@ -33,13 +38,21 @@ class ScheduleViewModel @Inject internal constructor(
     private val analytics: ScheduleAnalytics,
     private val accountSettingsStore: YaniAccountSettingsStore,
     private val appClock: AppClock,
+    private val settingsStore: SettingsStore,
+    private val observeLibraryNewEpisodeAnimeIds: ObserveLibraryNewEpisodeAnimeIdsUseCase,
 ) : BaseViewModel<ScheduleState.State, ScheduleState.Event, ScheduleState.Effect>() {
 
     override fun createInitialState() = ScheduleState.State()
 
+    private var prioritizedAnimeIds: Set<Int> = emptySet()
+
     init {
         analytics.eventScreenOpened()
         load()
+        settingsStore.newEpisodesSources
+            .flatMapLatest { sources -> observeLibraryNewEpisodeAnimeIds(sources) }
+            .onEach(::updatePrioritizedAnimeIds)
+            .launchIn(viewModelScope)
         accountSettingsStore.contentLanguageChanges()
             .onEach { load() }
             .launchIn(viewModelScope)
@@ -67,6 +80,21 @@ class ScheduleViewModel @Inject internal constructor(
             }
 
             ScheduleState.Event.RefreshRequested -> refresh()
+        }
+    }
+
+    private fun updatePrioritizedAnimeIds(ids: Set<Int>) {
+        prioritizedAnimeIds = ids
+        val now = Instant.ofEpochMilli(appClock.nowMillis())
+            .atZone(ZoneId.systemDefault())
+        setState {
+            copy(
+                tvSchedule = days.toList().toTimelineUi(
+                    now = now,
+                    selectedEpochDay = tvSchedule.selectedEpochDay,
+                    prioritizedAnimeIds = ids,
+                ),
+            )
         }
     }
 
@@ -115,6 +143,7 @@ class ScheduleViewModel @Inject internal constructor(
                             tvSchedule = days.toTimelineUi(
                                 now = now,
                                 selectedEpochDay = tvSchedule.selectedEpochDay,
+                                prioritizedAnimeIds = prioritizedAnimeIds,
                             ),
                         )
                     }

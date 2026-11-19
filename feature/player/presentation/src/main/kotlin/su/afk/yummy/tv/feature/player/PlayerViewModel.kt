@@ -637,6 +637,8 @@ class PlayerViewModel @AssistedInject internal constructor(
             PlayerState.Event.VideoEnhancementOverloaded -> {
                 if (currentState.videoEnhancementMode != VideoEnhancementMode.OFF) {
                     setEffect(PlayerState.Effect.ShowToast(strings.get(R.string.player_toast_video_enhancement_overload)))
+                    // Не продолжаем нагружать устройство, если декодер/GPU не успевает за видео.
+                    preferences.setVideoEnhancementMode(host, VideoEnhancementMode.OFF)
                 }
             }
 

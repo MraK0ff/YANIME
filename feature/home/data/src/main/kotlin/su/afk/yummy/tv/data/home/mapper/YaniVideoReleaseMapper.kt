@@ -43,5 +43,6 @@ fun List<YaniVideoDto>.toAnimeEpisodeReleases(): List<AnimeEpisodeRelease> =
                 ?: video.poster?.medium ?: video.poster?.small)?.toHttpsUrl(),
             playerName = video.playerTitle.orEmpty().trim(),
             dubbing = video.dubTitle.orEmpty().trim(),
+            firstDetectedAtSeconds = System.currentTimeMillis() / 1000L,
         )
     }

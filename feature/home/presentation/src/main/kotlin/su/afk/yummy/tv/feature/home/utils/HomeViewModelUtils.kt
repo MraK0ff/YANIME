@@ -73,9 +73,9 @@ internal fun HomeFeed.withRecentReleaseMetadata(
                         item.copy(
                             episodeNumber = release.episodeNumber,
                             airedAtSeconds = release.airedAtSeconds,
+                            isFromSelectedList = item.id in prioritizedAnimeIds,
                         )
-                    }
-                    .sortedByDescending { it.id in prioritizedAnimeIds },
+                    },
             )
         },
     )
@@ -93,7 +93,12 @@ internal fun HomeFeed.withMyNewEpisodes(
 ): HomeFeed {
     val items = recentlyAired
         .filter { it.id in libraryAnimeIds }
-        .map { item -> item.copy(isWatched = item.isEpisodeWatched(watchedEpisodes)) }
+        .map { item ->
+            item.copy(
+                isWatched = item.isEpisodeWatched(watchedEpisodes),
+                isFromSelectedList = true,
+            )
+        }
     if (items.isEmpty()) return this
     val section = HomeFeedSection(HomeFeedSectionType.MY_NEW_EPISODES, title, items)
     return copy(sections = listOf(section) + sections)

@@ -5,15 +5,11 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.width
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,6 +34,8 @@ import su.afk.yummy.tv.core.model.ErrorItem
 import su.afk.yummy.tv.core.model.text.UiText
 import su.afk.yummy.tv.feature.schedule.ScheduleState
 import su.afk.yummy.tv.feature.schedule.mobile.view.ScheduleMobileDateChips
+import su.afk.yummy.tv.feature.schedule.mobile.view.ScheduleLibraryFilterAction
+import su.afk.yummy.tv.feature.schedule.mobile.view.ScheduleHideWatchedAction
 import su.afk.yummy.tv.feature.schedule.mobile.view.ScheduleMobileReleaseCard
 import su.afk.yummy.tv.feature.schedule.model.ScheduleDayUi
 import su.afk.yummy.tv.feature.schedule.presentation.R
@@ -81,17 +79,14 @@ fun ScheduleMobileScreen(
 ) {
     val schedule = state.tvSchedule
     val dayGroups = schedule.dayGroups
-    val tabsState = rememberMobileSwipeableTabsState(
-        selectedPage = dayGroups
-            .indexOfFirst { it.date.toEpochDay() == schedule.selectedEpochDay }
-            .coerceAtLeast(0),
-        pageCount = dayGroups.size,
-        onPageSelected = { page ->
-            dayGroups.getOrNull(page)?.let {
-                onEvent(ScheduleState.Event.DateSelected(it.date.toEpochDay()))
-            }
-        },
-    )
+    val selectedPage = dayGroups.indexOfFirst { it.date.toEpochDay() == schedule.selectedEpochDay }.coerceIn(0, (dayGroups.size - 1).coerceAtLeast(0))
+    val tabsState = key(dayGroups.map { it.date.toEpochDay() }) {
+        rememberMobileSwipeableTabsState(
+            selectedPage = selectedPage,
+            pageCount = dayGroups.size,
+            onPageSelected = { page -> dayGroups.getOrNull(page)?.let { onEvent(ScheduleState.Event.DateSelected(it.date.toEpochDay())) } },
+        )
+    }
 
     BaseScreen(
         isScroll = false,
@@ -117,16 +112,8 @@ fun ScheduleMobileScreen(
     ) {
         OfflineBanner(isOffline = LocalIsOffline.current)
         Row(horizontalArrangement = Arrangement.spacedBy(YummySpacing.Small)) {
-            FilterChip(
-                selected = state.libraryFilter == ScheduleState.LibraryFilter.ALL,
-                onClick = { onEvent(ScheduleState.Event.LibraryFilterSelected(ScheduleState.LibraryFilter.ALL)) },
-                label = { androidx.compose.material3.Text(stringResource(R.string.schedule_filter_all)) },
-            )
-            FilterChip(
-                selected = state.libraryFilter == ScheduleState.LibraryFilter.LIBRARY,
-                onClick = { onEvent(ScheduleState.Event.LibraryFilterSelected(ScheduleState.LibraryFilter.LIBRARY)) },
-                label = { androidx.compose.material3.Text(stringResource(R.string.schedule_filter_library)) },
-            )
+            ScheduleLibraryFilterAction(selected = state.libraryFilter, onSelected = { onEvent(ScheduleState.Event.LibraryFilterSelected(it)) })
+            ScheduleHideWatchedAction(checked = state.hideWatched, onCheckedChange = { onEvent(ScheduleState.Event.HideWatchedToggled(it)) })
         }
         ScheduleMobileDateChips(
             groups = dayGroups,

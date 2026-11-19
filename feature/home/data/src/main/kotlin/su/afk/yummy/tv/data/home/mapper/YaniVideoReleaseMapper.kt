@@ -12,10 +12,6 @@ import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
-/**
- * /feed/new_videos содержит дату публикации конкретного видео. Серия извлекается из ep_title;
- * строки без однозначного целого номера не превращаются в обычные эпизоды.
- */
 private fun parseIsoPublicationDate(value: String): Long? =
     runCatching { Instant.parse(value).epochSecond }.getOrNull()
         ?: runCatching { OffsetDateTime.parse(value).toInstant().epochSecond }.getOrNull()
@@ -31,8 +27,7 @@ fun List<YaniVideoDto>.toAnimeEpisodeReleases(): List<AnimeEpisodeRelease> =
             ?.takeIf { it > 0.0 && it % 1.0 == 0.0 }
             ?.toInt()
             ?: return@mapNotNull null
-        val rawDate = (video.date as? JsonPrimitive)?.contentOrNull
-            ?: return@mapNotNull null
+        val rawDate = (video.date as? JsonPrimitive)?.contentOrNull ?: return@mapNotNull null
         val publishedAt = rawDate.toLongOrNull()
             ?.let { if (it > 10_000_000_000L) it / 1_000L else it }
             ?: parseIsoPublicationDate(rawDate)
@@ -44,9 +39,9 @@ fun List<YaniVideoDto>.toAnimeEpisodeReleases(): List<AnimeEpisodeRelease> =
             firstVideoAtSeconds = publishedAt,
             firstVideoId = videoId,
             title = video.title,
-            posterUrl = (
-                video.poster?.mega ?: video.poster?.fullsize ?: video.poster?.big
-                    ?: video.poster?.medium ?: video.poster?.small
-                )?.toHttpsUrl(),
+            posterUrl = (video.poster?.mega ?: video.poster?.fullsize ?: video.poster?.big
+                ?: video.poster?.medium ?: video.poster?.small)?.toHttpsUrl(),
+            playerName = video.playerTitle.orEmpty().trim(),
+            dubbing = video.dubTitle.orEmpty().trim(),
         )
     }

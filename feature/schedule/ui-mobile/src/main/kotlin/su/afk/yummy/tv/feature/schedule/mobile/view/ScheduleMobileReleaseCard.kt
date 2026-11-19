@@ -27,7 +27,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.components.FallbackAsyncImage
 import su.afk.yummy.tv.core.designsystem.components.ListStatusBadge
-import su.afk.yummy.tv.core.designsystem.components.badgeColor
+import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
 import su.afk.yummy.tv.core.designsystem.locals.LocalLibraryListStatuses
 import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.core.model.anime.posterUrls
@@ -53,8 +53,7 @@ internal fun ScheduleMobileReleaseCard(
     val remainingLabels = scheduleMobileRemainingLabels()
     val listStatus = LocalLibraryListStatuses.current[item.animeId]
     val accentColor = if (aired && listStatus == null) MobileScheduleAiredColor else MaterialTheme.colorScheme.onSurfaceVariant
-    val rowBackground = listStatus?.badgeColor()?.copy(alpha = 0.12f)
-        ?: MaterialTheme.colorScheme.surfaceContainerLow
+    val rowBackground = MaterialTheme.colorScheme.surfaceContainerLow
 
     Card(
         onClick = onClick,
@@ -88,7 +87,10 @@ internal fun ScheduleMobileReleaseCard(
                 verticalArrangement = Arrangement.Center,
             ) {
                 listStatus?.let { status ->
-                    ListStatusBadge(status = status, compact = true)
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        ListStatusBadge(status = status, compact = true)
+                        if (release.isFavorite) FavoriteScheduleBadge()
+                    }
                     Spacer(modifier = Modifier.height(6.dp))
                 }
                 Text(
@@ -99,15 +101,12 @@ internal fun ScheduleMobileReleaseCard(
                     overflow = TextOverflow.Ellipsis,
                 )
                 Spacer(modifier = Modifier.height(6.dp))
+                if (listStatus == null && release.isFavorite) FavoriteScheduleBadge()
                 Text(
                     text = if (aired) {
                         stringResource(R.string.schedule_episode_aired, release.episode)
                     } else {
-                        stringResource(
-                            R.string.schedule_episode_future,
-                            release.episode,
-                            releaseAt.remainingText(now, remainingLabels),
-                        )
+                        stringResource(R.string.schedule_episode_future, release.episode) + "\n" + releaseAt.remainingText(now, remainingLabels)
                     },
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
@@ -118,9 +117,6 @@ internal fun ScheduleMobileReleaseCard(
             }
 
             Column(modifier = Modifier.padding(end = 12.dp), horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                if (release.isFavorite) {
-                    Text(text = "♥", color = su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors.StatusFavorite, style = MaterialTheme.typography.titleMedium)
-                }
                 Text(
                     text = releaseAt.timeLabel(),
                     modifier = Modifier.widthIn(min = 58.dp),
@@ -131,4 +127,17 @@ internal fun ScheduleMobileReleaseCard(
             }
         }
     }
+}
+
+@Composable
+private fun FavoriteScheduleBadge() {
+    Text(
+        text = "♥ Любимое",
+        color = YummySemanticColors.StatusFavorite,
+        style = MaterialTheme.typography.labelSmall,
+        fontWeight = FontWeight.SemiBold,
+        modifier = Modifier
+            .background(YummySemanticColors.StatusFavorite.copy(alpha = 0.14f), YummyShapeTokens.Control)
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+    )
 }

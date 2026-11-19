@@ -54,7 +54,7 @@ internal class YaniNewReleaseTracker {
             // Without schedule confirmation, or when the feed episode is older than the
             // currently aired episode, do not create/promote a "new episode" card.
             if (airedEpisodeCounts != null && airedCount == null) return@forEach
-            if (airedCount != null && newest.episodeNumber <= airedCount) return@forEach
+            if (airedCount != null && newest.episodeNumber < airedCount) return@forEach
 
             val previous = previousById[animeId]
             when {
@@ -76,7 +76,7 @@ internal class YaniNewReleaseTracker {
                         position = previous.position,
                     )
                 }
-                newest.episodeNumber > maxOf(previous.episodeNumber, airedCount ?: 0) -> {
+                newest.episodeNumber > previous.episodeNumber && newest.episodeNumber >= (airedCount ?: 0) -> {
                     merged[animeId] = newest.toEntry(
                         now = now,
                         firstSeenAt = previous.firstSeenAt,
@@ -95,7 +95,7 @@ internal class YaniNewReleaseTracker {
         return merged.values
             .filter { entry ->
                 val airedCount = airedEpisodeCounts?.get(entry.animeId)
-                airedCount == null || entry.episodeNumber > airedCount
+                airedCount == null || entry.episodeNumber >= airedCount
             }
             .sortedWith(
             compareByDescending<HomeNewReleaseEntry> { it.lastUpdatedAt > 0L }
@@ -114,7 +114,7 @@ internal class YaniNewReleaseTracker {
     ): List<HomeNewReleaseEntry> =
         filter { entry ->
             val airedCount = airedEpisodeCounts?.get(entry.animeId)
-            airedCount == null || entry.episodeNumber > airedCount
+            airedCount == null || entry.episodeNumber >= airedCount
         }.sortedBy { it.position }
 
     private data class Candidate(

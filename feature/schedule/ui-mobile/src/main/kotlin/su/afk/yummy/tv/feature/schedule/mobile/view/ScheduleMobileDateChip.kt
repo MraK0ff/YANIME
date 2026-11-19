@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.feature.schedule.mobile.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,26 +32,19 @@ internal fun ScheduleMobileDateChip(
     onSelected: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val shape = RoundedCornerShape(10.dp)
-    val background = if (selected) {
-        MaterialTheme.colorScheme.primary
-    } else {
-        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)
-    }
-    val contentColor = if (selected) {
-        MaterialTheme.colorScheme.onPrimary
-    } else {
-        MaterialTheme.colorScheme.onSurfaceVariant
-    }
+    val shape = RoundedCornerShape(22.dp)
+    val background = if (selected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerLow
+    val contentColor = if (selected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
 
     Box(
         modifier = modifier
-            .width(78.dp)
-            .height(72.dp)
+            .width(76.dp)
+            .height(84.dp)
             .clip(shape)
             .background(background, shape)
+            .then(if (selected) Modifier.border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.28f), shape) else Modifier)
             .clickable(onClick = onSelected)
-            .padding(8.dp),
+            .padding(horizontal = 8.dp, vertical = 10.dp),
     ) {
         Column(
             modifier = Modifier.align(Alignment.Center),
@@ -75,9 +69,9 @@ internal fun ScheduleMobileDateChip(
                         .clip(RoundedCornerShape(11.dp))
                         .background(
                             color = if (selected) {
-                                MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.12f)
+                                MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.12f)
                             } else {
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
+                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f)
                             },
                         )
                         .padding(horizontal = 5.dp),

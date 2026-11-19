@@ -111,6 +111,10 @@ class YaniScheduleRepository(
         schedule.withVideoReleaseHistory(releases, watchHistory).withAvailableEpisodeCounts(counts)
     }
 
+    override suspend fun getEpisodeReleaseHistory(): List<AnimeEpisodeRelease> = withContext(Dispatchers.IO) {
+        readEpisodeReleaseHistory()
+    }
+
     override suspend fun saveEpisodeReleases(releases: List<AnimeEpisodeRelease>) {
         releaseHistoryMutex.withLock {
             lastFeedPollAtMs = System.currentTimeMillis()

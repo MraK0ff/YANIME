@@ -20,6 +20,7 @@ class ScheduleState {
         val days: ImmutableList<AnimeScheduleDay> = persistentListOf(),
         val tvSchedule: ScheduleTimelineUi = ScheduleTimelineUi(),
         val libraryFilter: LibraryFilter = LibraryFilter.ALL,
+        val hideWatched: Boolean = false,
         val error: UiText? = null,
     ) : UiState
 
@@ -38,6 +39,8 @@ class ScheduleState {
         data class DateSelected(val epochDay: Long) : Event
 
         data class LibraryFilterSelected(val filter: LibraryFilter) : Event
+
+        data class HideWatchedToggled(val enabled: Boolean) : Event
 
         /** Пользователь выбрал аниме с указанным идентификатором. */
         data class AnimeSelected(val animeId: Int) : Event

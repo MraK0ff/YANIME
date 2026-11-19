@@ -56,16 +56,26 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
             buildList {
                 // Feed may include a scheduled video with a future timestamp. It is not an aired episode;
                 // future entries must come from the schedule API's nextDate instead.
-                item.videoReleases
-                    .filter { it.firstVideoAtSeconds <= nowSeconds }
-                    .forEach { release ->
+                val airedEpisodes = item.airedEpisodes?.takeIf { it > 0 }
+                // Feed publication timestamps can belong to a late dub of an old episode.
+                // Keep only the newest episode supported by the schedule's aired count.
+                val latestEligibleRelease = item.videoReleases
+                    .asSequence()
+                    .filter { airedEpisodes != null && it.episodeNumber >= airedEpisodes }
+                    .filter { it.firstVideoAtSeconds in 1..nowSeconds }
+                    .sortedWith(
+                        compareByDescending<su.afk.yummy.tv.domain.schedule.model.AnimeEpisodeRelease> { it.episodeNumber }
+                            .thenBy { it.firstVideoAtSeconds },
+                    )
+                    .firstOrNull()
+                latestEligibleRelease?.let { release ->
                     add(
                         ScheduleReleaseUi(
                             item = item,
                             epochSeconds = release.firstVideoAtSeconds,
                             episode = release.episodeNumber,
                             aired = true,
-                        )
+                        ),
                     )
                 }
                 // Японское расписание используется только для будущих серий.

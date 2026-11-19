@@ -13,6 +13,8 @@ import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.preferences.api.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.currentLanguageCode
 import su.afk.yummy.tv.core.storage.document.DocumentCacheStorage
+import su.afk.yummy.tv.core.storage.release.EpisodeReleaseEntry
+import su.afk.yummy.tv.core.storage.release.EpisodeReleaseStorage
 import su.afk.yummy.tv.core.storage.anime.AnimeStorage
 import su.afk.yummy.tv.core.storage.offlinefirst.offlineFirstCache
 import su.afk.yummy.tv.core.storage.schedule.AnimeScheduleStorage
@@ -113,20 +115,25 @@ class YaniScheduleRepository(
             lastFeedPollAtMs = System.currentTimeMillis()
             if (releases.isEmpty()) return@withLock
             val merged = (readEpisodeReleaseHistory() + releases)
-                .groupBy { listOf(it.animeId, it.episodeNumber, it.playerName.trim().lowercase(), it.dubbing.trim().lowercase()) }
-                .values.map { versions ->
+                .groupBy { release ->
+                    listOf(
+                        release.animeId.toString(),
+                        release.episodeNumber.toString(),
+                        release.playerName.normalizedReleaseSourceKey(),
+                        release.dubbing.normalizedReleaseSourceKey(),
+                    )
+                }
+                .values
+                .map { versions ->
                     val first = versions.minBy { it.firstVideoAtSeconds }
                     val metadata = versions.lastOrNull { it.title.isNotBlank() }
                     first.copy(
                         title = metadata?.title?.takeIf(String::isNotBlank) ?: first.title,
                         posterUrl = metadata?.posterUrl ?: first.posterUrl,
-                        firstDetectedAtSeconds = minOf(first.firstDetectedAtSeconds, versions.minOf { it.firstDetectedAtSeconds }),
+                        firstDetectedAtSeconds = versions.minOf { it.firstDetectedAtSeconds },
                     )
                 }
-                .sortedWith(compareBy<AnimeEpisodeRelease> { it.animeId }
-                    .thenBy { it.playerName }.thenBy { it.dubbing }
-                    .thenBy { it.episodeNumber }.thenBy { it.firstVideoAtSeconds })
-            writeEpisodeReleaseHistory(merged)
+            episodeReleaseStorage.upsertAll(merged.map(AnimeEpisodeRelease::toStorageEntry))
         }
     }
 
@@ -144,23 +151,53 @@ class YaniScheduleRepository(
         }
     }
 
-    private suspend fun readEpisodeReleaseHistory(): List<AnimeEpisodeRelease> =
-        documentCache.getOrFetch(
+    /**
+     * Room is the canonical store. The old JSON document is read only as a one-time migration
+     * source for installations upgraded from the previous release-history implementation.
+     */
+    private suspend fun readEpisodeReleaseHistory(): List<AnimeEpisodeRelease> {
+        val stored = episodeReleaseStorage.getAll()
+        if (stored.isNotEmpty()) return stored.map(EpisodeReleaseEntry::toDomain)
+
+        val legacy = documentCache.getOrFetch(
             cacheKey = EPISODE_RELEASE_HISTORY_KEY,
             ttlMs = RELEASE_HISTORY_TTL_MS,
             decode = { releaseHistoryJson.decodeFromString<EpisodeReleaseHistoryDocument>(it).releases.map(EpisodeReleaseHistoryEntry::toDomain) },
             encode = { releaseHistoryJson.encodeToString(EpisodeReleaseHistoryDocument(it.map(EpisodeReleaseHistoryEntry::fromDomain))) },
             fetch = { emptyList() },
         )
-
-    private suspend fun writeEpisodeReleaseHistory(releases: List<AnimeEpisodeRelease>) {
-        documentCache.getOrFetch(
-            cacheKey = EPISODE_RELEASE_HISTORY_KEY, ttlMs = RELEASE_HISTORY_TTL_MS, forceRefresh = true,
-            decode = { releaseHistoryJson.decodeFromString<EpisodeReleaseHistoryDocument>(it).releases.map(EpisodeReleaseHistoryEntry::toDomain) },
-            encode = { releaseHistoryJson.encodeToString(EpisodeReleaseHistoryDocument(it.map(EpisodeReleaseHistoryEntry::fromDomain))) },
-            fetch = { releases },
-        )
+        if (legacy.isNotEmpty()) episodeReleaseStorage.upsertAll(legacy.map(AnimeEpisodeRelease::toStorageEntry))
+        return legacy
     }
+
+    private fun AnimeEpisodeRelease.toStorageEntry() = EpisodeReleaseEntry(
+        animeId = animeId,
+        episodeNumber = episodeNumber,
+        playerKey = playerName.normalizedReleaseSourceKey(),
+        dubbingKey = dubbing.normalizedReleaseSourceKey(),
+        playerName = playerName,
+        dubbing = dubbing,
+        firstVideoAtSeconds = firstVideoAtSeconds,
+        firstVideoId = firstVideoId,
+        title = title,
+        posterUrl = posterUrl,
+        firstDetectedAtSeconds = firstDetectedAtSeconds,
+    )
+
+    private fun EpisodeReleaseEntry.toDomain() = AnimeEpisodeRelease(
+        animeId = animeId,
+        episodeNumber = episodeNumber,
+        firstVideoAtSeconds = firstVideoAtSeconds,
+        firstVideoId = firstVideoId,
+        title = title,
+        posterUrl = posterUrl,
+        playerName = playerName,
+        dubbing = dubbing,
+        firstDetectedAtSeconds = firstDetectedAtSeconds,
+    )
+
+    private fun String.normalizedReleaseSourceKey(): String =
+        trim().lowercase(java.util.Locale.ROOT)
 
     private fun List<AnimeScheduleDay>.withAvailableEpisodeCounts(counts: Map<Int, Int>) = map { day ->
         day.copy(items = day.items.map { item ->

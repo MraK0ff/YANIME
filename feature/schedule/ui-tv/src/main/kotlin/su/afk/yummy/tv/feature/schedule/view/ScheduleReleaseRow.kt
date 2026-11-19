@@ -50,6 +50,7 @@ import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
 import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.core.model.anime.posterUrls
 import su.afk.yummy.tv.feature.schedule.model.ScheduleReleaseUi
+import su.afk.yummy.tv.domain.schedule.model.ReleasePrediction
 import su.afk.yummy.tv.feature.schedule.presentation.R
 import su.afk.yummy.tv.feature.schedule.utils.remainingText
 import su.afk.yummy.tv.feature.schedule.utils.timeLabel
@@ -156,6 +157,27 @@ internal fun ScheduleReleaseRow(
                     overflow = TextOverflow.Ellipsis,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
+                if (release.isPredicted) {
+                    val prediction = item.releasePrediction
+                    val confidenceLabel = when (release.predictionConfidence) {
+                        ReleasePrediction.Confidence.HIGH -> stringResource(R.string.schedule_prediction_high)
+                        ReleasePrediction.Confidence.MEDIUM -> stringResource(R.string.schedule_prediction_medium)
+                        ReleasePrediction.Confidence.LOW -> stringResource(R.string.schedule_prediction_low)
+                        else -> ""
+                    }
+                    Text(
+                        text = buildString {
+                            append(stringResource(R.string.schedule_prediction_label))
+                            prediction?.sourceDubbing?.takeIf { it.isNotBlank() }?.let { append(" · ").append(it) }
+                            if (confidenceLabel.isNotBlank()) append(" · ").append(confidenceLabel)
+                        },
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.tertiary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
                 Text(
                     text = if (aired) {
                         stringResource(R.string.schedule_episode_aired, release.episode)

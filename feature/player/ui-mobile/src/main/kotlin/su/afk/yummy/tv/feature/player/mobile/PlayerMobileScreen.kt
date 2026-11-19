@@ -282,7 +282,7 @@ fun PlayerMobileScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
-                        YummyLoadingIndicator(color = Color.White, strokeWidth = 2.dp)
+                        YummyPlayerLoadingIndicator(size = 32.dp)
                         Text(stringResource(state.resolveStatus.loadingTextRes()), color = Color.White)
                     }
                     if (state.showResolveLog) {

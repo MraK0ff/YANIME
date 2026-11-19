@@ -16,6 +16,7 @@ internal fun List<AnimeScheduleDay>.toTimelineUi(
     now: ZonedDateTime = ZonedDateTime.now(zone),
     selectedEpochDay: Long? = null,
     prioritizedAnimeIds: Set<Int> = emptySet(),
+    favoriteAnimeIds: Set<Int> = emptySet(),
 ): ScheduleTimelineUi {
     val today = now.toLocalDate()
     val dayGroups = toUiDayGroups(
@@ -23,6 +24,7 @@ internal fun List<AnimeScheduleDay>.toTimelineUi(
         today = today,
         nowSeconds = now.toEpochSecond(),
         prioritizedAnimeIds = prioritizedAnimeIds,
+        favoriteAnimeIds = favoriteAnimeIds,
     )
     val availableEpochDays = dayGroups.map { it.date.toEpochDay() }
     val nextSelectedEpochDay = selectedEpochDay(
@@ -57,6 +59,7 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
     today: LocalDate,
     nowSeconds: Long,
     prioritizedAnimeIds: Set<Int>,
+    favoriteAnimeIds: Set<Int>,
 ): List<ScheduleDayUi> =
     flatMap { it.items }
         .flatMap { item ->
@@ -85,6 +88,7 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
                             episode = release.episodeNumber,
                             aired = true,
                             isFromSelectedList = item.animeId in prioritizedAnimeIds,
+                            isFavorite = item.animeId in favoriteAnimeIds,
                         ),
                     )
                 }

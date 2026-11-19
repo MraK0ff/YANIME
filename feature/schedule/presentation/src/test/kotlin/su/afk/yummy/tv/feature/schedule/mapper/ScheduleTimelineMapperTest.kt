@@ -95,7 +95,7 @@ class ScheduleTimelineMapperTest {
         val timeline = listOf(
             day(
                 item(
-                    airedEpisodes = 8,
+                    airedEpisodes = 7,
                     releases = listOf(
                         release(episode = 6, publishedAt = olderAt),
                         release(episode = 8, publishedAt = latestAt),

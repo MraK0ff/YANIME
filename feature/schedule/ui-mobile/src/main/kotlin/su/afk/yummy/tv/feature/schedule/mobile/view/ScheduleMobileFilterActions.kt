@@ -8,6 +8,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -55,15 +59,9 @@ internal fun ScheduleHideWatchedAction(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
 ) {
-    RowForSwitch(
-        checked = checked,
-        onCheckedChange = onCheckedChange,
-    )
-}
-
-@Composable
-private fun RowForSwitch(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
-    androidx.compose.material3.TextButton(onClick = { onCheckedChange(!checked) }) {
-        Text(stringResource(R.string.schedule_hide_watched))
+    Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(stringResource(R.string.schedule_hide_watched), style = MaterialTheme.typography.labelMedium)
+        Switch(checked = checked, onCheckedChange = onCheckedChange)
     }
 }
+

@@ -38,6 +38,10 @@ data class PlayerPlaybackUiState(
     val dubbingSourceNames: ImmutableList<String>,
     val dubbingAvailability: ImmutableList<Boolean>,
     val currentDubbingIndex: Int,
+    /** Балансеры, в которых доступна каждая озвучка для текущей серии. */
+    val dubbingBalancerNames: List<List<String>>,
+    val dubbingBalancerIndices: List<List<Int>>,
+    val selectedBalancerGraphIndex: Int,
     /** Имена балансеров для показа, уже без префикса «Плеер». */
     val balancerNames: ImmutableList<String>,
     val balancerAvailability: ImmutableList<Boolean>,

@@ -85,7 +85,7 @@ class GetRecentlyAiredScheduleUseCaseTest : BaseUnitTest() {
     }
 
     @Test
-    fun `episode matching the current aired count remains eligible`() = runTest {
+    fun `episode equal to the aired count is not confirmed as new`() = runTest {
         schedule += scheduleItem(
             animeId = 1,
             airedEpisodes = 8,
@@ -169,7 +169,7 @@ class GetRecentlyAiredScheduleUseCaseTest : BaseUnitTest() {
         videoReleases = releases,
     )
 
-    private fun release(animeId: Int, publishedAt: Long, episode: Int = 1) =
+    private fun release(animeId: Int, publishedAt: Long, episode: Int = 2) =
         AnimeEpisodeRelease(
             animeId = animeId,
             episodeNumber = episode,

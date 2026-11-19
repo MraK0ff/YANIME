@@ -57,6 +57,22 @@ class ScheduleTimelineMapperTest {
     }
 
     @Test
+    fun `cached anime page count blocks a late dub despite stale schedule count`() {
+        val publishedAt = nowSeconds - 3_600L
+        val timeline = listOf(
+            day(
+                item(
+                    airedEpisodes = 6,
+                    availableEpisodeCount = 8,
+                    releases = listOf(release(episode = 6, publishedAt = publishedAt)),
+                ),
+            ),
+        ).toTimelineUi(zone, now)
+
+        assertTrue(timeline.dayGroups.isEmpty())
+    }
+
+    @Test
     fun `calendar keeps only the newest eligible episode for an anime`() {
         val olderAt = nowSeconds - 7_200L
         val latestAt = nowSeconds - 3_600L
@@ -195,6 +211,7 @@ class ScheduleTimelineMapperTest {
         previousDate: Long? = null,
         nextDate: Long? = null,
         airedEpisodes: Int? = 4,
+        availableEpisodeCount: Int? = null,
         releases: List<AnimeEpisodeRelease> = emptyList(),
     ) = AnimeScheduleItem(
         animeId = 1,
@@ -204,6 +221,7 @@ class ScheduleTimelineMapperTest {
         previousDateEpochSeconds = previousDate,
         airedEpisodes = airedEpisodes,
         totalEpisodes = 12,
+        availableEpisodeCount = availableEpisodeCount,
         videoReleases = releases,
     )
 

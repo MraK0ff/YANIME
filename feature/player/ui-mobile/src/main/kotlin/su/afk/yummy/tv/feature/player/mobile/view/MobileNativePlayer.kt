@@ -50,6 +50,7 @@ import su.afk.yummy.tv.core.utils.cast.CastSupport
 import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.feature.player.PlayerState
 import su.afk.yummy.tv.feature.player.common.PlayerBlackBackdrop
+import su.afk.yummy.tv.feature.player.common.PlayerDiagnosticsOverlay
 import su.afk.yummy.tv.feature.player.common.PlayerBufferingIndicator
 import su.afk.yummy.tv.feature.player.common.PlayerDecoderCapabilityEffect
 import su.afk.yummy.tv.feature.player.common.PlayerEpisodeEndController
@@ -626,6 +627,15 @@ internal fun MobileNativePlayer(
             style = state.subtitleStyle,
             modifier = Modifier.fillMaxSize(),
         )
+
+        if (state.showResolveLog) {
+            PlayerDiagnosticsOverlay(
+                player = player,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(start = 8.dp, top = 96.dp, end = 8.dp),
+            )
+        }
 
 
         MobilePlayerGestureLayer(

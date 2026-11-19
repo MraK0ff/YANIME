@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.MaterialTheme
@@ -38,6 +40,7 @@ internal fun MobilePlayerSourcesPage(
     selectedDubbingIndex: Int,
     dubbingBalancerNames: List<List<String>>,
     dubbingBalancerIndices: List<List<Int>>,
+    recommendedDubbingBalancerIndices: List<Int?>,
     selectedBalancerGraphIndex: Int,
     onDubbingBalancerSelected: (dubbingIndex: Int, balancerGraphIndex: Int) -> Unit,
     onBack: () -> Unit,
@@ -45,6 +48,8 @@ internal fun MobilePlayerSourcesPage(
     var pendingDubbingIndex by remember { mutableIntStateOf(-1) }
     val pendingNames = dubbingBalancerNames.getOrNull(pendingDubbingIndex).orEmpty()
     val pendingIndices = dubbingBalancerIndices.getOrNull(pendingDubbingIndex).orEmpty()
+    val pendingRecommendedIndex = recommendedDubbingBalancerIndices.getOrNull(pendingDubbingIndex)
+    val pendingRecommendedOptionIndex = pendingRecommendedIndex?.let(pendingIndices::indexOf)?.takeIf { it >= 0 }
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -81,7 +86,13 @@ internal fun MobilePlayerSourcesPage(
                         }
                     },
                     onClick = {
-                        if (enabled && index != selectedDubbingIndex) pendingDubbingIndex = index
+                        if (enabled && index != selectedDubbingIndex) {
+                            val availableIndices = dubbingBalancerIndices.getOrNull(index).orEmpty()
+                            when (availableIndices.size) {
+                                1 -> onDubbingBalancerSelected(index, availableIndices.single())
+                                else -> pendingDubbingIndex = index
+                            }
+                        }
                     },
                 )
                 if (index == selectedDubbingIndex) {
@@ -126,24 +137,50 @@ internal fun MobilePlayerSourcesPage(
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(stringResource(R.string.player_balancer_name_prefix))
+                    pendingRecommendedOptionIndex?.let { optionIndex ->
+                        val recommendedName = pendingNames.getOrNull(optionIndex).orEmpty()
+                        val recommendedGraphIndex = pendingIndices.getOrNull(optionIndex)
+                        if (recommendedName.isNotBlank() && recommendedGraphIndex != null) {
+                            Button(
+                                onClick = {
+                                    onDubbingBalancerSelected(pendingDubbingIndex, recommendedGraphIndex)
+                                    pendingDubbingIndex = -1
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                ),
+                            ) {
+                                Text(
+                                    text = stringResource(
+                                        R.string.player_balancer_recommended,
+                                        recommendedName,
+                                    ),
+                                    maxLines = 1,
+                                )
+                            }
+                        }
+                    }
+                    val remainingOptions = pendingNames.indices.filter { it != pendingRecommendedOptionIndex }
                     FlowRow(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
-                        pendingNames.forEachIndexed { index, name ->
+                        remainingOptions.forEachIndexed { visibleIndex, optionIndex ->
+                            val name = pendingNames[optionIndex]
+                            val graphIndex = pendingIndices.getOrNull(optionIndex)
                             ToggleButton(
                                 checked = false,
                                 onCheckedChange = { checked ->
-                                    val graphIndex = pendingIndices.getOrNull(index)
                                     if (checked && graphIndex != null) {
                                         onDubbingBalancerSelected(pendingDubbingIndex, graphIndex)
                                         pendingDubbingIndex = -1
                                     }
                                 },
-                                shapes = when (index) {
+                                shapes = when (visibleIndex) {
                                     0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
-                                    pendingNames.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                                    remainingOptions.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
                                     else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
                                 },
                             ) {

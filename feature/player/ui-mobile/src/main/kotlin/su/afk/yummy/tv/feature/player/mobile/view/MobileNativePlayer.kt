@@ -774,6 +774,7 @@ internal fun MobileNativePlayer(
                     selectedDubbingIndex = ui.currentDubbingIndex,
                     dubbingBalancerNames = ui.dubbingBalancerNames,
                     dubbingBalancerIndices = ui.dubbingBalancerIndices,
+                    recommendedDubbingBalancerIndices = ui.recommendedDubbingBalancerIndices,
                     selectedBalancerGraphIndex = ui.selectedBalancerGraphIndex,
                     balancerNames = ui.balancerNames,
                     balancerAvailability = ui.balancerAvailability,

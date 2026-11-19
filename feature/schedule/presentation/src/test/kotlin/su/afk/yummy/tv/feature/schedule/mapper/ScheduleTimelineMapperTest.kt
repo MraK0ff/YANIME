@@ -123,7 +123,9 @@ class ScheduleTimelineMapperTest {
             ),
         ).toTimelineUi(zone, now, prioritizedAnimeIds = setOf(2, 3))
 
-        assertEquals(listOf(2, 3, 1), timeline.dayGroups.single().items.map { it.item.animeId })
+        val releases = timeline.dayGroups.single().items
+        assertEquals(listOf(2, 3, 1), releases.map { it.item.animeId })
+        assertEquals(listOf(true, true, false), releases.map { it.isFromSelectedList })
     }
 
     @Test

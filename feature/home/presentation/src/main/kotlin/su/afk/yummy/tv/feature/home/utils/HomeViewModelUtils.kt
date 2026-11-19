@@ -57,20 +57,25 @@ internal fun HomeFeed.withShuffledHero(random: Random): HomeFeed =
  * Adds current episode number and publication time to the ordinary new-releases cards.
  * The values come from the same schedule snapshot used by the personalized section.
  */
-internal fun HomeFeed.withRecentReleaseMetadata(recentlyAired: List<HomeFeedItem>): HomeFeed {
+internal fun HomeFeed.withRecentReleaseMetadata(
+    recentlyAired: List<HomeFeedItem>,
+    prioritizedAnimeIds: Set<Int> = emptySet(),
+): HomeFeed {
     if (recentlyAired.isEmpty()) return this
     val latestById = recentlyAired.associateBy { it.id }
     return copy(
         sections = sections.map sectionMap@ { section ->
             if (section.type != HomeFeedSectionType.NEW_RELEASES) return@sectionMap section
             section.copy(
-                items = section.items.map itemMap@ { item ->
-                    val release = latestById[item.id] ?: return@itemMap item
-                    item.copy(
-                        episodeNumber = release.episodeNumber,
-                        airedAtSeconds = release.airedAtSeconds,
-                    )
-                },
+                items = section.items
+                    .map itemMap@ { item ->
+                        val release = latestById[item.id] ?: return@itemMap item
+                        item.copy(
+                            episodeNumber = release.episodeNumber,
+                            airedAtSeconds = release.airedAtSeconds,
+                        )
+                    }
+                    .sortedByDescending { it.id in prioritizedAnimeIds },
             )
         },
     )

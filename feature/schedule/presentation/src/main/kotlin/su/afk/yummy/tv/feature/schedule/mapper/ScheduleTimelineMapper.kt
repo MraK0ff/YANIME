@@ -72,6 +72,34 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
                 ))
             }
 
+            // A Japanese broadcast is not proof that a YummyAnime video exists.
+            // Keep the aired episode visible and advance its availability estimate every 10 minutes.
+            val currentAiredEpisode = airedCount
+            val hasCurrentEpisodeVideo = currentAiredEpisode != null && item.videoReleases.any {
+                it.episodeNumber == currentAiredEpisode && it.firstVideoAtSeconds in 1..nowSeconds
+            }
+            val awaitingVideoAt = if (
+                currentAiredEpisode != null &&
+                item.previousDateEpochSeconds != null &&
+                item.previousDateEpochSeconds <= nowSeconds &&
+                !hasCurrentEpisodeVideo
+            ) {
+                nextVideoCheckAt(item.previousDateEpochSeconds, nowSeconds)
+            } else {
+                null
+            }
+            awaitingVideoAt?.let { timestamp ->
+                add(ScheduleReleaseUi(
+                    item = item,
+                    epochSeconds = timestamp,
+                    episode = currentAiredEpisode!!,
+                    aired = false,
+                    isFromSelectedList = item.animeId in prioritizedAnimeIds,
+                    isFavorite = item.animeId in favoriteAnimeIds,
+                    isAwaitingVideo = true,
+                ))
+            }
+
             val prediction = item.releasePrediction?.takeIf {
                 it.confidence != ReleasePrediction.Confidence.UNKNOWN &&
                     it.expectedAtEpochSeconds != null && it.expectedAtEpochSeconds > nowSeconds
@@ -116,3 +144,15 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
                 isToday = date == today,
             )
         }
+
+
+private fun nextVideoCheckAt(japaneseReleaseAt: Long, nowSeconds: Long): Long {
+    val initialEstimate = japaneseReleaseAt + VIDEO_AVAILABILITY_GRACE_SECONDS
+    if (nowSeconds < initialEstimate) return initialEstimate
+    val elapsedAfterEstimate = nowSeconds - initialEstimate
+    val elapsedIntervals = elapsedAfterEstimate / VIDEO_CHECK_INTERVAL_SECONDS + 1L
+    return initialEstimate + elapsedIntervals * VIDEO_CHECK_INTERVAL_SECONDS
+}
+
+private const val VIDEO_AVAILABILITY_GRACE_SECONDS = 60L * 60L
+private const val VIDEO_CHECK_INTERVAL_SECONDS = 10L * 60L

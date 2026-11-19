@@ -39,6 +39,15 @@ class ScheduleTimelineMapperTest {
     }
 
     @Test
+    fun `old Japanese broadcasts do not create current day waiting entries`() {
+        val timeline = listOf(
+            day(item(previousDate = nowSeconds - 2 * DAY)),
+        ).toTimelineUi(zone, now)
+
+        assertTrue(timeline.dayGroups.isEmpty())
+    }
+
+    @Test
     fun `current episode video immediately becomes confirmed released state`() {
         val publishedAt = nowSeconds - 5L * 60L
         val timeline = listOf(

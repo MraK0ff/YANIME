@@ -129,9 +129,8 @@ internal fun ScheduleReleaseRow(
         ) {
             Box(
                 modifier = Modifier
-                    .width(74.dp)
+                    .width(96.dp)
                     .fillMaxHeight()
-                    .clip(YummyShapeTokens.Control)
                     .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)),
             ) {
                 FallbackAsyncImage(

@@ -52,6 +52,8 @@ fun MobilePosterCard(
     captionMinLines: Int = 1,
     badge: String? = null,
     rating: Double? = null,
+    /** Kept for source compatibility; list membership is shown with status metadata, not an outline. */
+    highlightSelectedList: Boolean = false,
     titleMinLines: Int = 2,
     animeId: Int? = null,
     posterOverlay: @Composable BoxScope.() -> Unit = {},

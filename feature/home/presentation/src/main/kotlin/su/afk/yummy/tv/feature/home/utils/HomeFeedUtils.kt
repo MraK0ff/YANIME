@@ -12,7 +12,10 @@ internal fun HomeFeed.toVisibleFeed(
     newEpisodesTitle: () -> String,
 ): HomeFeed {
     val feed = withoutHiddenRecommendations(hiddenIds).withShuffledHero(Random(heroSeed))
-    val enrichedFeed = feed.withRecentReleaseMetadata(params.recentlyAired)
+    val enrichedFeed = feed.withRecentReleaseMetadata(
+        recentlyAired = params.recentlyAired,
+        prioritizedAnimeIds = params.libraryAnimeIds,
+    )
     if (!params.newEpisodesEnabled) return enrichedFeed
     return enrichedFeed.withMyNewEpisodes(
         recentlyAired = params.recentlyAired,

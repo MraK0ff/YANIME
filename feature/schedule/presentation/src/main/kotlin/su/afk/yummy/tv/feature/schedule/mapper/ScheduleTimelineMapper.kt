@@ -104,36 +104,6 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
                         ),
                     )
                 }
-                // После японского эфира сохраняем текущую серию в расписании,
-                // пока она не появится в локальном каталоге видео.
-                val japaneseReleaseAt = item.previousDateEpochSeconds
-                val currentEpisode = airedCount
-                val hasCurrentEpisodeVideo = currentEpisode != null && (
-                    item.availableEpisodeCount?.let { it >= currentEpisode } == true ||
-                        item.videoReleases.any { release ->
-                            release.episodeNumber == currentEpisode && release.firstVideoAtSeconds in 1..nowSeconds
-                        }
-                    )
-                if (
-                    currentEpisode != null &&
-                    japaneseReleaseAt != null &&
-                    japaneseReleaseAt <= nowSeconds &&
-                    Instant.ofEpochSecond(japaneseReleaseAt).atZone(zone).toLocalDate() >= today.minusDays(1) &&
-                    !hasCurrentEpisodeVideo
-                ) {
-                    val nextCheckAt = nextVideoAvailabilityDisplayAt(japaneseReleaseAt, nowSeconds)
-                    add(
-                        ScheduleReleaseUi(
-                            item = item,
-                            epochSeconds = nextCheckAt,
-                            episode = currentEpisode,
-                            aired = false,
-                            isFromSelectedList = item.animeId in prioritizedAnimeIds,
-                            isFavorite = item.animeId in favoriteAnimeIds,
-                        ),
-                    )
-                }
-
                 // Японское расписание используется только для будущих серий.
                 item.nextDateEpochSeconds
                     ?.takeIf { it > nowSeconds }
@@ -195,18 +165,3 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
                 isToday = date == today,
             )
         }
-/**
- * Before the one-hour grace period, count down to its end. Afterwards, keep
- * showing a rolling ten-minute countdown instead of increasing the wait time.
- */
-private fun nextVideoAvailabilityDisplayAt(japaneseReleaseAt: Long, nowSeconds: Long): Long {
-    val firstCheckAt = japaneseReleaseAt + VIDEO_AVAILABILITY_GRACE_SECONDS
-    if (nowSeconds < firstCheckAt) return firstCheckAt
-
-    val elapsedAfterFirstCheck = nowSeconds - firstCheckAt
-    val elapsedIntervals = elapsedAfterFirstCheck / VIDEO_CHECK_DISPLAY_INTERVAL_SECONDS + 1L
-    return firstCheckAt + elapsedIntervals * VIDEO_CHECK_DISPLAY_INTERVAL_SECONDS
-}
-
-private const val VIDEO_AVAILABILITY_GRACE_SECONDS = 60L * 60L
-private const val VIDEO_CHECK_DISPLAY_INTERVAL_SECONDS = 10L * 60L

@@ -108,12 +108,12 @@ class GetRecentlyAiredScheduleUseCaseTest : BaseUnitTest() {
     }
 
     @Test
-    fun `late dub of the latest already cached episode is ignored`() = runTest {
+    fun `late dub of an older cached episode is ignored`() = runTest {
         schedule += scheduleItem(
             animeId = 1,
             airedEpisodes = 8,
             availableEpisodeCount = 8,
-            releases = listOf(release(1, NOW - DAY, episode = 8)),
+            releases = listOf(release(1, NOW - DAY, episode = 7)),
         )
 
         assertEquals(emptyList<Int>(), createUseCase()(NOW).map { it.id })

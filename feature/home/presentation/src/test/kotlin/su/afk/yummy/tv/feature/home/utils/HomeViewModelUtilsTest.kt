@@ -25,6 +25,27 @@ class HomeViewModelUtilsTest : BaseUnitTest() {
     }
 
     @Test
+    fun `selected library titles are prioritized in ordinary new releases`() {
+        val original = HomeFeed(
+            heroItems = emptyList(),
+            sections = listOf(
+                HomeFeedSection(
+                    HomeFeedSectionType.NEW_RELEASES,
+                    "New",
+                    listOf(airedItem(1), airedItem(2), airedItem(3)),
+                ),
+            ),
+        )
+
+        val result = original.withRecentReleaseMetadata(
+            recentlyAired = emptyList(),
+            prioritizedAnimeIds = setOf(2, 3),
+        )
+
+        assertEquals(listOf(2, 3, 1), result.sections.single().items.map { it.id })
+    }
+
+    @Test
     fun `only titles from the library reach the section`() {
         val feed = feed().withMyNewEpisodes(
             recentlyAired = listOf(airedItem(1), airedItem(2)),

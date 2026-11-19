@@ -74,6 +74,36 @@ class GetRecentlyAiredScheduleUseCaseTest : BaseUnitTest() {
     }
 
     @Test
+    fun `late dub of an episode older than the aired count is ignored`() = runTest {
+        schedule += scheduleItem(
+            animeId = 1,
+            airedEpisodes = 8,
+            releases = listOf(release(1, NOW - DAY, episode = 6)),
+        )
+
+        assertEquals(emptyList<Int>(), createUseCase()(NOW).map { it.id })
+    }
+
+    @Test
+    fun `episode matching the current aired count remains eligible`() = runTest {
+        schedule += scheduleItem(
+            animeId = 1,
+            airedEpisodes = 8,
+            releases = listOf(release(1, NOW - DAY, episode = 8)),
+        )
+
+        val item = createUseCase()(NOW).single()
+        assertEquals(8, item.episodeNumber)
+    }
+
+    @Test
+    fun `unknown aired count fails closed`() = runTest {
+        schedule += scheduleItem(animeId = 1, airedEpisodes = null, releases = listOf(release(1, NOW - DAY)))
+
+        assertEquals(emptyList<Int>(), createUseCase()(NOW).map { it.id })
+    }
+
+    @Test
     fun `future-dated or invalid release observations are not treated as released`() = runTest {
         schedule += scheduleItem(
             animeId = 1,
@@ -101,7 +131,7 @@ class GetRecentlyAiredScheduleUseCaseTest : BaseUnitTest() {
 
     private fun scheduleItem(
         animeId: Int,
-        airedEpisodes: Int? = 2,
+        airedEpisodes: Int? = 1,
         releases: List<AnimeEpisodeRelease>,
     ) = AnimeScheduleItem(
         animeId = animeId,

@@ -38,6 +38,7 @@ object ScheduleDataModule {
         homeApi: YaniHomeApi,
         animeStorage: AnimeStorage,
         watchProgressStorage: WatchProgressStorage,
+        episodeReleaseStorage: EpisodeReleaseStorage,
     ): AnimeScheduleRepository =
-        YaniScheduleRepository(api, scheduleStore, settingsStore, documentCache, homeApi, animeStorage, watchProgressStorage)
+        YaniScheduleRepository(api, scheduleStore, settingsStore, documentCache, homeApi, animeStorage, watchProgressStorage, episodeReleaseStorage)
 }

@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -28,7 +30,6 @@ import su.afk.yummy.tv.core.designsystem.components.ListStatusBadge
 import su.afk.yummy.tv.core.designsystem.components.badgeColor
 import su.afk.yummy.tv.core.designsystem.locals.LocalLibraryListStatuses
 import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
-import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.model.anime.posterUrls
 import su.afk.yummy.tv.feature.schedule.model.ScheduleReleaseUi
 import su.afk.yummy.tv.feature.schedule.presentation.R
@@ -71,7 +72,7 @@ internal fun ScheduleMobileReleaseCard(
             Box(
                 modifier = Modifier
                     .width(96.dp)
-                    .fillMaxSize()
+                    .fillMaxHeight()
                     .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)),
             ) {
                 FallbackAsyncImage(

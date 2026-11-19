@@ -46,6 +46,7 @@ private data class EpisodeReleaseHistoryEntry(
     val posterUrl: String? = null,
     val playerName: String = "",
     val dubbing: String = "",
+    val firstDetectedAtSeconds: Long = firstVideoAtSeconds,
 ) {
     fun toDomain() = AnimeEpisodeRelease(
         animeId, episodeNumber, firstVideoAtSeconds, firstVideoId, title, posterUrl, playerName, dubbing,
@@ -54,7 +55,7 @@ private data class EpisodeReleaseHistoryEntry(
     companion object {
         fun fromDomain(release: AnimeEpisodeRelease) = EpisodeReleaseHistoryEntry(
             release.animeId, release.episodeNumber, release.firstVideoAtSeconds, release.firstVideoId,
-            release.title, release.posterUrl, release.playerName, release.dubbing,
+            release.title, release.posterUrl, release.playerName, release.dubbing, release.firstDetectedAtSeconds,
         )
     }
 }
@@ -102,13 +103,14 @@ class YaniScheduleRepository(
             lastFeedPollAtMs = System.currentTimeMillis()
             if (releases.isEmpty()) return@withLock
             val merged = (readEpisodeReleaseHistory() + releases)
-                .groupBy { listOf(it.animeId, it.episodeNumber, it.playerName.trim().lowercase(), it.dubbing.trim().lowercase(), it.firstVideoId) }
+                .groupBy { listOf(it.animeId, it.episodeNumber, it.playerName.trim().lowercase(), it.dubbing.trim().lowercase()) }
                 .values.map { versions ->
                     val first = versions.minBy { it.firstVideoAtSeconds }
                     val metadata = versions.lastOrNull { it.title.isNotBlank() }
                     first.copy(
                         title = metadata?.title?.takeIf(String::isNotBlank) ?: first.title,
                         posterUrl = metadata?.posterUrl ?: first.posterUrl,
+                        firstDetectedAtSeconds = minOf(first.firstDetectedAtSeconds, versions.minOf { it.firstDetectedAtSeconds }),
                     )
                 }
                 .sortedWith(compareBy<AnimeEpisodeRelease> { it.animeId }

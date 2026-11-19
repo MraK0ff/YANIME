@@ -55,13 +55,6 @@ internal fun MobilePlayerSourcesPage(
             title = stringResource(R.string.player_mobile_track_settings_title),
             onBack = onBack,
         )
-        Text(
-            text = stringResource(R.string.player_dubbing_title),
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(start = 8.dp, top = 2.dp, bottom = 2.dp),
-        )
         dubbingNames.forEachIndexed { index, rawName ->
             val enabled = dubbingAvailability.getOrElse(index) { true }
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -129,11 +122,7 @@ internal fun MobilePlayerSourcesPage(
         AlertDialog(
             onDismissRequest = { pendingDubbingIndex = -1 },
             title = {
-                Text(
-                    stringResource(
-                        R.string.player_dubbing_title,
-                    ) + ": " + dubbingNames.getOrNull(pendingDubbingIndex).orEmpty().dubbingDisplayName(),
-                )
+                Text(dubbingNames.getOrNull(pendingDubbingIndex).orEmpty().dubbingDisplayName())
             },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {

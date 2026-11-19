@@ -34,6 +34,7 @@ import su.afk.yummy.tv.core.model.text.UiText
 import su.afk.yummy.tv.feature.schedule.ScheduleState
 import su.afk.yummy.tv.feature.schedule.mobile.view.ScheduleMobileDateChips
 import su.afk.yummy.tv.feature.schedule.mobile.view.ScheduleLibraryFilterAction
+import su.afk.yummy.tv.feature.schedule.mobile.view.ScheduleHideWatchedAction
 import su.afk.yummy.tv.feature.schedule.mobile.view.ScheduleMobileReleaseCard
 import su.afk.yummy.tv.feature.schedule.model.ScheduleDayUi
 import su.afk.yummy.tv.feature.schedule.presentation.R

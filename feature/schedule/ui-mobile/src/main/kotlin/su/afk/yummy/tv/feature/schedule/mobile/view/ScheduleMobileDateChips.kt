@@ -29,11 +29,11 @@ internal fun ScheduleMobileDateChips(
         val chipWidth = ((maxWidth - chipSpacing * 6) / 7).coerceAtLeast(1.dp)
         val selectedIndex = groups.indexOfFirst { it.date.toEpochDay() == selectedEpochDay }
         val itemWidthPx = with(density) { chipWidth.roundToPx() }
+        val viewportWidthPx = with(density) { maxWidth.roundToPx() }
 
-        LaunchedEffect(selectedEpochDay, groups.size, chipWidth) {
+        LaunchedEffect(selectedEpochDay, selectedIndex, groups.size, chipWidth) {
             if (selectedIndex >= 0) {
-                val viewport = listState.layoutInfo.viewportSize.width
-                val centeredOffset = -((viewport - itemWidthPx) / 2).coerceAtLeast(0)
+                val centeredOffset = -((viewportWidthPx - itemWidthPx) / 2).coerceAtLeast(0)
                 listState.animateScrollToItem(selectedIndex, centeredOffset)
             }
         }

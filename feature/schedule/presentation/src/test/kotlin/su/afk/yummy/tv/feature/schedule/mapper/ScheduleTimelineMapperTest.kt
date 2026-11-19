@@ -17,10 +17,42 @@ class ScheduleTimelineMapperTest {
     private val nowSeconds = now.toEpochSecond()
 
     @Test
-    fun `past Japanese previous date is not shown without a published video`() {
+    fun `past Japanese broadcast stays visible while waiting for the YummyAnime video`() {
         val timeline = listOf(day(item(previousDate = nowSeconds - DAY))).toTimelineUi(zone, now)
 
-        assertTrue(timeline.dayGroups.isEmpty())
+        val release = timeline.dayGroups.single().items.single()
+        assertEquals(3, release.episode)
+        assertEquals(nowSeconds + 10L * 60L, release.epochSeconds)
+        assertFalse(release.aired)
+        assertTrue(release.isAwaitingVideo)
+    }
+
+    @Test
+    fun `initial video estimate is one hour after Japanese broadcast`() {
+        val broadcastAt = nowSeconds - 30L * 60L
+        val timeline = listOf(day(item(previousDate = broadcastAt))).toTimelineUi(zone, now)
+
+        val release = timeline.dayGroups.single().items.single()
+        assertEquals(broadcastAt + 60L * 60L, release.epochSeconds)
+        assertTrue(release.isAwaitingVideo)
+        assertFalse(release.aired)
+    }
+
+    @Test
+    fun `current episode video immediately becomes confirmed released state`() {
+        val publishedAt = nowSeconds - 5L * 60L
+        val timeline = listOf(
+            day(item(
+                previousDate = nowSeconds - DAY,
+                releases = listOf(release(episode = 3, publishedAt = publishedAt)),
+            )),
+        ).toTimelineUi(zone, now)
+
+        val release = timeline.dayGroups.single().items.single()
+        assertEquals(3, release.episode)
+        assertEquals(publishedAt, release.epochSeconds)
+        assertTrue(release.aired)
+        assertFalse(release.isAwaitingVideo)
     }
 
     @Test

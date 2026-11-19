@@ -47,10 +47,12 @@ internal fun MobilePlayerSourcesPage(
     val tabs = MobilePlayerTrackSettingsTab.entries
     var selectedTab by rememberSaveable { mutableStateOf(MobilePlayerTrackSettingsTab.Dubbing) }
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val dubbingTabLabel = stringResource(R.string.player_dubbing_title)
+    val playerTabLabel = stringResource(R.string.player_name_prefix)
     val tabLabels: (MobilePlayerTrackSettingsTab) -> String = { tab ->
         when (tab) {
-            MobilePlayerTrackSettingsTab.Dubbing -> stringResource(R.string.player_dubbing_title)
-            MobilePlayerTrackSettingsTab.Player -> stringResource(R.string.player_name_prefix)
+            MobilePlayerTrackSettingsTab.Dubbing -> dubbingTabLabel
+            MobilePlayerTrackSettingsTab.Player -> playerTabLabel
         }
     }
     val tabsContent: @Composable (Modifier) -> Unit = { tabsModifier ->

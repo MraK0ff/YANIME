@@ -17,4 +17,5 @@
     <string name="schedule_filter_all">All</string>
     <string name="schedule_filter_library">In library</string>
     <string name="schedule_hide_watched">Hide watched</string>
+    <string name="schedule_favorite">Favorite</string>
 </resources>

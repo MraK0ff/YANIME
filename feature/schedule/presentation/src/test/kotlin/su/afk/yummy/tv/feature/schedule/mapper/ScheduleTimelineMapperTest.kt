@@ -57,14 +57,14 @@ class ScheduleTimelineMapperTest {
     }
 
     @Test
-    fun `cached anime page count blocks a late dub despite stale schedule count`() {
+    fun `older cached episode is rejected even when the schedule count is stale`() {
         val publishedAt = nowSeconds - 3_600L
         val timeline = listOf(
             day(
                 item(
-                    airedEpisodes = 6,
+                    airedEpisodes = 8,
                     availableEpisodeCount = 8,
-                    releases = listOf(release(episode = 6, publishedAt = publishedAt)),
+                    releases = listOf(release(episode = 7, publishedAt = publishedAt)),
                 ),
             ),
         ).toTimelineUi(zone, now)

@@ -134,7 +134,7 @@ class YaniScheduleRepository(
                         firstDetectedAtSeconds = versions.minOf { it.firstDetectedAtSeconds },
                     )
                 }
-            episodeReleaseStorage.upsertAll(merged.map(AnimeEpisodeRelease::toStorageEntry))
+            episodeReleaseStorage.upsertAll(merged.map { it.toStorageEntry() })
         }
     }
 
@@ -158,7 +158,7 @@ class YaniScheduleRepository(
      */
     private suspend fun readEpisodeReleaseHistory(): List<AnimeEpisodeRelease> {
         val stored = episodeReleaseStorage.getAll()
-        if (stored.isNotEmpty()) return stored.map(EpisodeReleaseEntry::toDomain)
+        if (stored.isNotEmpty()) return stored.map { it.toDomain() }
 
         val legacy = documentCache.getOrFetch(
             cacheKey = EPISODE_RELEASE_HISTORY_KEY,
@@ -167,7 +167,7 @@ class YaniScheduleRepository(
             encode = { releaseHistoryJson.encodeToString(EpisodeReleaseHistoryDocument(it.map(EpisodeReleaseHistoryEntry::fromDomain))) },
             fetch = { emptyList() },
         )
-        if (legacy.isNotEmpty()) episodeReleaseStorage.upsertAll(legacy.map(AnimeEpisodeRelease::toStorageEntry))
+        if (legacy.isNotEmpty()) episodeReleaseStorage.upsertAll(legacy.map { it.toStorageEntry() })
         return legacy
     }
 

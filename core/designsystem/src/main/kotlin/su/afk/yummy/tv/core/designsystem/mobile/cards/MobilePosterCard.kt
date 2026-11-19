@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -117,23 +118,6 @@ fun MobilePosterCard(
                     )
                 }
                 val listStatus = animeId?.let { LocalLibraryListStatuses.current[it] }
-                val isFavorite = animeId?.let { it in LocalLibraryFavoriteAnimeIds.current } == true
-                if (isFavorite) {
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(YummySpacing.Small)
-                            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.88f), YummyShapeTokens.Control)
-                            .padding(5.dp),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Favorite,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.size(16.dp),
-                        )
-                    }
-                }
                 Box(
                     Modifier
                         .matchParentSize()
@@ -149,14 +133,25 @@ fun MobilePosterCard(
                 }
             }
             Column(Modifier.padding(horizontal = currentMobilePosterTextPadding(), vertical = YummySpacing.Small)) {
-                Text(
-                    text = title,
-                    minLines = titleMinLines,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    style = currentMobilePosterTitleStyle(),
-                    fontWeight = currentMobilePosterTitleWeight(),
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = title,
+                        modifier = Modifier.weight(1f),
+                        minLines = titleMinLines,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        style = currentMobilePosterTitleStyle(),
+                        fontWeight = currentMobilePosterTitleWeight(),
+                    )
+                    if (animeId in LocalLibraryFavoriteAnimeIds.current) {
+                        Icon(
+                            imageVector = Icons.Filled.Favorite,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(start = 4.dp).size(16.dp),
+                        )
+                    }
+                }
                 if (!subtitle.isNullOrBlank()) {
                     Spacer(Modifier.height(YummySpacing.XSmall))
                     Text(

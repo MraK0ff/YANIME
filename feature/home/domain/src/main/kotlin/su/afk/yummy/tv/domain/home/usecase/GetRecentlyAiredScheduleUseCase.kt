@@ -18,13 +18,14 @@ class GetRecentlyAiredScheduleUseCase @Inject constructor(
         return getSchedule()
             .flatMap { it.items }
             .flatMap { item ->
-                val airedEpisodes = item.airedEpisodes?.takeIf { it > 0 }
+                val knownEpisodeCount = (item.availableEpisodeCount ?: item.airedEpisodes)
+                    ?.takeIf { it > 0 }
                     ?: return@flatMap emptyList()
                 // Only the current/latest aired episode (or a newer one) can represent a
                 // recent release. A late dub of episode 6 must not revive it when 8 have aired.
                 val release = item.videoReleases
                     .asSequence()
-                    .filter { it.episodeNumber >= airedEpisodes }
+                    .filter { it.episodeNumber >= knownEpisodeCount }
                     .filter { it.firstVideoAtSeconds in 1..nowSeconds }
                     .sortedWith(
                         compareByDescending<su.afk.yummy.tv.domain.schedule.model.AnimeEpisodeRelease> { it.episodeNumber }

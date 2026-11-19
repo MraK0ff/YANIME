@@ -73,6 +73,8 @@ import su.afk.yummy.tv.core.storage.library.LibrarySyncStateEntry
 import su.afk.yummy.tv.core.storage.maintenance.StorageCleanupDao
 import su.afk.yummy.tv.core.storage.outbox.PendingMutationDao
 import su.afk.yummy.tv.core.storage.outbox.PendingMutationEntry
+import su.afk.yummy.tv.core.storage.release.EpisodeReleaseDao
+import su.afk.yummy.tv.core.storage.release.EpisodeReleaseEntry
 import su.afk.yummy.tv.core.storage.schedule.AnimeScheduleCacheEntry
 import su.afk.yummy.tv.core.storage.schedule.AnimeScheduleDao
 import su.afk.yummy.tv.core.storage.schedule.AnimeScheduleItemEntry
@@ -160,8 +162,9 @@ import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressEntry
         AllohaTrackPreferenceEntry::class,
         WatchLaterEntry::class,
         PendingMutationEntry::class,
+        EpisodeReleaseEntry::class,
     ],
-    version = 73,
+    version = 74,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -186,4 +189,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun allohaTrackPreferenceDao(): AllohaTrackPreferenceDao
     abstract fun watchLaterDao(): WatchLaterDao
     abstract fun pendingMutationDao(): PendingMutationDao
+    abstract fun episodeReleaseDao(): EpisodeReleaseDao
 }

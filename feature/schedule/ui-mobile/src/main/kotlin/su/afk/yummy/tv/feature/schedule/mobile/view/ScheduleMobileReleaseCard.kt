@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.feature.schedule.mobile.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -55,7 +56,9 @@ internal fun ScheduleMobileReleaseCard(
     } else {
         MaterialTheme.colorScheme.onSurfaceVariant
     }
-    val rowBackground = if (aired) {
+    val rowBackground = if (release.isFromSelectedList) {
+        MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.42f)
+    } else if (aired) {
         MobileScheduleAiredColor.copy(alpha = 0.14f)
     } else {
         MaterialTheme.colorScheme.surfaceContainerLow
@@ -65,7 +68,14 @@ internal fun ScheduleMobileReleaseCard(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 116.dp),
+            .heightIn(min = 116.dp)
+            .then(
+                if (release.isFromSelectedList) {
+                    Modifier.border(1.5.dp, MaterialTheme.colorScheme.tertiary, YummyShapeTokens.Card)
+                } else {
+                    Modifier
+                },
+            ),
         shape = YummyShapeTokens.Card,
         colors = CardDefaults.cardColors(containerColor = rowBackground),
     ) {

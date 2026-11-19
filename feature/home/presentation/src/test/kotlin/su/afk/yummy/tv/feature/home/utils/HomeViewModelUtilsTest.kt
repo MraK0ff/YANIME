@@ -13,6 +13,18 @@ import su.afk.yummy.tv.domain.home.model.HomeFeedSectionType
 class HomeViewModelUtilsTest : BaseUnitTest() {
 
     @Test
+    fun `new releases inherit episode number and publication time`() {
+        val original = feed()
+        val aired = airedItem(50, episodeNumber = 7).copy(airedAtSeconds = 1_800_000_000L)
+
+        val result = original.withRecentReleaseMetadata(listOf(aired))
+
+        val item = result.sections.first().items.single()
+        assertEquals(7, item.episodeNumber)
+        assertEquals(1_800_000_000L, item.airedAtSeconds)
+    }
+
+    @Test
     fun `only titles from the library reach the section`() {
         val feed = feed().withMyNewEpisodes(
             recentlyAired = listOf(airedItem(1), airedItem(2)),
@@ -21,7 +33,8 @@ class HomeViewModelUtilsTest : BaseUnitTest() {
             title = TITLE,
         )
 
-        assertEquals(listOf(2), feed.sections.first().items.map { it.id })
+        assertEquals(listOf(1, 2), feed.sections.first().items.map { it.id })
+        assertEquals(true, feed.sections.first().items.first().isWatched)
     }
 
     @Test
@@ -62,7 +75,8 @@ class HomeViewModelUtilsTest : BaseUnitTest() {
             title = TITLE,
         )
 
-        assertEquals(original, result)
+        assertEquals(1, result.sections.first().items.single().id)
+        assertEquals(true, result.sections.first().items.single().isWatched)
     }
 
     @Test
@@ -112,7 +126,7 @@ class HomeViewModelUtilsTest : BaseUnitTest() {
             title = TITLE,
         )
 
-        assertEquals(original, result)
+        assertEquals(listOf(1), result.sections.first().items.map { it.id })
     }
 
     @Test

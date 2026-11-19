@@ -20,7 +20,7 @@ internal class YaniNewReleaseTracker {
         /** Non-null means a schedule snapshot was successfully read; missing ids are unknown. */
         airedEpisodeCounts: Map<Int, Int>? = null,
     ): List<HomeNewReleaseEntry> {
-        if (videos.isEmpty()) return history.withoutAlreadyKnownEpisodes(airedEpisodeCounts)
+        if (videos.isEmpty()) return history.withoutAlreadyAiredEpisodes(airedEpisodeCounts)
 
         val candidates = videos.mapIndexedNotNull { index, video ->
             val animeId = video.animeId?.takeIf { it > 0 } ?: return@mapIndexedNotNull null
@@ -114,7 +114,7 @@ internal class YaniNewReleaseTracker {
     ): List<HomeNewReleaseEntry> =
         filter { entry ->
             val airedCount = airedEpisodeCounts?.get(entry.animeId)
-            airedCount == null || entry.episodeNumber >= airedCount
+            airedCount == null || entry.episodeNumber > airedCount
         }.sortedBy { it.position }
 
     private data class Candidate(

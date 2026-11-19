@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -20,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -62,22 +59,19 @@ internal fun ScheduleMobileReleaseCard(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 116.dp),
+            .height(144.dp),
         shape = YummyShapeTokens.Card,
         colors = CardDefaults.cardColors(containerColor = rowBackground),
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = YummySpacing.Medium, vertical = YummySpacing.Small + 2.dp),
+            modifier = Modifier.fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(0.dp),
         ) {
             Box(
                 modifier = Modifier
-                    .width(68.dp)
-                    .height(98.dp)
-                    .clip(YummyShapeTokens.Control)
+                    .width(96.dp)
+                    .fillMaxSize()
                     .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)),
             ) {
                 FallbackAsyncImage(
@@ -89,7 +83,7 @@ internal fun ScheduleMobileReleaseCard(
             }
 
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).fillMaxSize().padding(start = 12.dp, end = 8.dp, top = 10.dp, bottom = 10.dp),
                 verticalArrangement = Arrangement.Center,
             ) {
                 listStatus?.let { status ->
@@ -122,7 +116,7 @@ internal fun ScheduleMobileReleaseCard(
                 )
             }
 
-            Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Column(modifier = Modifier.padding(end = 12.dp), horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 if (release.isFavorite) {
                     Text(text = "♥", color = su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors.StatusFavorite, style = MaterialTheme.typography.titleMedium)
                 }

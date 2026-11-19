@@ -41,6 +41,7 @@ import su.afk.yummy.tv.domain.account.repository.AccountRepository
 import su.afk.yummy.tv.domain.account.usecase.ObserveAccountSessionUseCase
 import su.afk.yummy.tv.domain.library.repository.LibraryRepository
 import su.afk.yummy.tv.domain.library.usecase.ObserveLibraryListStatusesUseCase
+import su.afk.yummy.tv.domain.library.usecase.ObserveLibraryFavoriteAnimeIdsUseCase
 import su.afk.yummy.tv.domain.library.usecase.ObserveLibraryUserRatingsUseCase
 import su.afk.yummy.tv.feature.main.MainState.Effect
 import su.afk.yummy.tv.feature.main.MainState.Event
@@ -110,6 +111,7 @@ class MainViewModelTest : BaseUnitTest() {
         yaniMirrorFallback = yaniMirrorFallback,
         interfaceModePreferences = mockk(relaxed = true),
         observeLibraryListStatuses = ObserveLibraryListStatusesUseCase(libraryRepository),
+        observeLibraryFavoriteAnimeIds = ObserveLibraryFavoriteAnimeIdsUseCase(libraryRepository),
         observeLibraryUserRatings = ObserveLibraryUserRatingsUseCase(libraryRepository),
         appClock = object : AppClock {
             // Середина июня 2025: вне праздничных периодов.

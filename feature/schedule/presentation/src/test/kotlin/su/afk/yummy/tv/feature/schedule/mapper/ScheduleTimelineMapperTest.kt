@@ -110,7 +110,7 @@ class ScheduleTimelineMapperTest {
     }
 
     @Test
-    fun `selected library titles are prioritized within each schedule day`() {
+    fun `selected library titles do not change chronological order within a schedule day`() {
         val publishedAt = nowSeconds - 3_600L
         val timeline = listOf(
             AnimeScheduleDay(
@@ -124,8 +124,8 @@ class ScheduleTimelineMapperTest {
         ).toTimelineUi(zone, now, prioritizedAnimeIds = setOf(2, 3))
 
         val releases = timeline.dayGroups.single().items
-        assertEquals(listOf(2, 3, 1), releases.map { it.item.animeId })
-        assertEquals(listOf(true, true, false), releases.map { it.isFromSelectedList })
+        assertEquals(listOf(1, 2, 3), releases.map { it.item.animeId })
+        assertEquals(listOf(false, true, true), releases.map { it.isFromSelectedList })
     }
 
     @Test

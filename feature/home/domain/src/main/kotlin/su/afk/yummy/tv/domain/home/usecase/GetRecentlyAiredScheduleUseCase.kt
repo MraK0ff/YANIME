@@ -18,16 +18,15 @@ class GetRecentlyAiredScheduleUseCase @Inject constructor(
         return getSchedule()
             .flatMap { it.items }
             .flatMap { item ->
-                val availableCount = item.availableEpisodeCount?.takeIf { it > 0 }
                 val airedCount = item.airedEpisodes?.takeIf { it > 0 }
-                if (availableCount == null && airedCount == null) return@flatMap emptyList()
-                // If the anime page already knows an episode, another upload of it is not new.
-                // Without a local video count, use the schedule's current aired episode as fallback.
+                if (airedCount == null) return@flatMap emptyList()
+                // airedEpisodes is the number of episodes released, so the current episode
+                // has the same number. Only older episode numbers are stale. A local page cache
+                // is deliberately not used here: it can contain a just-released episode already.
                 val release = item.videoReleases
                     .asSequence()
                     .filter { release ->
-                        if (availableCount != null) release.episodeNumber > availableCount
-                        else release.episodeNumber > airedCount!!
+                        release.episodeNumber >= airedCount
                     }
                     .filter { it.firstVideoAtSeconds in 1..nowSeconds }
                     .sortedWith(

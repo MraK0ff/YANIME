@@ -135,11 +135,11 @@ internal fun ScheduleMobileReleaseCard(
                     )
                 }
                 Text(
-                text = releaseAt.timeLabel(),
-                modifier = Modifier.widthIn(min = 58.dp),
-                style = MaterialTheme.typography.headlineSmallEmphasized,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
+                    text = releaseAt.timeLabel(),
+                    modifier = Modifier.widthIn(min = 58.dp),
+                    style = MaterialTheme.typography.headlineSmallEmphasized,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
                 )
             }
         }

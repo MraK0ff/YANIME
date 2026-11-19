@@ -96,7 +96,14 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
                     add(
                         ScheduleReleaseUi(
                             item = item,
-                            epochSeconds = release.firstVideoAtSeconds,
+                            // For the currently aired episode, use the schedule's Japanese
+                            // broadcast timestamp. Feed time is only when this app first
+                            // observed the video and can be days later (e.g. after cache reset).
+                            epochSeconds = if (release.episodeNumber == airedCount) {
+                                item.previousDateEpochSeconds ?: release.firstVideoAtSeconds
+                            } else {
+                                release.firstVideoAtSeconds
+                            },
                             episode = release.episodeNumber,
                             aired = true,
                             isFromSelectedList = item.animeId in prioritizedAnimeIds,

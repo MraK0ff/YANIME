@@ -15,6 +15,7 @@ internal fun HomeFeed.toVisibleFeed(
     val enrichedFeed = feed.withRecentReleaseMetadata(
         recentlyAired = params.recentlyAired,
         prioritizedAnimeIds = params.libraryAnimeIds,
+        watchedEpisodes = params.watchedEpisodes,
     )
     if (!params.newEpisodesEnabled) return enrichedFeed
     return enrichedFeed.withMyNewEpisodes(

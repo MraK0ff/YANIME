@@ -51,15 +51,54 @@ private data class EpisodeReleaseHistoryEntry(
     val playerName: String = "",
     val dubbing: String = "",
     val firstDetectedAtSeconds: Long = firstVideoAtSeconds,
+    val animeUrl: String? = null,
+    val description: String? = null,
+    val episodeTitle: String? = null,
+    val posterSmallUrl: String? = null,
+    val posterMediumUrl: String? = null,
+    val posterBigUrl: String? = null,
+    val posterFullsizeUrl: String? = null,
+    val posterMegaUrl: String? = null,
 ) {
     fun toDomain() = AnimeEpisodeRelease(
-        animeId, episodeNumber, firstVideoAtSeconds, firstVideoId, title, posterUrl, playerName, dubbing, firstDetectedAtSeconds,
+        animeId = animeId,
+        episodeNumber = episodeNumber,
+        firstVideoAtSeconds = firstVideoAtSeconds,
+        firstVideoId = firstVideoId,
+        title = title,
+        posterUrl = posterUrl,
+        playerName = playerName,
+        dubbing = dubbing,
+        firstDetectedAtSeconds = firstDetectedAtSeconds,
+        animeUrl = animeUrl,
+        description = description,
+        episodeTitle = episodeTitle,
+        posterSmallUrl = posterSmallUrl,
+        posterMediumUrl = posterMediumUrl,
+        posterBigUrl = posterBigUrl,
+        posterFullsizeUrl = posterFullsizeUrl,
+        posterMegaUrl = posterMegaUrl,
     )
 
     companion object {
         fun fromDomain(release: AnimeEpisodeRelease) = EpisodeReleaseHistoryEntry(
-            release.animeId, release.episodeNumber, release.firstVideoAtSeconds, release.firstVideoId,
-            release.title, release.posterUrl, release.playerName, release.dubbing, release.firstDetectedAtSeconds,
+            animeId = release.animeId,
+            episodeNumber = release.episodeNumber,
+            firstVideoAtSeconds = release.firstVideoAtSeconds,
+            firstVideoId = release.firstVideoId,
+            title = release.title,
+            posterUrl = release.posterUrl,
+            playerName = release.playerName,
+            dubbing = release.dubbing,
+            firstDetectedAtSeconds = release.firstDetectedAtSeconds,
+            animeUrl = release.animeUrl,
+            description = release.description,
+            episodeTitle = release.episodeTitle,
+            posterSmallUrl = release.posterSmallUrl,
+            posterMediumUrl = release.posterMediumUrl,
+            posterBigUrl = release.posterBigUrl,
+            posterFullsizeUrl = release.posterFullsizeUrl,
+            posterMegaUrl = release.posterMegaUrl,
         )
     }
 }
@@ -187,6 +226,14 @@ class YaniScheduleRepository(
         title = title,
         posterUrl = posterUrl,
         firstDetectedAtSeconds = firstDetectedAtSeconds,
+        animeUrl = animeUrl,
+        description = description,
+        episodeTitle = episodeTitle,
+        posterSmallUrl = posterSmallUrl,
+        posterMediumUrl = posterMediumUrl,
+        posterBigUrl = posterBigUrl,
+        posterFullsizeUrl = posterFullsizeUrl,
+        posterMegaUrl = posterMegaUrl,
     )
 
     private fun EpisodeReleaseEntry.toDomain() = AnimeEpisodeRelease(
@@ -199,6 +246,14 @@ class YaniScheduleRepository(
         playerName = playerName,
         dubbing = dubbing,
         firstDetectedAtSeconds = firstDetectedAtSeconds,
+        animeUrl = animeUrl,
+        description = description,
+        episodeTitle = episodeTitle,
+        posterSmallUrl = posterSmallUrl,
+        posterMediumUrl = posterMediumUrl,
+        posterBigUrl = posterBigUrl,
+        posterFullsizeUrl = posterFullsizeUrl,
+        posterMegaUrl = posterMegaUrl,
     )
 
     private fun String.normalizedReleaseSourceKey(): String =

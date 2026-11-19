@@ -17,4 +17,5 @@
     <string name="schedule_filter_all">Усі</string>
     <string name="schedule_filter_library">У бібліотеці</string>
     <string name="schedule_hide_watched">Приховувати переглянуті</string>
+    <string name="schedule_favorite">Улюблене</string>
 </resources>

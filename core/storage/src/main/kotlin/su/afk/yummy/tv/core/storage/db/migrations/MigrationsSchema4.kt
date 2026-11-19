@@ -596,3 +596,36 @@ internal val MIGRATION_72_73 = object : Migration(72, 73) {
         )
     }
 }
+
+
+/** Canonical, source-aware history of episode publication events. */
+internal val MIGRATION_73_74 = object : Migration(73, 74) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS episode_release_history (
+                animeId INTEGER NOT NULL,
+                episodeNumber INTEGER NOT NULL,
+                playerKey TEXT NOT NULL,
+                dubbingKey TEXT NOT NULL,
+                playerName TEXT NOT NULL,
+                dubbing TEXT NOT NULL,
+                firstVideoAtSeconds INTEGER NOT NULL,
+                firstVideoId INTEGER NOT NULL,
+                title TEXT NOT NULL,
+                posterUrl TEXT,
+                firstDetectedAtSeconds INTEGER NOT NULL,
+                PRIMARY KEY(animeId, episodeNumber, playerKey, dubbingKey)
+            )
+            """.trimIndent()
+        )
+        db.execSQL(
+            "CREATE INDEX IF NOT EXISTS index_episode_release_history_episode " +
+                "ON episode_release_history(animeId, episodeNumber)"
+        )
+        db.execSQL(
+            "CREATE INDEX IF NOT EXISTS index_episode_release_history_detected " +
+                "ON episode_release_history(firstDetectedAtSeconds)"
+        )
+    }
+}

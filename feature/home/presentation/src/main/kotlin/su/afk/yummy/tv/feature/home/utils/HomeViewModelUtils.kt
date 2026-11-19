@@ -71,8 +71,8 @@ internal fun HomeFeed.withRecentReleaseMetadata(
                     .map itemMap@ { item ->
                         val release = latestById[item.id]
                         item.copy(
-                            episodeNumber = release?.episodeNumber,
-                            airedAtSeconds = release?.airedAtSeconds,
+                            episodeNumber = release?.episodeNumber ?: item.episodeNumber,
+                            airedAtSeconds = release?.airedAtSeconds ?: item.airedAtSeconds,
                             isFromSelectedList = item.id in prioritizedAnimeIds,
                         )
                     },

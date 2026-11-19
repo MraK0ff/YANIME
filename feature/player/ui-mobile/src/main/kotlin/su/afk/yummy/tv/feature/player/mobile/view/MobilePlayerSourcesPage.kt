@@ -8,7 +8,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FilterChip
+import androidx.compose.material3.ButtonGroupDefaults
+import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -101,15 +102,21 @@ internal fun MobilePlayerSourcesPage(
                             verticalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
                             names.forEachIndexed { optionIndex, name ->
-                                FilterChip(
-                                    selected = indices.getOrNull(optionIndex) == selectedBalancerGraphIndex,
-                                    onClick = {
-                                        indices.getOrNull(optionIndex)?.let {
+                                ToggleButton(
+                                    checked = indices.getOrNull(optionIndex) == selectedBalancerGraphIndex,
+                                    onCheckedChange = { checked ->
+                                        if (checked) indices.getOrNull(optionIndex)?.let {
                                             onDubbingBalancerSelected(index, it)
                                         }
                                     },
-                                    label = { Text(name, maxLines = 1) },
-                                )
+                                    shapes = when (optionIndex) {
+                                        0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                                        names.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                                        else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
+                                    },
+                                ) {
+                                    Text(name, maxLines = 1)
+                                }
                             }
                         }
                     }
@@ -137,17 +144,23 @@ internal fun MobilePlayerSourcesPage(
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         pendingNames.forEachIndexed { index, name ->
-                            FilterChip(
-                                selected = false,
-                                onClick = {
+                            ToggleButton(
+                                checked = false,
+                                onCheckedChange = { checked ->
                                     val graphIndex = pendingIndices.getOrNull(index)
-                                    if (graphIndex != null) {
+                                    if (checked && graphIndex != null) {
                                         onDubbingBalancerSelected(pendingDubbingIndex, graphIndex)
                                         pendingDubbingIndex = -1
                                     }
                                 },
-                                label = { Text(name, maxLines = 1) },
-                            )
+                                shapes = when (index) {
+                                    0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                                    pendingNames.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                                    else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
+                                },
+                            ) {
+                                Text(name, maxLines = 1)
+                            }
                         }
                     }
                     if (pendingNames.isEmpty()) {

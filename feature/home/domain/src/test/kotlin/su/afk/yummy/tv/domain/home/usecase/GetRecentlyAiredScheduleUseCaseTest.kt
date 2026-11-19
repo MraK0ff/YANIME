@@ -85,18 +85,18 @@ class GetRecentlyAiredScheduleUseCaseTest : BaseUnitTest() {
     }
 
     @Test
-    fun `episode equal to the aired count is not confirmed as new`() = runTest {
+    fun `episode equal to the aired count is included as current release`() = runTest {
         schedule += scheduleItem(
             animeId = 1,
             airedEpisodes = 8,
             releases = listOf(release(1, NOW - DAY, episode = 8)),
         )
 
-        assertEquals(emptyList<Int>(), createUseCase()(NOW).map { it.id })
+        assertEquals(listOf(1), createUseCase()(NOW).map { it.id })
     }
 
     @Test
-    fun `cached anime page count overrides a stale lower schedule count`() = runTest {
+    fun `cached anime page count does not hide the current aired release`() = runTest {
         schedule += scheduleItem(
             animeId = 1,
             airedEpisodes = 6,
@@ -104,7 +104,7 @@ class GetRecentlyAiredScheduleUseCaseTest : BaseUnitTest() {
             releases = listOf(release(1, NOW - DAY, episode = 6)),
         )
 
-        assertEquals(emptyList<Int>(), createUseCase()(NOW).map { it.id })
+        assertEquals(listOf(1), createUseCase()(NOW).map { it.id })
     }
 
     @Test

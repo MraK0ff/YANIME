@@ -14,7 +14,7 @@ import javax.inject.Singleton
 object EpisodeReleaseStorageModule {
     @Provides
     @Singleton
-    fun provideEpisodeReleaseStore(db: AppDatabase): EpisodeReleaseStore =
+    internal fun provideEpisodeReleaseStore(db: AppDatabase): EpisodeReleaseStore =
         EpisodeReleaseStore(db.episodeReleaseDao())
 
     @Provides

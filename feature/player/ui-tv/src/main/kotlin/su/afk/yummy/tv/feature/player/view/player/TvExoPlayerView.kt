@@ -34,6 +34,7 @@ import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
 import su.afk.yummy.tv.core.model.settings.VideoEnhancementMode
 import su.afk.yummy.tv.feature.player.PlayerState
 import su.afk.yummy.tv.feature.player.common.PlayerBlackBackdrop
+import su.afk.yummy.tv.feature.player.common.PlayerDiagnosticsOverlay
 import su.afk.yummy.tv.feature.player.common.PlayerBufferingIndicator
 import su.afk.yummy.tv.feature.player.common.PlayerDecoderCapabilityEffect
 import su.afk.yummy.tv.feature.player.common.PlayerEpisodeEndController
@@ -462,6 +463,16 @@ internal fun TvExoPlayerView(
             style = state.subtitleStyle,
             modifier = Modifier.fillMaxSize(),
         )
+
+        if (state.showResolveLog) {
+            PlayerDiagnosticsOverlay(
+                player = player,
+                fontSize = 15.sp,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(start = 8.dp, top = 96.dp, end = 8.dp),
+            )
+        }
 
         TvPlayerPointerOverlay(
             enabled = !panels.isAnyOpen && !prompts.anyVisible && !recoveryHintVisible,

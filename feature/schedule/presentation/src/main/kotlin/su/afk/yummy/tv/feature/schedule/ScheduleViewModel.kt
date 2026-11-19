@@ -203,6 +203,8 @@ class ScheduleViewModel @Inject internal constructor(
                                 favoriteAnimeIds = favoriteAnimeIds,
                                 libraryOnly = libraryFilter == ScheduleState.LibraryFilter.LIBRARY,
                                 libraryAnimeIds = allLibraryAnimeIds,
+                                hideWatched = hideWatched,
+                                watchedEpisodes = watchedEpisodes,
                             ),
                         )
                     }

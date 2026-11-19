@@ -31,7 +31,7 @@ import su.afk.yummy.tv.data.home.mapper.LocalFeedContext
 import su.afk.yummy.tv.data.home.mapper.localContinueWatchingItems
 import su.afk.yummy.tv.data.home.mapper.withLocalOverrides
 import su.afk.yummy.tv.data.home.network.YaniHomeApi
-import su.afk.yummy.tv.data.home.utils.YaniNewReleaseTracker
+import su.afk.yummy.tv.data.home.utils.projectHomeNewReleases
 import su.afk.yummy.tv.data.home.storage.mapper.toHomeContinueWatchingItem
 import su.afk.yummy.tv.data.home.storage.mapper.toHomeFeedCache
 import su.afk.yummy.tv.domain.home.model.ContinueWatchingProgressMigration
@@ -254,12 +254,15 @@ class YaniHomeFeedRepository(
         val storedHistory = homeFeedStore.getNewReleaseHistory()
         // Upgrade old installs: previous feed cards did not store their episode number. Keep them
         // as a baseline so they survive a feed rotation without being mistaken for new releases.
-        val historyForMerge = storedHistory.ifEmpty {
+        val previousProjection = storedHistory.ifEmpty {
             previousCache.toLegacyReleaseHistory(now)
         }
-        val releaseHistory = YaniNewReleaseTracker().merge(
-            videos = dto.response.newVideos,
-            history = historyForMerge,
+        // Home no longer detects episode changes independently. It renders a projection of the
+        // same source-aware publication facts consumed by Schedule and prediction.
+        val canonicalReleaseHistory = scheduleRepository.getEpisodeReleaseHistory()
+        val releaseHistory = projectHomeNewReleases(
+            releases = canonicalReleaseHistory,
+            previousProjection = previousProjection,
             now = now,
             airedEpisodeCounts = airedEpisodeCounts,
         )

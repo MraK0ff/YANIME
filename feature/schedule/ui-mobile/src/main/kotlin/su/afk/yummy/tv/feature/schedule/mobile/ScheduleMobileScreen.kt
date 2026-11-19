@@ -5,6 +5,12 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -110,6 +116,18 @@ fun ScheduleMobileScreen(
         },
     ) {
         OfflineBanner(isOffline = LocalIsOffline.current)
+        Row(horizontalArrangement = Arrangement.spacedBy(YummySpacing.Small)) {
+            FilterChip(
+                selected = state.libraryFilter == ScheduleState.LibraryFilter.ALL,
+                onClick = { onEvent(ScheduleState.Event.LibraryFilterSelected(ScheduleState.LibraryFilter.ALL)) },
+                label = { androidx.compose.material3.Text(stringResource(R.string.schedule_filter_all)) },
+            )
+            FilterChip(
+                selected = state.libraryFilter == ScheduleState.LibraryFilter.LIBRARY,
+                onClick = { onEvent(ScheduleState.Event.LibraryFilterSelected(ScheduleState.LibraryFilter.LIBRARY)) },
+                label = { androidx.compose.material3.Text(stringResource(R.string.schedule_filter_library)) },
+            )
+        }
         ScheduleMobileDateChips(
             groups = dayGroups,
             selectedEpochDay = schedule.selectedEpochDay,

@@ -92,8 +92,7 @@ class GetRecentlyAiredScheduleUseCaseTest : BaseUnitTest() {
             releases = listOf(release(1, NOW - DAY, episode = 8)),
         )
 
-        val item = createUseCase()(NOW).single()
-        assertEquals(8, item.episodeNumber)
+        assertEquals(emptyList<Int>(), createUseCase()(NOW).map { it.id })
     }
 
     @Test

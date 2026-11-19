@@ -130,10 +130,8 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
                             .thenBy { it.epochSeconds },
                     )
                 }
-                .sortedWith(
-                    compareByDescending<ScheduleReleaseUi> { it.item.animeId in prioritizedAnimeIds }
-                        .thenBy { it.epochSeconds },
-                )
+                // Keep the calendar chronological; library membership must never reorder releases.
+                .sortedBy { it.epochSeconds }
             ScheduleDayUi(
                 date = date,
                 weekdayLabel = date.dayOfWeek

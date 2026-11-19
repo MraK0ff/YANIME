@@ -20,7 +20,7 @@ internal class YaniNewReleaseTracker {
         /** Non-null means a schedule snapshot was successfully read; missing ids are unknown. */
         airedEpisodeCounts: Map<Int, Int>? = null,
     ): List<HomeNewReleaseEntry> {
-        if (videos.isEmpty()) return history.withoutAlreadyAiredEpisodes(airedEpisodeCounts)
+        if (videos.isEmpty()) return history.withoutAlreadyKnownEpisodes(airedEpisodeCounts)
 
         val candidates = videos.mapIndexedNotNull { index, video ->
             val animeId = video.animeId?.takeIf { it > 0 } ?: return@mapIndexedNotNull null
@@ -54,7 +54,7 @@ internal class YaniNewReleaseTracker {
             // Without schedule confirmation, or when the feed episode is older than the
             // currently aired episode, do not create/promote a "new episode" card.
             if (airedEpisodeCounts != null && airedCount == null) return@forEach
-            if (airedCount != null && newest.episodeNumber < airedCount) return@forEach
+            if (airedCount != null && newest.episodeNumber <= airedCount) return@forEach
 
             val previous = previousById[animeId]
             when {
@@ -62,9 +62,7 @@ internal class YaniNewReleaseTracker {
                     merged[animeId] = newest.toEntry(
                         now = now,
                         firstSeenAt = now,
-                        // Equality is ambiguous: it may be a late dub of the current episode.
-                        // Keep it as a baseline instead of generating a false new-release move.
-                        lastUpdatedAt = if (isInitialSnapshot || newest.episodeNumber <= (airedCount ?: 0)) 0L else now,
+                        lastUpdatedAt = if (isInitialSnapshot) 0L else now,
                         position = if (isInitialSnapshot) merged.size else -1,
                     )
                 }
@@ -97,7 +95,7 @@ internal class YaniNewReleaseTracker {
         return merged.values
             .filter { entry ->
                 val airedCount = airedEpisodeCounts?.get(entry.animeId)
-                airedCount == null || entry.episodeNumber >= airedCount
+                airedCount == null || entry.episodeNumber > airedCount
             }
             .sortedWith(
             compareByDescending<HomeNewReleaseEntry> { it.lastUpdatedAt > 0L }

@@ -24,6 +24,7 @@ internal data class MobilePlayerSettingsMenuModel(
     val selectedDubbingIndex: Int,
     val dubbingBalancerNames: List<List<String>>,
     val dubbingBalancerIndices: List<List<Int>>,
+    val recommendedDubbingBalancerIndices: List<Int?>,
     val selectedBalancerGraphIndex: Int,
     val balancerNames: List<String>,
     val balancerAvailability: List<Boolean>,

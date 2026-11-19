@@ -2,6 +2,7 @@
     <string name="schedule_mobile_title">Розклад</string>
     <string name="schedule_episode_aired">%1$d серія вже вийшла</string>
     <string name="schedule_episode_future">Серія %1$d вийде через</string>
+    <string name="schedule_episode_waiting">%1$d серія: очікуємо відео · перевірка через %2$s</string>
     <string name="schedule_day_one">день</string>
     <string name="schedule_day_few">дні</string>
     <string name="schedule_day_many">днів</string>

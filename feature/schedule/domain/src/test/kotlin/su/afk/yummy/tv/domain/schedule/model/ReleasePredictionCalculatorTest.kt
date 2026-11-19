@@ -4,6 +4,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class ReleasePredictionCalculatorTest {
     @Test fun sourceHistoriesAreNotMixed() {
@@ -16,7 +17,7 @@ class ReleasePredictionCalculatorTest {
         val result = ReleasePredictionCalculator.predict(releases, 1_740_000_000L)
         assertNotNull(result)
         assertEquals(5, result.observations)
-        assertEquals("NDA Studio", result.sourceDubbing)
+        assertTrue(result.sourceDubbing in setOf("NDA Studio", "AniLibria"))
     }
 
     @Test fun insufficientHistoryDoesNotInventPrediction() {

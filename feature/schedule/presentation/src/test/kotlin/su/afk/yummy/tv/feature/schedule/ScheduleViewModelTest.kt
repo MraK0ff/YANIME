@@ -10,6 +10,7 @@ import io.mockk.verify
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -20,15 +21,18 @@ import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.model.ErrorItem
+import su.afk.yummy.tv.core.model.settings.NewEpisodesSource
 import su.afk.yummy.tv.core.model.settings.YaniContentLanguage
 import su.afk.yummy.tv.core.model.text.UiText
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.preferences.api.YaniAccountSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.testing.BaseUnitTest
 import su.afk.yummy.tv.domain.schedule.model.AnimeEpisodeRelease
 import su.afk.yummy.tv.domain.schedule.model.AnimeScheduleDay
 import su.afk.yummy.tv.domain.schedule.model.AnimeScheduleItem
 import su.afk.yummy.tv.domain.schedule.repository.AnimeScheduleRepository
+import su.afk.yummy.tv.domain.home.usecase.ObserveLibraryNewEpisodeAnimeIdsUseCase
 import su.afk.yummy.tv.domain.schedule.usecase.GetAnimeScheduleUseCase
 import su.afk.yummy.tv.feature.details.IDetailsNavigator
 
@@ -67,6 +71,12 @@ class ScheduleViewModelTest : BaseUnitTest() {
         analytics = ScheduleAnalytics(tracker),
         accountSettingsStore = accountSettingsStore,
         appClock = appClock,
+        settingsStore = mockk {
+            every { newEpisodesSources } returns flowOf(NewEpisodesSource.DEFAULT)
+        },
+        observeLibraryNewEpisodeAnimeIds = mockk {
+            every { invoke(any()) } returns emptyFlow()
+        },
     )
 
     private fun givenSchedule(vararg days: AnimeScheduleDay) {

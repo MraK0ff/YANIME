@@ -73,7 +73,7 @@ class ScheduleTimelineMapperTest {
     }
 
     @Test
-    fun `late dub of an episode already in local cache is not a calendar event`() {
+    fun `local page cache does not hide current aired release`() {
         val publishedAt = nowSeconds - 3_600L
         val timeline = listOf(
             day(
@@ -85,7 +85,7 @@ class ScheduleTimelineMapperTest {
             ),
         ).toTimelineUi(zone, now)
 
-        assertTrue(timeline.dayGroups.isEmpty())
+        assertEquals(8, timeline.dayGroups.single().items.single().episode)
     }
 
     @Test

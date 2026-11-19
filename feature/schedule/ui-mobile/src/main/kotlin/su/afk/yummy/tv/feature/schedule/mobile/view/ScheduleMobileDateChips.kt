@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -21,11 +21,13 @@ internal fun ScheduleMobileDateChips(
     modifier: Modifier = Modifier,
 ) {
     val listState = rememberLazyListState()
+    val density = LocalDensity.current
     val selectedIndex = groups.indexOfFirst { it.date.toEpochDay() == selectedEpochDay }
     LaunchedEffect(selectedEpochDay, groups.size) {
         if (selectedIndex >= 0) {
             val viewport = listState.layoutInfo.viewportSize.width
-            val centeredOffset = -((viewport - 76.dp.roundToPx()) / 2).coerceAtLeast(0)
+            val itemWidthPx = with(density) { 76.dp.roundToPx() }
+            val centeredOffset = -((viewport - itemWidthPx) / 2).coerceAtLeast(0)
             listState.animateScrollToItem(selectedIndex, centeredOffset)
         }
     }

@@ -629,3 +629,18 @@ internal val MIGRATION_73_74 = object : Migration(73, 74) {
         )
     }
 }
+
+
+/** Retains the full Home card metadata on each canonical publication record. */
+internal val MIGRATION_74_75 = object : Migration(74, 75) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE episode_release_history ADD COLUMN animeUrl TEXT")
+        db.execSQL("ALTER TABLE episode_release_history ADD COLUMN description TEXT")
+        db.execSQL("ALTER TABLE episode_release_history ADD COLUMN episodeTitle TEXT")
+        db.execSQL("ALTER TABLE episode_release_history ADD COLUMN posterSmallUrl TEXT")
+        db.execSQL("ALTER TABLE episode_release_history ADD COLUMN posterMediumUrl TEXT")
+        db.execSQL("ALTER TABLE episode_release_history ADD COLUMN posterBigUrl TEXT")
+        db.execSQL("ALTER TABLE episode_release_history ADD COLUMN posterFullsizeUrl TEXT")
+        db.execSQL("ALTER TABLE episode_release_history ADD COLUMN posterMegaUrl TEXT")
+    }
+}

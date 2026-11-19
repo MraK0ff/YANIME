@@ -25,7 +25,7 @@ class HomeViewModelUtilsTest : BaseUnitTest() {
     }
 
     @Test
-    fun `selected library titles are prioritized in ordinary new releases`() {
+    fun `selected library titles are highlighted without changing ordinary new release order`() {
         val original = HomeFeed(
             heroItems = emptyList(),
             sections = listOf(
@@ -42,7 +42,9 @@ class HomeViewModelUtilsTest : BaseUnitTest() {
             prioritizedAnimeIds = setOf(2, 3),
         )
 
-        assertEquals(listOf(2, 3, 1), result.sections.single().items.map { it.id })
+        val items = result.sections.single().items
+        assertEquals(listOf(1, 2, 3), items.map { it.id })
+        assertEquals(listOf(false, true, true), items.map { it.isFromSelectedList })
     }
 
     @Test
@@ -55,6 +57,7 @@ class HomeViewModelUtilsTest : BaseUnitTest() {
         )
 
         assertEquals(listOf(2), feed.sections.first().items.map { it.id })
+        assertEquals(true, feed.sections.first().items.single().isFromSelectedList)
     }
 
     @Test

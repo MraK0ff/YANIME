@@ -200,7 +200,7 @@ internal fun ScheduleReleaseRow(
                     Text(text = "♥", color = su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors.StatusFavorite, style = MaterialTheme.typography.titleMedium)
                 }
                 Text(
-                    text = releaseAt.timeLabel(),
+                    text = if (release.isPredicted && release.predictionConfidence == ReleasePrediction.Confidence.LOW) "—" else releaseAt.timeLabel(),
                     modifier = Modifier.widthIn(min = 82.dp),
                     style = MaterialTheme.typography.headlineMediumEmphasized,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

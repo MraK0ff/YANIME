@@ -13,8 +13,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -131,13 +134,9 @@ internal fun ScheduleMobileReleaseCard(
 
 @Composable
 private fun FavoriteScheduleBadge() {
-    Text(
-        text = "♥ " + stringResource(R.string.schedule_favorite),
-        color = YummySemanticColors.StatusFavorite,
-        style = MaterialTheme.typography.labelSmall,
-        fontWeight = FontWeight.SemiBold,
-        modifier = Modifier
-            .background(YummySemanticColors.StatusFavorite.copy(alpha = 0.14f), YummyShapeTokens.Control)
-            .padding(horizontal = 8.dp, vertical = 4.dp),
+    Icon(
+        imageVector = Icons.Filled.Favorite,
+        contentDescription = stringResource(R.string.schedule_favorite),
+        tint = YummySemanticColors.StatusFavorite,
     )
 }

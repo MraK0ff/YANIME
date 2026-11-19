@@ -17,10 +17,55 @@ class ScheduleTimelineMapperTest {
     private val nowSeconds = now.toEpochSecond()
 
     @Test
-    fun `past Japanese previous date is not shown without a published video`() {
-        val timeline = listOf(day(item(previousDate = nowSeconds - DAY))).toTimelineUi(zone, now)
+    fun `Japanese broadcast stays visible and initially counts down to one hour`() {
+        val broadcastAt = nowSeconds - 30L * 60L
+        val timeline = listOf(day(item(previousDate = broadcastAt))).toTimelineUi(zone, now)
 
-        assertTrue(timeline.dayGroups.isEmpty())
+        val release = timeline.dayGroups.single().items.single()
+        assertEquals(3, release.episode)
+        assertEquals(broadcastAt + 60L * 60L, release.epochSeconds)
+        assertFalse(release.aired)
+    }
+
+    @Test
+    fun `after one hour the display starts a ten minute countdown`() {
+        val broadcastAt = nowSeconds - 60L * 60L
+        val timeline = listOf(day(item(previousDate = broadcastAt))).toTimelineUi(zone, now)
+
+        val release = timeline.dayGroups.single().items.single()
+        assertEquals(nowSeconds + 10L * 60L, release.epochSeconds)
+        assertFalse(release.aired)
+    }
+
+    @Test
+    fun `each elapsed ten minute interval resets the display to ten minutes`() {
+        val broadcastAt = nowSeconds - 60L * 60L
+        val tenMinutesLater = now.plusSeconds(10L * 60L)
+        val timeline = listOf(day(item(previousDate = broadcastAt)))
+            .toTimelineUi(zone, tenMinutesLater)
+
+        val release = timeline.dayGroups.single().items.single()
+        assertEquals(tenMinutesLater.toEpochSecond() + 10L * 60L, release.epochSeconds)
+        assertFalse(release.aired)
+    }
+
+    @Test
+    fun `current episode video removes the waiting schedule entry`() {
+        val broadcastAt = nowSeconds - 60L * 60L
+        val publishedAt = nowSeconds - 5L * 60L
+        val timeline = listOf(
+            day(
+                item(
+                    previousDate = broadcastAt,
+                    releases = listOf(release(episode = 3, publishedAt = publishedAt)),
+                ),
+            ),
+        ).toTimelineUi(zone, now)
+
+        val release = timeline.dayGroups.single().items.single()
+        assertEquals(3, release.episode)
+        assertEquals(publishedAt, release.epochSeconds)
+        assertTrue(release.aired)
     }
 
     @Test

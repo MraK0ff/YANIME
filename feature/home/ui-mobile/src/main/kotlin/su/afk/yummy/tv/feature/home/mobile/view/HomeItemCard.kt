@@ -37,6 +37,7 @@ internal fun HomeItemCard(
         subtitle = subtitle ?: item.description.takeIf { showMetadata && it.isNotBlank() },
         badge = badge,
         rating = item.rating.takeIf { showMetadata },
+        highlightSelectedList = item.isFromSelectedList,
         titleMinLines = if (showMetadata) 1 else 2,
         posterOverlay = {
             if (showYear) {

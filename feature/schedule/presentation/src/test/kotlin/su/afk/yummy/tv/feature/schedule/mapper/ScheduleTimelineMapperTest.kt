@@ -36,6 +36,30 @@ class ScheduleTimelineMapperTest {
     }
 
     @Test
+    fun `current aired episode is grouped by Japanese broadcast date not first feed observation`() {
+        val japaneseBroadcastAt = Instant.parse("2026-11-13T20:00:00Z").epochSecond
+        val firstObservedAt = nowSeconds - 60L
+        val timeline = listOf(
+            day(
+                item(
+                    previousDate = japaneseBroadcastAt,
+                    airedEpisodes = 7,
+                    releases = listOf(release(episode = 7, publishedAt = firstObservedAt)),
+                ),
+            ),
+        ).toTimelineUi(zone, now)
+
+        val release = timeline.dayGroups.single().items.single()
+        assertEquals(7, release.episode)
+        assertEquals(japaneseBroadcastAt, release.epochSeconds)
+        assertTrue(release.aired)
+        assertEquals(
+            Instant.parse("2026-11-13T20:00:00Z").atZone(zone).toLocalDate(),
+            timeline.dayGroups.single().date,
+        )
+    }
+
+    @Test
     fun `published episode uses the first YummyAnime video timestamp`() {
         val publishedAt = nowSeconds - 3_600L
         val timeline = listOf(

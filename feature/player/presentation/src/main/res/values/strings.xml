@@ -272,4 +272,5 @@
     <string name="player_diag_video">Video: %1$dx%2$d, %3$s Mbps %4$s, dropped %5$d, net %6$s Mbps</string>
     <string name="player_diag_system">Device: %1$s, Android %2$s (API %3$d), RAM %4$d/%5$d MB, %6$s</string>
     <string name="player_toast_quality_fallback">Playback failed. Trying lower quality: %1$s</string>
+    <string name="player_balancer_recommended">Recommended · %1$s</string>
 </resources>

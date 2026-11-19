@@ -33,6 +33,7 @@ import su.afk.yummy.tv.domain.schedule.model.AnimeScheduleItem
 import su.afk.yummy.tv.domain.schedule.repository.AnimeScheduleRepository
 import su.afk.yummy.tv.domain.home.usecase.ObserveLibraryNewEpisodeAnimeIdsUseCase
 import su.afk.yummy.tv.domain.library.usecase.ObserveLibraryFavoriteAnimeIdsUseCase
+import su.afk.yummy.tv.domain.library.usecase.ObserveLibraryItemsUseCase
 import su.afk.yummy.tv.domain.schedule.usecase.GetAnimeScheduleUseCase
 import su.afk.yummy.tv.feature.details.IDetailsNavigator
 
@@ -80,6 +81,9 @@ class ScheduleViewModelTest : BaseUnitTest() {
         },
         observeLibraryFavoriteAnimeIds = mockk {
             every { invoke() } returns flowOf(emptySet())
+        },
+        observeLibraryItems = mockk {
+            every { invoke() } returns flowOf(emptyList())
         },
     )
 

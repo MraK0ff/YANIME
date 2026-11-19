@@ -1,9 +1,8 @@
 package su.afk.yummy.tv.domain.schedule.model
 
 /**
- * Первая наблюдённая публикация видео для серии в ленте YummyAnime.
- * Это время появления записи в ленте, а не гарантированная премьера эпизода:
- * поздняя альтернативная озвучка может появиться значительно позже самой серии.
+ * First observed publication of a concrete video in YummyAnime's feed.
+ * Publication identity includes player and dubbing: alternate versions are independent observations.
  */
 data class AnimeEpisodeRelease(
     val animeId: Int,
@@ -12,4 +11,6 @@ data class AnimeEpisodeRelease(
     val firstVideoId: Int,
     val title: String,
     val posterUrl: String? = null,
+    val playerName: String = "",
+    val dubbing: String = "",
 )

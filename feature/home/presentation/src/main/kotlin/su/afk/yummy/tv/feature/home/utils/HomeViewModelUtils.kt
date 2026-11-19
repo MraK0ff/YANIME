@@ -61,11 +61,11 @@ internal fun HomeFeed.withRecentReleaseMetadata(recentlyAired: List<HomeFeedItem
     if (recentlyAired.isEmpty()) return this
     val latestById = recentlyAired.associateBy { it.id }
     return copy(
-        sections = sections.map { section ->
-            if (section.type != HomeFeedSectionType.NEW_RELEASES) return@map section
+        sections = sections.map sectionMap@ { section ->
+            if (section.type != HomeFeedSectionType.NEW_RELEASES) return@sectionMap section
             section.copy(
-                items = section.items.map { item ->
-                    val release = latestById[item.id] ?: return@map item
+                items = section.items.map itemMap@ { item ->
+                    val release = latestById[item.id] ?: return@itemMap item
                     item.copy(
                         episodeNumber = release.episodeNumber,
                         airedAtSeconds = release.airedAtSeconds,

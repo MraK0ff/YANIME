@@ -11,6 +11,7 @@ import su.afk.yummy.tv.core.storage.schedule.AnimeScheduleStorage
 import su.afk.yummy.tv.core.storage.anime.AnimeStorage
 import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStorage
 import su.afk.yummy.tv.core.storage.document.DocumentCacheStorage
+import su.afk.yummy.tv.core.storage.release.EpisodeReleaseStorage
 import su.afk.yummy.tv.data.schedule.network.YaniScheduleApi
 import su.afk.yummy.tv.data.home.network.YaniHomeApi
 import su.afk.yummy.tv.data.schedule.repository.YaniScheduleRepository

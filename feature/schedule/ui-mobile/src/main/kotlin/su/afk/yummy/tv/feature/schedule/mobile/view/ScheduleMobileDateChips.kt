@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
@@ -16,7 +18,13 @@ internal fun ScheduleMobileDateChips(
     onSelected: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val listState = rememberLazyListState()
+    val selectedIndex = groups.indexOfFirst { it.date.toEpochDay() == selectedEpochDay }
+    LaunchedEffect(selectedEpochDay, groups.size) {
+        if (selectedIndex >= 0) listState.animateScrollToItem(selectedIndex)
+    }
     LazyRow(
+        state = listState,
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
         contentPadding = PaddingValues(horizontal = YummySpacing.Large, vertical = YummySpacing.XSmall),

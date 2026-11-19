@@ -18,6 +18,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -74,7 +77,7 @@ internal fun ScheduleReleaseRow(
     val aired = releaseAt.isAfter(now).not()
     val remainingLabels = scheduleRemainingLabels()
     val listStatus = LocalLibraryListStatuses.current[item.animeId]
-    val accentColor = if (aired) AiredColor else MaterialTheme.colorScheme.onSurfaceVariant
+    val accentColor = if (aired && listStatus == null) AiredColor else MaterialTheme.colorScheme.onSurfaceVariant
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
     val active = focused || selected
@@ -82,8 +85,7 @@ internal fun ScheduleReleaseRow(
     val rowScale = if (focused) 1.025f else 1f
     val rowBackground = when {
         focused || selected -> MaterialTheme.colorScheme.surfaceContainerHigh
-        listStatus != null -> listStatus.badgeColor().copy(alpha = 0.14f)
-        aired -> AiredColor.copy(alpha = 0.12f)
+        listStatus != null -> listStatus.badgeColor().copy(alpha = 0.12f)
         else -> MaterialTheme.colorScheme.surfaceContainerLow
     }
 
@@ -141,17 +143,15 @@ internal fun ScheduleReleaseRow(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
                 )
-                listStatus?.let { status ->
-                    ListStatusBadge(
-                        status = status,
-                        modifier = Modifier.align(Alignment.BottomStart),
-                    )
-                }
             }
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.Center,
             ) {
+                listStatus?.let { status ->
+                    ListStatusBadge(status = status, compact = true)
+                    Spacer(modifier = Modifier.height(6.dp))
+                }
                 Text(
                     text = item.title,
                     style = MaterialTheme.typography.titleLargeEmphasized,
@@ -177,13 +177,23 @@ internal fun ScheduleReleaseRow(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            Text(
+            Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                if (release.isFavorite) {
+                    Icon(
+                        imageVector = Icons.Filled.Favorite,
+                        contentDescription = null,
+                        tint = su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors.StatusFavorite,
+                        modifier = Modifier.width(22.dp).height(22.dp),
+                    )
+                }
+                Text(
                 text = releaseAt.timeLabel(),
                 modifier = Modifier.widthIn(min = 82.dp),
                 style = MaterialTheme.typography.headlineMediumEmphasized,
                 color = accentColor,
                 maxLines = 1,
-            )
+                )
+            }
         }
     }
 }

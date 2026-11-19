@@ -123,9 +123,9 @@ internal fun ScheduleReleaseRow(
         Row(
             modifier = Modifier
                 .matchParentSize()
-                .padding(horizontal = 14.dp, vertical = 10.dp),
+                .padding(end = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(0.dp),
         ) {
             Box(
                 modifier = Modifier
@@ -142,7 +142,7 @@ internal fun ScheduleReleaseRow(
                 )
             }
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).fillMaxHeight().padding(start = 12.dp, end = 8.dp, top = 10.dp, bottom = 10.dp),
                 verticalArrangement = Arrangement.Center,
             ) {
                 listStatus?.let { status ->

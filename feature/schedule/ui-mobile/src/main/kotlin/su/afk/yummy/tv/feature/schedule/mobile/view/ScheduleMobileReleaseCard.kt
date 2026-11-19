@@ -54,7 +54,7 @@ internal fun ScheduleMobileReleaseCard(
 ) {
     val item = release.item
     val releaseAt = Instant.ofEpochSecond(release.epochSeconds).atZone(zone)
-    val aired = !releaseAt.isAfter(now)
+    val aired = release.aired
     val remainingLabels = scheduleMobileRemainingLabels()
     val listStatus = LocalLibraryListStatuses.current[item.animeId]
     val accentColor = if (aired && listStatus == null) MobileScheduleAiredColor else MaterialTheme.colorScheme.onSurfaceVariant
@@ -129,10 +129,14 @@ internal fun ScheduleMobileReleaseCard(
                     Spacer(modifier = Modifier.height(3.dp))
                 }
                 Text(
-                    text = if (aired) {
-                        stringResource(R.string.schedule_episode_aired, release.episode)
-                    } else {
-                        stringResource(R.string.schedule_episode_future, release.episode) + "\n" + releaseAt.remainingText(now, remainingLabels)
+                    text = when {
+                        aired -> stringResource(R.string.schedule_episode_aired, release.episode)
+                        release.isAwaitingVideo -> stringResource(
+                            R.string.schedule_episode_waiting,
+                            release.episode,
+                            releaseAt.remainingText(now, remainingLabels),
+                        )
+                        else -> stringResource(R.string.schedule_episode_future, release.episode) + "\n" + releaseAt.remainingText(now, remainingLabels)
                     },
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,

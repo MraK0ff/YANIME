@@ -19,5 +19,5 @@ object EpisodeReleaseStorageModule {
 
     @Provides
     @Singleton
-    fun provideEpisodeReleaseStorage(store: EpisodeReleaseStore): EpisodeReleaseStorage = store
+    internal fun provideEpisodeReleaseStorage(store: EpisodeReleaseStore): EpisodeReleaseStorage = store
 }

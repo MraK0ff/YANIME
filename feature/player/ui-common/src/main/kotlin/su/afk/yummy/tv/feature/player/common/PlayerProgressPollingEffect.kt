@@ -87,6 +87,9 @@ fun PlayerProgressPollingEffect(
             if (player.isPlaybackActive()) {
                 idleTicks = 0
                 lastIdleSyncPositionMs = -1L
+                // Берём позицию из самого Media3-плеера часто, а не прибавляем скорость вручную.
+                // Так таймкод плавно следует реальному playback clock при 1x–3x и при speed boost.
+                delay(ACTIVE_POSITION_POLL_INTERVAL_MS)
             } else if (++idleTicks > IDLE_TICKS_BEFORE_SLEEP) {
                 if (episodeKey.isNotBlank() && state.duration > 0 &&
                     state.currentPosition != lastIdleSyncPositionMs
@@ -98,13 +101,15 @@ fun PlayerProgressPollingEffect(
                 player.awaitNextEvent()
                 idleTicks = 0
                 continue
+            } else {
+                delay(PLAYER_PROGRESS_POLL_INTERVAL)
             }
-            delay(PLAYER_PROGRESS_POLL_INTERVAL)
         }
     }
 }
 
 /** Сколько после seek не доверять позиции плеера: он ещё отдаёт старую. */
+private const val ACTIVE_POSITION_POLL_INTERVAL_MS = 50L
 private const val SEEK_SETTLE_MS = 1_000L
 private const val NOTIFY_INTERVAL_MS = 1_000L
 private const val SAVE_INTERVAL_MS = 10_000L

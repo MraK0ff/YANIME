@@ -54,8 +54,31 @@ internal fun HomeFeed.withShuffledHero(random: Random): HomeFeed =
     if (heroItems.size < 2) this else copy(heroItems = heroItems.shuffled(random))
 
 /**
- * Добавляет в начало ленты секцию недавно вышедших серий тайтлов из [libraryAnimeIds]; без
- * совпадений секцию не добавляет. Серии из [watchedEpisodes] убираются из секции.
+ * Adds current episode number and publication time to the ordinary new-releases cards.
+ * The values come from the same schedule snapshot used by the personalized section.
+ */
+internal fun HomeFeed.withRecentReleaseMetadata(recentlyAired: List<HomeFeedItem>): HomeFeed {
+    if (recentlyAired.isEmpty()) return this
+    val latestById = recentlyAired.associateBy { it.id }
+    return copy(
+        sections = sections.map { section ->
+            if (section.type != HomeFeedSectionType.NEW_RELEASES) return@map section
+            section.copy(
+                items = section.items.map { item ->
+                    val release = latestById[item.id] ?: return@map item
+                    item.copy(
+                        episodeNumber = release.episodeNumber,
+                        airedAtSeconds = release.airedAtSeconds,
+                    )
+                },
+            )
+        },
+    )
+}
+
+/**
+ * Adds recently released episodes for titles in [libraryAnimeIds]. Watched releases remain visible
+ * with [HomeFeedItem.isWatched] set, so the user can still see that a new episode was published.
  */
 internal fun HomeFeed.withMyNewEpisodes(
     recentlyAired: List<HomeFeedItem>,
@@ -66,7 +89,6 @@ internal fun HomeFeed.withMyNewEpisodes(
     val items = recentlyAired
         .filter { it.id in libraryAnimeIds }
         .map { item -> item.copy(isWatched = item.isEpisodeWatched(watchedEpisodes)) }
-        .filterNot { it.isWatched }
     if (items.isEmpty()) return this
     val section = HomeFeedSection(HomeFeedSectionType.MY_NEW_EPISODES, title, items)
     return copy(sections = listOf(section) + sections)

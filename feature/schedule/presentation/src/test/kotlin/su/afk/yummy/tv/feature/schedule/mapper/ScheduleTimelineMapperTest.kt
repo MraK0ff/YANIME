@@ -49,14 +49,8 @@ class ScheduleTimelineMapperTest {
             ),
         ).toTimelineUi(zone, now)
 
-        val release = timeline.dayGroups.single().items.single()
-        assertEquals(7, release.episode)
-        assertEquals(japaneseBroadcastAt, release.epochSeconds)
-        assertTrue(release.aired)
-        assertEquals(
-            Instant.parse("2026-11-13T20:00:00Z").atZone(zone).toLocalDate(),
-            timeline.dayGroups.single().date,
-        )
+        // The Japanese broadcast was on Nov 13, so it must not be shown as a Nov 14 event.
+        assertTrue(timeline.dayGroups.isEmpty())
     }
 
     @Test

@@ -19,6 +19,7 @@ import su.afk.yummy.tv.core.preferences.api.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.preferences.settings.contentLanguageChanges
 import su.afk.yummy.tv.domain.home.usecase.ObserveLibraryNewEpisodeAnimeIdsUseCase
+import su.afk.yummy.tv.domain.home.usecase.ObserveWatchedEpisodesUseCase
 import su.afk.yummy.tv.domain.library.usecase.ObserveLibraryFavoriteAnimeIdsUseCase
 import su.afk.yummy.tv.domain.library.usecase.ObserveLibraryItemsUseCase
 import su.afk.yummy.tv.domain.schedule.usecase.GetAnimeScheduleUseCase
@@ -44,6 +45,7 @@ class ScheduleViewModel @Inject internal constructor(
     private val observeLibraryNewEpisodeAnimeIds: ObserveLibraryNewEpisodeAnimeIdsUseCase,
     private val observeLibraryFavoriteAnimeIds: ObserveLibraryFavoriteAnimeIdsUseCase,
     private val observeLibraryItems: ObserveLibraryItemsUseCase,
+    private val observeWatchedEpisodes: ObserveWatchedEpisodesUseCase,
 ) : BaseViewModel<ScheduleState.State, ScheduleState.Event, ScheduleState.Effect>() {
 
     override fun createInitialState() = ScheduleState.State()
@@ -51,6 +53,7 @@ class ScheduleViewModel @Inject internal constructor(
     private var prioritizedAnimeIds: Set<Int> = emptySet()
     private var favoriteAnimeIds: Set<Int> = emptySet()
     private var allLibraryAnimeIds: Set<Int> = emptySet()
+    private var watchedEpisodes: Map<Int, Set<Int>> = emptyMap()
 
     init {
         analytics.eventScreenOpened()
@@ -70,6 +73,12 @@ class ScheduleViewModel @Inject internal constructor(
         observeLibraryFavoriteAnimeIds()
             .onEach(::updateFavoriteAnimeIds)
             .launchIn(viewModelScope)
+        observeWatchedEpisodes()
+            .onEach { watched ->
+                watchedEpisodes = watched
+                rebuildTimeline()
+            }
+            .launchIn(viewModelScope)
         observeLibraryItems()
             .onEach { items ->
                 allLibraryAnimeIds = items.mapTo(HashSet()) { it.animeId }
@@ -88,6 +97,11 @@ class ScheduleViewModel @Inject internal constructor(
             is ScheduleState.Event.AnimeSelected -> {
                 analytics.eventAnimeSelected(event.animeId)
                 nav.navigate(detailsNavigator.getDetailsDest(event.animeId))
+            }
+
+            is ScheduleState.Event.HideWatchedToggled -> {
+                setState { copy(hideWatched = event.enabled) }
+                rebuildTimeline()
             }
 
             is ScheduleState.Event.LibraryFilterSelected -> {
@@ -125,6 +139,14 @@ class ScheduleViewModel @Inject internal constructor(
                     favoriteAnimeIds = favoriteAnimeIds,
                     libraryOnly = currentState.libraryFilter == ScheduleState.LibraryFilter.LIBRARY,
                     libraryAnimeIds = allLibraryAnimeIds,
+                                hideWatched = hideWatched,
+                                watchedEpisodes = watchedEpisodes,
+                hideWatched = hideWatched,
+                watchedEpisodes = watchedEpisodes,
+                    hideWatched = currentState.hideWatched,
+                    watchedEpisodes = watchedEpisodes,
+                    hideWatched = currentState.hideWatched,
+                    watchedEpisodes = watchedEpisodes,
                 ),
             )
         }

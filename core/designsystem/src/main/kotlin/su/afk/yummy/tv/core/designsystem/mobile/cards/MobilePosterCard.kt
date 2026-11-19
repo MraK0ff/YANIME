@@ -2,7 +2,6 @@ package su.afk.yummy.tv.core.designsystem.mobile.cards
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -49,30 +48,19 @@ fun MobilePosterCard(
     posterUrls: List<String>,
     modifier: Modifier = Modifier.width(currentMobilePosterWidth()),
     subtitle: String? = null,
-    /** Акцентная строка под [subtitle] — например вид связи тайтла («продолжение»). */
     caption: String? = null,
-    /** Резерв высоты под [caption], чтобы карточки с короткой и длинной подписью в ряду были одной высоты. */
     captionMinLines: Int = 1,
     badge: String? = null,
     rating: Double? = null,
-    /** Тонкая акцентная рамка для тайтлов из выбранных пользовательских списков. */
-    highlightSelectedList: Boolean = false,
     titleMinLines: Int = 2,
-    /** Если задан — карточка подписывается списком пользователя, в котором лежит тайтл. */
     animeId: Int? = null,
     posterOverlay: @Composable BoxScope.() -> Unit = {},
-    /** Слот под карточкой — например кнопки голосования. Живёт внутри Card, клик не перехватывает. */
     footer: @Composable ColumnScope.() -> Unit = {},
-    /** Долгое нажатие по карточке — например контекстное меню тайтла. */
     onLongClick: (() -> Unit)? = null,
     onClick: () -> Unit,
 ) {
     Card(
-        modifier = if (highlightSelectedList) {
-            modifier.border(1.5.dp, MaterialTheme.colorScheme.tertiary, YummyShapeTokens.Card)
-        } else {
-            modifier
-        },
+        modifier = modifier,
         shape = YummyShapeTokens.Card,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
     ) {
@@ -123,7 +111,6 @@ fun MobilePosterCard(
                     )
                 }
                 val listStatus = animeId?.let { LocalLibraryListStatuses.current[it] }
-                // Плашка занимает нижнюю кромку постера, поэтому нижние оверлеи (год) поднимаем над ней.
                 Box(
                     Modifier
                         .matchParentSize()

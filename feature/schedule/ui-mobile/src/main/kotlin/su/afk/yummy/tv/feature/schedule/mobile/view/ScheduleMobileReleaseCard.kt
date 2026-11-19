@@ -13,13 +13,10 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -127,12 +124,7 @@ internal fun ScheduleMobileReleaseCard(
 
             Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 if (release.isFavorite) {
-                    Icon(
-                        imageVector = Icons.Filled.Favorite,
-                        contentDescription = null,
-                        tint = su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors.StatusFavorite,
-                        modifier = Modifier.width(20.dp).height(20.dp),
-                    )
+                    Text(text = "♥", color = su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors.StatusFavorite, style = MaterialTheme.typography.titleMedium)
                 }
                 Text(
                     text = releaseAt.timeLabel(),

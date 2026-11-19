@@ -235,7 +235,7 @@ class YaniHomeFeedRepository(
         // A feed upload is not enough to prove that an episode is new: an alternate dub
         // of an older episode can appear in new_videos long after the episode itself aired.
         // Use the schedule's aired count as a conservative lower bound before promoting cards.
-        val airedEpisodeCounts = try {
+        val scheduleEpisodeCounts = try {
             scheduleRepository.getSchedule()
                 .flatMap { it.items }
                 .mapNotNull { item ->
@@ -247,9 +247,23 @@ class YaniHomeFeedRepository(
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (error: Exception) {
-            analyticsTracker.log(TAG) { "Could not read aired episode counts: ${error.message}" }
+            analyticsTracker.log(TAG) { "Could not read schedule episode counts: ${error.message}" }
             emptyMap()
         }
+        // Details may know more than the weekly schedule (for example, the anime page already
+        // lists 8 episodes while a late dub of episode 6 is newly added to the feed).
+        val cachedEpisodeCounts = try {
+            animeStorage.observeAvailableEpisodeCounts(languageCode).first()
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (error: Exception) {
+            analyticsTracker.log(TAG) { "Could not read cached episode counts: ${error.message}" }
+            emptyMap()
+        }
+        val airedEpisodeCounts = (scheduleEpisodeCounts.keys + cachedEpisodeCounts.keys)
+            .associateWith { animeId ->
+                maxOf(scheduleEpisodeCounts[animeId] ?: 0, cachedEpisodeCounts[animeId] ?: 0)
+            }
         val now = System.currentTimeMillis()
         val previousCache = homeFeedStore.getFeed(languageCode, watchSignature)
         val storedHistory = homeFeedStore.getNewReleaseHistory()

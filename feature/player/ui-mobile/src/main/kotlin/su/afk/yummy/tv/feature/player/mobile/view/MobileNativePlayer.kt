@@ -772,6 +772,9 @@ internal fun MobileNativePlayer(
                     dubbingViews = ui.dubbingViews,
                     dubbingAvailability = ui.dubbingAvailability,
                     selectedDubbingIndex = ui.currentDubbingIndex,
+                    dubbingBalancerNames = ui.dubbingBalancerNames,
+                    dubbingBalancerIndices = ui.dubbingBalancerIndices,
+                    selectedBalancerGraphIndex = ui.selectedBalancerGraphIndex,
                     balancerNames = ui.balancerNames,
                     balancerAvailability = ui.balancerAvailability,
                     balancerExternal = ui.balancerExternal,
@@ -815,8 +818,10 @@ internal fun MobileNativePlayer(
                     onAudioTrackSelected = { index ->
                         trackMenu.selectAudio(index, player.currentPosition.coerceAtLeast(0L), onEvent)
                     },
-                    onDubbingSelected = { index ->
-                        onEvent(PlayerState.Event.DubbingSelected(index, player.currentPosition.coerceAtLeast(0L)))
+                    onDubbingBalancerSelected = { dubbingIndex, balancerGraphIndex ->
+                        val position = player.currentPosition.coerceAtLeast(0L)
+                        reporter.saveProgress(position, progress.duration)
+                        onEvent(PlayerState.Event.DubbingBalancerSelected(dubbingIndex, balancerGraphIndex, position))
                     },
                     onBalancerSelected = { index ->
                         val selectedName = ui.balancerNames.getOrNull(index)

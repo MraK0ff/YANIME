@@ -59,7 +59,7 @@ class GetRecentlyAiredScheduleUseCaseTest : BaseUnitTest() {
     fun `a title appears once with its freshest actually published episode`() = runTest {
         schedule += scheduleItem(
             animeId = 1,
-            airedEpisodes = 8,
+            airedEpisodes = 7,
             releases = listOf(
                 release(1, NOW - 2 * DAY, episode = 7),
                 release(1, NOW - DAY, episode = 8),

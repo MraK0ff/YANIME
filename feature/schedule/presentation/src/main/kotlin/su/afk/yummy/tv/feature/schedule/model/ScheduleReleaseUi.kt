@@ -7,6 +7,7 @@ data class ScheduleReleaseUi(
     val epochSeconds: Long,
     val episode: Int,
     val aired: Boolean,
+    val isFromSelectedList: Boolean = false,
 ) {
     // Different episodes may share the same publication timestamp.
     // The episode number is part of the mapper's deduplication identity,

@@ -129,6 +129,18 @@ class ScheduleTimelineMapperTest {
     }
 
     @Test
+    fun `favorite state is exposed independently from list membership`() {
+        val publishedAt = nowSeconds - 3_600L
+        val timeline = listOf(
+            day(item(releases = listOf(release(episode = 4, publishedAt = publishedAt)))),
+        ).toTimelineUi(zone, now, favoriteAnimeIds = setOf(1))
+
+        val release = timeline.dayGroups.single().items.single()
+        assertTrue(release.isFavorite)
+        assertFalse(release.isFromSelectedList)
+    }
+
+    @Test
     fun `future schedule remains visible and is not marked aired`() {
         val future = nowSeconds + DAY
         val timeline = listOf(day(item(nextDate = future, airedEpisodes = 4))).toTimelineUi(zone, now)

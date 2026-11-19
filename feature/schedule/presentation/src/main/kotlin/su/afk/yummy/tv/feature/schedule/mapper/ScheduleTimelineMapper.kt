@@ -72,9 +72,10 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
                 ))
             }
 
-            val prediction = item.releasePrediction?.takeIf {
-                it.confidence != ReleasePrediction.Confidence.UNKNOWN &&
-                    it.expectedAtEpochSeconds != null && it.expectedAtEpochSeconds > nowSeconds
+            val prediction = item.releasePrediction?.takeIf { candidate ->
+                val expectedAt = candidate.expectedAtEpochSeconds
+                candidate.confidence != ReleasePrediction.Confidence.UNKNOWN &&
+                    expectedAt != null && expectedAt > nowSeconds
             }
             val nextAt = prediction?.expectedAtEpochSeconds
                 ?: item.nextDateEpochSeconds?.takeIf { it > nowSeconds }

@@ -72,6 +72,7 @@ class YaniScheduleRepository(
     private val homeApi: YaniHomeApi,
     private val animeStorage: AnimeStorage,
     private val watchProgressStorage: WatchProgressStorage,
+    private val episodeReleaseStorage: EpisodeReleaseStorage,
 ) : AnimeScheduleRepository {
     private val releaseHistoryMutex = Mutex()
     private val feedRefreshMutex = Mutex()

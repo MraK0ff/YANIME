@@ -33,8 +33,7 @@ class HomeViewModelUtilsTest : BaseUnitTest() {
             title = TITLE,
         )
 
-        assertEquals(listOf(1, 2), feed.sections.first().items.map { it.id })
-        assertEquals(true, feed.sections.first().items.first().isWatched)
+        assertEquals(listOf(2), feed.sections.first().items.map { it.id })
     }
 
     @Test
@@ -66,7 +65,7 @@ class HomeViewModelUtilsTest : BaseUnitTest() {
     }
 
     @Test
-    fun `a watched episode leaves the section`() {
+    fun `a watched episode remains visible and is marked watched`() {
         val original = feed()
         val result = original.withMyNewEpisodes(
             recentlyAired = listOf(airedItem(1, episodeNumber = 3)),
@@ -104,7 +103,7 @@ class HomeViewModelUtilsTest : BaseUnitTest() {
     }
 
     @Test
-    fun `a watched title is dropped`() {
+    fun `watched and unwatched releases both remain visible`() {
         val feed = feed().withMyNewEpisodes(
             recentlyAired = listOf(airedItem(1, episodeNumber = 3), airedItem(2, episodeNumber = 1)),
             libraryAnimeIds = setOf(1, 2),
@@ -112,11 +111,12 @@ class HomeViewModelUtilsTest : BaseUnitTest() {
             title = TITLE,
         )
 
-        assertEquals(listOf(2), feed.sections.first().items.map { it.id })
+        assertEquals(listOf(1, 2), feed.sections.first().items.map { it.id })
+        assertEquals(true, feed.sections.first().items.first().isWatched)
     }
 
     @Test
-    fun `the section disappears when every title is watched`() {
+    fun `the section remains when every new release was already watched`() {
         val original = feed()
 
         val result = original.withMyNewEpisodes(

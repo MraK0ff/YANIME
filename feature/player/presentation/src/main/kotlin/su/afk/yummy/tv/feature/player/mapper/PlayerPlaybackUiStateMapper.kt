@@ -80,6 +80,18 @@ fun PlayerState.State.toPlayerPlaybackUiState(
     val balancerNames = availableBalancerIndices.map { index ->
         sourceGraph.balancers.getOrNull(index)?.name.orEmpty().removePrefix(playerNamePrefix).withoutPlayerPrefix()
     }
+    val dubbingBalancerIndices = displayedDubbingNames.map { dubbingName ->
+        sourceGraph.balancers.mapIndexedNotNull { index, balancer ->
+            val dubbing = balancer.dubbings.firstOrNull { it.name == dubbingName }
+            val hasEpisode = dubbing?.episodes?.any { it.number.episodeGroupKey() == activeEpisode.episodeGroupKey() } == true
+            index.takeIf { hasEpisode }
+        }
+    }
+    val dubbingBalancerNames = dubbingBalancerIndices.map { indices ->
+        indices.map { index ->
+            sourceGraph.balancers[index].name.removePrefix(playerNamePrefix).withoutPlayerPrefix()
+        }
+    }
     val balancerExternal = availableBalancerIndices.map { index ->
         sourceGraph.balancers.getOrNull(index)?.isExtraSourceBalancer() == true
     }
@@ -143,6 +155,9 @@ fun PlayerState.State.toPlayerPlaybackUiState(
         currentDubbingIndex = displayedDubbingNames.indexOf(activeDubbingName)
             .takeIf { it >= 0 }
             ?: selection.dubbingIndex,
+        dubbingBalancerNames = dubbingBalancerNames,
+        dubbingBalancerIndices = dubbingBalancerIndices,
+        selectedBalancerGraphIndex = selection.balancerIndex,
         balancerNames = balancerNames.toImmutableList(),
         balancerAvailability = balancerAvailability.toImmutableList(),
         balancerExternal = balancerExternal.toImmutableList(),

@@ -69,6 +69,7 @@ import su.afk.yummy.tv.feature.player.utils.artworkSource
 import su.afk.yummy.tv.feature.player.utils.displayedBalancerIndices
 import su.afk.yummy.tv.feature.player.utils.globalDubbingNames
 import su.afk.yummy.tv.feature.player.utils.isDecoderErrorCode
+import su.afk.yummy.tv.feature.player.utils.lowerQualityLabel
 import su.afk.yummy.tv.feature.player.utils.preferredQualityForLabel
 import su.afk.yummy.tv.feature.player.utils.qualityHeight
 import su.afk.yummy.tv.feature.player.utils.streamQualities
@@ -395,6 +396,23 @@ class PlayerViewModel @AssistedInject internal constructor(
                         errorCode = event.errorCode,
                     )
                 }
+                val fallbackQuality = qualityFallbackTarget()
+                if (fallbackQuality != null) {
+                    // После исчерпания тихих ретраев пробуем ближайшее качество ниже один раз за серию.
+                    setState { copy(qualityFallbackEpisode = activeEpisode(currentState)) }
+                    setEffect(
+                        PlayerState.Effect.ShowToast(
+                            strings.get(R.string.player_toast_quality_fallback, fallbackQuality),
+                        ),
+                    )
+                    analytics.eventQualityAutoFallback(
+                        animeId = currentState.animeId,
+                        fromQuality = activeQuality(currentState),
+                        quality = fallbackQuality,
+                    )
+                    reloadWithQuality(fallbackQuality, errorPositionMs)
+                    return
+                }
                 setState {
                     copy(
                         streamUrl = null,
@@ -415,6 +433,9 @@ class PlayerViewModel @AssistedInject internal constructor(
 
             PlayerState.Event.PlaybackReady -> {
                 sourceBehaviors.forEach { it.onPlaybackReady() }
+                if (currentState.qualityFallbackEpisode != null) {
+                    setState { copy(qualityFallbackEpisode = null) }
+                }
                 if (currentState.isPlaybackRecovering && sourceBehaviors.none { it.isRecovering }) {
                     (activeSourceBehavior() ?: defaultSource).onPlaybackRecovered()
                     setState { copy(isPlaybackRecovering = false) }
@@ -708,6 +729,38 @@ class PlayerViewModel @AssistedInject internal constructor(
         }
     }
 
+    /**
+     * Ближайшее качество ниже текущего после ошибки потока. Не повторяем шаг для этой серии,
+     * не вмешиваемся в офлайн-воспроизведение и не пытаемся менять качество без сети.
+     */
+    private fun qualityFallbackTarget(): String? {
+        val state = currentState
+        if (state.isOfflinePlayback || state.qualityFallbackEpisode == activeEpisode(state)) return null
+        if (connectivity.isOffline.value) return null
+        return lowerQualityLabel(streamQualities(state).keys, activeQuality(state))
+    }
+
+    /** Перезапускает поток на выбранном резервном качестве с сохранением позиции. */
+    private fun reloadWithQuality(quality: String, positionMs: Long) {
+        val position = positionMs.coerceAtLeast(0L)
+        allohaSource.onQualitySelected(quality)
+        defaultSource.reset()
+        setState {
+            copy(
+                selectedQuality = quality,
+                resumeFromMs = position,
+                playbackPositionMs = position,
+                manualQualityEpisode = activeEpisode(currentState),
+                retryKey = retryKey + 1,
+            )
+        }
+        loadStream(
+            refreshSourcesOnFailure = true,
+            selectedQualityOverride = quality,
+            forceRefresh = true,
+        )
+    }
+
     /** Поведение, которое принимает решения по ошибкам и ретраям текущего источника. */
     private fun activeSourceBehavior(): PlayerSourceBehavior? =
         sourceBehaviors.firstOrNull { it.handles(currentState) }
@@ -887,7 +940,7 @@ class PlayerViewModel @AssistedInject internal constructor(
             return
         }
         resetSourceBehaviors()
-        setState { sourceStreamHandler.preparingStreamLoad(state, resumeMode) }
+        setState { sourceStreamHandler.preparingStreamLoad(state, resumeMode).copy(qualityFallbackEpisode = null) }
         if (sourceScopeChanged) {
             displaySettings.observeActive(host)
         }

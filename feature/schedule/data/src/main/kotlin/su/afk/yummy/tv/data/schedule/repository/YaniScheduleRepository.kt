@@ -51,7 +51,7 @@ private data class EpisodeReleaseHistoryEntry(
     val firstDetectedAtSeconds: Long = firstVideoAtSeconds,
 ) {
     fun toDomain() = AnimeEpisodeRelease(
-        animeId, episodeNumber, firstVideoAtSeconds, firstVideoId, title, posterUrl, playerName, dubbing,
+        animeId, episodeNumber, firstVideoAtSeconds, firstVideoId, title, posterUrl, playerName, dubbing, firstDetectedAtSeconds,
     )
 
     companion object {

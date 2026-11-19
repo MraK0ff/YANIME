@@ -1,5 +1,7 @@
 package su.afk.yummy.tv.feature.schedule.mobile.view
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,8 +36,10 @@ internal fun ScheduleMobileDateChip(
     modifier: Modifier = Modifier,
 ) {
     val shape = RoundedCornerShape(22.dp)
-    val background = if (selected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerLow
-    val contentColor = if (selected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+    val backgroundTarget = if (selected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerLow
+    val contentTarget = if (selected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+    val background by animateColorAsState(backgroundTarget, spring(), label = "schedule_date_background")
+    val contentColor by animateColorAsState(contentTarget, spring(), label = "schedule_date_content")
 
     Box(
         modifier = modifier

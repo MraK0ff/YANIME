@@ -144,7 +144,7 @@ internal fun ScheduleMobileReleaseCard(
 
             Column(modifier = Modifier.padding(end = 12.dp), horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    text = releaseAt.timeLabel(),
+                    text = if (release.isPredicted && release.predictionConfidence == ReleasePrediction.Confidence.LOW) "—" else releaseAt.timeLabel(),
                     modifier = Modifier.widthIn(min = 58.dp),
                     style = MaterialTheme.typography.headlineSmallEmphasized,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

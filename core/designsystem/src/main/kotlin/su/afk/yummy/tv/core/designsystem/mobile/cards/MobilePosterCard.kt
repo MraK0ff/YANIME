@@ -44,6 +44,7 @@ import su.afk.yummy.tv.core.designsystem.locals.LocalLibraryFavoriteAnimeIds
 import su.afk.yummy.tv.core.designsystem.mobile.input.clickablePointer
 import su.afk.yummy.tv.core.designsystem.mobile.input.onSecondaryClick
 import su.afk.yummy.tv.core.designsystem.seasonal.seasonalCardDecor
+import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
 import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
@@ -134,7 +135,10 @@ fun MobilePosterCard(
                 }
             }
             Column(Modifier.padding(horizontal = currentMobilePosterTextPadding(), vertical = YummySpacing.Small)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                     Text(
                         text = title,
                         modifier = Modifier.weight(1f),
@@ -148,7 +152,7 @@ fun MobilePosterCard(
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.error,
+                            tint = YummySemanticColors.StatusFavorite,
                             modifier = Modifier.padding(start = 4.dp).size(16.dp),
                         )
                     }

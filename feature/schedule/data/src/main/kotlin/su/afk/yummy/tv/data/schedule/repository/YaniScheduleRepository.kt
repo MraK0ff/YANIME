@@ -175,6 +175,14 @@ class YaniScheduleRepository(
                         title = metadata?.title?.takeIf(String::isNotBlank) ?: first.title,
                         posterUrl = metadata?.posterUrl ?: first.posterUrl,
                         firstDetectedAtSeconds = versions.minOf { it.firstDetectedAtSeconds },
+                        animeUrl = metadata?.animeUrl ?: first.animeUrl,
+                        description = metadata?.description ?: first.description,
+                        episodeTitle = metadata?.episodeTitle ?: first.episodeTitle,
+                        posterSmallUrl = metadata?.posterSmallUrl ?: first.posterSmallUrl,
+                        posterMediumUrl = metadata?.posterMediumUrl ?: first.posterMediumUrl,
+                        posterBigUrl = metadata?.posterBigUrl ?: first.posterBigUrl,
+                        posterFullsizeUrl = metadata?.posterFullsizeUrl ?: first.posterFullsizeUrl,
+                        posterMegaUrl = metadata?.posterMegaUrl ?: first.posterMegaUrl,
                     )
                 }
             episodeReleaseStorage.upsertAll(merged.map { it.toStorageEntry() })

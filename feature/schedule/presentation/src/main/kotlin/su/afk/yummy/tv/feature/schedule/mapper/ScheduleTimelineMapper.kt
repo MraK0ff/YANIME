@@ -56,15 +56,13 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
             buildList {
                 // Feed may include a scheduled video with a future timestamp. It is not an aired episode;
                 // future entries must come from the schedule API's nextDate instead.
-                val availableCount = item.availableEpisodeCount?.takeIf { it > 0 }
                 val airedCount = item.airedEpisodes?.takeIf { it > 0 }
-                // Feed publication timestamps can belong to a late dub of an episode already
-                // present on the anime page. Prefer its local video count; use schedule as fallback.
+                // airedEpisodes includes the currently released episode. Reject only older
+                // uploads; a local page cache can already contain a genuinely new episode.
                 val latestEligibleRelease = item.videoReleases
                     .asSequence()
                     .filter { release ->
-                        if (availableCount != null) release.episodeNumber > availableCount
-                        else airedCount != null && release.episodeNumber > airedCount
+                        airedCount != null && release.episodeNumber >= airedCount
                     }
                     .filter { it.firstVideoAtSeconds in 1..nowSeconds }
                     .sortedWith(

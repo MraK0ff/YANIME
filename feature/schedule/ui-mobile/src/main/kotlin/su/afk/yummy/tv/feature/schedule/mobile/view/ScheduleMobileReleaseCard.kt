@@ -132,7 +132,7 @@ internal fun ScheduleMobileReleaseCard(
 @Composable
 private fun FavoriteScheduleBadge() {
     Text(
-        text = "♥ Любимое",
+        text = "♥ " + stringResource(R.string.schedule_favorite),
         color = YummySemanticColors.StatusFavorite,
         style = MaterialTheme.typography.labelSmall,
         fontWeight = FontWeight.SemiBold,

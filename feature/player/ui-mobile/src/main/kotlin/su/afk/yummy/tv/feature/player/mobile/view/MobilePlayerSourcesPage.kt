@@ -38,6 +38,7 @@ internal fun MobilePlayerSourcesPage(
     selectedDubbingIndex: Int,
     dubbingBalancerNames: List<List<String>>,
     dubbingBalancerIndices: List<List<Int>>,
+    selectedBalancerGraphIndex: Int,
     onDubbingBalancerSelected: (dubbingIndex: Int, balancerGraphIndex: Int) -> Unit,
     onBack: () -> Unit,
 ) {
@@ -101,8 +102,7 @@ internal fun MobilePlayerSourcesPage(
                         ) {
                             names.forEachIndexed { optionIndex, name ->
                                 FilterChip(
-                                    selected = optionIndex == names.indexOf(name) &&
-                                        indices.getOrNull(optionIndex) != null,
+                                    selected = indices.getOrNull(optionIndex) == selectedBalancerGraphIndex,
                                     onClick = {
                                         indices.getOrNull(optionIndex)?.let {
                                             onDubbingBalancerSelected(index, it)

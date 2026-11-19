@@ -33,7 +33,7 @@ The mobile and TV components should share tokens, models and semantics, but not 
 
 `core/storage` already owns Room storage abstractions and the application database. It includes dedicated storage contracts for anime metadata, home feed, schedule, library, watch progress, account caches and other feature data.
 
-The database already has an explicit migration chain through schema 73. Any new persistent release model must be introduced through a forward migration and migration tests; destructive recreation is not acceptable.
+The database already has an explicit migration chain through schema 74. Any new persistent release model must be introduced through a forward migration and migration tests; destructive recreation is not acceptable.
 
 The project also has a durable pending-mutation outbox:
 - `PendingMutationOutbox` and its Room DAO/store.
@@ -44,16 +44,17 @@ This is an existing pattern to extend for retryable writes where appropriate, no
 
 ## 3. Confirmed duplication / consistency risks
 
-### Release history is split across two independent persistence paths
+### Release facts are centralized; Home retains a presentation projection
 
-1. Home owns `HomeNewReleaseEntry` in Room (`home_new_release_history`) and `YaniNewReleaseTracker`. This is an anime-scoped snapshot used to keep the “New episodes” feed stable across feed rotation and to avoid promoting alternate dubs as new anime episodes.
-2. Schedule owns a separate JSON document in `DocumentCacheStorage`, keyed as `yummyanime:episode-release-history:v1`, with its own merge/deduplication logic in `YaniScheduleRepository`. It stores anime + episode + player + dubbing publication observations and feeds the predictor.
+The canonical source is now Room `episode_release_history`, keyed by anime + episode + normalized player + normalized dubbing. It stores source-aware publication observations and is exposed through `AnimeScheduleRepository.getEpisodeReleaseHistory()`. The old Schedule JSON document (`yummyanime:episode-release-history:v1`) is read-only and imported into Room when the new table is empty.
 
-These histories represent related facts but currently have different schemas, retention, update paths and deduplication rules. This is the highest-value first data unification target. Do not simply merge the tables: preserve the semantic distinction between an episode appearing and a particular dubbing/player becoming available.
+Home no longer runs its own `YaniNewReleaseTracker` or independently decides whether a new episode appeared. It derives its card list from the canonical release facts through `projectHomeNewReleases`. The Room `home_new_release_history` table remains as a Home presentation projection cache for card order and metadata; it is not authoritative for episode/source facts.
 
-### Publication ingestion is coordinated indirectly
+This preserves the semantic distinction between an episode and each dubbing/player publication. The Home projection has unit tests for baseline creation, new-episode promotion, alternate-dub stability, legacy zero-episode rows and aired-count filtering.
 
-Home already maps Yani feed videos to `AnimeEpisodeRelease` and calls `AnimeScheduleRepository.saveEpisodeReleases`. The schedule repository then polls the same feed itself when its own refresh timer expires. This creates multiple entry points and ownership ambiguity around ingestion. The central release subsystem should own polling, normalization, deduplication and persistence; Home and Schedule should observe/query it rather than trigger separate history pipelines.
+### Publication ingestion still has two polling entry points
+
+Home maps its fetched Yani feed to `AnimeEpisodeRelease` and sends observations to the canonical schedule repository. Schedule also polls the same feed on its own refresh timer. Both paths converge on the same idempotent Room store, so they no longer create divergent histories, but duplicate network polling is still possible. A later slice should move polling ownership to one ingestion coordinator and make both features consume it.
 
 ### UI reuse is partly implemented, not absent
 
@@ -97,13 +98,15 @@ Avoid a giant `AnimeRepository` or universal UI card. Prefer focused contracts a
 
 1. Complete the module/call-site inventory, including repository dependencies, DTO/domain/storage models, UI card usages, network clients and worker schedules.
 2. Define canonical identity keys and release event semantics. Episode identity must not include dubbing/player; dubbing-release identity must.
-3. Move release ingestion and history behind one shared release contract. Migrate the Home snapshot and Schedule JSON history without data loss, then remove old writers only after parity tests.
-4. Make Home, Schedule, details and notifications consume the shared release projections. Keep personalized filtering separate.
-5. Verify the Community Database contract and implement cloud sync only after its real API and security model are known.
-6. Consolidate genuinely duplicated UI components by migrating call sites to existing design-system primitives; add typed slots/variants only where the existing primitive lacks a real semantic capability.
-7. Consolidate duplicated business rules and mapping functions after usage tracing.
-8. Add migration, idempotency, cross-feature integration and mobile/TV parity tests.
-9. Remove superseded implementations after all consumers have moved and CI confirms the result.
+3. [x] Introduce source-aware canonical Room release history and import the old Schedule JSON document as a read-only migration source.
+4. [x] Replace Home's independent episode tracker with a projection derived from canonical release facts; retain only Home card-order/presentation metadata as a cache.
+5. Centralize feed polling in one ingestion coordinator and remove duplicate Home/Schedule polling entry points.
+6. Make “My new episodes”, details and notifications consume the shared release facts. Keep personalized filtering separate.
+7. Verify the Community Database contract and implement cloud sync only after its real API and security model are known.
+8. Consolidate genuinely duplicated UI components by migrating call sites to existing design-system primitives; add typed slots/variants only where the existing primitive lacks a real semantic capability.
+9. Consolidate duplicated business rules and mapping functions after usage tracing.
+10. Add migration, idempotency, cross-feature integration and mobile/TV parity tests.
+11. Remove superseded implementations after all consumers have moved and CI confirms the result.
 
 ## 6. Non-goals and safety rails
 

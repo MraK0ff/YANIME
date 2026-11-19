@@ -239,8 +239,7 @@ class YaniHomeFeedRepository(
             scheduleRepository.getSchedule()
                 .flatMap { it.items }
                 .mapNotNull { item ->
-                    (item.availableEpisodeCount ?: item.airedEpisodes)
-                        ?.takeIf { it > 0 }
+                    item.airedEpisodes?.takeIf { it > 0 }
                         ?.let { count -> item.animeId to count }
                 }
                 .toMap()

@@ -49,22 +49,22 @@ internal fun projectHomeNewReleases(
         merged[animeId] = HomeNewReleaseEntry(
             animeId = animeId,
             title = selected.title.takeIf(String::isNotBlank) ?: previous?.title.orEmpty(),
-            animeUrl = previous?.animeUrl.orEmpty(),
-            description = previous?.description.orEmpty(),
+            animeUrl = selected.animeUrl ?: previous?.animeUrl.orEmpty(),
+            description = selected.description ?: previous?.description.orEmpty(),
             episodeNumber = newestEpisode,
             episodeTitle = if (previous?.episodeNumber == newestEpisode) {
-                previous.episodeTitle
+                selected.episodeTitle ?: previous.episodeTitle
             } else {
-                newestEpisode.toString()
+                selected.episodeTitle ?: newestEpisode.toString()
             },
             videoId = selected.firstVideoId,
             dubTitle = selected.dubbing.takeIf(String::isNotBlank) ?: previous?.dubTitle,
             playerTitle = selected.playerName.takeIf(String::isNotBlank) ?: previous?.playerTitle,
-            posterSmallUrl = previous?.posterSmallUrl,
-            posterMediumUrl = previous?.posterMediumUrl,
-            posterBigUrl = previous?.posterBigUrl,
-            posterFullsizeUrl = previous?.posterFullsizeUrl,
-            posterMegaUrl = selected.posterUrl ?: previous?.posterMegaUrl,
+            posterSmallUrl = selected.posterSmallUrl ?: previous?.posterSmallUrl,
+            posterMediumUrl = selected.posterMediumUrl ?: previous?.posterMediumUrl,
+            posterBigUrl = selected.posterBigUrl ?: previous?.posterBigUrl,
+            posterFullsizeUrl = selected.posterFullsizeUrl ?: previous?.posterFullsizeUrl,
+            posterMegaUrl = selected.posterMegaUrl ?: selected.posterUrl ?: previous?.posterMegaUrl,
             firstSeenAt = previous?.firstSeenAt ?: firstDetectedAtMs,
             lastDetectedAt = now,
             // Initial observations and legacy zero-episode rows establish a baseline.

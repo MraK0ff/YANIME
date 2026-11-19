@@ -2,6 +2,7 @@ package su.afk.yummy.tv.core.designsystem.mobile.cards
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -54,6 +55,8 @@ fun MobilePosterCard(
     captionMinLines: Int = 1,
     badge: String? = null,
     rating: Double? = null,
+    /** Тонкая акцентная рамка для тайтлов из выбранных пользовательских списков. */
+    highlightSelectedList: Boolean = false,
     titleMinLines: Int = 2,
     /** Если задан — карточка подписывается списком пользователя, в котором лежит тайтл. */
     animeId: Int? = null,
@@ -65,7 +68,11 @@ fun MobilePosterCard(
     onClick: () -> Unit,
 ) {
     Card(
-        modifier = modifier,
+        modifier = if (highlightSelectedList) {
+            modifier.border(1.5.dp, MaterialTheme.colorScheme.tertiary, YummyShapeTokens.Card)
+        } else {
+            modifier
+        },
         shape = YummyShapeTokens.Card,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
     ) {

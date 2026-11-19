@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -31,8 +32,26 @@ val ListStatusBadgeHeight = 22.dp
 fun ListStatusBadge(
     status: CardListStatus,
     modifier: Modifier = Modifier,
+    compact: Boolean = false,
 ) {
-    Box(
+    if (compact) {
+        Row(
+            modifier = modifier
+                .background(status.badgeColor().copy(alpha = 0.18f), RoundedCornerShape(50))
+                .padding(horizontal = 8.dp, vertical = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(imageVector = status.icon(), contentDescription = null, tint = status.badgeColor(), modifier = Modifier.size(14.dp))
+            Text(
+                text = stringResource(status.labelRes()),
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = status.badgeColor(),
+                maxLines = 1,
+            )
+        }
+    } else Box(
         modifier = modifier
             .fillMaxWidth()
             .height(ListStatusBadgeHeight)
@@ -61,7 +80,7 @@ fun ListStatusBadge(
     }
 }
 
-internal fun CardListStatus.labelRes(): Int = when (this) {
+fun CardListStatus.labelRes(): Int = when (this) {
     CardListStatus.WATCHING -> R.string.core_list_status_watching
     CardListStatus.PLANNED -> R.string.core_list_status_planned
     CardListStatus.COMPLETED -> R.string.core_list_status_completed

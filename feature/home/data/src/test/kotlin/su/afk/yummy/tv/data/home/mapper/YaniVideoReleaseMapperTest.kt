@@ -18,7 +18,7 @@ class YaniVideoReleaseMapperTest : BaseUnitTest() {
             {
               "response": {
                 "new_videos": [
-                  {"video_id": 10, "anime_id": 7, "title": "Anime", "ep_title": "Episode 4", "date": 1790000100},
+                  {"video_id": 10, "anime_id": 7, "anime_url": "/anime/7", "title": "Anime", "description": "Description", "ep_title": "Episode 4", "date": 1790000100, "poster": {"small": "https://img/small.jpg", "medium": "https://img/medium.jpg", "big": "https://img/big.jpg", "fullsize": "https://img/full.jpg", "mega": "https://img/mega.jpg"}},
                   {"video_id": 11, "anime_id": 7, "title": "Anime", "ep_title": "4 серия", "date": 1790000200}
                 ]
               }
@@ -32,6 +32,11 @@ class YaniVideoReleaseMapperTest : BaseUnitTest() {
         assertEquals(4, releases.first().episodeNumber)
         assertEquals(1_790_000_100L, releases.first().firstVideoAtSeconds)
         assertEquals(10, releases.first().firstVideoId)
+        assertEquals("/anime/7", releases.first().animeUrl)
+        assertEquals("Description", releases.first().description)
+        assertEquals("Episode 4", releases.first().episodeTitle)
+        assertEquals("https://img/small.jpg", releases.first().posterSmallUrl)
+        assertEquals("https://img/mega.jpg", releases.first().posterMegaUrl)
     }
 
     @Test

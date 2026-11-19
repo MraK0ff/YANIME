@@ -33,7 +33,7 @@ The mobile and TV components should share tokens, models and semantics, but not 
 
 `core/storage` already owns Room storage abstractions and the application database. It includes dedicated storage contracts for anime metadata, home feed, schedule, library, watch progress, account caches and other feature data.
 
-The database already has an explicit migration chain through schema 74. Any new persistent release model must be introduced through a forward migration and migration tests; destructive recreation is not acceptable.
+The database already has an explicit migration chain through schema 75. Any new persistent release model must be introduced through a forward migration and migration tests; destructive recreation is not acceptable.
 
 The project also has a durable pending-mutation outbox:
 - `PendingMutationOutbox` and its Room DAO/store.
@@ -46,7 +46,7 @@ This is an existing pattern to extend for retryable writes where appropriate, no
 
 ### Release facts are centralized; Home retains a presentation projection
 
-The canonical source is now Room `episode_release_history`, keyed by anime + episode + normalized player + normalized dubbing. It stores source-aware publication observations and is exposed through `AnimeScheduleRepository.getEpisodeReleaseHistory()`. The old Schedule JSON document (`yummyanime:episode-release-history:v1`) is read-only and imported into Room when the new table is empty.
+The canonical source is now Room `episode_release_history`, keyed by anime + episode + normalized player + normalized dubbing. It stores source-aware publication observations plus the full feed metadata needed by Home cards (description, episode label and all poster sizes), and is exposed through `AnimeScheduleRepository.getEpisodeReleaseHistory()`. The old Schedule JSON document (`yummyanime:episode-release-history:v1`) is read-only and imported into Room when the new table is empty.
 
 Home no longer runs its own `YaniNewReleaseTracker` or independently decides whether a new episode appeared. It derives its card list from the canonical release facts through `projectHomeNewReleases`. The Room `home_new_release_history` table remains as a Home presentation projection cache for card order and metadata; it is not authoritative for episode/source facts.
 

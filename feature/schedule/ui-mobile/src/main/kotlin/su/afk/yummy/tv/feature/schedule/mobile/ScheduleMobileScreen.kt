@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -35,7 +34,6 @@ import su.afk.yummy.tv.core.model.text.UiText
 import su.afk.yummy.tv.feature.schedule.ScheduleState
 import su.afk.yummy.tv.feature.schedule.mobile.view.ScheduleMobileDateChips
 import su.afk.yummy.tv.feature.schedule.mobile.view.ScheduleLibraryFilterAction
-import su.afk.yummy.tv.feature.schedule.mobile.view.ScheduleHideWatchedAction
 import su.afk.yummy.tv.feature.schedule.mobile.view.ScheduleMobileReleaseCard
 import su.afk.yummy.tv.feature.schedule.model.ScheduleDayUi
 import su.afk.yummy.tv.feature.schedule.presentation.R
@@ -94,6 +92,16 @@ fun ScheduleMobileScreen(
             MobileTopBar(
                 title = stringResource(R.string.schedule_mobile_title),
                 onBack = { onEvent(ScheduleState.Event.BackSelected) },
+                actions = {
+                    ScheduleLibraryFilterAction(
+                        selected = state.libraryFilter,
+                        onSelected = { onEvent(ScheduleState.Event.LibraryFilterSelected(it)) },
+                    )
+                    ScheduleHideWatchedAction(
+                        checked = state.hideWatched,
+                        onCheckedChange = { onEvent(ScheduleState.Event.HideWatchedToggled(it)) },
+                    )
+                },
             )
         },
         isLoading = state.isLoading,
@@ -111,10 +119,6 @@ fun ScheduleMobileScreen(
         },
     ) {
         OfflineBanner(isOffline = LocalIsOffline.current)
-        Row(horizontalArrangement = Arrangement.spacedBy(YummySpacing.Small)) {
-            ScheduleLibraryFilterAction(selected = state.libraryFilter, onSelected = { onEvent(ScheduleState.Event.LibraryFilterSelected(it)) })
-            ScheduleHideWatchedAction(checked = state.hideWatched, onCheckedChange = { onEvent(ScheduleState.Event.HideWatchedToggled(it)) })
-        }
         ScheduleMobileDateChips(
             groups = dayGroups,
             selectedEpochDay = schedule.selectedEpochDay,

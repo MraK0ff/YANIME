@@ -44,6 +44,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import su.afk.yummy.tv.core.designsystem.components.FallbackAsyncImage
+import su.afk.yummy.tv.core.designsystem.components.ListStatusBadge
+import su.afk.yummy.tv.core.designsystem.components.badgeColor
+import su.afk.yummy.tv.core.designsystem.locals.LocalLibraryListStatuses
 import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.core.model.anime.posterUrls
 import su.afk.yummy.tv.feature.schedule.model.ScheduleReleaseUi
@@ -70,6 +73,7 @@ internal fun ScheduleReleaseRow(
     val releaseAt = Instant.ofEpochSecond(release.epochSeconds).atZone(zone)
     val aired = releaseAt.isAfter(now).not()
     val remainingLabels = scheduleRemainingLabels()
+    val listStatus = LocalLibraryListStatuses.current[item.animeId]
     val accentColor = if (aired) AiredColor else MaterialTheme.colorScheme.onSurfaceVariant
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
@@ -77,8 +81,8 @@ internal fun ScheduleReleaseRow(
     val shape = YummyShapeTokens.Card
     val rowScale = if (focused) 1.025f else 1f
     val rowBackground = when {
-        focused -> MaterialTheme.colorScheme.surfaceContainerHigh
-        selected -> MaterialTheme.colorScheme.surfaceContainerHigh
+        focused || selected -> MaterialTheme.colorScheme.surfaceContainerHigh
+        listStatus != null -> listStatus.badgeColor().copy(alpha = 0.14f)
         aired -> AiredColor.copy(alpha = 0.12f)
         else -> MaterialTheme.colorScheme.surfaceContainerLow
     }
@@ -137,6 +141,12 @@ internal fun ScheduleReleaseRow(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
                 )
+                listStatus?.let { status ->
+                    ListStatusBadge(
+                        status = status,
+                        modifier = Modifier.align(Alignment.BottomStart),
+                    )
+                }
             }
             Column(
                 modifier = Modifier.weight(1f),

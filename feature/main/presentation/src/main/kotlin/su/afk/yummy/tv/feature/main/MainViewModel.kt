@@ -24,6 +24,7 @@ import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.domain.account.repository.AccountMutationErrorRepository
 import su.afk.yummy.tv.domain.account.usecase.ObserveAccountSessionUseCase
 import su.afk.yummy.tv.domain.library.usecase.ObserveLibraryListStatusesUseCase
+import su.afk.yummy.tv.domain.library.usecase.ObserveLibraryFavoriteAnimeIdsUseCase
 import su.afk.yummy.tv.domain.library.usecase.ObserveLibraryUserRatingsUseCase
 import su.afk.yummy.tv.feature.main.handler.MainSideEffectsHandler
 import su.afk.yummy.tv.feature.main.handler.MainUpdateCheckResult
@@ -48,6 +49,7 @@ class MainViewModel @Inject internal constructor(
     private val networkConnectivityMonitor: NetworkConnectivityMonitor,
     private val interfaceModePreferences: AppInterfaceModePreferences,
     private val observeLibraryListStatuses: ObserveLibraryListStatusesUseCase,
+    private val observeLibraryFavoriteAnimeIds: ObserveLibraryFavoriteAnimeIdsUseCase,
     private val observeLibraryUserRatings: ObserveLibraryUserRatingsUseCase,
     private val appClock: AppClock,
 ) : BaseViewModel<MainState.State, MainState.Event, MainState.Effect>() {
@@ -111,6 +113,9 @@ class MainViewModel @Inject internal constructor(
     private fun observeListStatuses() {
         observeLibraryListStatuses.invoke()
             .onEach { statuses -> setState { copy(libraryListStatuses = statuses) } }
+            .launchIn(viewModelScope)
+        observeLibraryFavoriteAnimeIds.invoke()
+            .onEach { ids -> setState { copy(libraryFavoriteAnimeIds = ids) } }
             .launchIn(viewModelScope)
         observeLibraryUserRatings.invoke()
             .onEach { ratings -> setState { copy(libraryUserRatings = ratings) } }

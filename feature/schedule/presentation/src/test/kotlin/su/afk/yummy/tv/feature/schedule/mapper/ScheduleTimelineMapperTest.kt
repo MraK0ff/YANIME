@@ -57,7 +57,7 @@ class ScheduleTimelineMapperTest {
     }
 
     @Test
-    fun `older cached episode is rejected even when the schedule count is stale`() {
+    fun `local cache does not reject the current aired episode`() {
         val publishedAt = nowSeconds - 3_600L
         val timeline = listOf(
             day(

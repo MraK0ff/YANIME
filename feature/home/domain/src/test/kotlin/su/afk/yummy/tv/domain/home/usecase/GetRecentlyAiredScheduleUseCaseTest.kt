@@ -97,6 +97,18 @@ class GetRecentlyAiredScheduleUseCaseTest : BaseUnitTest() {
     }
 
     @Test
+    fun `cached anime page count overrides a stale lower schedule count`() = runTest {
+        schedule += scheduleItem(
+            animeId = 1,
+            airedEpisodes = 6,
+            availableEpisodeCount = 8,
+            releases = listOf(release(1, NOW - DAY, episode = 6)),
+        )
+
+        assertEquals(emptyList<Int>(), createUseCase()(NOW).map { it.id })
+    }
+
+    @Test
     fun `unknown aired count fails closed`() = runTest {
         schedule += scheduleItem(animeId = 1, airedEpisodes = null, releases = listOf(release(1, NOW - DAY)))
 
@@ -132,6 +144,7 @@ class GetRecentlyAiredScheduleUseCaseTest : BaseUnitTest() {
     private fun scheduleItem(
         animeId: Int,
         airedEpisodes: Int? = 1,
+        availableEpisodeCount: Int? = null,
         releases: List<AnimeEpisodeRelease>,
     ) = AnimeScheduleItem(
         animeId = animeId,
@@ -140,6 +153,7 @@ class GetRecentlyAiredScheduleUseCaseTest : BaseUnitTest() {
         nextDateEpochSeconds = null,
         airedEpisodes = airedEpisodes,
         totalEpisodes = 12,
+        availableEpisodeCount = availableEpisodeCount,
         videoReleases = releases,
     )
 

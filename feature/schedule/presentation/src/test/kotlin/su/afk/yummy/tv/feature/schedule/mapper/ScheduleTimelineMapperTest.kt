@@ -38,7 +38,8 @@ class ScheduleTimelineMapperTest {
     @Test
     fun `current aired episode is grouped by Japanese broadcast date not first feed observation`() {
         val japaneseBroadcastAt = Instant.parse("2026-11-13T20:00:00Z").epochSecond
-        val firstObservedAt = nowSeconds - 60L
+        val currentTime = now.plusDays(5)
+        val firstObservedAt = currentTime.toEpochSecond() - 60L
         val timeline = listOf(
             day(
                 item(
@@ -47,9 +48,9 @@ class ScheduleTimelineMapperTest {
                     releases = listOf(release(episode = 7, publishedAt = firstObservedAt)),
                 ),
             ),
-        ).toTimelineUi(zone, now)
+        ).toTimelineUi(zone, currentTime)
 
-        // The Japanese broadcast was on Nov 13, so it must not be shown as a Nov 14 event.
+        // The Japanese broadcast was on Nov 13, so it must not be shown as a Nov 19 event.
         assertTrue(timeline.dayGroups.isEmpty())
     }
 

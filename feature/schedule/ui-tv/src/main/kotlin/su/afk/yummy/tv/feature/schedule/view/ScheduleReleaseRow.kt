@@ -187,11 +187,11 @@ internal fun ScheduleReleaseRow(
                     )
                 }
                 Text(
-                text = releaseAt.timeLabel(),
-                modifier = Modifier.widthIn(min = 82.dp),
-                style = MaterialTheme.typography.headlineMediumEmphasized,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
+                    text = releaseAt.timeLabel(),
+                    modifier = Modifier.widthIn(min = 82.dp),
+                    style = MaterialTheme.typography.headlineMediumEmphasized,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
                 )
             }
         }

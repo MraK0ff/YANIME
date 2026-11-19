@@ -138,7 +138,7 @@ internal fun ScheduleMobileReleaseCard(
                 text = releaseAt.timeLabel(),
                 modifier = Modifier.widthIn(min = 58.dp),
                 style = MaterialTheme.typography.headlineSmallEmphasized,
-                color = accentColor,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 )
             }

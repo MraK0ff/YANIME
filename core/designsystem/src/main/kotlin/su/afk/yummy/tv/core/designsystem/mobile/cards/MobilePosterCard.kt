@@ -143,7 +143,7 @@ fun MobilePosterCard(
                         style = currentMobilePosterTitleStyle(),
                         fontWeight = currentMobilePosterTitleWeight(),
                     )
-                    if (animeId in LocalLibraryFavoriteAnimeIds.current) {
+                    if (animeId?.let { it in LocalLibraryFavoriteAnimeIds.current } == true) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,

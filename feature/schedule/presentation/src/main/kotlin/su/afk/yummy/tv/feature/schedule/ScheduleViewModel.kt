@@ -19,6 +19,7 @@ import su.afk.yummy.tv.core.preferences.api.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.preferences.settings.contentLanguageChanges
 import su.afk.yummy.tv.domain.home.usecase.ObserveLibraryNewEpisodeAnimeIdsUseCase
+import su.afk.yummy.tv.domain.library.usecase.ObserveLibraryFavoriteAnimeIdsUseCase
 import su.afk.yummy.tv.domain.schedule.usecase.GetAnimeScheduleUseCase
 import su.afk.yummy.tv.feature.details.IDetailsNavigator
 import su.afk.yummy.tv.feature.schedule.mapper.toTimelineUi
@@ -40,11 +41,13 @@ class ScheduleViewModel @Inject internal constructor(
     private val appClock: AppClock,
     private val settingsStore: SettingsStore,
     private val observeLibraryNewEpisodeAnimeIds: ObserveLibraryNewEpisodeAnimeIdsUseCase,
+    private val observeLibraryFavoriteAnimeIds: ObserveLibraryFavoriteAnimeIdsUseCase,
 ) : BaseViewModel<ScheduleState.State, ScheduleState.Event, ScheduleState.Effect>() {
 
     override fun createInitialState() = ScheduleState.State()
 
     private var prioritizedAnimeIds: Set<Int> = emptySet()
+    private var favoriteAnimeIds: Set<Int> = emptySet()
 
     init {
         analytics.eventScreenOpened()
@@ -52,6 +55,9 @@ class ScheduleViewModel @Inject internal constructor(
         settingsStore.newEpisodesSources
             .flatMapLatest { sources -> observeLibraryNewEpisodeAnimeIds(sources) }
             .onEach(::updatePrioritizedAnimeIds)
+            .launchIn(viewModelScope)
+        observeLibraryFavoriteAnimeIds()
+            .onEach(::updateFavoriteAnimeIds)
             .launchIn(viewModelScope)
         accountSettingsStore.contentLanguageChanges()
             .onEach { load() }
@@ -93,6 +99,22 @@ class ScheduleViewModel @Inject internal constructor(
                     now = now,
                     selectedEpochDay = tvSchedule.selectedEpochDay,
                     prioritizedAnimeIds = ids,
+                    favoriteAnimeIds = favoriteAnimeIds,
+                ),
+            )
+        }
+    }
+
+    private fun updateFavoriteAnimeIds(ids: Set<Int>) {
+        favoriteAnimeIds = ids
+        val now = Instant.ofEpochMilli(appClock.nowMillis()).atZone(ZoneId.systemDefault())
+        setState {
+            copy(
+                tvSchedule = days.toList().toTimelineUi(
+                    now = now,
+                    selectedEpochDay = tvSchedule.selectedEpochDay,
+                    prioritizedAnimeIds = prioritizedAnimeIds,
+                    favoriteAnimeIds = ids,
                 ),
             )
         }
@@ -144,6 +166,7 @@ class ScheduleViewModel @Inject internal constructor(
                                 now = now,
                                 selectedEpochDay = tvSchedule.selectedEpochDay,
                                 prioritizedAnimeIds = prioritizedAnimeIds,
+                                favoriteAnimeIds = favoriteAnimeIds,
                             ),
                         )
                     }

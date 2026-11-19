@@ -2,6 +2,7 @@
     <string name="schedule_mobile_title">Schedule</string>
     <string name="schedule_episode_aired">Episode %1$d is out</string>
     <string name="schedule_episode_future">Episode %1$d releases in</string>
+    <string name="schedule_episode_waiting">Episode %1$d is awaiting video · checking in %2$s</string>
     <string name="schedule_day_one">day</string>
     <string name="schedule_day_few">days</string>
     <string name="schedule_day_many">days</string>

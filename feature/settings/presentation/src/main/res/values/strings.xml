@@ -135,6 +135,18 @@
     <string name="settings_theme_ocean_hint">Deep blue surfaces with a cool bright accent</string>
     <string name="settings_theme_graphite">Graphite</string>
     <string name="settings_theme_graphite_hint">Minimal grayscale theme with restrained contrast</string>
+
+    <string name="settings_theme_lavender">Lavender</string>
+    <string name="settings_theme_lavender_hint">Soft violet accent with a calm dark palette</string>
+    <string name="settings_theme_ruby">Ruby</string>
+    <string name="settings_theme_ruby_hint">Rich red accent with balanced dark surfaces</string>
+    <string name="settings_theme_forest">Forest</string>
+    <string name="settings_theme_forest_hint">Deep green accent inspired by forest tones</string>
+    <string name="settings_theme_sunset">Sunset</string>
+    <string name="settings_theme_sunset_hint">Warm coral and orange sunset-inspired accents</string>
+    <string name="settings_theme_gold">Gold</string>
+    <string name="settings_theme_gold_hint">Elegant golden accent on dark surfaces</string>
+
     <string name="settings_theme_dynamic">Dynamic color</string>
     <string name="settings_theme_dynamic_hint">Material You palette from your wallpaper (Android 12+)</string>
     <string name="settings_poster_card_size_compact">Compact</string>
@@ -400,5 +412,28 @@ Search indexer: https://jac-red.ru or Jackett: https://github.com/jackett/jacket
     <string name="settings_torrent_check_unexpected">Unexpected response (HTTP %1$d). This is probably not a TorrServer address</string>
     <string name="settings_torrent_warning_no_server">Torrent source won\'t appear: TorrServer address is not set</string>
     <string name="settings_torrent_warning_server_unavailable">Torrent source won\'t appear: TorrServer is unavailable</string>
+    <string name="settings_torrent_check_indexer_ok">%1$s: available</string>
+    <string name="settings_torrent_check_indexer_unreachable">%1$s: unavailable</string>
+    <string name="settings_torrent_check_indexer_unauthorized">%1$s: authorization required</string>
+    <string name="settings_torrent_check_indexer_unexpected">%1$s: unexpected response (HTTP %2$d)</string>
+    <string name="settings_torrent_warning_indexer_unavailable">Torrent source won\'t appear: all enabled indexers are unavailable</string>
     <string name="settings_torrent_warning_no_indexer">Torrent source won\'t appear: enable JacRed or Jackett (with an address)</string>
+    <string name="settings_details_sections_title">Details screen sections</string>
+    <string name="settings_details_sections_hint">Choose and reorder sections on the anime details screen</string>
+    <string name="settings_details_sections_tv_note">On TV, the information and description sections remain in the header; only visibility can be changed</string>
+    <string name="settings_section_sections_order">Sections and order</string>
+    <string name="settings_video_enhancement_label">Video enhancement</string>
+    <string name="settings_details_section_info">Information</string>
+    <string name="settings_details_section_description">Description</string>
+    <string name="settings_details_section_screenshots">Screenshots</string>
+    <string name="settings_details_section_video">Videos</string>
+    <string name="settings_details_section_rating">Rating</string>
+    <string name="settings_details_section_universe">Universe</string>
+    <string name="settings_details_section_similar">Similar titles</string>
+    <string name="settings_details_section_collections">Collections</string>
+    <string name="settings_details_section_reviews">Reviews</string>
+    <string name="settings_details_section_comments">Comments</string>
+    <string name="settings_video_enhancement_off">Off</string>
+    <string name="settings_video_enhancement_sharpen">Sharpen</string>
+    <string name="settings_video_enhancement_quality">Quality restoration</string>
 </resources>

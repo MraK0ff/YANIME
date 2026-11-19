@@ -247,4 +247,6 @@
     <string name="details_onboarding_episodes_text">All episodes with watch marks. Choose a dubbing for a specific episode here.</string>
     <string name="details_onboarding_subscriptions_title">New episode alerts</string>
     <string name="details_onboarding_subscriptions_text">Subscribe to a dubbing to get notified when a new episode comes out.</string>
+    <string name="details_random_anime">Random anime</string>
+    <string name="details_shikimori_rating_short">Shiki %1$s</string>
 </resources>

@@ -21,6 +21,7 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -39,6 +40,7 @@ import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.designsystem.R as CoreR
 import su.afk.yummy.tv.core.designsystem.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.domain.account.model.ProfileNotification
+import su.afk.yummy.tv.domain.account.model.commentSubjectTitle
 import su.afk.yummy.tv.domain.account.model.hasOpenAction
 import su.afk.yummy.tv.domain.account.model.isExpandable
 import su.afk.yummy.tv.feature.account.mobile.account.utils.buildNotificationText
@@ -75,12 +77,12 @@ internal fun AccountMobileNotificationRow(
         modifier = modifier
             .fillMaxWidth()
             .then(
-                if (isOpenable) {
+                if (isExpandable) {
+                    Modifier.clickable(onClick = onToggleExpand)
+                } else if (isOpenable) {
                     Modifier
                         .clickable(onClick = onClick)
                         .semantics { contentDescription = openLabel }
-                } else if (isExpandable) {
-                    Modifier.clickable(onClick = onToggleExpand)
                 } else {
                     Modifier
                 }
@@ -127,6 +129,15 @@ internal fun AccountMobileNotificationRow(
                     maxLines = if (expanded) Int.MAX_VALUE else 2,
                     overflow = TextOverflow.Ellipsis,
                 )
+                notification.commentSubjectTitle?.let { subjectTitle ->
+                    Text(
+                        text = subjectTitle,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        maxLines = if (expanded) Int.MAX_VALUE else 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
                 Text(
                     text = bodyText,
                     style = MaterialTheme.typography.bodySmall,
@@ -139,6 +150,9 @@ internal fun AccountMobileNotificationRow(
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                 )
+                if (expanded && isOpenable) {
+                    TextButton(onClick = onClick) { Text(openLabel) }
+                }
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 if (isExpandable) {

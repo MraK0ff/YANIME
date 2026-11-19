@@ -1,5 +1,6 @@
 package su.afk.yummy.tv.feature.library.view
 
+import su.afk.yummy.tv.core.designsystem.motion.YummyMotion
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -54,6 +55,7 @@ import su.afk.yummy.tv.core.designsystem.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
 import su.afk.yummy.tv.core.designsystem.tv.TvOverlayAppear
 import su.afk.yummy.tv.feature.library.model.LibraryTvChoice
+import su.afk.yummy.tv.core.designsystem.focus.tvBackKeyForwarding
 
 /**
  * Оверлей выбора из списка для библиотеки ТВ: сортировка и действия карточки.
@@ -86,7 +88,7 @@ internal fun LibraryTvChoiceOverlay(
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
         Box(
-            modifier = Modifier
+            modifier = Modifier.tvBackKeyForwarding()
                 .fillMaxSize()
                 .background(Color.Black.copy(alpha = 0.82f)),
             contentAlignment = Alignment.Center,
@@ -103,7 +105,8 @@ internal fun LibraryTvChoiceOverlay(
                         .onPreviewKeyEvent { event ->
                             if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
                             when (event.key) {
-                                Key.Back, Key.Escape -> {
+                                // Back закрывает Dialog через onDismissRequest; поймав его и здесь, получим двойной onDismiss.
+                                Key.Escape -> {
                                     onDismiss()
                                     true
                                 }
@@ -150,7 +153,7 @@ private fun LibraryTvChoiceItem(
     val shape = RoundedCornerShape(12.dp)
     val bgColor by animateColorAsState(
         targetValue = if (focused) Color.White else Color.White.copy(alpha = 0.10f),
-        animationSpec = tween(durationMillis = 150),
+        animationSpec = tween(durationMillis = YummyMotion.Short),
         label = "libraryChoiceBg",
     )
     val baseTextColor = when {

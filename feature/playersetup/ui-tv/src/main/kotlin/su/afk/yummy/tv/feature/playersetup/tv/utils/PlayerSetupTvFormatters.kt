@@ -43,6 +43,11 @@ internal fun AppTheme.setupLabel(): String = stringResource(when (this) {
     AppTheme.SAKURA -> R.string.player_setup_theme_sakura
     AppTheme.MINT -> R.string.player_setup_theme_mint
     AppTheme.OCEAN -> R.string.player_setup_theme_ocean
+    AppTheme.LAVENDER -> R.string.player_setup_theme_lavender
+    AppTheme.RUBY -> R.string.player_setup_theme_ruby
+    AppTheme.FOREST -> R.string.player_setup_theme_forest
+    AppTheme.SUNSET -> R.string.player_setup_theme_sunset
+    AppTheme.GOLD -> R.string.player_setup_theme_gold
     AppTheme.DYNAMIC -> R.string.player_setup_theme_dynamic
 })
 internal fun AppTheme.next(): AppTheme = AppTheme.entries.filterNot { it == AppTheme.DYNAMIC }[(AppTheme.entries.filterNot { it == AppTheme.DYNAMIC }.indexOf(this) + 1) % AppTheme.entries.count { it != AppTheme.DYNAMIC }]

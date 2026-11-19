@@ -514,3 +514,85 @@ internal val MIGRATION_70_71 = object : Migration(70, 71) {
         )
     }
 }
+
+
+/**
+ * Repairs installs that already recorded version 71 before home_new_release_history
+ * was included in the Room entity schema. Keep existing user data and normalize the
+ * database identity hash to the current generated schema.
+ */
+internal val MIGRATION_71_72 = object : Migration(71, 72) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS home_new_release_history (
+                animeId INTEGER NOT NULL,
+                title TEXT NOT NULL,
+                animeUrl TEXT NOT NULL,
+                description TEXT NOT NULL,
+                episodeNumber INTEGER NOT NULL,
+                episodeTitle TEXT NOT NULL,
+                videoId INTEGER,
+                dubTitle TEXT,
+                playerTitle TEXT,
+                posterSmallUrl TEXT,
+                posterMediumUrl TEXT,
+                posterBigUrl TEXT,
+                posterFullsizeUrl TEXT,
+                posterMegaUrl TEXT,
+                firstSeenAt INTEGER NOT NULL,
+                lastDetectedAt INTEGER NOT NULL,
+                lastUpdatedAt INTEGER NOT NULL,
+                position INTEGER NOT NULL,
+                PRIMARY KEY(animeId)
+            )
+            """.trimIndent()
+        )
+        db.execSQL(
+            "CREATE INDEX IF NOT EXISTS index_home_new_release_history_position " +
+                "ON home_new_release_history(position)"
+        )
+    }
+}
+
+
+/**
+ * Recreates the account notification cache using the current Room entity definition.
+ * Older builds could leave this cache table with an incompatible column layout.
+ * Notifications are server-backed cache data and will be fetched again after migration.
+ */
+internal val MIGRATION_72_73 = object : Migration(72, 73) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("DROP TABLE IF EXISTS account_notifications")
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS account_notifications (
+                userId INTEGER NOT NULL,
+                language TEXT NOT NULL,
+                `limit` INTEGER NOT NULL,
+                `offset` INTEGER NOT NULL,
+                position INTEGER NOT NULL,
+                notificationId INTEGER NOT NULL,
+                dateSeconds INTEGER NOT NULL,
+                title TEXT NOT NULL,
+                text TEXT NOT NULL,
+                clickUri TEXT NOT NULL,
+                type TEXT NOT NULL,
+                subType TEXT NOT NULL,
+                viewed INTEGER NOT NULL,
+                objectId INTEGER,
+                animeSlug TEXT,
+                isNewEpisode INTEGER NOT NULL,
+                linksJson TEXT NOT NULL DEFAULT '[]',
+                subjectTitle TEXT,
+                animeId INTEGER,
+                PRIMARY KEY(userId, language, `limit`, `offset`, position)
+            )
+            """.trimIndent()
+        )
+        db.execSQL(
+            "CREATE INDEX IF NOT EXISTS index_account_notifications_page " +
+                "ON account_notifications(userId, language, `limit`, `offset`)"
+        )
+    }
+}

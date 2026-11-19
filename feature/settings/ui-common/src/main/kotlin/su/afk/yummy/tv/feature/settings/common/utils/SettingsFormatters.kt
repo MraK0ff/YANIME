@@ -6,12 +6,14 @@ import androidx.compose.ui.res.stringResource
 import su.afk.yummy.tv.core.designsystem.theme.isDynamicColorSupported
 import su.afk.yummy.tv.core.model.seasonal.SeasonalTheme
 import su.afk.yummy.tv.core.model.settings.TorrentSort
+import su.afk.yummy.tv.core.model.settings.VideoEnhancementMode
 import su.afk.yummy.tv.core.model.settings.AppTheme
 import su.afk.yummy.tv.core.model.settings.BackgroundStyle
 import su.afk.yummy.tv.core.model.settings.NavTransitionStyle
 import su.afk.yummy.tv.core.model.settings.BrowserUserAgentProfile
 import su.afk.yummy.tv.core.model.settings.LibraryContinueWatchingCardSize
 import su.afk.yummy.tv.core.model.settings.HomeBlockKind
+import su.afk.yummy.tv.core.model.settings.DetailsSectionKind
 import su.afk.yummy.tv.core.model.settings.LibraryTabKind
 import su.afk.yummy.tv.core.model.settings.NewEpisodesSource
 import su.afk.yummy.tv.core.model.settings.PlayerBufferProfile
@@ -73,6 +75,11 @@ fun AppTheme.label(): String = stringResource(
         AppTheme.MINT -> R.string.settings_theme_mint
         AppTheme.OCEAN -> R.string.settings_theme_ocean
         AppTheme.GRAPHITE -> R.string.settings_theme_graphite
+        AppTheme.LAVENDER -> R.string.settings_theme_lavender
+        AppTheme.RUBY -> R.string.settings_theme_ruby
+        AppTheme.FOREST -> R.string.settings_theme_forest
+        AppTheme.SUNSET -> R.string.settings_theme_sunset
+        AppTheme.GOLD -> R.string.settings_theme_gold
         AppTheme.DYNAMIC -> R.string.settings_theme_dynamic
     },
 )
@@ -85,6 +92,11 @@ fun AppTheme.hint(): String = stringResource(
         AppTheme.MINT -> R.string.settings_theme_mint_hint
         AppTheme.OCEAN -> R.string.settings_theme_ocean_hint
         AppTheme.GRAPHITE -> R.string.settings_theme_graphite_hint
+        AppTheme.LAVENDER -> R.string.settings_theme_lavender_hint
+        AppTheme.RUBY -> R.string.settings_theme_ruby_hint
+        AppTheme.FOREST -> R.string.settings_theme_forest_hint
+        AppTheme.SUNSET -> R.string.settings_theme_sunset_hint
+        AppTheme.GOLD -> R.string.settings_theme_gold_hint
         AppTheme.DYNAMIC -> R.string.settings_theme_dynamic_hint
     },
 )
@@ -300,6 +312,15 @@ fun PlayerSubtitleBackground.label(): String = stringResource(
 )
 
 @Composable
+fun VideoEnhancementMode.label(): String = stringResource(
+    when (this) {
+        VideoEnhancementMode.OFF -> R.string.settings_video_enhancement_off
+        VideoEnhancementMode.SHARPEN -> R.string.settings_video_enhancement_sharpen
+        VideoEnhancementMode.QUALITY -> R.string.settings_video_enhancement_quality
+    },
+)
+
+@Composable
 fun PlayerBufferProfile.label(): String = stringResource(
     when (this) {
         PlayerBufferProfile.MINIMAL -> R.string.settings_player_buffer_minimal
@@ -390,6 +411,24 @@ fun HomeBlockKind.label(): String = stringResource(
         HomeBlockKind.COLLECTIONS -> R.string.settings_home_block_collections
         HomeBlockKind.BLOGGER_VIDEOS -> R.string.settings_home_block_blogger_videos
         HomeBlockKind.QUICK_ACTIONS -> R.string.settings_home_block_quick_actions
+    },
+)
+
+
+/** Название блока экрана деталей в настройках порядка и видимости. */
+@Composable
+fun DetailsSectionKind.label(): String = stringResource(
+    when (this) {
+        DetailsSectionKind.INFO -> R.string.settings_details_section_info
+        DetailsSectionKind.DESCRIPTION -> R.string.settings_details_section_description
+        DetailsSectionKind.SCREENSHOTS -> R.string.settings_details_section_screenshots
+        DetailsSectionKind.VIDEO -> R.string.settings_details_section_video
+        DetailsSectionKind.RATING -> R.string.settings_details_section_rating
+        DetailsSectionKind.UNIVERSE -> R.string.settings_details_section_universe
+        DetailsSectionKind.SIMILAR -> R.string.settings_details_section_similar
+        DetailsSectionKind.COLLECTIONS -> R.string.settings_details_section_collections
+        DetailsSectionKind.REVIEWS -> R.string.settings_details_section_reviews
+        DetailsSectionKind.COMMENTS -> R.string.settings_details_section_comments
     },
 )
 

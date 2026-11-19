@@ -114,6 +114,63 @@ class PlayerProgressHandlerTest : BaseUnitTest() {
     }
 
     @Test
+    fun `switching to another video flushes the unsent seconds of the previous one`() = runTest {
+        val handler = createHandler()
+        handler.recordWatchedSecond(VIDEO_ID, 100_000L, DURATION_MS)
+        handler.saveProgress(context, snapshot(positionMs = 100_000L))
+        handler.recordWatchedSecond(VIDEO_ID, 101_000L, DURATION_MS)
+        handler.saveProgress(context, snapshot(positionMs = 101_000L))
+
+        handler.saveProgress(context, snapshot(positionMs = 60_000L, videoId = OTHER_VIDEO_ID))
+
+        coVerify(exactly = 2) { saveVideoWatchProgress(VIDEO_ID, any(), any(), any()) }
+        coVerify(exactly = 1) { saveVideoWatchProgress(OTHER_VIDEO_ID, any(), any(), any()) }
+        assertEquals(listOf(listOf(100), listOf(101), emptyList()), sentTimes)
+    }
+
+    @Test
+    fun `forced sync without new seconds at the same position is not sent again`() = runTest {
+        val handler = createHandler()
+        handler.recordWatchedSecond(VIDEO_ID, 100_000L, DURATION_MS)
+        handler.saveProgress(context, snapshot(positionMs = 100_000L), forceRemoteSync = true)
+
+        handler.saveProgress(context, snapshot(positionMs = 100_400L), forceRemoteSync = true)
+        coVerify(exactly = 1) { saveVideoWatchProgress(any(), any(), any(), any()) }
+
+        handler.saveProgress(context, snapshot(positionMs = 130_000L), forceRemoteSync = true)
+        coVerify(exactly = 2) { saveVideoWatchProgress(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `leaving puts the progress into the durable queue instead of sending it`() = runTest {
+        val handler = createHandler()
+        (100..101).forEach { handler.recordWatchedSecond(VIDEO_ID, it * 1000L, DURATION_MS) }
+
+        handler.saveProgress(context, snapshot(positionMs = 101_000L), remoteVideoId = VIDEO_ID, leaving = true)
+
+        coVerify(exactly = 1) {
+            pendingMutationQueue.enqueue(PendingMutation.MarkWatched(VIDEO_ID, 101, DURATION_S, listOf(100, 101)))
+        }
+        coVerify(exactly = 0) { saveVideoWatchProgress(any(), any(), any(), any()) }
+
+        // Секунды уже в очереди: следующая отправка их не повторяет.
+        handler.recordWatchedSecond(VIDEO_ID, 102_000L, DURATION_MS)
+        handler.saveProgress(context, snapshot(positionMs = 102_000L), forceRemoteSync = true)
+        assertEquals(listOf(listOf(102)), sentTimes)
+    }
+
+    @Test
+    fun `leaving falls back to a direct send when the queue write fails`() = runTest {
+        coEvery { pendingMutationQueue.enqueue(any()) } throws IllegalStateException("db")
+        val handler = createHandler()
+        handler.recordWatchedSecond(VIDEO_ID, 100_000L, DURATION_MS)
+
+        handler.saveProgress(context, snapshot(positionMs = 100_000L), remoteVideoId = VIDEO_ID, leaving = true)
+
+        assertEquals(listOf(listOf(100)), sentTimes)
+    }
+
+    @Test
     fun `completion is sent right away and only once`() = runTest {
         val handler = createHandler()
         handler.saveProgress(context, snapshot(positionMs = 60_000L))
@@ -261,6 +318,7 @@ class PlayerProgressHandlerTest : BaseUnitTest() {
     private companion object {
         const val ANIME_ID = 42
         const val VIDEO_ID = 7
+        const val OTHER_VIDEO_ID = 8
         const val USER_ID = 5
         const val DURATION_S = 1440
         const val DURATION_MS = DURATION_S * 1000L

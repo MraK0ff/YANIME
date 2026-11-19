@@ -20,6 +20,7 @@ import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.model.settings.PlayerMobileVideoTransformSettings
 import su.afk.yummy.tv.core.model.settings.PreferredVideoQuality
+import su.afk.yummy.tv.core.model.settings.VideoEnhancementMode
 import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.network.connectivity.NetworkConnectivityMonitor
 import su.afk.yummy.tv.feature.player.PlayerViewModel.Companion.CHANGE_PLAYER_HINT_DELAY_MS
@@ -68,6 +69,7 @@ import su.afk.yummy.tv.feature.player.utils.artworkSource
 import su.afk.yummy.tv.feature.player.utils.displayedBalancerIndices
 import su.afk.yummy.tv.feature.player.utils.globalDubbingNames
 import su.afk.yummy.tv.feature.player.utils.isDecoderErrorCode
+import su.afk.yummy.tv.feature.player.utils.lowerQualityLabel
 import su.afk.yummy.tv.feature.player.utils.preferredQualityForLabel
 import su.afk.yummy.tv.feature.player.utils.qualityHeight
 import su.afk.yummy.tv.feature.player.utils.streamQualities
@@ -123,8 +125,32 @@ class PlayerViewModel @AssistedInject internal constructor(
     /** Порядок важен: решения принимает первое поведение, чей `handles` подошёл. */
     private val sourceBehaviors: List<PlayerSourceBehavior> = listOf(allohaSource, defaultSource)
 
+    /**
+     * Живая позиция с секундного тика плеера, ещё не перенесённая в State (`-1` — нет).
+     *
+     * Позицию раз в секунду не кладём в State: каждый новый State перерисовывал бы весь экран плеера,
+     * которому она нужна только стартовым значением нового потока. Она переносится в State перед любым
+     * другим событием ([commitLivePosition]), а чтения вне событий идут через [liveState].
+     */
+    private var livePositionMs = NO_LIVE_POSITION
+    private var liveDurationMs = 0L
+
+    /** [currentState] с ещё не перенесённой живой позицией: для чтений вне [onEvent]. */
+    private val liveState: PlayerState.State
+        get() = currentState.let { state ->
+            if (livePositionMs == NO_LIVE_POSITION) {
+                state
+            } else {
+                state.copy(
+                    resumeFromMs = livePositionMs,
+                    playbackPositionMs = livePositionMs,
+                    playbackDurationMs = liveDurationMs,
+                )
+            }
+        }
+
     private val host = object : PlayerSourceHost {
-        override val state: PlayerState.State get() = currentState
+        override val state: PlayerState.State get() = liveState
         override val scope: CoroutineScope get() = viewModelScope
         override val changePlayerHint: PlayerChangePlayerHint get() = this@PlayerViewModel.changePlayerHint
 
@@ -278,6 +304,7 @@ class PlayerViewModel @AssistedInject internal constructor(
     }
 
     override fun onEvent(event: PlayerState.Event) {
+        if (event !is PlayerState.Event.PlaybackPositionChanged) commitLivePosition()
         when (event) {
             is PlayerState.Event.NavigateToDestination -> loadDestination(event.destination)
 
@@ -369,6 +396,23 @@ class PlayerViewModel @AssistedInject internal constructor(
                         errorCode = event.errorCode,
                     )
                 }
+                val fallbackQuality = qualityFallbackTarget()
+                if (fallbackQuality != null) {
+                    // После исчерпания тихих ретраев пробуем ближайшее качество ниже один раз за серию.
+                    setState { copy(qualityFallbackEpisode = activeEpisode(currentState)) }
+                    setEffect(
+                        PlayerState.Effect.ShowToast(
+                            strings.get(R.string.player_toast_quality_fallback, fallbackQuality),
+                        ),
+                    )
+                    analytics.eventQualityAutoFallback(
+                        animeId = currentState.animeId,
+                        fromQuality = activeQuality(currentState),
+                        quality = fallbackQuality,
+                    )
+                    reloadWithQuality(fallbackQuality, errorPositionMs)
+                    return
+                }
                 setState {
                     copy(
                         streamUrl = null,
@@ -389,6 +433,9 @@ class PlayerViewModel @AssistedInject internal constructor(
 
             PlayerState.Event.PlaybackReady -> {
                 sourceBehaviors.forEach { it.onPlaybackReady() }
+                if (currentState.qualityFallbackEpisode != null) {
+                    setState { copy(qualityFallbackEpisode = null) }
+                }
                 if (currentState.isPlaybackRecovering && sourceBehaviors.none { it.isRecovering }) {
                     (activeSourceBehavior() ?: defaultSource).onPlaybackRecovered()
                     setState { copy(isPlaybackRecovering = false) }
@@ -484,6 +531,20 @@ class PlayerViewModel @AssistedInject internal constructor(
                         strings.get(R.string.player_toast_dubbing_changed, activeDubbingName(nextState)),
                     ),
                 )
+                applySourceSelection(nextState, sourceScopeChanged = true)
+            }
+
+            is PlayerState.Event.DubbingBalancerSelected -> {
+                val nextState = sourceSelectionHandler.selectDubbingInBalancer(
+                    state = currentState,
+                    dubbingIndex = event.dubbingIndex,
+                    balancerIndex = event.balancerIndex,
+                    currentPosMs = event.currentPosMs,
+                ) ?: return
+                analytics.eventDubbingSelected(currentState, event.dubbingIndex, event.currentPosMs)
+                setEffect(PlayerState.Effect.ShowToast(
+                    strings.get(R.string.player_toast_dubbing_changed, activeDubbingName(nextState)),
+                ))
                 applySourceSelection(nextState, sourceScopeChanged = true)
             }
 
@@ -587,6 +648,17 @@ class PlayerViewModel @AssistedInject internal constructor(
             is PlayerState.Event.AdaptiveQualityToggled ->
                 preferences.setAdaptiveQuality(host, event.enabled)
 
+            PlayerState.Event.VideoEnhancementOverloaded -> {
+                if (currentState.videoEnhancementMode != VideoEnhancementMode.OFF) {
+                    setEffect(PlayerState.Effect.ShowToast(strings.get(R.string.player_toast_video_enhancement_overload)))
+                    // Не продолжаем нагружать устройство, если декодер/GPU не успевает за видео.
+                    preferences.setVideoEnhancementMode(host, VideoEnhancementMode.OFF)
+                }
+            }
+
+            is PlayerState.Event.VideoEnhancementModeSelected ->
+                preferences.setVideoEnhancementMode(host, event.mode)
+
             is PlayerState.Event.VolumeStabilizationToggled ->
                 preferences.setVolumeStabilization(host, event.enabled)
 
@@ -630,13 +702,8 @@ class PlayerViewModel @AssistedInject internal constructor(
                 val position = event.positionMs.coerceAtLeast(0L)
                 val duration = event.durationMs.coerceAtLeast(0L)
                 sourceBehaviors.forEach { it.onPlaybackPositionChanged(position) }
-                setState {
-                    copy(
-                        resumeFromMs = position,
-                        playbackPositionMs = position,
-                        playbackDurationMs = duration,
-                    )
-                }
+                livePositionMs = position
+                liveDurationMs = duration
                 if (event.isPlayed) {
                     playbackProgressHandler.recordWatchedTick(currentState, position, duration)
                 }
@@ -655,12 +722,18 @@ class PlayerViewModel @AssistedInject internal constructor(
             is PlayerState.Event.SaveProgress -> {
                 val s = currentState
                 val snapshot = event.snapshot
+                val request = playbackProgressHandler.progressSaveRequest(
+                    state = s,
+                    snapshot = snapshot,
+                    forceRemoteSync = event.forceRemoteSync,
+                    leaving = event.leaving,
+                )
+                // Уход из приложения: запись в app-scope, viewModelScope может отмениться раньше.
+                if (event.leaving) navigation.saveProgress(request)
                 viewModelScope.launch {
                     // Фоновое сохранение: сбой Room не должен уводить на экран ошибки посреди просмотра.
                     runSuspendCatching {
-                        playbackProgressHandler.saveProgress(
-                            playbackProgressHandler.progressSaveRequest(s, snapshot),
-                        )
+                        if (!event.leaving) playbackProgressHandler.saveProgress(request)
                         libraryAutoListHandler.onProgressSaved(
                             animeId = s.animeId,
                             positionMs = snapshot.positionMs,
@@ -672,9 +745,56 @@ class PlayerViewModel @AssistedInject internal constructor(
         }
     }
 
+    /**
+     * Ближайшее качество ниже текущего после ошибки потока. Не повторяем шаг для этой серии,
+     * не вмешиваемся в офлайн-воспроизведение и не пытаемся менять качество без сети.
+     */
+    private fun qualityFallbackTarget(): String? {
+        val state = currentState
+        if (state.isOfflinePlayback || state.qualityFallbackEpisode == activeEpisode(state)) return null
+        if (connectivity.isOffline.value) return null
+        return lowerQualityLabel(streamQualities(state).keys, activeQuality(state))
+    }
+
+    /** Перезапускает поток на выбранном резервном качестве с сохранением позиции. */
+    private fun reloadWithQuality(quality: String, positionMs: Long) {
+        val position = positionMs.coerceAtLeast(0L)
+        allohaSource.onQualitySelected(quality)
+        defaultSource.reset()
+        setState {
+            copy(
+                selectedQuality = quality,
+                resumeFromMs = position,
+                playbackPositionMs = position,
+                manualQualityEpisode = activeEpisode(currentState),
+                retryKey = retryKey + 1,
+            )
+        }
+        loadStream(
+            refreshSourcesOnFailure = true,
+            selectedQualityOverride = quality,
+            forceRefresh = true,
+        )
+    }
+
     /** Поведение, которое принимает решения по ошибкам и ретраям текущего источника. */
     private fun activeSourceBehavior(): PlayerSourceBehavior? =
         sourceBehaviors.firstOrNull { it.handles(currentState) }
+
+    /** Переносит живую позицию в State: дальше её читают редьюсеры и UI при смене потока. */
+    private fun commitLivePosition() {
+        if (livePositionMs == NO_LIVE_POSITION) return
+        val position = livePositionMs
+        val duration = liveDurationMs
+        livePositionMs = NO_LIVE_POSITION
+        setState {
+            copy(
+                resumeFromMs = position,
+                playbackPositionMs = position,
+                playbackDurationMs = duration,
+            )
+        }
+    }
 
     private fun resetSourceBehaviors() {
         sourceBehaviors.forEach { it.reset() }
@@ -682,6 +802,9 @@ class PlayerViewModel @AssistedInject internal constructor(
 
     private fun loadDownloadedDestination(downloadId: Long) {
         changePlayerHint.cancel()
+        // Скачанный файл играет без сети: живая сессия онлайн-источника не нужна.
+        sourceStreamHandler.releaseStreamSessions()
+        navigation.saveProgressOnClear(host)
         viewModelScope.launch {
             val item = offlineSources.findDownloaded(downloadId)
             if (item == null) {
@@ -833,7 +956,7 @@ class PlayerViewModel @AssistedInject internal constructor(
             return
         }
         resetSourceBehaviors()
-        setState { sourceStreamHandler.preparingStreamLoad(state, resumeMode) }
+        setState { sourceStreamHandler.preparingStreamLoad(state, resumeMode).copy(qualityFallbackEpisode = null) }
         if (sourceScopeChanged) {
             displaySettings.observeActive(host)
         }
@@ -954,8 +1077,8 @@ class PlayerViewModel @AssistedInject internal constructor(
             val stateResumeMs = sourceBehaviors
                 .firstNotNullOfOrNull { it.recoveryResumePositionMs() }
                 ?.takeIf { canPreserveCurrent }
-                ?: currentState.playbackPositionMs.takeIf { canPreserveCurrent && it > 0L }
-                ?: currentState.resumeFromMs.takeIf { canPreserveCurrent && it > 0L }
+                ?: liveState.playbackPositionMs.takeIf { canPreserveCurrent && it > 0L }
+                ?: liveState.resumeFromMs.takeIf { canPreserveCurrent && it > 0L }
             val destinationResumeMs = pendingDestinationResumeMs.takeIf { canPreserveCurrent }
             setState {
                 sourceStreamHandler.preparingStreamResolve(
@@ -965,6 +1088,9 @@ class PlayerViewModel @AssistedInject internal constructor(
             }
             val resolveStartedAtMs = System.currentTimeMillis()
             val s = currentState
+            // Переход на другой источник: сокет и отчёты Alloha больше не нужны. Новая Alloha-сессия
+            // сама заменяет прошлую, поэтому закрываем только при уходе с Alloha.
+            if (!allohaSource.handles(s)) sourceStreamHandler.releaseStreamSessions()
             val pendingResume = s.dubbingResumeMs.takeIf { canPreserveCurrent && it > 0L }
                 ?: destinationResumeMs
                 ?: stateResumeMs
@@ -978,8 +1104,8 @@ class PlayerViewModel @AssistedInject internal constructor(
                     selectedQualityOverride = selectedQualityOverride,
                     forceRefresh = forceRefresh,
                     retryAttempts = sourceBehaviors.maxOfOrNull { it.retryAttempts } ?: 0,
-                    positionMs = { currentState.playbackPositionMs },
-                    durationMs = { currentState.playbackDurationMs },
+                    positionMs = { liveState.playbackPositionMs },
+                    durationMs = { liveState.playbackDurationMs },
                     onStatus = { status ->
                         setState { withResolveStep(status, System.currentTimeMillis() - resolveStartedAtMs) }
                     },
@@ -1057,6 +1183,7 @@ class PlayerViewModel @AssistedInject internal constructor(
     override fun onCleared() {
         resetSourceBehaviors()
         changePlayerHint.cancel()
+        sourceStreamHandler.releaseStreamSessions()
         super.onCleared()
     }
 
@@ -1064,3 +1191,5 @@ class PlayerViewModel @AssistedInject internal constructor(
         private const val CHANGE_PLAYER_HINT_DELAY_MS = 10_000L
     }
 }
+
+private const val NO_LIVE_POSITION = -1L

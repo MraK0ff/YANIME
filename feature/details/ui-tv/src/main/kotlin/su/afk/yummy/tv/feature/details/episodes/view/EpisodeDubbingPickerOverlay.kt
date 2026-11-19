@@ -64,6 +64,7 @@ import su.afk.yummy.tv.core.designsystem.utils.dubbingLogoRes
 import su.afk.yummy.tv.feature.details.episodes.EpisodesState
 import su.afk.yummy.tv.feature.details.presentation.R
 import su.afk.yummy.tv.feature.details.utils.formatCompactCount
+import su.afk.yummy.tv.core.designsystem.focus.tvBackKeyForwarding
 
 @Composable
 internal fun EpisodeDubbingPickerOverlay(
@@ -90,7 +91,7 @@ internal fun EpisodeDubbingPickerOverlay(
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
         Box(
-            modifier = Modifier
+            modifier = Modifier.tvBackKeyForwarding()
                 .fillMaxSize()
                 .background(Color.Black.copy(alpha = 0.82f))
                 .clickable(
@@ -110,7 +111,8 @@ internal fun EpisodeDubbingPickerOverlay(
                     .onPreviewKeyEvent { event ->
                         if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
                         when (event.key) {
-                            Key.Back, Key.Escape -> {
+                            // Back закрывает Dialog через onDismissRequest; поймав его и здесь, получим двойной onDismiss.
+                            Key.Escape -> {
                                 onDismiss()
                                 true
                             }

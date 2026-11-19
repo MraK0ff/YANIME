@@ -46,6 +46,7 @@ internal fun ContinueWatchingSection(
     items: List<HomeContinueWatchingItem>,
     launchingAnimeId: Int?,
     onItemSelected: (HomeContinueWatchingItem) -> Unit,
+    onItemLongClick: (HomeContinueWatchingItem) -> Unit = {},
     rowFocusRequester: FocusRequester? = null,
     registerFocusHandler: ((suspend () -> Boolean)?) -> Unit = {},
     upFocusRequester: FocusRequester? = null,
@@ -205,6 +206,7 @@ internal fun ContinueWatchingSection(
                         rememberFocusedItem(index)
                         onItemSelected(entry)
                     },
+                    onLongClick = { onItemLongClick(entry) },
                     modifier = Modifier.focusRequester(focusRequesterForItem(index)),
                     leftFocusRequester = mainMenuFocusRequester.takeIf { index == 0 },
                     upFocusRequester = upFocusRequester,

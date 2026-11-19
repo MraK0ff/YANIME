@@ -2,15 +2,21 @@ package su.afk.yummy.tv.feature.settings
 
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.analytics.api.AnalyticsDeviceIdProvider
+import su.afk.yummy.tv.core.common.coroutines.AppClock
 import su.afk.yummy.tv.core.common.coroutines.runSuspendCatching
 import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.model.seasonal.seasonalThemeAt
+import su.afk.yummy.tv.core.model.settings.DetailsSectionConfig
 import su.afk.yummy.tv.core.model.settings.HomeBlockConfig
 import su.afk.yummy.tv.core.model.settings.HomeBlockKind
 import su.afk.yummy.tv.core.model.settings.TorrServerChecker
@@ -38,11 +44,14 @@ import su.afk.yummy.tv.feature.settings.mapper.buildReleaseNoteItems
 import su.afk.yummy.tv.feature.settings.model.ReleaseNotesStatus
 import su.afk.yummy.tv.feature.settings.model.TorrServerCheckStatus
 import su.afk.yummy.tv.feature.settings.navigator.SettingsCategoryDestination
+import su.afk.yummy.tv.feature.settings.navigator.SettingsDetailsSectionsDestination
 import su.afk.yummy.tv.feature.settings.navigator.SettingsHomeBlocksDestination
 import su.afk.yummy.tv.feature.settings.navigator.SettingsLibraryTabOrderDestination
 import su.afk.yummy.tv.feature.settings.utils.groupedByThree
+import su.afk.yummy.tv.feature.settings.utils.movedDetailsSection
 import su.afk.yummy.tv.feature.settings.utils.movedHomeBlock
 import su.afk.yummy.tv.feature.settings.utils.movedLibraryTab
+import su.afk.yummy.tv.feature.settings.utils.toggledDetailsSection
 import su.afk.yummy.tv.feature.settings.utils.toggledHomeBlock
 import java.util.Optional
 import javax.inject.Inject
@@ -53,6 +62,7 @@ class SettingsViewModel @Inject internal constructor(
     override val errorHandler: ErrorHandler,
     override val retryStorage: RetryStorage,
     private val settingsStore: SettingsStore,
+    private val appClock: AppClock,
     private val episodePushSettingsStore: EpisodePushSettingsStore,
     private val appLifecycleSettingsStore: AppLifecycleSettingsStore,
     private val yaniAuthPreferences: YaniAuthPreferences,
@@ -98,9 +108,10 @@ class SettingsViewModel @Inject internal constructor(
                             it.kind == HomeBlockKind.MY_NEW_EPISODES && it.enabled
                         },
                         homeBlocks = snapshot.homeBlocks.toImmutableList(),
+                        detailsSections = snapshot.detailsSections.toImmutableList(),
                         seasonalDecorationsEnabled = snapshot.seasonalDecorationsEnabled,
                         accountShortcutsExpanded = snapshot.accountShortcutsExpanded,
-                        seasonalTheme = seasonalThemeAt(System.currentTimeMillis()),
+                        seasonalTheme = seasonalThemeAt(appClock.nowMillis()),
                         newEpisodesSources = snapshot.newEpisodesSources,
                         showLibraryTitleYear = snapshot.showLibraryTitleYear,
                         libraryContinueWatchingCardSize = snapshot.libraryContinueWatchingCardSize,
@@ -124,6 +135,7 @@ class SettingsViewModel @Inject internal constructor(
                         advancedPlayerVolumeEnabled = snapshot.advancedPlayerVolumeEnabled,
                         mobilePlayerAutoBrightnessEnabled = snapshot.mobilePlayerAutoBrightnessEnabled,
                         volumeStabilizationEnabled = snapshot.volumeStabilizationEnabled,
+                        videoEnhancementMode = snapshot.videoEnhancementMode,
                         audioFocusDisabled = snapshot.audioFocusDisabled,
                         playerBufferProfile = snapshot.playerBufferProfile,
                         browserUserAgentProfile = snapshot.browserUserAgentProfile,
@@ -421,6 +433,10 @@ class SettingsViewModel @Inject internal constructor(
                 settingsStore.setVolumeStabilizationEnabled(!currentState.volumeStabilizationEnabled)
             }
 
+            is SettingsState.Event.VideoEnhancementModeSelected -> viewModelScope.launch {
+                settingsStore.setVideoEnhancementMode(event.mode)
+            }
+
             SettingsState.Event.AudioFocusToggled -> viewModelScope.launch {
                 settingsStore.setAudioFocusDisabled(!currentState.audioFocusDisabled)
             }
@@ -466,10 +482,15 @@ class SettingsViewModel @Inject internal constructor(
                 if (previous.enabled != event.settings.enabled) {
                     analytics.eventTorrentToggled(event.settings.enabled)
                 }
-                // Старый итог относился к прежнему серверу: сбрасываем его только при правке адреса или учётных данных.
+                // Старый итог относился к прежним серверу и индексаторам: сбрасываем его при правке адресов, ключа или учётных данных.
                 val serverChanged = previous.torrServerUrl != event.settings.torrServerUrl ||
                     previous.torrServerUser != event.settings.torrServerUser ||
-                    previous.torrServerPassword != event.settings.torrServerPassword
+                    previous.torrServerPassword != event.settings.torrServerPassword ||
+                    previous.jacRedEnabled != event.settings.jacRedEnabled ||
+                    previous.jacRedUrl != event.settings.jacRedUrl ||
+                    previous.jackettEnabled != event.settings.jackettEnabled ||
+                    previous.jackettUrl != event.settings.jackettUrl ||
+                    previous.jackettApiKey != event.settings.jackettApiKey
                 setState {
                     copy(
                         torrent = event.settings,
@@ -485,9 +506,17 @@ class SettingsViewModel @Inject internal constructor(
                 val checker = torrServerChecker.orElse(null) ?: return
                 if (currentState.torrServerCheck == TorrServerCheckStatus.Checking) return
                 setState { copy(torrServerCheck = TorrServerCheckStatus.Checking) }
+                val settings = currentState.torrent
                 viewModelScope.launch {
-                    val result = checker.check(currentState.torrent)
-                    setState { copy(torrServerCheck = TorrServerCheckStatus.Done(result)) }
+                    // Сервер и индексаторы независимы: опрашиваем параллельно, а итог показываем одним разом.
+                    val (result, indexers) = coroutineScope {
+                        val server = async { checker.check(settings) }
+                        val indexers = settings.activeIndexers.map { indexer ->
+                            async { indexer to checker.checkIndexer(settings, indexer) }
+                        }
+                        server.await() to indexers.awaitAll().toMap()
+                    }
+                    setState { copy(torrServerCheck = TorrServerCheckStatus.Done(result, indexers)) }
                 }
             }
 
@@ -544,6 +573,31 @@ class SettingsViewModel @Inject internal constructor(
             SettingsState.Event.HomeBlocksReset -> viewModelScope.launch {
                 analytics.eventHomeBlocksReset()
                 settingsStore.setHomeBlocks(HomeBlockConfig.default)
+            }
+
+            is SettingsState.Event.DetailsSectionToggled -> viewModelScope.launch {
+                analytics.eventDetailsSectionToggled(event.section)
+                settingsStore.setDetailsSections(currentState.detailsSections.toggledDetailsSection(event.section))
+            }
+
+            is SettingsState.Event.DetailsSectionMoved -> viewModelScope.launch {
+                analytics.eventDetailsSectionMoved(event.section, event.direction)
+                settingsStore.setDetailsSections(
+                    currentState.detailsSections.movedDetailsSection(event.section, event.direction),
+                )
+            }
+
+            SettingsState.Event.DetailsSectionsScreenOpened -> {
+                analytics.eventDetailsSectionsScreenOpened()
+            }
+
+            SettingsState.Event.DetailsSectionsSelected -> {
+                nav.navigate(SettingsDetailsSectionsDestination)
+            }
+
+            SettingsState.Event.DetailsSectionsReset -> viewModelScope.launch {
+                analytics.eventDetailsSectionsReset()
+                settingsStore.setDetailsSections(DetailsSectionConfig.default)
             }
 
             SettingsState.Event.LibraryTabOrderSelected -> {

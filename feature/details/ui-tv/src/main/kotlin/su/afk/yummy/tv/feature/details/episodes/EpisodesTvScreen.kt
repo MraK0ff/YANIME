@@ -34,7 +34,7 @@ import su.afk.yummy.tv.feature.details.view.common.BalancerPickerOverlay
     name = "Default",
     device = "spec:width=1920dp,height=1080dp,dpi=160",
     uiMode = android.content.res.Configuration.UI_MODE_TYPE_TELEVISION,
-    showBackground = true
+    showBackground = true,
 )
 @Composable
 private fun EpisodesTvScreenDefaultPreview() = ScreenPreviewTheme {
@@ -79,30 +79,28 @@ fun EpisodesTvScreen(
         }
     }
 
-    BackHandler(enabled = balancerPicker == null && dubbingPicker == null && episodeAction == null) {
-        handleBack()
-    }
+    // «Назад» — только через BackHandler. Ловить Key.Back в onPreviewKeyEvent нельзя: при
+    // predictive back система отдаёт KeyUp в OnBackInvokedCallback мимо view-дерева, и одно
+    // нажатие срабатывает дважды — закрывается и экран серий, и деталка под ним.
+    // Escape системой как «назад» не обрабатывается, его ловим сами.
+    BackHandler { handleBack() }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .onPreviewKeyEvent { event ->
-                if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
-                when (event.key) {
-                    Key.Back, Key.Escape -> {
-                        handleBack()
-                        true
-                    }
-
-                    else -> false
-                }
+                if (event.key != Key.Escape) return@onPreviewKeyEvent false
+                if (event.type == KeyEventType.KeyDown) handleBack()
+                true
             }
             .background(MaterialTheme.colorScheme.background),
     ) {
         EpisodesSection(
             state = state.videosState,
             animeId = state.animeId,
-            episodeGroups = state.episodeGroups,
+            episodeGroups = state.visibleEpisodeGroups,
+            watchFilter = state.watchFilter,
+            onWatchFilterSelected = { onEvent(EpisodesState.Event.WatchFilterSelected(it, anchorEpisode)) },
             bestDubbing = state.bestDubbing,
             watchProgress = state.watchProgress,
             restoreFocusRequest = restoreEpisodesFocusRequest,

@@ -51,6 +51,12 @@ private data class YummyTvPalette(
     val error: Color = Color(0xFFFFB4AB),
     val onError: Color = Color(0xFF690005),
     val outline: Color = Color(0xFF8E877D),
+    val lightBackground: Color = Color(0xFFFFFFFF),
+    val lightSurface: Color = Color(0xFFF0F0F0),
+    val lightSurfaceVariant: Color = Color(0xFFE6E6E6),
+    val lightOnBackground: Color = Color(0xFF1A1A1A),
+    val lightOnSurfaceVariant: Color = Color(0xFF444444),
+    val lightOutline: Color = Color(0xFF757575),
 )
 
 private val WarmAmberPalette = YummyTvPalette(
@@ -144,6 +150,131 @@ private val GraphitePalette = YummyTvPalette(
     primaryContainerLight = Color(0xFFDDE0E3),
     onPrimaryContainerLight = Color(0xFF1A1C1E),
     secondaryLight = Color(0xFF55595C),
+)
+
+private val LavenderPalette = YummyTvPalette(
+    background = Color(0xFF0E0C14),
+    onBackground = Color(0xFFF1EEF8),
+    surface = Color(0xFF17141F),
+    surfaceVariant = Color(0xFF231F2E),
+    onSurfaceVariant = Color(0xFFCFC8DD),
+    primary = Color(0xFFC5B3FF),
+    onPrimary = Color(0xFF2B1066),
+    primaryContainer = Color(0xFF3A2B6B),
+    onPrimaryContainer = Color(0xFFE7DEFF),
+    secondary = Color(0xFFD3C9E8),
+    primaryLight = Color(0xFF6246C8),
+    onPrimaryLight = Color(0xFFFFFFFF),
+    primaryContainerLight = Color(0xFFE8DEFF),
+    onPrimaryContainerLight = Color(0xFF1F0A5C),
+    secondaryLight = Color(0xFF625A7C),
+    lightBackground = Color(0xFFFBF8FF),
+    lightSurface = Color(0xFFF1ECFA),
+    lightSurfaceVariant = Color(0xFFE5DEF2),
+    lightOnBackground = Color(0xFF1C1826),
+    lightOnSurfaceVariant = Color(0xFF4B4559),
+    lightOutline = Color(0xFF7B748C),
+    outline = Color(0xFF8F87A0),
+)
+
+private val RubyPalette = YummyTvPalette(
+    background = Color(0xFF120A0B),
+    onBackground = Color(0xFFF8EDEE),
+    surface = Color(0xFF1C1213),
+    surfaceVariant = Color(0xFF2A1B1D),
+    onSurfaceVariant = Color(0xFFDCC4C6),
+    primary = Color(0xFFFF8A94),
+    onPrimary = Color(0xFF4A0010),
+    primaryContainer = Color(0xFF5C1A25),
+    onPrimaryContainer = Color(0xFFFFD9DC),
+    secondary = Color(0xFFE8BDC1),
+    primaryLight = Color(0xFFB3162D),
+    onPrimaryLight = Color(0xFFFFFFFF),
+    primaryContainerLight = Color(0xFFFFDAD9),
+    onPrimaryContainerLight = Color(0xFF410008),
+    secondaryLight = Color(0xFF8A4A52),
+    lightBackground = Color(0xFFFFF8F7),
+    lightSurface = Color(0xFFFBEAEA),
+    lightSurfaceVariant = Color(0xFFF3DCDD),
+    lightOnBackground = Color(0xFF2A1517),
+    lightOnSurfaceVariant = Color(0xFF5A4144),
+    lightOutline = Color(0xFF8E7377),
+    outline = Color(0xFF9C8184),
+)
+
+private val ForestPalette = YummyTvPalette(
+    background = Color(0xFF080F09),
+    onBackground = Color(0xFFECF4EA),
+    surface = Color(0xFF111A12),
+    surfaceVariant = Color(0xFF1C291D),
+    onSurfaceVariant = Color(0xFFC2D2BF),
+    primary = Color(0xFFA6DC8B),
+    onPrimary = Color(0xFF0B2A06),
+    primaryContainer = Color(0xFF21421C),
+    onPrimaryContainer = Color(0xFFC6F2B4),
+    secondary = Color(0xFFC4D6BA),
+    primaryLight = Color(0xFF2E6B24),
+    onPrimaryLight = Color(0xFFFFFFFF),
+    primaryContainerLight = Color(0xFFCDEFBF),
+    onPrimaryContainerLight = Color(0xFF072100),
+    secondaryLight = Color(0xFF52634A),
+    lightBackground = Color(0xFFF8FBF4),
+    lightSurface = Color(0xFFEAF1E4),
+    lightSurfaceVariant = Color(0xFFDBE6D3),
+    lightOnBackground = Color(0xFF161E14),
+    lightOnSurfaceVariant = Color(0xFF43503E),
+    lightOutline = Color(0xFF74806F),
+    outline = Color(0xFF82937F),
+)
+
+private val SunsetPalette = YummyTvPalette(
+    background = Color(0xFF130B0A),
+    onBackground = Color(0xFFFBEEE9),
+    surface = Color(0xFF1E1311),
+    surfaceVariant = Color(0xFF2D1D1A),
+    onSurfaceVariant = Color(0xFFE2C8C0),
+    primary = Color(0xFFFF8F6B),
+    onPrimary = Color(0xFF4A1500),
+    primaryContainer = Color(0xFF612A18),
+    onPrimaryContainer = Color(0xFFFFDBCD),
+    secondary = Color(0xFFEBC3B5),
+    primaryLight = Color(0xFFC43E1C),
+    onPrimaryLight = Color(0xFFFFFFFF),
+    primaryContainerLight = Color(0xFFFFDBCC),
+    onPrimaryContainerLight = Color(0xFF3B0A00),
+    secondaryLight = Color(0xFF8B4B35),
+    lightBackground = Color(0xFFFFF8F5),
+    lightSurface = Color(0xFFFBEBE4),
+    lightSurfaceVariant = Color(0xFFF3DDD3),
+    lightOnBackground = Color(0xFF2B1912),
+    lightOnSurfaceVariant = Color(0xFF5B4237),
+    lightOutline = Color(0xFF8F7467),
+    outline = Color(0xFFA0847B),
+)
+
+private val GoldPalette = YummyTvPalette(
+    background = Color(0xFF0F0E08),
+    onBackground = Color(0xFFF6F2E0),
+    surface = Color(0xFF191810),
+    surfaceVariant = Color(0xFF27251A),
+    onSurfaceVariant = Color(0xFFD6D0B4),
+    primary = Color(0xFFE8C85A),
+    onPrimary = Color(0xFF3A2F00),
+    primaryContainer = Color(0xFF4E4210),
+    onPrimaryContainer = Color(0xFFFFF0A8),
+    secondary = Color(0xFFD9CFA0),
+    primaryLight = Color(0xFF7A6200),
+    onPrimaryLight = Color(0xFFFFFFFF),
+    primaryContainerLight = Color(0xFFF7E58A),
+    onPrimaryContainerLight = Color(0xFF231B00),
+    secondaryLight = Color(0xFF6B5F2E),
+    lightBackground = Color(0xFFFFFCF0),
+    lightSurface = Color(0xFFF6F1DC),
+    lightSurfaceVariant = Color(0xFFECE5C8),
+    lightOnBackground = Color(0xFF221E0C),
+    lightOnSurfaceVariant = Color(0xFF52492A),
+    lightOutline = Color(0xFF85795A),
+    outline = Color(0xFF938C70),
 )
 
 /** Общие нейтрали светлой схемы (фон/поверхности/текст), задаются режимом фона. */
@@ -293,6 +424,11 @@ private val AppTheme.palette: YummyTvPalette
         AppTheme.MINT -> MintPalette
         AppTheme.OCEAN -> OceanPalette
         AppTheme.GRAPHITE -> GraphitePalette
+        AppTheme.LAVENDER -> LavenderPalette
+        AppTheme.RUBY -> RubyPalette
+        AppTheme.FOREST -> ForestPalette
+        AppTheme.SUNSET -> SunsetPalette
+        AppTheme.GOLD -> GoldPalette
     }
 
 private fun YummyTvPalette.toDarkColorScheme() = darkColorScheme(

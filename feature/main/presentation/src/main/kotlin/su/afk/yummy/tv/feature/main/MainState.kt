@@ -33,6 +33,8 @@ class MainState {
         val isOnline: Boolean = true,
         /** Списки пользователя по animeId — для подписи карточек тайтлов. */
         val libraryListStatuses: Map<Int, CardListStatus> = emptyMap(),
+        /** Избранные тайтлы; не зависит от статуса пользовательского списка. */
+        val libraryFavoriteAnimeIds: Set<Int> = emptySet(),
         /** Оценки пользователя по animeId — чтобы в чужих списках показывать и свою. */
         val libraryUserRatings: Map<Int, Int> = emptyMap(),
     ) : UiState

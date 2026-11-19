@@ -45,8 +45,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import su.afk.yummy.tv.core.designsystem.components.FallbackAsyncImage
 import su.afk.yummy.tv.core.designsystem.components.ListStatusBadge
-import su.afk.yummy.tv.core.designsystem.components.badgeColor
 import su.afk.yummy.tv.core.designsystem.locals.LocalLibraryListStatuses
+import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
 import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.core.model.anime.posterUrls
 import su.afk.yummy.tv.feature.schedule.model.ScheduleReleaseUi
@@ -80,11 +80,7 @@ internal fun ScheduleReleaseRow(
     val active = focused || selected
     val shape = YummyShapeTokens.Card
     val rowScale = if (focused) 1.025f else 1f
-    val rowBackground = when {
-        focused || selected -> MaterialTheme.colorScheme.surfaceContainerHigh
-        listStatus != null -> listStatus.badgeColor().copy(alpha = 0.12f)
-        else -> MaterialTheme.colorScheme.surfaceContainerLow
-    }
+    val rowBackground = MaterialTheme.colorScheme.surfaceContainerLow
 
     Box(
         modifier = Modifier
@@ -145,9 +141,13 @@ internal fun ScheduleReleaseRow(
                 verticalArrangement = Arrangement.Center,
             ) {
                 listStatus?.let { status ->
-                    ListStatusBadge(status = status, compact = true)
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        ListStatusBadge(status = status, compact = true)
+                        if (release.isFavorite) FavoriteScheduleBadge()
+                    }
                     Spacer(modifier = Modifier.height(6.dp))
                 }
+                if (listStatus == null && release.isFavorite) FavoriteScheduleBadge()
                 Text(
                     text = item.title,
                     style = MaterialTheme.typography.titleLargeEmphasized,
@@ -187,4 +187,17 @@ internal fun ScheduleReleaseRow(
             }
         }
     }
+}
+
+@Composable
+private fun FavoriteScheduleBadge() {
+    Text(
+        text = "♥ Любимое",
+        color = YummySemanticColors.StatusFavorite,
+        style = MaterialTheme.typography.labelSmall,
+        fontWeight = FontWeight.SemiBold,
+        modifier = Modifier
+            .background(YummySemanticColors.StatusFavorite.copy(alpha = 0.14f), YummyShapeTokens.Control)
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+    )
 }

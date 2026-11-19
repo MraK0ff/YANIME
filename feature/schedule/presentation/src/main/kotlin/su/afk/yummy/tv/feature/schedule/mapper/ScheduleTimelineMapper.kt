@@ -102,7 +102,8 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
                                 epochSeconds = nextDate,
                                 episode = (item.airedEpisodes ?: 0) + 1,
                                 aired = false,
-                            isFromSelectedList = item.animeId in prioritizedAnimeIds,
+                                isFromSelectedList = item.animeId in prioritizedAnimeIds,
+                                isFavorite = item.animeId in favoriteAnimeIds,
                             )
                         )
                     }

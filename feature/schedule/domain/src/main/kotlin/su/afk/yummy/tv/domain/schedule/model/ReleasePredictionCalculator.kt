@@ -20,17 +20,28 @@ object ReleasePredictionCalculator {
     private const val MIN_INTERVAL_DAYS = 4.0
     private const val MAX_INTERVAL_DAYS = 35.0
 
-    fun predict(releases: List<AnimeEpisodeRelease>, nowSeconds: Long): ReleasePrediction? {
+    fun predict(
+        releases: List<AnimeEpisodeRelease>,
+        nowSeconds: Long,
+        preferredSource: Pair<String, String>? = null,
+    ): ReleasePrediction? {
         val groups = releases
             .filter { it.firstVideoAtSeconds > 0L }
             .groupBy { it.playerName.trim().lowercase() to it.dubbing.trim().lowercase() }
             .filterKeys { (player, dub) -> player.isNotBlank() || dub.isNotBlank() }
-        val selected = groups.values
-            .mapNotNull { source -> source.distinctBy { it.episodeNumber to it.firstVideoId }
+        val usable = groups.values
+            .mapNotNull { source -> source.distinctBy { it.episodeNumber }
                 .sortedBy { it.episodeNumber }.takeIf { it.size >= 3 } }
-            .maxWithOrNull(compareBy<List<AnimeEpisodeRelease>> { it.size }
-                .thenBy { it.last().firstVideoAtSeconds })
-            ?: return null
+        val preferred = preferredSource?.let { (player, dubbing) ->
+            usable.firstOrNull { source ->
+                source.last().playerName.equals(player, ignoreCase = true) &&
+                    source.last().dubbing.equals(dubbing, ignoreCase = true)
+            }
+        }
+        val selected = preferred ?: usable.maxWithOrNull(
+            compareBy<List<AnimeEpisodeRelease>> { it.size }
+                .thenBy { it.last().firstVideoAtSeconds },
+        ) ?: return null
 
         val intervals = selected.zipWithNext().mapNotNull { (a, b) ->
             val days = (b.firstVideoAtSeconds - a.firstVideoAtSeconds) / 86400.0

@@ -18,14 +18,17 @@ class GetRecentlyAiredScheduleUseCase @Inject constructor(
         return getSchedule()
             .flatMap { it.items }
             .flatMap { item ->
-                val knownEpisodeCount = (item.availableEpisodeCount ?: item.airedEpisodes)
-                    ?.takeIf { it > 0 }
-                    ?: return@flatMap emptyList()
-                // Only the current/latest aired episode (or a newer one) can represent a
-                // recent release. A late dub of episode 6 must not revive it when 8 have aired.
+                val availableCount = item.availableEpisodeCount?.takeIf { it > 0 }
+                val airedCount = item.airedEpisodes?.takeIf { it > 0 }
+                if (availableCount == null && airedCount == null) return@flatMap emptyList()
+                // If the anime page already knows an episode, another upload of it is not new.
+                // Without a local video count, use the schedule's current aired episode as fallback.
                 val release = item.videoReleases
                     .asSequence()
-                    .filter { it.episodeNumber >= knownEpisodeCount }
+                    .filter { release ->
+                        if (availableCount != null) release.episodeNumber > availableCount
+                        else release.episodeNumber >= airedCount!!
+                    }
                     .filter { it.firstVideoAtSeconds in 1..nowSeconds }
                     .sortedWith(
                         compareByDescending<su.afk.yummy.tv.domain.schedule.model.AnimeEpisodeRelease> { it.episodeNumber }

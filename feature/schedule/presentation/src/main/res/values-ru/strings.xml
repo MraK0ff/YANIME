@@ -18,4 +18,8 @@
     <string name="schedule_filter_library">В библиотеке</string>
     <string name="schedule_hide_watched">Скрывать просмотренные</string>
     <string name="schedule_favorite">Любимое</string>
+    <string name="schedule_prediction_label">Прогноз публикации</string>
+    <string name="schedule_prediction_high">Высокая точность</string>
+    <string name="schedule_prediction_medium">Средняя точность</string>
+    <string name="schedule_prediction_low">Низкая точность</string>
 </resources>

@@ -1,7 +1,7 @@
 <resources>
     <string name="schedule_mobile_title">Schedule</string>
     <string name="schedule_episode_aired">Episode %1$d is out</string>
-    <string name="schedule_episode_future">Episode %1$d releases in %2$s</string>
+    <string name="schedule_episode_future">Episode %1$d releases in</string>
     <string name="schedule_day_one">day</string>
     <string name="schedule_day_few">days</string>
     <string name="schedule_day_many">days</string>
@@ -16,4 +16,5 @@
     <string name="schedule_empty">Schedule is empty</string>
     <string name="schedule_filter_all">All</string>
     <string name="schedule_filter_library">In library</string>
+    <string name="schedule_hide_watched">Hide watched</string>
 </resources>

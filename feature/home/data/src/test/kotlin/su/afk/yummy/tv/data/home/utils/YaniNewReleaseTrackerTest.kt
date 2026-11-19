@@ -79,8 +79,20 @@ class YaniNewReleaseTrackerTest {
             airedEpisodeCounts = mapOf(1 to 8),
         )
 
-        assertEquals(baseline.single().episodeNumber, updated.single().episodeNumber)
-        assertEquals(0L, updated.single().lastUpdatedAt)
+        assertTrue(updated.isEmpty())
+    }
+
+    @Test
+    fun `stale history card is removed even when the feed is empty`() {
+        val baseline = tracker.merge(listOf(video(1, "6")), emptyList(), 100L)
+        val updated = tracker.merge(
+            videos = emptyList(),
+            history = baseline,
+            now = 200L,
+            airedEpisodeCounts = mapOf(1 to 8),
+        )
+
+        assertTrue(updated.isEmpty())
     }
 
     @Test

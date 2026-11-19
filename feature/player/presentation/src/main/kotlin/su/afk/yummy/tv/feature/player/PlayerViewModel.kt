@@ -534,6 +534,20 @@ class PlayerViewModel @AssistedInject internal constructor(
                 applySourceSelection(nextState, sourceScopeChanged = true)
             }
 
+            is PlayerState.Event.DubbingBalancerSelected -> {
+                val nextState = sourceSelectionHandler.selectDubbingInBalancer(
+                    state = currentState,
+                    dubbingIndex = event.dubbingIndex,
+                    balancerIndex = event.balancerIndex,
+                    currentPosMs = event.currentPosMs,
+                ) ?: return
+                analytics.eventDubbingSelected(currentState, event.dubbingIndex, event.currentPosMs)
+                setEffect(PlayerState.Effect.ShowToast(
+                    strings.get(R.string.player_toast_dubbing_changed, activeDubbingName(nextState)),
+                ))
+                applySourceSelection(nextState, sourceScopeChanged = true)
+            }
+
             is PlayerState.Event.BalancerSelected -> {
                 val balancerIndex = displayedBalancerIndices(currentState)
                     .getOrNull(event.index) ?: return

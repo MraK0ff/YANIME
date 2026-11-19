@@ -4,8 +4,8 @@ import androidx.room.Entity
 import androidx.room.Index
 
 /**
- * Durable per-anime snapshot of the latest regular episode observed in /feed.
- * The row survives feed pagination/rotation so cards do not disappear with one API response.
+ * Durable Home card projection of the canonical episode release history.
+ * Episode facts are owned by episode_release_history; this row only retains card metadata/order.
  */
 @Entity(
     tableName = "home_new_release_history",

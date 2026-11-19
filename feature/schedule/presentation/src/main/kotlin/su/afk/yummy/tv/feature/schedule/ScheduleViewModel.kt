@@ -56,6 +56,14 @@ class ScheduleViewModel @Inject internal constructor(
             .flatMapLatest { sources -> observeLibraryNewEpisodeAnimeIds(sources) }
             .onEach(::updatePrioritizedAnimeIds)
             .launchIn(viewModelScope)
+        settingsStore.scheduleLibraryFilter
+            .onEach { value ->
+                val filter = ScheduleState.LibraryFilter.entries.firstOrNull { it.name == value }
+                    ?: ScheduleState.LibraryFilter.ALL
+                setState { copy(libraryFilter = filter) }
+                rebuildTimeline()
+            }
+            .launchIn(viewModelScope)
         observeLibraryFavoriteAnimeIds()
             .onEach(::updateFavoriteAnimeIds)
             .launchIn(viewModelScope)
@@ -71,6 +79,12 @@ class ScheduleViewModel @Inject internal constructor(
             is ScheduleState.Event.AnimeSelected -> {
                 analytics.eventAnimeSelected(event.animeId)
                 nav.navigate(detailsNavigator.getDetailsDest(event.animeId))
+            }
+
+            is ScheduleState.Event.LibraryFilterSelected -> {
+                setState { copy(libraryFilter = event.filter) }
+                viewModelScope.launch { settingsStore.setScheduleLibraryFilter(event.filter.name) }
+                rebuildTimeline()
             }
 
             is ScheduleState.Event.DateSelected -> {
@@ -100,6 +114,7 @@ class ScheduleViewModel @Inject internal constructor(
                     selectedEpochDay = tvSchedule.selectedEpochDay,
                     prioritizedAnimeIds = ids,
                     favoriteAnimeIds = favoriteAnimeIds,
+                    libraryOnly = currentState.libraryFilter == ScheduleState.LibraryFilter.LIBRARY,
                 ),
             )
         }
@@ -115,8 +130,22 @@ class ScheduleViewModel @Inject internal constructor(
                     selectedEpochDay = tvSchedule.selectedEpochDay,
                     prioritizedAnimeIds = prioritizedAnimeIds,
                     favoriteAnimeIds = ids,
+                    libraryOnly = currentState.libraryFilter == ScheduleState.LibraryFilter.LIBRARY,
                 ),
             )
+        }
+    }
+
+    private fun rebuildTimeline() {
+        val now = Instant.ofEpochMilli(appClock.nowMillis()).atZone(ZoneId.systemDefault())
+        setState {
+            copy(tvSchedule = days.toList().toTimelineUi(
+                now = now,
+                selectedEpochDay = tvSchedule.selectedEpochDay,
+                prioritizedAnimeIds = prioritizedAnimeIds,
+                favoriteAnimeIds = favoriteAnimeIds,
+                libraryOnly = libraryFilter == ScheduleState.LibraryFilter.LIBRARY,
+            ))
         }
     }
 
@@ -167,6 +196,7 @@ class ScheduleViewModel @Inject internal constructor(
                                 selectedEpochDay = tvSchedule.selectedEpochDay,
                                 prioritizedAnimeIds = prioritizedAnimeIds,
                                 favoriteAnimeIds = favoriteAnimeIds,
+                                libraryOnly = libraryFilter == ScheduleState.LibraryFilter.LIBRARY,
                             ),
                         )
                     }

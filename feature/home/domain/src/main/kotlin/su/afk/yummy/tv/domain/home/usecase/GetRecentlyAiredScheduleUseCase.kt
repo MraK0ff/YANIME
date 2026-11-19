@@ -7,8 +7,8 @@ import javax.inject.Inject
 
 /**
  * Возвращает тайтлы, для серий которых на YummyAnime действительно появилось видео за последние
- * 14 дней. Источник времени — первая публикация видео, а не японское расписание.
- * Повторные озвучки схлопываются в одну запись серии на уровне истории публикаций.
+ * 14 дней. Время публикации видео используется только для текущего эпизода по расписанию:
+ * старые серии, поздние озвучки и переиздания не считаются новыми эпизодами.
  */
 class GetRecentlyAiredScheduleUseCase @Inject constructor(
     private val getSchedule: GetAnimeScheduleUseCase,
@@ -18,7 +18,21 @@ class GetRecentlyAiredScheduleUseCase @Inject constructor(
         return getSchedule()
             .flatMap { it.items }
             .flatMap { item ->
-                item.videoReleases.map { release ->
+                val airedEpisodes = item.airedEpisodes?.takeIf { it > 0 }
+                    ?: return@flatMap emptyList()
+                // Only the current/latest aired episode (or a newer one) can represent a
+                // recent release. A late dub of episode 6 must not revive it when 8 have aired.
+                val release = item.videoReleases
+                    .asSequence()
+                    .filter { it.episodeNumber >= airedEpisodes }
+                    .filter { it.firstVideoAtSeconds in 1..nowSeconds }
+                    .sortedWith(
+                        compareByDescending<su.afk.yummy.tv.domain.schedule.model.AnimeEpisodeRelease> { it.episodeNumber }
+                            .thenBy { it.firstVideoAtSeconds },
+                    )
+                    .firstOrNull()
+                    ?: return@flatMap emptyList()
+                listOf(
                     release.firstVideoAtSeconds to HomeFeedItem(
                         id = item.animeId,
                         title = item.title.ifBlank { release.title },
@@ -29,8 +43,8 @@ class GetRecentlyAiredScheduleUseCase @Inject constructor(
                         action = HomeFeedItemAction.OpenSeries(item.animeId),
                         episodeNumber = release.episodeNumber,
                         airedAtSeconds = release.firstVideoAtSeconds,
-                    )
-                }
+                    ),
+                )
             }
             .filter { (publishedAt, _) -> publishedAt in threshold..nowSeconds }
             .sortedByDescending { (publishedAt, _) -> publishedAt }

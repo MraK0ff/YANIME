@@ -49,6 +49,8 @@ class PlayerState {
         val adaptiveCeilingHeight: Int = QualityAdaptationPolicy.DEFAULT_CEILING_HEIGHT,
         /** Серия, в которой пользователь выбрал качество вручную: адаптация в ней не вмешивается. */
         val manualQualityEpisode: String? = null,
+        /** Серия, в которой уже выполнено автоматическое понижение после ошибки потока. */
+        val qualityFallbackEpisode: String? = null,
         /**
          * Резервный узел CDN для текущего потока: подпись от узла не зависит, поэтому при отказе
          * узла хост подменяется на месте, без перерезолва источника.

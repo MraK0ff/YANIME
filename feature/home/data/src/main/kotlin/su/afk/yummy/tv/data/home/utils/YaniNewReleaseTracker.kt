@@ -17,6 +17,8 @@ internal class YaniNewReleaseTracker {
         videos: List<YaniVideoDto>,
         history: List<HomeNewReleaseEntry>,
         now: Long,
+        /** Non-null means a schedule snapshot was successfully read; missing ids are unknown. */
+        airedEpisodeCounts: Map<Int, Int>? = null,
     ): List<HomeNewReleaseEntry> {
         if (videos.isEmpty()) return history.sortedBy { it.position }
 
@@ -48,13 +50,21 @@ internal class YaniNewReleaseTracker {
                     .thenBy { it.index },
             ).firstOrNull() ?: return@forEach
 
+            val airedCount = airedEpisodeCounts?.get(animeId)
+            // Without schedule confirmation, or when the feed episode is older than the
+            // currently aired episode, do not create/promote a "new episode" card.
+            if (airedEpisodeCounts != null && airedCount == null) return@forEach
+            if (airedCount != null && newest.episodeNumber < airedCount) return@forEach
+
             val previous = previousById[animeId]
             when {
                 previous == null -> {
                     merged[animeId] = newest.toEntry(
                         now = now,
                         firstSeenAt = now,
-                        lastUpdatedAt = if (isInitialSnapshot) 0L else now,
+                        // Equality is ambiguous: it may be a late dub of the current episode.
+                        // Keep it as a baseline instead of generating a false new-release move.
+                        lastUpdatedAt = if (isInitialSnapshot || newest.episodeNumber <= (airedCount ?: 0)) 0L else now,
                         position = if (isInitialSnapshot) merged.size else -1,
                     )
                 }
@@ -68,7 +78,7 @@ internal class YaniNewReleaseTracker {
                         position = previous.position,
                     )
                 }
-                newest.episodeNumber > previous.episodeNumber -> {
+                newest.episodeNumber > maxOf(previous.episodeNumber, airedCount ?: 0) -> {
                     merged[animeId] = newest.toEntry(
                         now = now,
                         firstSeenAt = previous.firstSeenAt,

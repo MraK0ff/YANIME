@@ -108,7 +108,7 @@ class YaniNewReleaseTrackerTest {
     }
 
     @Test
-    fun `episode equal to aired count does not promote an existing title`() {
+    fun `episode equal to aired count is accepted as the current release`() {
         val baseline = tracker.merge(listOf(video(1, "7")), emptyList(), 100L)
         val updated = tracker.merge(
             videos = listOf(video(1, "8", dub = "Alternate dub", videoId = 88)),
@@ -117,7 +117,7 @@ class YaniNewReleaseTrackerTest {
             airedEpisodeCounts = mapOf(1 to 8),
         )
 
-        assertTrue(updated.isEmpty())
+        assertEquals(8, updated.single().episodeNumber)
     }
 
     @Test

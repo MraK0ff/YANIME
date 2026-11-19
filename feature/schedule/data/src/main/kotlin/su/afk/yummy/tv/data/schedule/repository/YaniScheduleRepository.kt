@@ -23,19 +23,18 @@ import su.afk.yummy.tv.data.home.mapper.toAnimeEpisodeReleases
 import su.afk.yummy.tv.data.schedule.storage.mapper.toAnimeScheduleCache
 import su.afk.yummy.tv.domain.schedule.model.AnimeEpisodeRelease
 import su.afk.yummy.tv.domain.schedule.model.AnimeScheduleDay
+import su.afk.yummy.tv.domain.schedule.model.ReleasePredictionCalculator
 import su.afk.yummy.tv.domain.schedule.repository.AnimeScheduleRepository
 import su.afk.yummy.tv.data.schedule.storage.mapper.toScheduleDays as toStoredScheduleDays
 
 private const val SCHEDULE_TTL_MS = 60 * 60 * 1000L
 private const val FEED_POLL_INTERVAL_MS = 60 * 1000L
 private const val EPISODE_RELEASE_HISTORY_KEY = "yummyanime:episode-release-history:v1"
-private val RELEASE_HISTORY_TTL_MS = Long.MAX_VALUE
+private const val RELEASE_HISTORY_TTL_MS = Long.MAX_VALUE
 private val releaseHistoryJson = Json { ignoreUnknownKeys = true }
 
 @Serializable
-private data class EpisodeReleaseHistoryDocument(
-    val releases: List<EpisodeReleaseHistoryEntry> = emptyList(),
-)
+private data class EpisodeReleaseHistoryDocument(val releases: List<EpisodeReleaseHistoryEntry> = emptyList())
 
 @Serializable
 private data class EpisodeReleaseHistoryEntry(
@@ -45,24 +44,17 @@ private data class EpisodeReleaseHistoryEntry(
     val firstVideoId: Int,
     val title: String = "",
     val posterUrl: String? = null,
+    val playerName: String = "",
+    val dubbing: String = "",
 ) {
     fun toDomain() = AnimeEpisodeRelease(
-        animeId = animeId,
-        episodeNumber = episodeNumber,
-        firstVideoAtSeconds = firstVideoAtSeconds,
-        firstVideoId = firstVideoId,
-        title = title,
-        posterUrl = posterUrl,
+        animeId, episodeNumber, firstVideoAtSeconds, firstVideoId, title, posterUrl, playerName, dubbing,
     )
 
     companion object {
         fun fromDomain(release: AnimeEpisodeRelease) = EpisodeReleaseHistoryEntry(
-            animeId = release.animeId,
-            episodeNumber = release.episodeNumber,
-            firstVideoAtSeconds = release.firstVideoAtSeconds,
-            firstVideoId = release.firstVideoId,
-            title = release.title,
-            posterUrl = release.posterUrl,
+            release.animeId, release.episodeNumber, release.firstVideoAtSeconds, release.firstVideoId,
+            release.title, release.posterUrl, release.playerName, release.dubbing,
         )
     }
 }
@@ -75,7 +67,6 @@ class YaniScheduleRepository(
     private val homeApi: YaniHomeApi,
     private val animeStorage: AnimeStorage,
 ) : AnimeScheduleRepository {
-
     private val releaseHistoryMutex = Mutex()
     private val feedRefreshMutex = Mutex()
     @Volatile private var lastFeedPollAtMs = 0L
@@ -89,65 +80,53 @@ class YaniScheduleRepository(
             toDomain = { it.toStoredScheduleDays() },
             fetchAndSave = {
                 val cache = api.getSchedule().response.toAnimeScheduleCache(
-                    language = languageCode,
-                    cachedAt = System.currentTimeMillis(),
+                    language = languageCode, cachedAt = System.currentTimeMillis(),
                 )
                 scheduleStore.saveSchedule(cache)
                 cache
             },
         )
         val releases = readEpisodeReleaseHistory()
-        val availableEpisodeCounts = try {
+        val counts = try {
             animeStorage.observeAvailableEpisodeCounts(languageCode).first()
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (_: Exception) {
             emptyMap()
         }
-        schedule
-            .withVideoReleaseHistory(releases)
-            .withAvailableEpisodeCounts(availableEpisodeCounts)
+        schedule.withVideoReleaseHistory(releases).withAvailableEpisodeCounts(counts)
     }
 
     override suspend fun saveEpisodeReleases(releases: List<AnimeEpisodeRelease>) {
         releaseHistoryMutex.withLock {
             lastFeedPollAtMs = System.currentTimeMillis()
             if (releases.isEmpty()) return@withLock
-            val previous = readEpisodeReleaseHistory()
-            val merged = (previous + releases)
-                .groupBy { it.animeId to it.episodeNumber }
-                .values
-                .map { episodeVersions ->
-                    val first = episodeVersions.minWith(
-                        compareBy<AnimeEpisodeRelease> { it.firstVideoAtSeconds }
-                            .thenBy { it.firstVideoId },
-                    )
-                    val metadata = episodeVersions.lastOrNull { it.title.isNotBlank() }
+            val merged = (readEpisodeReleaseHistory() + releases)
+                .groupBy { listOf(it.animeId, it.episodeNumber, it.playerName.trim().lowercase(), it.dubbing.trim().lowercase(), it.firstVideoId) }
+                .values.map { versions ->
+                    val first = versions.minBy { it.firstVideoAtSeconds }
+                    val metadata = versions.lastOrNull { it.title.isNotBlank() }
                     first.copy(
                         title = metadata?.title?.takeIf(String::isNotBlank) ?: first.title,
                         posterUrl = metadata?.posterUrl ?: first.posterUrl,
                     )
                 }
-                .sortedWith(compareBy<AnimeEpisodeRelease> { it.firstVideoAtSeconds }.thenBy { it.animeId }.thenBy { it.episodeNumber })
+                .sortedWith(compareBy<AnimeEpisodeRelease> { it.animeId }
+                    .thenBy { it.playerName }.thenBy { it.dubbing }
+                    .thenBy { it.episodeNumber }.thenBy { it.firstVideoAtSeconds })
             writeEpisodeReleaseHistory(merged)
         }
     }
 
-    /**
-     * Календарь тоже должен работать независимо от того, открывалась ли главная. Лента опрашивается
-     * не чаще раза в минуту; ошибки ленты не мешают показать будущие даты расписания.
-     */
     private suspend fun refreshEpisodeFeedIfNeeded() {
         feedRefreshMutex.withLock {
             val now = System.currentTimeMillis()
             if (now - lastFeedPollAtMs < FEED_POLL_INTERVAL_MS) return
             try {
-                val feed = homeApi.getFeed()
-                saveEpisodeReleases(feed.response.newVideos.toAnimeEpisodeReleases())
+                saveEpisodeReleases(homeApi.getFeed().response.newVideos.toAnimeEpisodeReleases())
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {
-                // Не повторяем неудачный запрос на каждом пересчёте календаря.
                 lastFeedPollAtMs = now
             }
         }
@@ -158,47 +137,32 @@ class YaniScheduleRepository(
             cacheKey = EPISODE_RELEASE_HISTORY_KEY,
             ttlMs = RELEASE_HISTORY_TTL_MS,
             decode = { releaseHistoryJson.decodeFromString<EpisodeReleaseHistoryDocument>(it).releases.map(EpisodeReleaseHistoryEntry::toDomain) },
-            encode = { releaseHistoryJson.encodeToString(EpisodeReleaseHistoryDocument(it.map { EpisodeReleaseHistoryEntry.fromDomain(it) })) },
+            encode = { releaseHistoryJson.encodeToString(EpisodeReleaseHistoryDocument(it.map(EpisodeReleaseHistoryEntry::fromDomain))) },
             fetch = { emptyList() },
         )
 
     private suspend fun writeEpisodeReleaseHistory(releases: List<AnimeEpisodeRelease>) {
         documentCache.getOrFetch(
-            cacheKey = EPISODE_RELEASE_HISTORY_KEY,
-            ttlMs = RELEASE_HISTORY_TTL_MS,
-            forceRefresh = true,
+            cacheKey = EPISODE_RELEASE_HISTORY_KEY, ttlMs = RELEASE_HISTORY_TTL_MS, forceRefresh = true,
             decode = { releaseHistoryJson.decodeFromString<EpisodeReleaseHistoryDocument>(it).releases.map(EpisodeReleaseHistoryEntry::toDomain) },
             encode = { releaseHistoryJson.encodeToString(EpisodeReleaseHistoryDocument(it.map(EpisodeReleaseHistoryEntry::fromDomain))) },
             fetch = { releases },
         )
     }
 
-    private fun List<AnimeScheduleDay>.withAvailableEpisodeCounts(
-        counts: Map<Int, Int>,
-    ): List<AnimeScheduleDay> =
-        map { day ->
-            day.copy(
-                items = day.items.map { item ->
-                    item.copy(
-                        availableEpisodeCount = counts[item.animeId]?.takeIf { it > 0 },
-                    )
-                },
-            )
-        }
+    private fun List<AnimeScheduleDay>.withAvailableEpisodeCounts(counts: Map<Int, Int>) = map { day ->
+        day.copy(items = day.items.map { item ->
+            item.copy(availableEpisodeCount = counts[item.animeId]?.takeIf { it > 0 })
+        })
+    }
 
-    private fun List<AnimeScheduleDay>.withVideoReleaseHistory(
-        releases: List<AnimeEpisodeRelease>,
-    ): List<AnimeScheduleDay> {
-        if (releases.isEmpty()) return this
-        val byAnime = releases.groupBy { it.animeId }
-        val existingIds = flatMap { it.items }.mapTo(mutableSetOf()) { it.animeId }
-        val updated = map { day ->
-            day.copy(items = day.items.map { item ->
-                item.copy(videoReleases = byAnime[item.animeId].orEmpty().sortedBy { it.firstVideoAtSeconds })
-            })
-        }
-        // Feed history enriches schedule entries only. It must never inject unrelated titles
-        // (old catalog videos, specials, re-uploads) into the release calendar.
-        return updated
+    private fun List<AnimeScheduleDay>.withVideoReleaseHistory(releases: List<AnimeEpisodeRelease>) = map { day ->
+        day.copy(items = day.items.map { item ->
+            val animeReleases = releases.filter { it.animeId == item.animeId }
+            item.copy(
+                videoReleases = animeReleases.sortedBy { it.firstVideoAtSeconds },
+                releasePrediction = ReleasePredictionCalculator.predict(animeReleases, System.currentTimeMillis() / 1000L),
+            )
+        })
     }
 }

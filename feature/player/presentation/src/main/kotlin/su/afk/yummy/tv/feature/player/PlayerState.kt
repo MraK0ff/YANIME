@@ -179,6 +179,9 @@ class PlayerState {
          */
         data class DubbingSelected(val index: Int, val currentPosMs: Long) : Event
 
+        /** Озвучка и её балансер подтверждены вместе; активный поток до выбора не меняется. */
+        data class DubbingBalancerSelected(val dubbingIndex: Int, val balancerIndex: Int, val currentPosMs: Long) : Event
+
         /**
          * Пользователь выбрал балансер по индексу в `PlayerPlaybackUiState.balancerNames` (не по
          * индексу графа — перевод делает ViewModel), сохранив текущую позицию.

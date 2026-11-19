@@ -9,11 +9,13 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import java.io.IOException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import su.afk.yummy.tv.core.designsystem.error.asString
@@ -73,6 +75,14 @@ fun ScheduleTvScreen(
     effect: Flow<ScheduleState.Effect>,
     onEvent: (ScheduleState.Event) -> Unit,
 ) {
+    // Keep release availability current while the schedule is open.
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(SCHEDULE_LIVE_REFRESH_INTERVAL_MS)
+            onEvent(ScheduleState.Event.RefreshRequested)
+        }
+    }
+
     val focusHandoff = rememberTvStateFocusHandoff(
         placeholder = when {
             state.isLoading -> TvStatePlaceholder.Loading
@@ -114,3 +124,5 @@ fun ScheduleTvScreen(
         }
     }
 }
+
+private const val SCHEDULE_LIVE_REFRESH_INTERVAL_MS = 60_000L

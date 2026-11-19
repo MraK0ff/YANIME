@@ -1,23 +1,14 @@
 package su.afk.yummy.tv.feature.schedule.mobile.view
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.unit.dp
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import su.afk.yummy.tv.feature.schedule.ScheduleState
 import su.afk.yummy.tv.feature.schedule.presentation.R
@@ -27,30 +18,23 @@ internal fun ScheduleLibraryFilterAction(
     selected: ScheduleState.LibraryFilter,
     onSelected: (ScheduleState.LibraryFilter) -> Unit,
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    IconButton(onClick = { expanded = true }) {
-        Icon(
-            imageVector = Icons.Filled.FilterList,
-            contentDescription = stringResource(
-                if (selected == ScheduleState.LibraryFilter.ALL) R.string.schedule_filter_all
-                else R.string.schedule_filter_library,
-            ),
-            tint = if (selected == ScheduleState.LibraryFilter.ALL) MaterialTheme.colorScheme.onSurfaceVariant
-            else MaterialTheme.colorScheme.primary,
-        )
-    }
-    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-        ScheduleState.LibraryFilter.entries.forEach { filter ->
-            DropdownMenuItem(
-                text = {
-                    Text(
-                        text = stringResource(if (filter == ScheduleState.LibraryFilter.ALL) R.string.schedule_filter_all else R.string.schedule_filter_library),
-                        color = if (filter == selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                    )
-                },
-                onClick = { expanded = false; onSelected(filter) },
+    val inLibrary = selected == ScheduleState.LibraryFilter.LIBRARY
+    IconButton(
+        onClick = {
+            onSelected(
+                if (inLibrary) ScheduleState.LibraryFilter.ALL
+                else ScheduleState.LibraryFilter.LIBRARY,
             )
-        }
+        },
+    ) {
+        Icon(
+            imageVector = if (inLibrary) Icons.Filled.VideoLibrary else Icons.Filled.Apps,
+            contentDescription = stringResource(
+                if (inLibrary) R.string.schedule_filter_library else R.string.schedule_filter_all,
+            ),
+            tint = if (inLibrary) MaterialTheme.colorScheme.primary
+            else MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 
@@ -59,9 +43,12 @@ internal fun ScheduleHideWatchedAction(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
 ) {
-    Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text(stringResource(R.string.schedule_hide_watched), style = MaterialTheme.typography.labelMedium)
-        Switch(checked = checked, onCheckedChange = onCheckedChange)
+    IconButton(onClick = { onCheckedChange(!checked) }) {
+        Icon(
+            imageVector = if (checked) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
+            contentDescription = stringResource(R.string.schedule_hide_watched),
+            tint = if (checked) MaterialTheme.colorScheme.primary
+            else MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
-

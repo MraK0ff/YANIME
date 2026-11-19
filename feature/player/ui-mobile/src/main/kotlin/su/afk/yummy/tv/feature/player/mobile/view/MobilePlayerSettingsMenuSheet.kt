@@ -160,11 +160,6 @@ internal fun MobilePlayerSettingsMenuSheet(
                 dubbingBalancerIndices = model.dubbingBalancerIndices,
                 selectedBalancerGraphIndex = model.selectedBalancerGraphIndex,
                 onDubbingBalancerSelected = actions.onDubbingBalancerSelected,
-                balancerNames = model.balancerNames,
-                balancerAvailability = model.balancerAvailability,
-                balancerExternal = model.balancerExternal,
-                selectedBalancerIndex = model.selectedBalancerIndex,
-                onBalancerSelected = actions.onBalancerSelected,
                 onBack = goBack,
             )
 

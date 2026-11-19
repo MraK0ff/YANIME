@@ -27,6 +27,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.components.FallbackAsyncImage
+import su.afk.yummy.tv.core.designsystem.components.ListStatusBadge
+import su.afk.yummy.tv.core.designsystem.components.badgeColor
+import su.afk.yummy.tv.core.designsystem.locals.LocalLibraryListStatuses
 import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.model.anime.posterUrls
@@ -50,16 +53,15 @@ internal fun ScheduleMobileReleaseCard(
     val releaseAt = Instant.ofEpochSecond(release.epochSeconds).atZone(zone)
     val aired = !releaseAt.isAfter(now)
     val remainingLabels = scheduleMobileRemainingLabels()
+    val listStatus = LocalLibraryListStatuses.current[item.animeId]
     val accentColor = if (aired) {
         MobileScheduleAiredColor
     } else {
         MaterialTheme.colorScheme.onSurfaceVariant
     }
-    val rowBackground = if (aired) {
-        MobileScheduleAiredColor.copy(alpha = 0.14f)
-    } else {
-        MaterialTheme.colorScheme.surfaceContainerLow
-    }
+    val rowBackground = listStatus?.badgeColor()?.copy(alpha = 0.14f)
+        ?: if (aired) MobileScheduleAiredColor.copy(alpha = 0.14f)
+        else MaterialTheme.colorScheme.surfaceContainerLow
 
     Card(
         onClick = onClick,
@@ -89,6 +91,12 @@ internal fun ScheduleMobileReleaseCard(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
                 )
+                listStatus?.let { status ->
+                    ListStatusBadge(
+                        status = status,
+                        modifier = Modifier.align(Alignment.BottomStart),
+                    )
+                }
             }
 
             Column(

@@ -73,6 +73,22 @@ class ScheduleTimelineMapperTest {
     }
 
     @Test
+    fun `late dub of an episode already in local cache is not a calendar event`() {
+        val publishedAt = nowSeconds - 3_600L
+        val timeline = listOf(
+            day(
+                item(
+                    airedEpisodes = 8,
+                    availableEpisodeCount = 8,
+                    releases = listOf(release(episode = 8, publishedAt = publishedAt)),
+                ),
+            ),
+        ).toTimelineUi(zone, now)
+
+        assertTrue(timeline.dayGroups.isEmpty())
+    }
+
+    @Test
     fun `calendar keeps only the newest eligible episode for an anime`() {
         val olderAt = nowSeconds - 7_200L
         val latestAt = nowSeconds - 3_600L

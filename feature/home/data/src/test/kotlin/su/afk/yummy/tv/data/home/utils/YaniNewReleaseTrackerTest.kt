@@ -70,6 +70,46 @@ class YaniNewReleaseTrackerTest {
     }
 
     @Test
+    fun `older episode upload is ignored when the schedule already passed it`() {
+        val baseline = tracker.merge(listOf(video(1, "5")), emptyList(), 100L)
+        val updated = tracker.merge(
+            videos = listOf(video(1, "6", dub = "Late dub", videoId = 66)),
+            history = baseline,
+            now = 200L,
+            airedEpisodeCounts = mapOf(1 to 8),
+        )
+
+        assertEquals(baseline.single().episodeNumber, updated.single().episodeNumber)
+        assertEquals(0L, updated.single().lastUpdatedAt)
+    }
+
+    @Test
+    fun `untracked old episode is not added as a new release`() {
+        val result = tracker.merge(
+            videos = listOf(video(1, "6")),
+            history = emptyList(),
+            now = 200L,
+            airedEpisodeCounts = mapOf(1 to 8),
+        )
+
+        assertTrue(result.isEmpty())
+    }
+
+    @Test
+    fun `episode equal to aired count does not promote an existing title`() {
+        val baseline = tracker.merge(listOf(video(1, "7")), emptyList(), 100L)
+        val updated = tracker.merge(
+            videos = listOf(video(1, "8", dub = "Alternate dub", videoId = 88)),
+            history = baseline,
+            now = 200L,
+            airedEpisodeCounts = mapOf(1 to 8),
+        )
+
+        assertEquals(7, updated.single().episodeNumber)
+        assertEquals(0L, updated.single().lastUpdatedAt)
+    }
+
+    @Test
     fun `specials and invalid episode labels are ignored`() {
         val result = tracker.merge(
             listOf(video(1, "OVA"), video(2, "SP"), video(3, "7.5"), video(4, "0"), video(5, "8")),

@@ -38,12 +38,10 @@ internal fun ScheduleMobileDateChip(
     val shape = RoundedCornerShape(22.dp)
     val backgroundTarget = when {
         selected -> MaterialTheme.colorScheme.primary
-        group.isToday -> MaterialTheme.colorScheme.tertiaryContainer
         else -> MaterialTheme.colorScheme.surfaceContainerLow
     }
     val contentTarget = when {
         selected -> MaterialTheme.colorScheme.onPrimary
-        group.isToday -> MaterialTheme.colorScheme.onTertiaryContainer
         else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
     val background by animateColorAsState(backgroundTarget, spring(), label = "schedule_date_background")
@@ -55,7 +53,6 @@ internal fun ScheduleMobileDateChip(
             .height(84.dp)
             .clip(shape)
             .background(background, shape)
-            
             .clickable(onClick = onSelected)
             .padding(horizontal = 8.dp, vertical = 10.dp),
     ) {
@@ -84,7 +81,7 @@ internal fun ScheduleMobileDateChip(
                             color = if (selected) {
                                 MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.12f)
                             } else if (group.isToday) {
-                                MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.12f)
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
                             } else {
                                 MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f)
                             },
@@ -114,7 +111,7 @@ internal fun ScheduleMobileDateChip(
                     .align(Alignment.TopStart)
                     .padding(3.dp)
                     .size(5.dp)
-                    .background(contentColor, CircleShape),
+                    .background(MaterialTheme.colorScheme.primary, CircleShape),
             )
         }
     }

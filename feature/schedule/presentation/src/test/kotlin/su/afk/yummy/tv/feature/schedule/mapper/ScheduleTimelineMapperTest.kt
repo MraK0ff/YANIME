@@ -42,6 +42,42 @@ class ScheduleTimelineMapperTest {
     }
 
     @Test
+    fun `late dub of an episode older than the aired count is not a calendar event`() {
+        val publishedAt = nowSeconds - 3_600L
+        val timeline = listOf(
+            day(
+                item(
+                    airedEpisodes = 8,
+                    releases = listOf(release(episode = 6, publishedAt = publishedAt)),
+                ),
+            ),
+        ).toTimelineUi(zone, now)
+
+        assertTrue(timeline.dayGroups.isEmpty())
+    }
+
+    @Test
+    fun `calendar keeps only the newest eligible episode for an anime`() {
+        val olderAt = nowSeconds - 7_200L
+        val latestAt = nowSeconds - 3_600L
+        val timeline = listOf(
+            day(
+                item(
+                    airedEpisodes = 8,
+                    releases = listOf(
+                        release(episode = 6, publishedAt = olderAt),
+                        release(episode = 8, publishedAt = latestAt),
+                    ),
+                ),
+            ),
+        ).toTimelineUi(zone, now)
+
+        val release = timeline.dayGroups.single().items.single()
+        assertEquals(8, release.episode)
+        assertEquals(latestAt, release.epochSeconds)
+    }
+
+    @Test
     fun `future schedule remains visible and is not marked aired`() {
         val future = nowSeconds + DAY
         val timeline = listOf(day(item(nextDate = future, airedEpisodes = 4))).toTimelineUi(zone, now)
@@ -138,7 +174,7 @@ class ScheduleTimelineMapperTest {
         val timeline = listOf(
             day(
                 item(
-                    releases = listOf(
+                    airedEpisodes = 3,\n                    releases = listOf(
                         release(episode = 3, publishedAt = laterDuplicateAt),
                         release(episode = 3, publishedAt = firstPublishedAt),
                     ),

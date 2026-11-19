@@ -61,7 +61,7 @@ internal fun HomeFeed.withRecentReleaseMetadata(
     recentlyAired: List<HomeFeedItem>,
     prioritizedAnimeIds: Set<Int> = emptySet(),
 ): HomeFeed {
-    if (recentlyAired.isEmpty()) return this
+    if (recentlyAired.isEmpty() && prioritizedAnimeIds.isEmpty()) return this
     val latestById = recentlyAired.associateBy { it.id }
     return copy(
         sections = sections.map sectionMap@ { section ->

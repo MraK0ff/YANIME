@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Audiotrack
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Cast
@@ -17,16 +18,21 @@ import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.ScreenRotation
 import androidx.compose.material.icons.filled.Subtitles
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.baseScreen.BaseBottomSheet
 import su.afk.yummy.tv.core.designsystem.baseScreen.HideSheetWindowSystemBars
+import kotlinx.coroutines.launch
 import su.afk.yummy.tv.feature.player.mobile.model.MobilePlayerSettingsMenuActions
 import su.afk.yummy.tv.feature.player.mobile.model.MobilePlayerSettingsMenuModel
 import su.afk.yummy.tv.feature.player.mobile.model.MobilePlayerSettingsPage
@@ -60,10 +66,38 @@ internal fun MobilePlayerSettingsMenuSheet(
     val navigate: (MobilePlayerSettingsPage) -> Unit = { nextPage ->
         pageStack = pageStack + nextPage
     }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val coroutineScope = rememberCoroutineScope()
+    val panelTitle = when (page) {
+        MobilePlayerSettingsPage.Root -> stringResource(R.string.player_mobile_settings_title)
+        MobilePlayerSettingsPage.Quality -> stringResource(R.string.player_quality_title)
+        MobilePlayerSettingsPage.Speed -> stringResource(R.string.player_speed_title)
+        MobilePlayerSettingsPage.Subtitles -> stringResource(R.string.player_menu_subtitles)
+        MobilePlayerSettingsPage.AudioTrack -> stringResource(R.string.player_menu_audio_track)
+        MobilePlayerSettingsPage.Sources -> stringResource(R.string.player_mobile_track_settings_title)
+        MobilePlayerSettingsPage.SleepTimer -> stringResource(R.string.player_sleep_title)
+        MobilePlayerSettingsPage.Resize -> stringResource(R.string.player_resize_title)
+        MobilePlayerSettingsPage.Display -> stringResource(R.string.player_menu_display)
+        MobilePlayerSettingsPage.VideoEnhancement -> stringResource(R.string.player_video_enhancement_title)
+        MobilePlayerSettingsPage.Orientation -> stringResource(R.string.player_mobile_orientation)
+        MobilePlayerSettingsPage.TimeDisplay -> stringResource(R.string.player_time_display_title)
+        MobilePlayerSettingsPage.CastAndPip -> stringResource(R.string.player_menu_cast_pip)
+    }
     BaseBottomSheet(
         onDismissRequest = onDismiss,
+        sheetState = sheetState,
         scrollableContent = true,
-        dragHandle = { MobilePlayerPanelDragTitle(stringResource(R.string.player_mobile_playback_settings_title)) },
+        dragHandle = {
+            MobilePlayerPanelDragTitle(
+                title = panelTitle,
+                onCollapse = {
+                    coroutineScope.launch {
+                        sheetState.hide()
+                        onDismiss()
+                    }
+                },
+            )
+        },
     ) {
         HideSheetWindowSystemBars()
         // Back follows the actual nested page stack; direct toolbar entries close in one step.

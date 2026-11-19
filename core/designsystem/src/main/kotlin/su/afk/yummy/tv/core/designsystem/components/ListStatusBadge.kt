@@ -69,7 +69,7 @@ internal fun CardListStatus.labelRes(): Int = when (this) {
     CardListStatus.DROPPED -> R.string.core_list_status_dropped
 }
 
-internal fun CardListStatus.badgeColor(): Color = when (this) {
+fun CardListStatus.badgeColor(): Color = when (this) {
     CardListStatus.WATCHING -> YummySemanticColors.StatusWatching
     CardListStatus.PLANNED -> YummySemanticColors.StatusPlanned
     CardListStatus.COMPLETED -> YummySemanticColors.StatusCompleted

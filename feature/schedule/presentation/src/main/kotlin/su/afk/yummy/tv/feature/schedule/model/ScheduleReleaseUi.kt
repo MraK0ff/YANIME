@@ -11,6 +11,7 @@ data class ScheduleReleaseUi(
     val isFromSelectedList: Boolean = false,
     val isFavorite: Boolean = false,
     val isPredicted: Boolean = false,
+    val isAwaitingVideo: Boolean = false,
     val predictionConfidence: ReleasePrediction.Confidence? = null,
 ) {
     val focusKey: String = "${item.animeId}:$episode:$aired"

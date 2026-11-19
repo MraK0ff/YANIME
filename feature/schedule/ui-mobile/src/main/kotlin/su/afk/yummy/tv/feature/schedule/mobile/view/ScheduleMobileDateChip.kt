@@ -3,7 +3,6 @@ package su.afk.yummy.tv.feature.schedule.mobile.view
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,9 +11,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.feature.schedule.model.ScheduleDayUi
 
@@ -34,6 +34,7 @@ internal fun ScheduleMobileDateChip(
     selected: Boolean,
     onSelected: () -> Unit,
     modifier: Modifier = Modifier,
+    chipWidth: Dp = 76.dp,
 ) {
     val shape = RoundedCornerShape(22.dp)
     val backgroundTarget = when {
@@ -49,44 +50,43 @@ internal fun ScheduleMobileDateChip(
 
     Box(
         modifier = modifier
-            .width(76.dp)
+            .width(chipWidth)
             .height(84.dp)
             .clip(shape)
             .background(background, shape)
             .clickable(onClick = onSelected)
-            .padding(horizontal = 8.dp, vertical = 10.dp),
+            .padding(horizontal = 4.dp, vertical = 10.dp),
     ) {
         Column(
             modifier = Modifier.align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalArrangement = Arrangement.spacedBy(3.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    modifier = Modifier.weight(weight = 1f, fill = false),
                     text = group.weekdayLabel,
-                    style = MaterialTheme.typography.labelLarge,
+                    style = MaterialTheme.typography.labelSmall,
                     color = contentColor,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Clip,
                 )
                 Box(
                     modifier = Modifier
-                        .height(22.dp)
-                        .widthIn(min = 22.dp)
-                        .clip(RoundedCornerShape(11.dp))
+                        .height(18.dp)
+                        .widthIn(min = 16.dp)
+                        .clip(RoundedCornerShape(9.dp))
                         .background(
                             color = if (selected) {
-                                MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.12f)
+                                MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.16f)
                             } else if (group.isToday) {
                                 MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
                             } else {
                                 MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f)
                             },
                         )
-                        .padding(horizontal = 5.dp),
+                        .padding(horizontal = 3.dp),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
@@ -110,8 +110,14 @@ internal fun ScheduleMobileDateChip(
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .padding(3.dp)
-                    .size(5.dp)
-                    .background(MaterialTheme.colorScheme.primary, CircleShape),
+                    .size(6.dp)
+                    // The selected chip already uses the primary color as its background.
+                    // Use onPrimary for today's dot so it remains visible in that state.
+                    .background(
+                        color = if (selected) MaterialTheme.colorScheme.onPrimary
+                        else MaterialTheme.colorScheme.primary,
+                        shape = CircleShape,
+                    ),
             )
         }
     }

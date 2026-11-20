@@ -57,6 +57,7 @@ internal fun <T> MobileMainScaffold(
     showRail: Boolean,
     showHeader: Boolean,
     headerExpandedByDefault: Boolean = true,
+    keepHeaderVisible: Boolean = false,
     overlayHeader: Boolean = false,
     contentDrawsBehindStatusBar: Boolean = false,
     classicBottomBar: Boolean = false,
@@ -91,6 +92,7 @@ internal fun <T> MobileMainScaffold(
                 source: NestedScrollSource,
             ): Offset {
                 when {
+                    keepHeaderVisible -> Unit
                     consumed.y < -1f -> headerVisible.value = false
                     consumed.y > 1f -> headerVisible.value = true
                 }
@@ -110,8 +112,8 @@ internal fun <T> MobileMainScaffold(
     }
     val navigationSurface = MaterialTheme.colorScheme.surfaceContainerHigh
 
-    LaunchedEffect(selectedDestination, headerExpandedByDefault) {
-        headerVisible.value = headerExpandedByDefault
+    LaunchedEffect(selectedDestination, headerExpandedByDefault, keepHeaderVisible) {
+        headerVisible.value = keepHeaderVisible || headerExpandedByDefault
     }
 
     Surface(
@@ -151,7 +153,7 @@ internal fun <T> MobileMainScaffold(
                                 ),
                             )
                             AnimatedVisibility(
-                                visible = showHeader && (headerVisible.value || isSearchFocusRequested),
+                                visible = showHeader && (keepHeaderVisible || headerVisible.value || isSearchFocusRequested),
                                 modifier = Modifier.align(Alignment.TopCenter),
                                 enter = fadeIn() + slideInVertically { -it / 2 },
                                 exit = fadeOut() + slideOutVertically { -it / 2 },
@@ -185,7 +187,7 @@ internal fun <T> MobileMainScaffold(
                                 .background(MaterialTheme.colorScheme.background),
                         ) {
                             AnimatedVisibility(
-                                visible = showHeader && headerVisible.value,
+                                visible = showHeader && (keepHeaderVisible || headerVisible.value),
                                 enter = fadeIn() + slideInVertically { -it / 2 },
                                 exit = fadeOut() + slideOutVertically { -it / 2 },
                             ) {

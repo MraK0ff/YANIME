@@ -93,6 +93,9 @@ internal fun <T> MobileMainScaffold(
     }
 
     val suiteState = rememberNavigationSuiteScaffoldState()
+    LaunchedEffect(selectedDestination) {
+        headerVisible.value = true
+    }
     LaunchedEffect(isVisible) {
         if (isVisible) suiteState.show() else suiteState.hide()
     }

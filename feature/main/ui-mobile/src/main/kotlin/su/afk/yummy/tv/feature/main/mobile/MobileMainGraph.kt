@@ -75,6 +75,7 @@ class MobileMainGraph @Inject internal constructor(
         ScreenNavigator(viewModel) { state, effect, onEvent ->
             if (!state.appearanceLoaded) return@ScreenNavigator
             val accountSettingsFocusRequester = remember { FocusRequester() }
+            val baseMenuItems = mobileMenuItems()
             val toast = rememberGlobalToastState()
             LaunchedEffect(effect) {
                 effect.collect { eff ->
@@ -114,20 +115,21 @@ class MobileMainGraph @Inject internal constructor(
                     MobileMainScaffold(
                         selectedDestination = navManager.currentRoot,
                         menuItems = remember(
+                            baseMenuItems,
                             state.mobileHeaderEnabled,
                             state.yaniAvatarUrl,
+                            state.isYaniSignedIn,
                             state.unreadNotificationsCount,
+                            profileTabLabel,
                         ) {
-                            mobileMenuItems().let { items ->
-                                if (state.mobileHeaderEnabled) items else {
-                                    items + su.afk.yummy.tv.feature.main.mobile.model.MobileMenuItem(
-                                        label = profileTabLabel,
-                                        destination = RootTab.ACCOUNT,
-                                        icon = Icons.Filled.Person,
-                                        badgeCount = state.unreadNotificationsCount,
-                                        avatarUrl = if (state.isYaniSignedIn) state.yaniAvatarUrl else "",
-                                    )
-                                }
+                            if (state.mobileHeaderEnabled) baseMenuItems else {
+                                baseMenuItems + su.afk.yummy.tv.feature.main.mobile.model.MobileMenuItem(
+                                    label = profileTabLabel,
+                                    destination = RootTab.ACCOUNT,
+                                    icon = Icons.Filled.Person,
+                                    badgeCount = state.unreadNotificationsCount,
+                                    avatarUrl = if (state.isYaniSignedIn) state.yaniAvatarUrl else "",
+                                )
                             }
                         },
                         showBottomBar = atTabRoot && !isRequiredUpdateDestination &&

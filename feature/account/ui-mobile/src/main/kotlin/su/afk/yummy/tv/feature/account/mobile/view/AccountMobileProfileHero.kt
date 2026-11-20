@@ -141,7 +141,7 @@ internal fun AccountMobileProfileHero(
                     .align(Alignment.TopEnd)
                     .statusBarsPadding()
                     .padding(top = topExtra)
-                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.End))
+                    .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.End))
                     .padding(12.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 content = topActions,

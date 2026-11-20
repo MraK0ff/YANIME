@@ -133,6 +133,14 @@ fun AccountMobileScreen(
     var showLogoutConfirm by remember { mutableStateOf(false) }
     var showFaqChooser by remember { mutableStateOf(false) }
     val bottomBarUpFocusRequester = LocalMobileBottomBarUpFocusRequester.current
+    val accountTabs = AccountState.AccountTab.entries
+    val tabsState = rememberMobileSwipeableTabsState(
+        selectedPage = accountTabs.indexOf(state.selectedTab).coerceAtLeast(0),
+        pageCount = accountTabs.size,
+        onPageSelected = { page ->
+            accountTabs.getOrNull(page)?.let { onEvent(AccountState.Event.TabSelected(it)) }
+        },
+    )
     BaseScreen(
         isScroll = false,
         // Верхний инсет не берём: шапка профиля заходит под статус-бар, остальные состояния отступают сами.
@@ -394,14 +402,6 @@ fun AccountMobileScreen(
                     )
                 }
                 item(key = "tabs_pager", contentType = "account_tabs_pager") {
-                    val accountTabs = AccountState.AccountTab.entries
-                    val tabsState = rememberMobileSwipeableTabsState(
-                        selectedPage = accountTabs.indexOf(state.selectedTab).coerceAtLeast(0),
-                        pageCount = accountTabs.size,
-                        onPageSelected = { page ->
-                            accountTabs.getOrNull(page)?.let { onEvent(AccountState.Event.TabSelected(it)) }
-                        },
-                    )
                     MobileSwipeableTabsPager(
                         state = tabsState,
                         modifier = Modifier.animateContentSize().fillMaxWidth(),

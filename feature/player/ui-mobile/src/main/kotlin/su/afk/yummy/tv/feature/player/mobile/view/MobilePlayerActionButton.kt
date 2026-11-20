@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.LoadingIndicator
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -38,6 +36,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import su.afk.yummy.tv.core.designsystem.components.YummyPlayerLoadingIndicator
 
 @Composable
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -112,9 +111,9 @@ internal fun MobilePlayerActionButton(
             ),
     ) {
         if (loading) {
-            LoadingIndicator(
+            YummyPlayerLoadingIndicator(
+                size = buttonSize * 0.62f,
                 color = if (primary) contentColor else MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(buttonSize * 0.62f),
             )
         } else {
             Icon(

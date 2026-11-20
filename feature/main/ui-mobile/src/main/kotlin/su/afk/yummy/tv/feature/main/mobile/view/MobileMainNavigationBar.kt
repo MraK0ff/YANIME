@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -42,7 +43,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.sp
 import su.afk.yummy.tv.core.designsystem.mobile.input.clickablePointer
 import su.afk.yummy.tv.core.designsystem.onboarding.onboardingTarget
 import su.afk.yummy.tv.feature.main.mobile.utils.mobileMainTabTargetId
@@ -89,7 +89,7 @@ internal fun <T> MobileMainNavigationBar(
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .fillMaxWidth(if (searchFabEnabled && !classicStyle) 0.70f else 1f)
-                .height(if (classicStyle) 80.dp + bottomInset else 80.dp),
+                .height(if (classicStyle) 68.dp + bottomInset else 64.dp),
             shape = if (classicStyle) RoundedCornerShape(0.dp) else RoundedCornerShape(32.dp),
             color = containerColor,
             contentColor = MaterialTheme.colorScheme.onSurface,
@@ -99,7 +99,7 @@ internal fun <T> MobileMainNavigationBar(
             NavigationBar(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(80.dp)
+                    .height(64.dp)
                     .pointerInput(orderedItems, selectedDestination) {
                         if (orderedItems.size < 2) return@pointerInput
                         var totalDrag = 0f
@@ -185,9 +185,9 @@ internal fun <T> MobileMainNavigationBar(
             modifier = if (classicStyle) {
                 Modifier.align(Alignment.TopEnd).offset(y = (-60).dp).padding(end = 12.dp).size(56.dp)
             } else {
-                Modifier.align(Alignment.CenterEnd).size(80.dp)
+                Modifier.align(Alignment.CenterEnd).size(56.dp)
             },
-            shape = if (classicStyle) RoundedCornerShape(20.dp) else androidx.compose.foundation.shape.CircleShape,
+            shape = RoundedCornerShape(20.dp),
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
         ) {

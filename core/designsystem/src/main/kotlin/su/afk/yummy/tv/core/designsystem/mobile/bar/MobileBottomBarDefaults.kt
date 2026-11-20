@@ -9,16 +9,11 @@ import androidx.compose.ui.unit.dp
 
 object MobileBottomBarDefaults {
 
-    /** Высота бара с постоянно видимыми подписями, согласованная с нижней навигацией Material 3. */
-    val BarHeight: Dp = 80.dp
+    /** Полная высота плавающей панели с вертикальными полями; сама капсула имеет высоту 64 dp. */
+    val BarHeight: Dp = 72.dp
 
     val ExtraContentBottomPadding: Dp = 16.dp
 
-    /**
-     * Отступ снизу для скроллящегося контента корневых экранов табов. Нижний бар сам занимает
-     * место вместе с инсетом системной навигации, поэтому над ним нужен только зазор; при рейке
-     * или скрытой навигации контент доходит до края окна и сам уходит от системного инсета.
-     */
     val contentBottomPadding: Dp
         @Composable get() = when (LocalMobileNavigationLayout.current) {
             MobileNavigationLayout.BottomBar -> ExtraContentBottomPadding

@@ -1,6 +1,11 @@
 package su.afk.yummy.tv.feature.main.mobile.view
 
 import su.afk.yummy.tv.core.designsystem.seasonal.SeasonalOverlay
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +16,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
@@ -53,6 +65,22 @@ internal fun <T> MobileMainScaffold(
     content: @Composable () -> Unit,
 ) {
     val bottomBarUpFocusRequester = LocalMobileBottomBarUpFocusRequester.current
+    val headerVisible = remember { mutableStateOf(true) }
+    val headerScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource,
+            ): Offset {
+                when {
+                    available.y < -1f -> headerVisible.value = false
+                    available.y > 1f -> headerVisible.value = true
+                }
+                return Offset.Zero
+            }
+        }
+    }
     val suiteType = NavigationSuiteScaffoldDefaults.navigationSuiteType(currentWindowAdaptiveInfoV2())
     val isRail = suiteType != NavigationSuiteType.NavigationBar &&
         suiteType != NavigationSuiteType.ShortNavigationBarCompact &&
@@ -69,7 +97,7 @@ internal fun <T> MobileMainScaffold(
         if (isVisible) suiteState.show() else suiteState.hide()
     }
 
-    val surface = MaterialTheme.colorScheme.surfaceContainer
+    val surface = Color.Transparent
     NavigationSuiteScaffoldLayout(
         navigationSuiteType = if (isRail) NavigationSuiteType.NavigationRail else suiteType,
         state = suiteState,
@@ -79,6 +107,7 @@ internal fun <T> MobileMainScaffold(
                     selectedDestination = selectedDestination,
                     menuItems = menuItems,
                     containerColor = surface,
+                    onSearchSelected = onSearchSelected,
                     onDestinationSelected = onDestinationSelected,
                 )
             } else {
@@ -87,6 +116,7 @@ internal fun <T> MobileMainScaffold(
                     menuItems = menuItems,
                     containerColor = surface,
                     upFocusRequester = bottomBarUpFocusRequester,
+                    onSearchSelected = onSearchSelected,
                     onDestinationSelected = onDestinationSelected,
                 )
             }
@@ -101,10 +131,15 @@ internal fun <T> MobileMainScaffold(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .nestedScroll(headerScrollConnection)
                     .consumeWindowInsets(barInsets)
                     .background(MaterialTheme.colorScheme.background),
             ) {
-                if (showHeader) {
+                AnimatedVisibility(
+                    visible = showHeader && headerVisible.value,
+                    enter = fadeIn() + slideInVertically { -it / 2 },
+                    exit = fadeOut() + slideOutVertically { -it / 2 },
+                ) {
                     MobileMainHeader(
                         avatarUrl = headerAvatarUrl,
                         unreadNotificationsCount = unreadNotificationsCount,

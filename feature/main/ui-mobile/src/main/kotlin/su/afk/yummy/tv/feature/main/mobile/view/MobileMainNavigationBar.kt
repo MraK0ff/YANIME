@@ -72,7 +72,8 @@ internal fun <T> MobileMainNavigationBar(
     val animatedPreviewIndex by animateFloatAsState(
         targetValue = dragPreviewIndex
             ?: orderedItems.indexOfFirst { it.destination == selectedDestination }.coerceAtLeast(0).toFloat(),
-        animationSpec = spring(dampingRatio = 0.82f, stiffness = 340f),
+        // Keep the active indicator responsive to the finger while retaining a soft settle on release.
+        animationSpec = spring(dampingRatio = 0.92f, stiffness = 900f),
         label = "navigationDragPreview",
     )
     val bottomInset = with(LocalDensity.current) {

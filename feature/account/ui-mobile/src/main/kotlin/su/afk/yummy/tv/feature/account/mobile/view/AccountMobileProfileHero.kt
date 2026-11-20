@@ -133,6 +133,8 @@ internal fun AccountMobileProfileHero(
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .statusBarsPadding()
+                    // Локально учитываем вырезы по горизонтали, не сдвигая баннер и контент профиля.
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
                     .padding(top = topExtra)
                     .padding(12.dp),
                 content = navigationAction,
@@ -141,8 +143,9 @@ internal fun AccountMobileProfileHero(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .statusBarsPadding()
+                    // Учитываем cutout с любой стороны в landscape только для ряда действий.
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
                     .padding(top = topExtra)
-                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.End))
                     .padding(12.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 content = topActions,

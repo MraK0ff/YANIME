@@ -94,6 +94,14 @@ class CatalogViewModel @Inject internal constructor(
         searchOpener.isSearchFocusPending
             .onEach { pending -> setState { copy(isSearchFocusRequested = pending) } }
             .launchIn(viewModelScope)
+        searchOpener.isRandomAnimePending
+            .onEach { pending ->
+                if (pending) {
+                    searchOpener.consumeRandomAnimeRequest()
+                    onEvent(CatalogState.Event.RandomAnimeSelected)
+                }
+            }
+            .launchIn(viewModelScope)
         accountSettingsStore.contentLanguageChanges()
             .onEach {
                 loadFilterOptions()

@@ -84,7 +84,7 @@ internal fun <T> MobileMainScaffold(
 ) {
     val bottomBarUpFocusRequester = LocalMobileBottomBarUpFocusRequester.current
     val headerVisible = remember { mutableStateOf(true) }
-    val headerScrollConnection = remember {
+    val headerScrollConnection = remember(keepHeaderVisible) {
         object : NestedScrollConnection {
             override fun onPostScroll(
                 consumed: Offset,

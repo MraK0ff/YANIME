@@ -1,5 +1,6 @@
 package su.afk.yummy.tv.feature.catalog.mobile
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -144,7 +145,10 @@ fun CatalogMobileScreen(
                         ),
                         value = state.query,
                         onValueChange = { onEvent(CatalogState.Event.QueryChanged(it)) },
-                        modifier = Modifier.fillMaxWidth().focusRequester(queryFocusRequester),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surfaceContainerLow, MaterialTheme.shapes.extraLarge)
+                            .focusRequester(queryFocusRequester),
                         placeholder = { Text(stringResource(R.string.search_placeholder)) },
                         leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
                         singleLine = true,

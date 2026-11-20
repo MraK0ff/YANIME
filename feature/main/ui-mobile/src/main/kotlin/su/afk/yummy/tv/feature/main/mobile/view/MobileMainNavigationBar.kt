@@ -46,7 +46,6 @@ import su.afk.yummy.tv.core.designsystem.seasonal.SeasonalBarDecoration
 import su.afk.yummy.tv.feature.main.mobile.model.MobileMenuItem
 import su.afk.yummy.tv.feature.main.presentation.R
 import kotlin.math.abs
-import kotlin.math.floor
 import kotlin.math.roundToInt
 
 @Composable
@@ -100,23 +99,26 @@ internal fun <T> MobileMainNavigationBar(
                                 startIndex = orderedItems.indexOfFirst {
                                     it.destination == selectedDestination
                                 }.coerceAtLeast(0)
-                                previewIndex = startIndex
+                                previewIndex = startIndex.toFloat()
                                 dragPreviewIndex = startIndex.toFloat()
                             },
                             onHorizontalDrag = { change, amount ->
                                 change.consume()
                                 totalDrag += amount
-                                val rawIndex = floor(
-                                    (change.position.x / size.width.coerceAtLeast(1)) * orderedItems.size
-                                ).toInt()
-                                previewIndex = rawIndex.coerceIn(0, orderedItems.lastIndex)
-                                dragPreviewIndex = previewIndex.toFloat()
+                                // Map the finger's absolute position to a fractional tab index.
+                                // The preview can travel smoothly across the whole bar; the real
+                                // destination is committed only after the gesture ends.
+                                val rawIndex = (
+                                    change.position.x / size.width.coerceAtLeast(1) * orderedItems.size - 0.5f
+                                )
+                                previewIndex = rawIndex.coerceIn(0f, orderedItems.lastIndex.toFloat())
+                                dragPreviewIndex = previewIndex
                             },
                             onDragEnd = {
                                 val target = when {
                                     abs(totalDrag) > size.width * 0.55f ->
                                         if (totalDrag < 0f) orderedItems.lastIndex else 0
-                                    previewIndex != startIndex -> previewIndex
+                                    previewIndex.roundToInt() != startIndex -> previewIndex.roundToInt()
                                     abs(totalDrag) > 18f ->
                                         (startIndex + if (totalDrag < 0f) 1 else -1)
                                             .coerceIn(0, orderedItems.lastIndex)

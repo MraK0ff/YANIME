@@ -3,6 +3,7 @@ package su.afk.yummy.tv.feature.main.mobile.model
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.GridView
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Newspaper
 import androidx.compose.runtime.Composable
@@ -10,14 +11,9 @@ import androidx.compose.ui.res.stringResource
 import su.afk.yummy.tv.core.navigation.root.RootTab
 import su.afk.yummy.tv.feature.main.presentation.R
 
-/** Четыре основных мобильных раздела; профиль, поиск и настройки доступны из глобальной шапки. */
+/** Основные мобильные разделы. Новости остаются в «Ещё» на главной, Расписание вынесено в меню. */
 @Composable
 internal fun mobileMenuItems(): List<MobileMenuItem<RootTab>> = listOf(
-    MobileMenuItem(
-        stringResource(R.string.main_tab_news),
-        RootTab.POSTS,
-        Icons.Default.Newspaper,
-    ),
     MobileMenuItem(
         stringResource(R.string.main_tab_catalog),
         RootTab.CATALOG,
@@ -33,5 +29,10 @@ internal fun mobileMenuItems(): List<MobileMenuItem<RootTab>> = listOf(
         stringResource(R.string.main_tab_library),
         RootTab.LIBRARY,
         Icons.AutoMirrored.Filled.List,
+    ),
+    MobileMenuItem(
+        stringResource(R.string.main_tab_schedule),
+        RootTab.SCHEDULE,
+        Icons.Default.CalendarToday,
     ),
 )

@@ -189,7 +189,15 @@ internal fun <T> MobileMainScaffold(
                                     .fillMaxWidth()
                                     // Header already owns the status-bar inset. Prevent nested
                                     // page Scaffolds from inserting a second empty strip below it.
-                                    .then(if (!showHeader || !headerVisible.value) Modifier.statusBarsPadding() else Modifier)
+                                    // Profile hero draws its banner edge-to-edge behind the status bar.
+                                    // Other headerless pages keep controls below system bars.
+                                    .then(
+                                        if (!showHeader || !headerVisible.value) {
+                                            Modifier.statusBarsPadding()
+                                        } else {
+                                            Modifier
+                                        },
+                                    )
                                     .consumeWindowInsets(WindowInsets.statusBars),
                             ) {
                                 content()

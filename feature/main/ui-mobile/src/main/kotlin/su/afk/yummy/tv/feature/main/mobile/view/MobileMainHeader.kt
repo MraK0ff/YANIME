@@ -72,7 +72,7 @@ internal fun MobileMainHeader(
                         .width(156.dp)
                         .height(38.dp)
                         .clickable(onClick = onSearchSelected),
-                    shape = RoundedCornerShape(50),
+                    shape = CircleShape,
                     color = MaterialTheme.colorScheme.surfaceContainerLow,
                     contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 ) {

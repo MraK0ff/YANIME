@@ -166,7 +166,6 @@ internal fun <T> MobileMainScaffold(
                         MobileMainHeader(
                             modifier = Modifier.fillMaxWidth(),
                             containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.72f),
-                            showSearchBar = !searchFabEnabled,
                             avatarUrl = headerAvatarUrl,
                             unreadNotificationsCount = unreadNotificationsCount,
                             showSearchBar = !searchFabEnabled,

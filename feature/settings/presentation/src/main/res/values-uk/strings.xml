@@ -437,7 +437,7 @@
     <string name="settings_mobile_header_enabled">Глобальний Header</string>
     <string name="settings_mobile_header_enabled_hint">Показувати логотип, пошук, сповіщення та профіль угорі</string>
     <string name="settings_mobile_search_fab_enabled">Плаваюча кнопка пошуку</string>
-    <string name="settings_mobile_search_fab_enabled_hint">Показувати окрему кнопку пошуку біля нижнього меню</string>
+    <string name="settings_mobile_search_fab_enabled_hint">Якщо ввімкнено, пошук відображається лише як FAB; інакше — компактним полем у Header</string>
     <string name="settings_mobile_classic_bottom_bar">Класична нижня панель</string>
     <string name="settings_mobile_classic_bottom_bar_hint">Використовувати стандартну панель на всю ширину замість плаваючої капсули</string>
     <string name="settings_mobile_search_fab_enabled_hint">Якщо ввімкнено, пошук відображається лише як FAB; інакше — компактним полем у Header</string>

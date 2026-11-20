@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -80,7 +81,6 @@ internal fun MobilePlayerTimeOverlay(
                 values = listOf(systemClock, finishAt), idleDim = !controlsActive,
                 modifier = Modifier.align(Alignment.TopEnd)
                     .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.End + WindowInsetsSides.Top))
-                    .then(if (controlsActive) Modifier else Modifier.background(Color.Black.copy(alpha = 0.24f), RoundedCornerShape(12.dp)))
                     .padding(end = 8.dp, top = edgeTopPadding),
             )
         } else {
@@ -89,7 +89,6 @@ internal fun MobilePlayerTimeOverlay(
                 finishOnly = false, idleDim = !controlsActive,
                 modifier = Modifier.align(Alignment.TopStart)
                     .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Start + WindowInsetsSides.Top))
-                    .then(if (controlsActive) Modifier else Modifier.background(Color.Black.copy(alpha = 0.24f), RoundedCornerShape(12.dp)))
                     .padding(start = 8.dp, top = edgeTopPadding),
             )
             if (showFinish) TimeChip(
@@ -97,7 +96,6 @@ internal fun MobilePlayerTimeOverlay(
                 finishOnly = true, idleDim = !controlsActive,
                 modifier = Modifier.align(Alignment.TopEnd)
                     .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.End + WindowInsetsSides.Top))
-                    .then(if (controlsActive) Modifier else Modifier.background(Color.Black.copy(alpha = 0.24f), RoundedCornerShape(12.dp)))
                     .padding(end = 8.dp, top = edgeTopPadding),
             )
         }
@@ -117,8 +115,7 @@ internal fun MobilePlayerTimeOverlay(
                     else displayTimeMs.millisToClockTime().padStart(5, '0'),
                 idleDim = !controlsActive,
                 modifier = Modifier.align(Alignment.BottomStart)
-                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Start + WindowInsetsSides.Bottom))
-                    .then(if (controlsActive) Modifier else Modifier.background(Color.Black.copy(alpha = 0.24f), RoundedCornerShape(10.dp)))
+                    .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom))
                     .padding(start = 8.dp, bottom = edgeBottomPadding),
                 onClick = onTimeCodeClick,
             )

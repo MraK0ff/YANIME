@@ -11,6 +11,10 @@
     <string name="main_tab_collections">Колекції</string>
     <string name="main_settings_content_description">Налаштування</string>
     <string name="main_account_content_description">Акаунт</string>
+    <string name="main_header_search">Пошук</string>
+    <string name="main_header_notifications">Сповіщення</string>
+    <string name="main_header_settings">Налаштування</string>
+    <string name="main_header_profile">Профіль</string>
 
     <string name="main_onboarding_catalog_title">Каталог</string>
     <string name="main_onboarding_catalog_text">Шукайте аніме за назвою та фільтруйте за жанрами, сезонами, роками й статусом.</string>

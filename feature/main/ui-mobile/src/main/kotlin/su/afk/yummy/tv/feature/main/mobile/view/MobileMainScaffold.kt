@@ -57,6 +57,7 @@ internal fun <T> MobileMainScaffold(
     showRail: Boolean,
     showHeader: Boolean,
     overlayHeader: Boolean = false,
+    contentDrawsBehindStatusBar: Boolean = false,
     classicBottomBar: Boolean = false,
     searchFabEnabled: Boolean = false,
     headerAvatarUrl: String,
@@ -192,7 +193,7 @@ internal fun <T> MobileMainScaffold(
                                     // Profile hero draws its banner edge-to-edge behind the status bar.
                                     // Other headerless pages keep controls below system bars.
                                     .then(
-                                        if (!showHeader || !headerVisible.value) {
+                                        if ((!showHeader || !headerVisible.value) && !contentDrawsBehindStatusBar) {
                                             Modifier.statusBarsPadding()
                                         } else {
                                             Modifier

@@ -139,8 +139,6 @@ class MobileMainGraph @Inject internal constructor(
                             !isRequiredUpdateDestination && !isFullscreenDestination,
                         headerExpandedByDefault = navManager.currentRoot == RootTab.HOME ||
                             navManager.currentRoot == RootTab.CATALOG,
-                        //
-                            !isRequiredUpdateDestination && !isFullscreenDestination,
                         classicBottomBar = state.mobileClassicBottomBar,
                         searchFabEnabled = state.mobileSearchFabEnabled && navManager.currentRoot != RootTab.CATALOG,
                         overlayHeader = false,

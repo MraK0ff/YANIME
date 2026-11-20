@@ -107,7 +107,6 @@ internal fun <T> MobileMainScaffold(
                     selectedDestination = selectedDestination,
                     menuItems = menuItems,
                     containerColor = surface,
-                    onSearchSelected = onSearchSelected,
                     onDestinationSelected = onDestinationSelected,
                 )
             } else {

@@ -92,7 +92,7 @@ internal fun <T> MobileMainNavigationBar(
                         if (orderedItems.size < 2) return@pointerInput
                         var totalDrag = 0f
                         var startIndex = 0
-                        var previewIndex = 0
+                        var previewIndex = 0f
                         detectHorizontalDragGestures(
                             onDragStart = { offset ->
                                 totalDrag = 0f

@@ -3,12 +3,15 @@ package su.afk.yummy.tv.feature.main.mobile.view
 import su.afk.yummy.tv.core.designsystem.seasonal.SeasonalOverlay
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.weight
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
@@ -28,9 +31,9 @@ import su.afk.yummy.tv.core.designsystem.mobile.bar.MobileNavigationLayout
 import su.afk.yummy.tv.feature.main.mobile.model.MobileMenuItem
 
 /**
- * Корневой каркас мобильного UI: на компактной ширине — нижний бар, на планшете, развёрнутом
- * складном и в широком окне — боковая рейка. [showBottomBar] и [showRail] задаются раздельно:
- * бар занимает высоту контента и уходит вне корня таба, рейка остаётся рядом с деталями.
+ * Корневой каркас мобильного UI: на компактной ширине — плавающая нижняя навигация,
+ * на широком окне — боковая рейка. Глобальная шапка показывается только на корнях основных
+ * разделов и не вторгается в профиль, детали или полноэкранные сценарии.
  */
 @Composable
 internal fun <T> MobileMainScaffold(
@@ -38,6 +41,13 @@ internal fun <T> MobileMainScaffold(
     menuItems: List<MobileMenuItem<T>>,
     showBottomBar: Boolean,
     showRail: Boolean,
+    showHeader: Boolean,
+    headerAvatarUrl: String,
+    unreadNotificationsCount: Int,
+    onSearchSelected: () -> Unit,
+    onNotificationsSelected: () -> Unit,
+    onSettingsSelected: () -> Unit,
+    onProfileSelected: () -> Unit,
     onDestinationSelected: (T) -> Unit,
     toastMessage: String?,
     showSeasonalOverlay: Boolean = true,
@@ -88,25 +98,39 @@ internal fun <T> MobileMainScaffold(
         },
     ) {
         CompositionLocalProvider(LocalMobileNavigationLayout provides layout) {
-            // Низ контента уже занят баром вместе с системным инсетом: без консьюма imePadding
-            // в экранах табов отступал бы на полную высоту клавиатуры и оставлял пустую полосу.
             val barInsets = if (layout == MobileNavigationLayout.BottomBar) {
                 WindowInsets.navigationBars.add(WindowInsets(bottom = MobileBottomBarDefaults.BarHeight))
             } else {
                 WindowInsets(0.dp)
             }
-            Box(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .consumeWindowInsets(barInsets)
                     .background(MaterialTheme.colorScheme.background),
             ) {
-                content()
-                if (showSeasonalOverlay) SeasonalOverlay()
-                GlobalToastOverlay(
-                    text = toastMessage,
-                    modifier = Modifier.padding(bottom = MobileBottomBarDefaults.contentBottomPadding),
-                )
+                if (showHeader) {
+                    MobileMainHeader(
+                        avatarUrl = headerAvatarUrl,
+                        unreadNotificationsCount = unreadNotificationsCount,
+                        onSearchSelected = onSearchSelected,
+                        onNotificationsSelected = onNotificationsSelected,
+                        onSettingsSelected = onSettingsSelected,
+                        onProfileSelected = onProfileSelected,
+                    )
+                }
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                ) {
+                    content()
+                    if (showSeasonalOverlay) SeasonalOverlay()
+                    GlobalToastOverlay(
+                        text = toastMessage,
+                        modifier = Modifier.padding(bottom = MobileBottomBarDefaults.contentBottomPadding),
+                    )
+                }
             }
         }
     }

@@ -12,6 +12,7 @@
     <string name="main_settings_content_description">Settings</string>
     <string name="main_account_content_description">Account</string>
     <string name="main_header_search">Search</string>
+    <string name="main_header_random_anime">Random anime</string>
     <string name="main_header_notifications">Notifications</string>
     <string name="main_header_settings">Settings</string>
     <string name="main_header_profile">Profile</string>

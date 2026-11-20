@@ -8,6 +8,25 @@ import androidx.compose.ui.text.buildAnnotatedString
 import su.afk.yummy.tv.domain.account.model.NotificationLink
 
 /**
+ * Removes an anime subject repeated in the body when the title already names that subject.
+ * Only strips a leading, well-known notification phrase; the actual episode/comment details remain.
+ */
+internal fun notificationBodyWithoutRepeatedTitle(title: String, body: String): String {
+    val subject = Regex("[«“\u0022'](.+?)[»”\u0022']").find(title)
+        ?.groupValues
+        ?.getOrNull(1)
+        ?.trim()
+        ?.takeIf(String::isNotEmpty)
+        ?: return body
+
+    val subjectPattern = Regex.escape(subject)
+    val prefix = Regex(
+        pattern = "(?i)^\\s*(?:в\\s+аниме|в\\s+аніме|in\\s+(?:the\\s+)?anime)\\s+$subjectPattern(?:\\s*[,.:!?—–-]\\s*|\\s+)",
+    )
+    return prefix.replaceFirst(body, "").trim().ifBlank { body }
+}
+
+/**
  * Текст уведомления, где названия аниме из [links] — кликабельные ссылки. Название ищется в тексте
  * последовательно, поэтому ссылка, которой в тексте нет (например, только в заголовке), пропускается.
  */

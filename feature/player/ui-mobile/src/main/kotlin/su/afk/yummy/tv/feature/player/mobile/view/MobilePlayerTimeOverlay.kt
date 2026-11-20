@@ -80,7 +80,7 @@ internal fun MobilePlayerTimeOverlay(
                 values = listOf(systemClock, finishAt),
                 modifier = Modifier.align(Alignment.TopEnd)
                     .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.End + WindowInsetsSides.Top))
-                    .background(Color.Black.copy(alpha = 0.24f), RoundedCornerShape(12.dp))
+                    .then(if (controlsActive) Modifier else Modifier.background(Color.Black.copy(alpha = 0.24f), RoundedCornerShape(12.dp)))
                     .padding(end = 8.dp, top = edgeTopPadding),
             )
         } else {
@@ -95,13 +95,18 @@ internal fun MobilePlayerTimeOverlay(
             if (showFinish) TimeChip(
                 values = listOf(finishAt),
                 finishOnly = true,
-                modifier = Modifier.align(Alignment.TopEnd).padding(end = 8.dp, top = edgeTopPadding),
+                modifier = Modifier.align(Alignment.TopEnd)
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.End + WindowInsetsSides.Top))
+                    .then(if (controlsActive) Modifier else Modifier.background(Color.Black.copy(alpha = 0.24f), RoundedCornerShape(12.dp)))
+                    .padding(end = 8.dp, top = edgeTopPadding),
             )
         }
         if (showCombined) {
             TimeValueChip(
                 value = "${displayTimeMs.millisToClockTime()} / ${durationMs.millisToClockTime()}",
                 modifier = Modifier.align(Alignment.BottomStart)
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Start + WindowInsetsSides.Bottom))
+                    .then(if (controlsActive) Modifier else Modifier.background(Color.Black.copy(alpha = 0.24f), RoundedCornerShape(10.dp)))
                     .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Start + WindowInsetsSides.Bottom))
                     .then(if (controlsActive) Modifier else Modifier.background(Color.Black.copy(alpha = 0.24f), RoundedCornerShape(10.dp)))
                     .padding(start = 8.dp, bottom = edgeBottomPadding),

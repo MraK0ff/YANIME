@@ -56,6 +56,7 @@ internal fun <T> MobileMainScaffold(
     showBottomBar: Boolean,
     showRail: Boolean,
     showHeader: Boolean,
+    headerExpandedByDefault: Boolean = true,
     overlayHeader: Boolean = false,
     contentDrawsBehindStatusBar: Boolean = false,
     classicBottomBar: Boolean = false,
@@ -100,8 +101,8 @@ internal fun <T> MobileMainScaffold(
     }
     val navigationSurface = MaterialTheme.colorScheme.surfaceContainerHigh
 
-    LaunchedEffect(selectedDestination) {
-        headerVisible.value = true
+    LaunchedEffect(selectedDestination, headerExpandedByDefault) {
+        headerVisible.value = headerExpandedByDefault
     }
 
     Surface(

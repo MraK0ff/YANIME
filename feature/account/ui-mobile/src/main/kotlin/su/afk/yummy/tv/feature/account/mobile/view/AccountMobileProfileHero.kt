@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -141,7 +142,7 @@ internal fun AccountMobileProfileHero(
                     .align(Alignment.TopEnd)
                     .statusBarsPadding()
                     .padding(top = topExtra)
-                    .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.End))
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.End))
                     .padding(12.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 content = topActions,

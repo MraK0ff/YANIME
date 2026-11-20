@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -56,7 +57,9 @@ internal fun <T> MobileMainNavigationBar(
     upFocusRequester: FocusRequester?,
     classicStyle: Boolean = false,
     searchFabEnabled: Boolean = true,
+    catalogFabEnabled: Boolean = false,
     onSearchSelected: () -> Unit,
+    onCatalogRandomSelected: () -> Unit = {},
     onDestinationSelected: (T) -> Unit,
 ) {
     val orderedItems = remember(menuItems) { menuItems }
@@ -170,7 +173,7 @@ internal fun <T> MobileMainNavigationBar(
             }
         }
         if (searchFabEnabled) FloatingActionButton(
-            onClick = onSearchSelected,
+            onClick = if (catalogFabEnabled) onCatalogRandomSelected else onSearchSelected,
             modifier = Modifier
                 .align(Alignment.CenterEnd)
                 .padding(end = if (classicStyle) 12.dp else 0.dp)
@@ -180,8 +183,10 @@ internal fun <T> MobileMainNavigationBar(
             contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
         ) {
             Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = stringResource(R.string.main_header_search),
+                imageVector = if (catalogFabEnabled) Icons.Default.Shuffle else Icons.Default.Search,
+                contentDescription = stringResource(
+                    if (catalogFabEnabled) R.string.main_header_random_anime else R.string.main_header_search,
+                ),
             )
         }
         SeasonalBarDecoration(Modifier.align(Alignment.TopCenter))

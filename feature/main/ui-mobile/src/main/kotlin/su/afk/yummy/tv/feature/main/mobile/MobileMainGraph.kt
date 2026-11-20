@@ -144,7 +144,15 @@ class MobileMainGraph @Inject internal constructor(
                         showHeader = state.mobileHeaderEnabled && atTabRoot && !isProfileRoot &&
                             !isRequiredUpdateDestination && !isFullscreenDestination,
                         headerExpandedByDefault = navManager.currentRoot == RootTab.HOME ||
-                            navManager.currentRoot == RootTab.CATALOG,
+                            navManager.currentRoot == RootTab.CATALOG ||
+                            navManager.currentRoot == RootTab.LIBRARY ||
+                            navManager.currentRoot == RootTab.SCHEDULE,
+                        // Core browsing destinations keep the global header stable. Their
+                        // own controls are rendered as a compact continuation directly below it.
+                        keepHeaderVisible = navManager.currentRoot == RootTab.HOME ||
+                            navManager.currentRoot == RootTab.CATALOG ||
+                            navManager.currentRoot == RootTab.LIBRARY ||
+                            navManager.currentRoot == RootTab.SCHEDULE,
                         classicBottomBar = state.mobileClassicBottomBar,
                         searchFabEnabled = state.mobileSearchFabEnabled,
                         catalogFabEnabled = navManager.currentRoot == RootTab.CATALOG,

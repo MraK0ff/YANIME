@@ -58,13 +58,13 @@ internal fun <T> MobileMainNavigationBar(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(end = 56.dp)
+                .padding(end = 64.dp)
                 .height(64.dp),
             shape = RoundedCornerShape(24.dp),
             color = containerColor,
             contentColor = MaterialTheme.colorScheme.onSurface,
-            tonalElevation = 0.dp,
-            shadowElevation = 0.dp,
+            tonalElevation = 1.dp,
+            shadowElevation = 2.dp,
         ) {
             NavigationBar(
                 modifier = Modifier
@@ -127,8 +127,8 @@ internal fun <T> MobileMainNavigationBar(
             onClick = onSearchSelected,
             modifier = Modifier
                 .align(Alignment.CenterEnd)
-                .size(48.dp),
-            shape = RoundedCornerShape(16.dp),
+                .size(56.dp),
+            shape = RoundedCornerShape(20.dp),
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
         ) {

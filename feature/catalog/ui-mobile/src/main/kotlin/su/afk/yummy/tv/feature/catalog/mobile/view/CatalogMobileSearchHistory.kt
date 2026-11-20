@@ -1,8 +1,10 @@
 package su.afk.yummy.tv.feature.catalog.mobile.view
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -34,7 +36,7 @@ internal fun CatalogMobileSearchHistory(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         LazyRow(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f).clipToBounds(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             items(queries, key = { it }) { query ->
@@ -51,7 +53,11 @@ internal fun CatalogMobileSearchHistory(
                 )
             }
         }
-        TextButton(onClick = onClear) {
+        TextButton(
+            onClick = onClear,
+            modifier = Modifier.padding(start = 4.dp),
+            contentPadding = PaddingValues(horizontal = 8.dp),
+        ) {
             Text(stringResource(R.string.search_mobile_history_clear))
         }
     }

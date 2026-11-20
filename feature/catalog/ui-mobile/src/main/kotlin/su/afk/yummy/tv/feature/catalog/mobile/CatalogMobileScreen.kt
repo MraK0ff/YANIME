@@ -130,21 +130,6 @@ fun CatalogMobileScreen(
                     OfflineBanner(isOffline = isOffline, horizontalPadding = 0.dp)
                 }
             }
-            item(span = { GridItemSpan(maxLineSpan) }, contentType = "filters") {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    CatalogMobileFilterButton(
-                        activeCount = state.filters.activeCount,
-                        onClick = {
-                            keyboardController?.hide()
-                            onEvent(CatalogState.Event.OpenFilters)
-                        },
-                    )
-                }
-            }
             if (!state.isHeaderSearchEnabled) {
                 item(span = { GridItemSpan(maxLineSpan) }, contentType = "query_field") {
                     OutlinedTextField(

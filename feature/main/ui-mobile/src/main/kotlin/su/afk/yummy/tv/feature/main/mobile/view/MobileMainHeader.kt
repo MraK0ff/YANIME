@@ -1,13 +1,13 @@
 package su.afk.yummy.tv.feature.main.mobile.view
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
@@ -15,7 +15,6 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,7 +32,7 @@ import su.afk.yummy.tv.core.designsystem.components.AppBrandIcon
 import su.afk.yummy.tv.core.designsystem.seasonal.seasonalAvatarHat
 import su.afk.yummy.tv.feature.main.presentation.R
 
-/** Глобальные действия мобильного приложения. Не перекрывает hero-шапки профильных экранов. */
+/** Компактная нейтральная шапка: визуально продолжает фон экрана, а не образует отдельную панель. */
 @Composable
 internal fun MobileMainHeader(
     avatarUrl: String,
@@ -44,19 +43,19 @@ internal fun MobileMainHeader(
     onProfileSelected: () -> Unit,
 ) {
     Surface(
-        color = MaterialTheme.colorScheme.surface,
+        color = MaterialTheme.colorScheme.background,
         contentColor = MaterialTheme.colorScheme.onSurface,
         tonalElevation = 0.dp,
+        shadowElevation = 0.dp,
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .statusBarsPadding()
                 .height(56.dp)
                 .padding(horizontal = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            AppBrandIcon(Modifier.size(36.dp))
+            AppBrandIcon(Modifier.size(34.dp))
             Spacer(Modifier.weight(1f))
             IconButton(onClick = onSearchSelected) {
                 Icon(
@@ -64,22 +63,26 @@ internal fun MobileMainHeader(
                     contentDescription = stringResource(R.string.main_header_search),
                 )
             }
-            IconButton(onClick = onNotificationsSelected) {
-                BadgedBox(
-                    badge = {
-                        if (unreadNotificationsCount > 0) {
-                            Badge {
-                                Text(
-                                    if (unreadNotificationsCount > 99) "99+" else unreadNotificationsCount.toString(),
-                                )
-                            }
-                        }
-                    },
-                ) {
+            Box(
+                modifier = Modifier.size(48.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                IconButton(onClick = onNotificationsSelected) {
                     Icon(
                         imageVector = Icons.Default.Notifications,
                         contentDescription = stringResource(R.string.main_header_notifications),
                     )
+                }
+                if (unreadNotificationsCount > 0) {
+                    Badge(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(top = 3.dp, end = 2.dp),
+                    ) {
+                        Text(
+                            if (unreadNotificationsCount > 99) "99+" else unreadNotificationsCount.toString(),
+                        )
+                    }
                 }
             }
             IconButton(onClick = onSettingsSelected) {

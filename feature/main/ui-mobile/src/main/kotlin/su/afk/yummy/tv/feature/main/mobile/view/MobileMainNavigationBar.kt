@@ -81,7 +81,6 @@ internal fun <T> MobileMainNavigationBar(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(end = if (searchFabEnabled && !classicStyle) 64.dp else 0.dp)
                 .height(80.dp),
             shape = if (classicStyle) RoundedCornerShape(0.dp) else RoundedCornerShape(32.dp),
             color = containerColor,
@@ -92,7 +91,6 @@ internal fun <T> MobileMainNavigationBar(
             NavigationBar(
                 modifier = Modifier
                     .fillMaxSize()
-                    .then(if (classicStyle && searchFabEnabled) Modifier.padding(end = 72.dp) else Modifier)
                     .pointerInput(orderedItems, selectedDestination) {
                         if (orderedItems.size < 2) return@pointerInput
                         var totalDrag = 0f

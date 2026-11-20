@@ -61,6 +61,7 @@ import su.afk.yummy.tv.feature.account.mobile.view.AccountMobileFaqChooserDialog
 import su.afk.yummy.tv.feature.account.mobile.view.AccountMobileHeader
 import su.afk.yummy.tv.feature.account.mobile.view.AccountMobileLoadingIndicator
 import su.afk.yummy.tv.feature.account.mobile.view.AccountMobileLoginCard
+import su.afk.yummy.tv.feature.account.mobile.view.AccountMobileNotificationsTab
 import su.afk.yummy.tv.feature.account.mobile.view.AccountMobileLogoutConfirmDialog
 import su.afk.yummy.tv.feature.account.mobile.view.AccountMobileLogoutProgressDialog
 import su.afk.yummy.tv.feature.account.mobile.view.AccountMobileQuickActionsGrid
@@ -379,6 +380,12 @@ fun AccountMobileScreen(
                             )
                         }
                     }
+                }
+                item(key = "profile_notifications", contentType = "account_notifications") {
+                    AccountMobileNotificationsTab(
+                        state = state,
+                        onEvent = onEvent,
+                    )
                 }
                 item(key = "profile_stats", contentType = "account_stats") {
                     Box(modifier = Modifier.padding(horizontal = 16.dp)) {

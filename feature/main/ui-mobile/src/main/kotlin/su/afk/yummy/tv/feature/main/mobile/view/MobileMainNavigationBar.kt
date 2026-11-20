@@ -21,6 +21,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -41,6 +47,7 @@ import su.afk.yummy.tv.feature.main.mobile.model.MobileMenuItem
 import su.afk.yummy.tv.feature.main.presentation.R
 import kotlin.math.abs
 import kotlin.math.floor
+import kotlin.math.roundToInt
 
 @Composable
 internal fun <T> MobileMainNavigationBar(
@@ -54,6 +61,14 @@ internal fun <T> MobileMainNavigationBar(
     onDestinationSelected: (T) -> Unit,
 ) {
     val orderedItems = remember(menuItems) { menuItems }
+    var dragPreviewIndex by remember { mutableStateOf<Float?>(null) }
+    LaunchedEffect(selectedDestination) { dragPreviewIndex = null }
+    val animatedPreviewIndex by animateFloatAsState(
+        targetValue = dragPreviewIndex
+            ?: orderedItems.indexOfFirst { it.destination == selectedDestination }.coerceAtLeast(0).toFloat(),
+        animationSpec = spring(dampingRatio = 0.78f, stiffness = 520f),
+        label = "navigationDragPreview",
+    )
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -74,49 +89,47 @@ internal fun <T> MobileMainNavigationBar(
             NavigationBar(
                 modifier = Modifier
                     .fillMaxSize()
-                    .pointerInput(orderedItems) {
+                    .pointerInput(orderedItems, selectedDestination) {
                         if (orderedItems.size < 2) return@pointerInput
                         var totalDrag = 0f
-                        var lastX = 0f
                         var startIndex = 0
-                        var currentSelectedIndex = 0
-                        var selectedDuringDrag = false
+                        var previewIndex = 0
                         detectHorizontalDragGestures(
                             onDragStart = { offset ->
                                 totalDrag = 0f
-                                lastX = offset.x
-                                startIndex = orderedItems.indexOfFirst { it.destination == selectedDestination }.coerceAtLeast(0)
-                                currentSelectedIndex = startIndex
-                                selectedDuringDrag = false
+                                startIndex = orderedItems.indexOfFirst {
+                                    it.destination == selectedDestination
+                                }.coerceAtLeast(0)
+                                previewIndex = startIndex
+                                dragPreviewIndex = startIndex.toFloat()
                             },
                             onHorizontalDrag = { change, amount ->
                                 change.consume()
                                 totalDrag += amount
-                                lastX = change.position.x
                                 val rawIndex = floor(
-                                    (lastX / size.width.coerceAtLeast(1)) * orderedItems.size
+                                    (change.position.x / size.width.coerceAtLeast(1)) * orderedItems.size
                                 ).toInt()
-                                val index = rawIndex.coerceIn(0, orderedItems.lastIndex)
-                                if (index != currentSelectedIndex) {
-                                    selectedDuringDrag = true
-                                    currentSelectedIndex = index
-                                    onDestinationSelected(orderedItems[index].destination)
-                                }
+                                previewIndex = rawIndex.coerceIn(0, orderedItems.lastIndex)
+                                dragPreviewIndex = previewIndex.toFloat()
                             },
                             onDragEnd = {
-                                if (abs(totalDrag) > size.width * 0.55f) {
-                                    val edgeIndex = if (totalDrag < 0f) orderedItems.lastIndex else 0
-                                    currentSelectedIndex = edgeIndex
-                                    onDestinationSelected(orderedItems[edgeIndex].destination)
-                                } else if (!selectedDuringDrag && abs(totalDrag) > 18f) {
-                                    val direction = if (totalDrag < 0f) 1 else -1
-                                    val next = (startIndex + direction)
-                                        .coerceIn(0, orderedItems.lastIndex)
-                                    onDestinationSelected(orderedItems[next].destination)
+                                val target = when {
+                                    abs(totalDrag) > size.width * 0.55f ->
+                                        if (totalDrag < 0f) orderedItems.lastIndex else 0
+                                    previewIndex != startIndex -> previewIndex
+                                    abs(totalDrag) > 18f ->
+                                        (startIndex + if (totalDrag < 0f) 1 else -1)
+                                            .coerceIn(0, orderedItems.lastIndex)
+                                    else -> startIndex
                                 }
-                                totalDrag = 0f
+                                if (target != startIndex) {
+                                    dragPreviewIndex = target.toFloat()
+                                    onDestinationSelected(orderedItems[target].destination)
+                                } else {
+                                    dragPreviewIndex = null
+                                }
                             },
-                            onDragCancel = { totalDrag = 0f },
+                            onDragCancel = { dragPreviewIndex = Float.NaN },
                         )
                     },
                 containerColor = Color.Transparent,
@@ -124,8 +137,8 @@ internal fun <T> MobileMainNavigationBar(
                 windowInsets = WindowInsets(0.dp),
             ) {
                 val itemColors = seasonalNavigationBarItemColors()
-                orderedItems.forEach { item ->
-                    val selected = item.destination == selectedDestination
+                orderedItems.forEachIndexed { index, item ->
+                    val selected = index == animatedPreviewIndex.roundToInt().coerceIn(0, orderedItems.lastIndex)
                     NavigationBarItem(
                         modifier = Modifier
                             .weight(1f)

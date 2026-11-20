@@ -1,6 +1,9 @@
 package su.afk.yummy.tv.feature.main.mobile
 
 import su.afk.yummy.tv.core.designsystem.seasonal.SeasonalPrompt
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -109,11 +112,11 @@ class MobileMainGraph @Inject internal constructor(
                         showBottomBar = atTabRoot && !isRequiredUpdateDestination &&
                             !isFullscreenDestination,
                         showRail = showRail,
-                        showHeader = state.mobileHeaderEnabled && atTabRoot && !isRequiredUpdateDestination &&
-                            !isFullscreenDestination,
+                        showHeader = state.mobileHeaderEnabled && atTabRoot && !isProfileRoot &&
+                            !isRequiredUpdateDestination && !isFullscreenDestination,
                         classicBottomBar = state.mobileClassicBottomBar,
                         searchFabEnabled = state.mobileSearchFabEnabled,
-                        overlayHeader = isProfileRoot,
+                        overlayHeader = false,
                         headerAvatarUrl = if (state.isYaniSignedIn) state.yaniAvatarUrl else "",
                         unreadNotificationsCount = state.unreadNotificationsCount,
                         onSearchSelected = {
@@ -142,11 +145,19 @@ class MobileMainGraph @Inject internal constructor(
                             extraSceneStrategies = listOf(
                                 rememberMobileListDetailSceneStrategy(currentDestination),
                             ),
-                            transitionSpec = remember(state.navTransitionStyle) {
-                                mobileNavTransitionSpec(state.navTransitionStyle)
+                            transitionSpec = remember(state.navTransitionStyle, atTabRoot) {
+                                if (atTabRoot) {
+                                    { EnterTransition.None togetherWith ExitTransition.None }
+                                } else {
+                                    mobileNavTransitionSpec(state.navTransitionStyle)
+                                }
                             },
-                            popTransitionSpec = remember(state.navTransitionStyle) {
-                                mobileNavPopTransitionSpec(state.navTransitionStyle)
+                            popTransitionSpec = remember(state.navTransitionStyle, atTabRoot) {
+                                if (atTabRoot) {
+                                    { EnterTransition.None togetherWith ExitTransition.None }
+                                } else {
+                                    mobileNavPopTransitionSpec(state.navTransitionStyle)
+                                }
                             },
                         )
                     }

@@ -17,10 +17,12 @@ internal class CatalogSearchOpener @Inject constructor(
     private val randomAnimePending = MutableStateFlow(false)
     private val query = MutableStateFlow("")
     private val submitPending = MutableStateFlow(false)
+    private val filterOpenPending = MutableStateFlow(false)
 
     override val isRandomAnimePending: StateFlow<Boolean> = randomAnimePending.asStateFlow()
     override val searchQuery: StateFlow<String> = query.asStateFlow()
     override val isSearchSubmitPending: StateFlow<Boolean> = submitPending.asStateFlow()
+    override val isFilterOpenPending: StateFlow<Boolean> = filterOpenPending.asStateFlow()
 
     override val isSearchFocusPending: StateFlow<Boolean> = pending.asStateFlow()
 
@@ -58,5 +60,15 @@ internal class CatalogSearchOpener @Inject constructor(
 
     override fun consumeSearchSubmit() {
         submitPending.value = false
+    }
+
+    override fun openFilters() {
+        filterOpenPending.value = true
+        nav.resetRoot(RootTab.CATALOG)
+        nav.switchRoot(RootTab.CATALOG, reselectPopToRoot = true)
+    }
+
+    override fun consumeFilterOpen() {
+        filterOpenPending.value = false
     }
 }

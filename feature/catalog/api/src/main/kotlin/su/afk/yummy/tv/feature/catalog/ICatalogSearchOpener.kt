@@ -34,4 +34,8 @@ interface ICatalogSearchOpener {
     val isSearchSubmitPending: StateFlow<Boolean>
     fun submitSearch()
     fun consumeSearchSubmit()
+
+    val isFilterOpenPending: StateFlow<Boolean>
+    fun openFilters()
+    fun consumeFilterOpen()
 }

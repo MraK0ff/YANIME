@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -83,7 +84,7 @@ internal fun <T> MobileMainNavigationBar(
                 .padding(end = if (searchFabEnabled && !classicStyle) 64.dp else 0.dp)
                 .height(80.dp),
             shape = if (classicStyle) RoundedCornerShape(0.dp) else RoundedCornerShape(32.dp),
-            color = if (classicStyle) Color.Transparent else containerColor,
+            color = containerColor,
             contentColor = MaterialTheme.colorScheme.onSurface,
             tonalElevation = 0.dp,
             shadowElevation = 0.dp,
@@ -175,7 +176,8 @@ internal fun <T> MobileMainNavigationBar(
         if (searchFabEnabled) FloatingActionButton(
             onClick = if (catalogFabEnabled) onCatalogRandomSelected else onSearchSelected,
             modifier = Modifier
-                .align(Alignment.CenterEnd)
+                .align(Alignment.TopEnd)
+                .offset(y = (-60).dp)
                 .padding(end = if (classicStyle) 12.dp else 0.dp)
                 .size(56.dp),
             shape = RoundedCornerShape(20.dp),

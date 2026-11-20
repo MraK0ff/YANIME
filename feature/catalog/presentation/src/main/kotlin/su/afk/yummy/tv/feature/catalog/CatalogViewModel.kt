@@ -110,6 +110,14 @@ class CatalogViewModel @Inject internal constructor(
                 }
             }
             .launchIn(viewModelScope)
+        searchOpener.isFilterOpenPending
+            .onEach { pending ->
+                if (pending) {
+                    searchOpener.consumeFilterOpen()
+                    onEvent(CatalogState.Event.OpenFilters)
+                }
+            }
+            .launchIn(viewModelScope)
         searchOpener.isRandomAnimePending
             .onEach { pending ->
                 if (pending) {

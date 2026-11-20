@@ -27,4 +27,11 @@ interface ICatalogSearchOpener {
 
     /** Экран каталога обработал запрос случайного тайтла. */
     fun consumeRandomAnimeRequest()
+
+    /** Shared query for the global header search field. */
+    val searchQuery: StateFlow<String>
+    fun updateSearchQuery(query: String)
+    val isSearchSubmitPending: StateFlow<Boolean>
+    fun submitSearch()
+    fun consumeSearchSubmit()
 }

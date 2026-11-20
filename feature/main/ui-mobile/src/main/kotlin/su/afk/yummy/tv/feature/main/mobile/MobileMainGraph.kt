@@ -6,6 +6,8 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -79,6 +81,8 @@ class MobileMainGraph @Inject internal constructor(
             val accountSettingsFocusRequester = remember { FocusRequester() }
             val baseMenuItems = mobileMenuItems()
             val toast = rememberGlobalToastState()
+            val catalogSearchQuery by catalogSearchOpener.searchQuery.collectAsState()
+            val catalogSearchFocusRequested by catalogSearchOpener.isSearchFocusPending.collectAsState()
             LaunchedEffect(effect) {
                 effect.collect { eff ->
                     when (eff) {
@@ -148,6 +152,12 @@ class MobileMainGraph @Inject internal constructor(
                         contentDrawsBehindStatusBar = isProfileRoot,
                         headerAvatarUrl = if (state.isYaniSignedIn) state.yaniAvatarUrl else "",
                         unreadNotificationsCount = state.unreadNotificationsCount,
+                        searchQuery = catalogSearchQuery,
+                        isCatalogSelected = navManager.currentRoot == RootTab.CATALOG,
+                        isSearchFocusRequested = catalogSearchFocusRequested,
+                        onSearchQueryChange = catalogSearchOpener::updateSearchQuery,
+                        onSearchSubmitted = catalogSearchOpener::submitSearch,
+                        onSearchFocusHandled = catalogSearchOpener::consumeSearchFocus,
                         onSearchSelected = { catalogSearchOpener.openSearch() },
                         onCatalogRandomSelected = { catalogSearchOpener.openRandomAnime() },
                         onNotificationsSelected = {

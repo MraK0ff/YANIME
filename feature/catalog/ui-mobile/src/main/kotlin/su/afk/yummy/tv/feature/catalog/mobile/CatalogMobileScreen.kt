@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.feature.catalog.mobile
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,11 +25,8 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -62,7 +60,6 @@ import su.afk.yummy.tv.core.model.anime.posterUrls
 import su.afk.yummy.tv.core.model.settings.TitleCardLayout
 import su.afk.yummy.tv.feature.catalog.CatalogState
 import su.afk.yummy.tv.feature.catalog.mobile.view.CATALOG_SKELETON_ITEMS
-import su.afk.yummy.tv.feature.catalog.mobile.view.CatalogMobileClearButton
 import su.afk.yummy.tv.feature.catalog.mobile.view.CatalogMobileFilterButton
 import su.afk.yummy.tv.feature.catalog.mobile.view.CatalogMobileFilterPanel
 import su.afk.yummy.tv.feature.catalog.mobile.view.CatalogMobileSearchHistory
@@ -105,17 +102,6 @@ fun CatalogMobileScreen(
         ?.uiMessage()
     val gridState = rememberLazyGridState()
     val keyboardController = LocalSoftwareKeyboardController.current
-    val queryFocusRequester = remember { FocusRequester() }
-
-    LaunchedEffect(state.isSearchFocusRequested) {
-        if (!state.isSearchFocusRequested) return@LaunchedEffect
-        gridState.scrollToItem(0)
-        // Поле — первый элемент ленивой сетки: ждём кадр, пока оно встанет в композицию.
-        withFrameNanos { }
-        runCatching { queryFocusRequester.requestFocus() }
-        keyboardController?.show()
-        onEvent(CatalogState.Event.SearchFocusHandled)
-    }
 
     BaseScreen(isScroll = false) {
         MobilePosterGrid(
@@ -129,59 +115,20 @@ fun CatalogMobileScreen(
                     OfflineBanner(isOffline = isOffline, horizontalPadding = 0.dp)
                 }
             }
-            item(span = { GridItemSpan(maxLineSpan) }, contentType = "query_field") {
-                OutlinedTextField(
-                    shape = MaterialTheme.shapes.extraLarge,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                        disabledContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                        focusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
-                        unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
-                        disabledBorderColor = androidx.compose.ui.graphics.Color.Transparent,
-                    ),
-                    value = state.query,
-                    onValueChange = { onEvent(CatalogState.Event.QueryChanged(it)) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(queryFocusRequester),
-                    placeholder = { Text(stringResource(R.string.search_placeholder)) },
-                    leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                    keyboardActions = KeyboardActions(onSearch = {
-                        keyboardController?.hide()
-                        onEvent(CatalogState.Event.SearchSubmitted)
-                    }),
-                    trailingIcon = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            if (state.query.isNotEmpty()) {
-                                CatalogMobileClearButton(
-                                    onClick = { onEvent(CatalogState.Event.QueryChanged("")) },
-                                )
-                            }
-                            CatalogMobileFilterButton(
-                                activeCount = state.filters.activeCount,
-                                modifier = Modifier.padding(end = 2.dp),
-                                onClick = {
-                                    keyboardController?.hide()
-                                    onEvent(CatalogState.Event.OpenFilters)
-                                },
-                            )
-                            IconButton(
-                                onClick = {
-                                    keyboardController?.hide()
-                                    onEvent(CatalogState.Event.SearchSubmitted)
-                                },
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Search,
-                                    contentDescription = stringResource(R.string.search_mobile_submit),
-                                )
-                            }
-                        }
-                    },
-                )
+            item(span = { GridItemSpan(maxLineSpan) }, contentType = "filters") {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    CatalogMobileFilterButton(
+                        activeCount = state.filters.activeCount,
+                        onClick = {
+                            keyboardController?.hide()
+                            onEvent(CatalogState.Event.OpenFilters)
+                        },
+                    )
+                }
             }
             if (state.query.isEmpty() && state.searchHistory.isNotEmpty()) {
                 item(span = { GridItemSpan(maxLineSpan) }, contentType = "search_history") {

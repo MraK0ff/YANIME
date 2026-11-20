@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
@@ -89,12 +91,13 @@ internal fun MobileMainHeader(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             AppBrandIcon(Modifier.size(34.dp))
-            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.width(8.dp))
             if (showSearchBar) {
                 if (isCatalogSelected) {
                     Row(
                         modifier = Modifier
-                            .width(156.dp)
+                             .weight(1f)
+                            .widthIn(min = 120.dp, max = 196.dp)
                             .height(38.dp)
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.surfaceContainerLow)
@@ -144,7 +147,8 @@ internal fun MobileMainHeader(
                 } else {
                     Surface(
                         modifier = Modifier
-                            .width(156.dp)
+                             .weight(1f)
+                            .widthIn(min = 120.dp, max = 196.dp)
                             .height(38.dp)
                             .clickable(onClick = onSearchSelected),
                         shape = CircleShape,
@@ -167,10 +171,10 @@ internal fun MobileMainHeader(
                 }
             }
             Box(
-                modifier = Modifier.size(48.dp),
+                modifier = Modifier.size(40.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                IconButton(onClick = onNotificationsSelected) {
+                IconButton(onClick = onNotificationsSelected, modifier = Modifier.size(40.dp)) {
                     Icon(Icons.Default.Notifications, contentDescription = stringResource(R.string.main_header_notifications))
                 }
                 if (unreadNotificationsCount > 0) {
@@ -179,10 +183,10 @@ internal fun MobileMainHeader(
                     }
                 }
             }
-            IconButton(onClick = onSettingsSelected) {
+            IconButton(onClick = onSettingsSelected, modifier = Modifier.size(40.dp)) {
                 Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.main_header_settings))
             }
-            IconButton(onClick = onProfileSelected) {
+            IconButton(onClick = onProfileSelected, modifier = Modifier.size(40.dp)) {
                 if (avatarUrl.isNotBlank()) {
                     AsyncImage(
                         model = avatarUrl,

@@ -2,7 +2,6 @@ package su.afk.yummy.tv.feature.main.mobile.model
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Newspaper
@@ -11,9 +10,9 @@ import androidx.compose.ui.res.stringResource
 import su.afk.yummy.tv.core.navigation.root.RootTab
 import su.afk.yummy.tv.feature.main.presentation.R
 
-/** Вкладки мобильной навигации (бар или рейка) в порядке показа. */
+/** Четыре основных мобильных раздела; профиль, поиск и настройки доступны из глобальной шапки. */
 @Composable
-internal fun mobileMenuItems(unreadNotificationsCount: Int, avatarUrl: String): List<MobileMenuItem<RootTab>> = listOf(
+internal fun mobileMenuItems(): List<MobileMenuItem<RootTab>> = listOf(
     MobileMenuItem(
         stringResource(R.string.main_tab_news),
         RootTab.POSTS,
@@ -34,12 +33,5 @@ internal fun mobileMenuItems(unreadNotificationsCount: Int, avatarUrl: String): 
         stringResource(R.string.main_tab_library),
         RootTab.LIBRARY,
         Icons.AutoMirrored.Filled.List,
-    ),
-    MobileMenuItem(
-        stringResource(R.string.main_mobile_tab_profile),
-        RootTab.ACCOUNT,
-        Icons.Default.AccountCircle,
-        badgeCount = unreadNotificationsCount,
-        avatarUrl = avatarUrl,
     ),
 )

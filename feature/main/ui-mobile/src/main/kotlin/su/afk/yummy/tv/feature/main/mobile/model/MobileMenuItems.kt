@@ -14,6 +14,11 @@ import su.afk.yummy.tv.feature.main.presentation.R
 @Composable
 internal fun mobileMenuItems(): List<MobileMenuItem<RootTab>> = listOf(
     MobileMenuItem(
+        stringResource(R.string.main_tab_schedule),
+        RootTab.SCHEDULE,
+        Icons.Default.CalendarToday,
+    ),
+    MobileMenuItem(
         stringResource(R.string.main_tab_catalog),
         RootTab.CATALOG,
         Icons.Default.GridView,
@@ -28,10 +33,5 @@ internal fun mobileMenuItems(): List<MobileMenuItem<RootTab>> = listOf(
         stringResource(R.string.main_tab_library),
         RootTab.LIBRARY,
         Icons.AutoMirrored.Filled.List,
-    ),
-    MobileMenuItem(
-        stringResource(R.string.main_tab_schedule),
-        RootTab.SCHEDULE,
-        Icons.Default.CalendarToday,
     ),
 )

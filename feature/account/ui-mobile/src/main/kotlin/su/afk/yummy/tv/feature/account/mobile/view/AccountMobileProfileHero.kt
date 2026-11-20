@@ -144,7 +144,7 @@ internal fun AccountMobileProfileHero(
                     .align(Alignment.TopEnd)
                     .statusBarsPadding()
                     // Учитываем cutout с любой стороны в landscape только для ряда действий.
-                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
+                    .windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal))
                     .padding(top = topExtra)
                     .padding(12.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),

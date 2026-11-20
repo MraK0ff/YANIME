@@ -165,17 +165,25 @@ internal fun <T> MobileMainNavigationBar(
                         selected = selected,
                         colors = itemColors,
                         onClick = { onDestinationSelected(item.destination) },
-                        icon = { MobileMainNavigationIcon(item, selected) },
-                        label = {
-                            Text(
-                                item.label,
-                                maxLines = 1,
-                                style = MaterialTheme.typography.labelSmall.copy(letterSpacing = (-0.3).sp),
-                                softWrap = false,
-                                overflow = TextOverflow.Ellipsis,
-                            )
+                        icon = {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            ) {
+                                MobileMainNavigationIcon(item, selected)
+                                if (selected) {
+                                    Text(
+                                        item.label,
+                                        maxLines = 1,
+                                        style = MaterialTheme.typography.labelMedium,
+                                        softWrap = false,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                }
+                            }
                         },
-                        alwaysShowLabel = true,
+                        label = null,
+                        alwaysShowLabel = false,
                     )
                 }
             }

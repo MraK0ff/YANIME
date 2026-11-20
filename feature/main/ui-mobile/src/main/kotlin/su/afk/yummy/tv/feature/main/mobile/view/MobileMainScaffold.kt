@@ -74,8 +74,8 @@ internal fun <T> MobileMainScaffold(
                 source: NestedScrollSource,
             ): Offset {
                 when {
-                    available.y < -1f -> headerVisible.value = false
-                    available.y > 1f -> headerVisible.value = true
+                    consumed.y < -1f -> headerVisible.value = false
+                    consumed.y > 1f -> headerVisible.value = true
                 }
                 return Offset.Zero
             }

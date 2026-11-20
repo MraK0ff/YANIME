@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.feature.player.mobile.view
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -72,17 +74,23 @@ internal fun MobilePlayerTimeOverlay(
     val edgeTopPadding = 56.dp + videoTopInset.coerceAtLeast(0.dp)
     val edgeBottomPadding = if (videoBottomInset > 0.dp) videoBottomInset / 2 else 12.dp
 
-    Box(modifier = modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top))) {
+    Box(modifier = modifier.fillMaxSize()) {
         if (combineClockAndFinish) {
             TimeChip(
                 values = listOf(systemClock, finishAt),
-                modifier = Modifier.align(Alignment.TopEnd).padding(end = 8.dp, top = edgeTopPadding),
+                modifier = Modifier.align(Alignment.TopEnd)
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.End + WindowInsetsSides.Top))
+                    .background(Color.Black.copy(alpha = 0.24f), RoundedCornerShape(12.dp))
+                    .padding(end = 8.dp, top = edgeTopPadding),
             )
         } else {
             if (showClock) TimeChip(
                 values = listOf(systemClock),
                 finishOnly = false,
-                modifier = Modifier.align(Alignment.TopStart).padding(start = 8.dp, top = edgeTopPadding),
+                modifier = Modifier.align(Alignment.TopStart)
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Start + WindowInsetsSides.Top))
+                    .background(Color.Black.copy(alpha = 0.24f), RoundedCornerShape(12.dp))
+                    .padding(start = 8.dp, top = edgeTopPadding),
             )
             if (showFinish) TimeChip(
                 values = listOf(finishAt),
@@ -94,6 +102,8 @@ internal fun MobilePlayerTimeOverlay(
             TimeValueChip(
                 value = "${displayTimeMs.millisToClockTime()} / ${durationMs.millisToClockTime()}",
                 modifier = Modifier.align(Alignment.BottomStart)
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Start + WindowInsetsSides.Bottom))
+                    .then(if (controlsActive) Modifier else Modifier.background(Color.Black.copy(alpha = 0.24f), RoundedCornerShape(10.dp)))
                     .padding(start = 8.dp, bottom = edgeBottomPadding),
                 onClick = onTimeCodeClick,
             )
@@ -111,6 +121,8 @@ internal fun MobilePlayerTimeOverlay(
             TimeValueChip(
                 value = durationMs.millisToClockTime().padStart(5, '0'),
                 modifier = Modifier.align(Alignment.BottomEnd)
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.End + WindowInsetsSides.Bottom))
+                    .then(if (controlsActive) Modifier else Modifier.background(Color.Black.copy(alpha = 0.24f), RoundedCornerShape(10.dp)))
                     .padding(end = 8.dp, bottom = edgeBottomPadding),
                 onClick = onTimeCodeClick,
             )

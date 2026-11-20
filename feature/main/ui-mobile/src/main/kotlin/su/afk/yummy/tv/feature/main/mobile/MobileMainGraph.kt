@@ -36,6 +36,7 @@ import su.afk.yummy.tv.core.navigation.manager.BackStackHost
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.navigation.root.RootTab
 import su.afk.yummy.tv.core.navigation.scene.FullscreenDestination
+import su.afk.yummy.tv.feature.catalog.ICatalogSearchOpener
 import su.afk.yummy.tv.feature.account.navigator.AccountNotificationsDestination
 import su.afk.yummy.tv.feature.settings.navigator.SettingsDestination
 import su.afk.yummy.tv.feature.main.presentation.R
@@ -58,6 +59,7 @@ class MobileMainGraph @Inject internal constructor(
     private val navManager: INavigationManager,
     private val backStackHost: BackStackHost,
     private val navigationHolder: MobileNavigationHolder,
+    private val catalogSearchOpener: ICatalogSearchOpener,
 ) : MainGraph {
 
     @Composable
@@ -140,14 +142,14 @@ class MobileMainGraph @Inject internal constructor(
                         headerExpandedByDefault = navManager.currentRoot == RootTab.HOME ||
                             navManager.currentRoot == RootTab.CATALOG,
                         classicBottomBar = state.mobileClassicBottomBar,
-                        searchFabEnabled = state.mobileSearchFabEnabled && navManager.currentRoot != RootTab.CATALOG,
+                        searchFabEnabled = state.mobileSearchFabEnabled,
+                        catalogFabEnabled = navManager.currentRoot == RootTab.CATALOG,
                         overlayHeader = false,
                         contentDrawsBehindStatusBar = isProfileRoot,
                         headerAvatarUrl = if (state.isYaniSignedIn) state.yaniAvatarUrl else "",
                         unreadNotificationsCount = state.unreadNotificationsCount,
-                        onSearchSelected = {
-                            onEvent(MainState.Event.RootSelected(RootTab.CATALOG, popToRootOnReselect = true))
-                        },
+                        onSearchSelected = { catalogSearchOpener.openSearch() },
+                        onCatalogRandomSelected = { catalogSearchOpener.openRandomAnime() },
                         onNotificationsSelected = {
                             navManager.navigate(AccountNotificationsDestination)
                         },

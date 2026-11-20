@@ -81,7 +81,7 @@ internal fun <T> MobileMainNavigationBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(end = if (searchFabEnabled && !classicStyle) 64.dp else 0.dp)
-                .height(64.dp),
+                .height(80.dp),
             shape = if (classicStyle) RoundedCornerShape(0.dp) else RoundedCornerShape(32.dp),
             color = if (classicStyle) Color.Transparent else containerColor,
             contentColor = MaterialTheme.colorScheme.onSurface,

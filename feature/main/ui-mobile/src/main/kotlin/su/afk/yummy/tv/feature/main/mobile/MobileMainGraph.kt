@@ -30,6 +30,9 @@ import su.afk.yummy.tv.core.navigation.manager.BackStackHost
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.navigation.root.RootTab
 import su.afk.yummy.tv.core.navigation.scene.FullscreenDestination
+import su.afk.yummy.tv.feature.account.navigator.AccountNotificationsDestination
+import su.afk.yummy.tv.feature.catalog.navigator.CatalogDestination
+import su.afk.yummy.tv.feature.settings.navigator.SettingsDestination
 import su.afk.yummy.tv.feature.main.MainState
 import su.afk.yummy.tv.feature.main.MainViewModel
 import su.afk.yummy.tv.feature.main.api.MainGraph
@@ -58,15 +61,11 @@ class MobileMainGraph @Inject internal constructor(
         val atTabRoot = navManager.appBackStack.isEmpty() && navManager.backStack.size <= 1
         val isRequiredUpdateDestination =
             currentDestination is UpdateDestination && currentDestination.required
-        // Полноэкранные экраны (плеер, первичная настройка) не должны соседствовать с меню: бар
-        // иначе держится только на atTabRoot, а тот зависит от того, успел ли таб-стек
-        // проинициализироваться к моменту навигации из MainViewModel.init.
         val isFullscreenDestination = currentDestination is FullscreenDestination
-        // Рейка на широком окне остаётся рядом с деталями, уходит только в полноэкранных сценах.
-        val showRail = !isRequiredUpdateDestination && !isFullscreenDestination
+        val isProfileRoot = atTabRoot && navManager.currentRoot == RootTab.ACCOUNT
+        val showRail = !isRequiredUpdateDestination && !isFullscreenDestination && !isProfileRoot
 
         ScreenNavigator(viewModel) { state, effect, onEvent ->
-            // Не рисуем тему по умолчанию: ждём атомарную загрузку сохранённых оформления и фона.
             if (!state.appearanceLoaded) return@ScreenNavigator
             val accountSettingsFocusRequester = remember { FocusRequester() }
             val toast = rememberGlobalToastState()
@@ -86,7 +85,6 @@ class MobileMainGraph @Inject internal constructor(
                 ConfirmDialogHost(isTelevision = false)
                 ChoiceDialogHost(isTelevision = false)
                 val onboarding = rememberOnboardingController()
-                val tabRootReady = atTabRoot && !isRequiredUpdateDestination && !isFullscreenDestination
                 SeasonalPrompt(
                     theme = state.seasonalPrompt,
                     isTelevision = false,
@@ -106,17 +104,28 @@ class MobileMainGraph @Inject internal constructor(
                         atTabRoot && navManager.currentRoot == RootTab.ACCOUNT
                     },
                 ) {
-                    // Mobile spotlight onboarding is temporarily disabled while investigating
-                    // a startup crash reported when the first catalog step is displayed.
                     MobileMainScaffold(
                         selectedDestination = navManager.currentRoot,
-                        menuItems = mobileMenuItems(
-                            state.unreadNotificationsCount,
-                            if (state.isYaniSignedIn) state.yaniAvatarUrl else "",
-                        ),
+                        menuItems = mobileMenuItems(),
                         showBottomBar = atTabRoot && !isRequiredUpdateDestination &&
-                            !isFullscreenDestination,
+                            !isFullscreenDestination && !isProfileRoot,
                         showRail = showRail,
+                        showHeader = atTabRoot && !isRequiredUpdateDestination &&
+                            !isFullscreenDestination && !isProfileRoot,
+                        headerAvatarUrl = if (state.isYaniSignedIn) state.yaniAvatarUrl else "",
+                        unreadNotificationsCount = state.unreadNotificationsCount,
+                        onSearchSelected = {
+                            onEvent(MainState.Event.RootSelected(RootTab.CATALOG, popToRootOnReselect = true))
+                        },
+                        onNotificationsSelected = {
+                            navManager.navigate(AccountNotificationsDestination)
+                        },
+                        onSettingsSelected = {
+                            navManager.navigate(SettingsDestination)
+                        },
+                        onProfileSelected = {
+                            onEvent(MainState.Event.RootSelected(RootTab.ACCOUNT, popToRootOnReselect = true))
+                        },
                         onDestinationSelected = { root ->
                             onEvent(MainState.Event.RootSelected(root, popToRootOnReselect = true))
                         },

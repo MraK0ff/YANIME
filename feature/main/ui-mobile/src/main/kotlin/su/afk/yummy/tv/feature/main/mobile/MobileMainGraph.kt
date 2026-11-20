@@ -31,7 +31,6 @@ import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.navigation.root.RootTab
 import su.afk.yummy.tv.core.navigation.scene.FullscreenDestination
 import su.afk.yummy.tv.feature.account.navigator.AccountNotificationsDestination
-import su.afk.yummy.tv.feature.catalog.navigator.CatalogDestination
 import su.afk.yummy.tv.feature.settings.navigator.SettingsDestination
 import su.afk.yummy.tv.feature.main.MainState
 import su.afk.yummy.tv.feature.main.MainViewModel
@@ -63,7 +62,7 @@ class MobileMainGraph @Inject internal constructor(
             currentDestination is UpdateDestination && currentDestination.required
         val isFullscreenDestination = currentDestination is FullscreenDestination
         val isProfileRoot = atTabRoot && navManager.currentRoot == RootTab.ACCOUNT
-        val showRail = !isRequiredUpdateDestination && !isFullscreenDestination && !isProfileRoot
+        val showRail = !isRequiredUpdateDestination && !isFullscreenDestination
 
         ScreenNavigator(viewModel) { state, effect, onEvent ->
             if (!state.appearanceLoaded) return@ScreenNavigator
@@ -108,7 +107,7 @@ class MobileMainGraph @Inject internal constructor(
                         selectedDestination = navManager.currentRoot,
                         menuItems = mobileMenuItems(),
                         showBottomBar = atTabRoot && !isRequiredUpdateDestination &&
-                            !isFullscreenDestination && !isProfileRoot,
+                            !isFullscreenDestination,
                         showRail = showRail,
                         showHeader = atTabRoot && !isRequiredUpdateDestination &&
                             !isFullscreenDestination && !isProfileRoot,

@@ -45,8 +45,8 @@ import su.afk.yummy.tv.core.designsystem.seasonal.SeasonalOverlay
 import su.afk.yummy.tv.feature.main.mobile.model.MobileMenuItem
 
 /**
- * Root mobile layout. The page always draws edge-to-edge; navigation is an overlay, not a
- * reserved scaffold row, so the page remains visible through the transparent area around capsules.
+ * Root mobile layout. The page draws edge-to-edge and the navigation is overlaid rather than
+ * reserving a background row, keeping page content visible around the floating navigation surfaces.
  */
 @Composable
 internal fun <T> MobileMainScaffold(

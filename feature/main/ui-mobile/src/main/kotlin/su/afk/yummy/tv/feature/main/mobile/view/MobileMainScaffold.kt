@@ -70,7 +70,7 @@ internal fun <T> MobileMainScaffold(
         if (isVisible) suiteState.show() else suiteState.hide()
     }
 
-    val surface = MaterialTheme.colorScheme.surface
+    val surface = MaterialTheme.colorScheme.surfaceContainer
     NavigationSuiteScaffoldLayout(
         navigationSuiteType = if (isRail) NavigationSuiteType.NavigationRail else suiteType,
         state = suiteState,

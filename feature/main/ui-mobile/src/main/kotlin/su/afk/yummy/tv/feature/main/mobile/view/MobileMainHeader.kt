@@ -43,6 +43,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.SolidColor
 import coil3.compose.AsyncImage
 import su.afk.yummy.tv.core.designsystem.components.AppBrandIcon
 import su.afk.yummy.tv.core.designsystem.seasonal.seasonalAvatarHat
@@ -98,7 +99,7 @@ internal fun MobileMainHeader(
                     Row(
                         modifier = Modifier
                              .weight(1f)
-                            .widthIn(min = 120.dp, max = 196.dp)
+                            .widthIn(min = 120.dp)
                             .height(38.dp)
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.surfaceContainerLow)
@@ -114,6 +115,7 @@ internal fun MobileMainHeader(
                                 .focusRequester(searchFocusRequester)
                                 .padding(start = 8.dp),
                             singleLine = true,
+                            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                             textStyle = MaterialTheme.typography.bodyMedium.copy(
                                 color = MaterialTheme.colorScheme.onSurface,
                             ),
@@ -152,7 +154,7 @@ internal fun MobileMainHeader(
                     Surface(
                         modifier = Modifier
                              .weight(1f)
-                            .widthIn(min = 120.dp, max = 196.dp)
+                            .widthIn(min = 120.dp)
                             .height(38.dp)
                             .clickable(onClick = onSearchSelected),
                         shape = CircleShape,

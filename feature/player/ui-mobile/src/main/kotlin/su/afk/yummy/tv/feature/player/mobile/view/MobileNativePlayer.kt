@@ -54,7 +54,6 @@ import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.feature.player.PlayerState
 import su.afk.yummy.tv.feature.player.common.PlayerBlackBackdrop
 import su.afk.yummy.tv.feature.player.common.PlayerDiagnosticsOverlay
-import su.afk.yummy.tv.feature.player.common.PlayerBufferingIndicator
 import su.afk.yummy.tv.feature.player.common.PlayerDecoderCapabilityEffect
 import su.afk.yummy.tv.feature.player.common.PlayerEpisodeEndController
 import su.afk.yummy.tv.feature.player.common.PlayerKeepScreenOnEffect
@@ -972,12 +971,6 @@ internal fun MobileNativePlayer(
                 overlay.visible = true
                 overlay.cancelHide()
             },
-        )
-
-        // Индикатор рисуется поверх жестового слоя и центральных кнопок управления.
-        PlayerBufferingIndicator(
-            visible = isBuffering || showRecoveryIndicator,
-            modifier = Modifier.align(Alignment.Center),
         )
 
         MobilePlayerTimeOverlay(

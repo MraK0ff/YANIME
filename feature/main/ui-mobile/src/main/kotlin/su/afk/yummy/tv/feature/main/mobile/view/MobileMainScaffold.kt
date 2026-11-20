@@ -200,6 +200,7 @@ internal fun <T> MobileMainScaffold(
                                     isSearchFocusRequested = isSearchFocusRequested,
                                     onSearchQueryChange = onSearchQueryChange,
                                     onSearchSubmitted = onSearchSubmitted,
+                                    onSearchFiltersSelected = onSearchFiltersSelected,
                                     onSearchFocusHandled = onSearchFocusHandled,
                                     onSearchSelected = onSearchSelected,
                                     onNotificationsSelected = onNotificationsSelected,

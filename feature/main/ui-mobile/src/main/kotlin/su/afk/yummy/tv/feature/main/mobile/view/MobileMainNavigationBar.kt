@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -40,6 +41,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.sp
 import su.afk.yummy.tv.core.designsystem.mobile.input.clickablePointer
 import su.afk.yummy.tv.core.designsystem.onboarding.onboardingTarget
@@ -72,16 +74,22 @@ internal fun <T> MobileMainNavigationBar(
         animationSpec = spring(dampingRatio = 0.82f, stiffness = 340f),
         label = "navigationDragPreview",
     )
+    val bottomInset = with(LocalDensity.current) {
+        WindowInsets.navigationBars.getBottom(this).toDp()
+    }
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .navigationBarsPadding()
-            .padding(horizontal = if (classicStyle) 0.dp else 12.dp, vertical = 4.dp),
+            .then(
+                if (classicStyle) Modifier
+                else Modifier.navigationBarsPadding().padding(horizontal = 12.dp, vertical = 4.dp),
+            ),
     ) {
         Surface(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(80.dp),
+                .align(Alignment.BottomStart)
+                .fillMaxWidth(if (searchFabEnabled && !classicStyle) 0.78f else 1f)
+                .height(if (classicStyle) 80.dp + bottomInset else 80.dp),
             shape = if (classicStyle) RoundedCornerShape(0.dp) else RoundedCornerShape(32.dp),
             color = containerColor,
             contentColor = MaterialTheme.colorScheme.onSurface,
@@ -90,7 +98,9 @@ internal fun <T> MobileMainNavigationBar(
         ) {
             NavigationBar(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
+                    .height(80.dp)
+                    .align(Alignment.TopCenter)
                     .pointerInput(orderedItems, selectedDestination) {
                         if (orderedItems.size < 2) return@pointerInput
                         var totalDrag = 0f
@@ -173,12 +183,12 @@ internal fun <T> MobileMainNavigationBar(
         }
         if (searchFabEnabled) FloatingActionButton(
             onClick = if (catalogFabEnabled) onCatalogRandomSelected else onSearchSelected,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .offset(y = (-60).dp)
-                .padding(end = if (classicStyle) 12.dp else 0.dp)
-                .size(56.dp),
-            shape = RoundedCornerShape(20.dp),
+            modifier = if (classicStyle) {
+                Modifier.align(Alignment.TopEnd).offset(y = (-60).dp).padding(end = 12.dp).size(56.dp)
+            } else {
+                Modifier.align(Alignment.CenterEnd).size(80.dp)
+            },
+            shape = RoundedCornerShape(if (classicStyle) 20.dp else 28.dp),
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
         ) {

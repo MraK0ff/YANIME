@@ -11,6 +11,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.res.stringResource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -37,6 +38,7 @@ import su.afk.yummy.tv.core.navigation.root.RootTab
 import su.afk.yummy.tv.core.navigation.scene.FullscreenDestination
 import su.afk.yummy.tv.feature.account.navigator.AccountNotificationsDestination
 import su.afk.yummy.tv.feature.settings.navigator.SettingsDestination
+import su.afk.yummy.tv.feature.main.presentation.R
 import su.afk.yummy.tv.feature.main.MainState
 import su.afk.yummy.tv.feature.main.MainViewModel
 import su.afk.yummy.tv.feature.main.api.MainGraph
@@ -69,6 +71,7 @@ class MobileMainGraph @Inject internal constructor(
         val isProfileRoot = atTabRoot && navManager.currentRoot == RootTab.ACCOUNT
         val showRail = !isRequiredUpdateDestination && !isFullscreenDestination
 
+        val profileTabLabel = stringResource(R.string.main_mobile_tab_profile)
         ScreenNavigator(viewModel) { state, effect, onEvent ->
             if (!state.appearanceLoaded) return@ScreenNavigator
             val accountSettingsFocusRequester = remember { FocusRequester() }
@@ -118,7 +121,7 @@ class MobileMainGraph @Inject internal constructor(
                             mobileMenuItems().let { items ->
                                 if (state.mobileHeaderEnabled) items else {
                                     items + su.afk.yummy.tv.feature.main.mobile.model.MobileMenuItem(
-                                        label = "Profile",
+                                        label = profileTabLabel,
                                         destination = RootTab.ACCOUNT,
                                         icon = Icons.Filled.Person,
                                         badgeCount = state.unreadNotificationsCount,

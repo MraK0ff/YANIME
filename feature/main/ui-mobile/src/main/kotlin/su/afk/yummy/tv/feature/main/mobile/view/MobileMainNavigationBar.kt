@@ -72,15 +72,15 @@ internal fun <T> MobileMainNavigationBar(
         modifier = Modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(horizontal = 12.dp, vertical = 4.dp),
+            .padding(horizontal = if (classicStyle) 0.dp else 12.dp, vertical = 4.dp),
     ) {
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(end = if (searchFabEnabled) 64.dp else 0.dp)
+                .padding(end = if (searchFabEnabled && !classicStyle) 64.dp else 0.dp)
                 .height(64.dp),
             shape = if (classicStyle) RoundedCornerShape(0.dp) else RoundedCornerShape(32.dp),
-            color = containerColor,
+            color = if (classicStyle) Color.Transparent else containerColor,
             contentColor = MaterialTheme.colorScheme.onSurface,
             tonalElevation = 0.dp,
             shadowElevation = 0.dp,
@@ -88,6 +88,7 @@ internal fun <T> MobileMainNavigationBar(
             NavigationBar(
                 modifier = Modifier
                     .fillMaxSize()
+                    .then(if (classicStyle && searchFabEnabled) Modifier.padding(end = 72.dp) else Modifier)
                     .pointerInput(orderedItems, selectedDestination) {
                         if (orderedItems.size < 2) return@pointerInput
                         var totalDrag = 0f
@@ -172,6 +173,7 @@ internal fun <T> MobileMainNavigationBar(
             onClick = onSearchSelected,
             modifier = Modifier
                 .align(Alignment.CenterEnd)
+                .padding(end = if (classicStyle) 12.dp else 0.dp)
                 .size(56.dp),
             shape = RoundedCornerShape(20.dp),
             containerColor = MaterialTheme.colorScheme.primaryContainer,

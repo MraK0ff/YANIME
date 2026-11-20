@@ -2,10 +2,9 @@ package su.afk.yummy.tv.feature.catalog.mobile.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -32,13 +31,16 @@ internal fun CatalogMobileSearchHistory(
     onClear: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
+    Box(
         modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
     ) {
+        // Let the chip rail use the full viewport. The clear action overlays its
+        // trailing edge, so LazyRow does not truncate a chip at the button boundary.
         LazyRow(
-            modifier = Modifier.weight(1f).clipToBounds(),
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(end = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             items(queries, key = { it }) { query ->
                 SuggestionChip(
@@ -56,7 +58,7 @@ internal fun CatalogMobileSearchHistory(
         }
         TextButton(
             onClick = onClear,
-            modifier = Modifier.padding(start = 4.dp),
+            modifier = Modifier.align(Alignment.CenterEnd),
             contentPadding = PaddingValues(horizontal = 0.dp),
         ) {
             Text(stringResource(R.string.search_mobile_history_clear))

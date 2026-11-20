@@ -88,7 +88,7 @@ internal fun <T> MobileMainNavigationBar(
         Surface(
             modifier = Modifier
                 .align(Alignment.BottomStart)
-                .fillMaxWidth(if (searchFabEnabled && !classicStyle) 0.78f else 1f)
+                .fillMaxWidth(if (searchFabEnabled && !classicStyle) 0.70f else 1f)
                 .height(if (classicStyle) 80.dp + bottomInset else 80.dp),
             shape = if (classicStyle) RoundedCornerShape(0.dp) else RoundedCornerShape(32.dp),
             color = containerColor,
@@ -187,7 +187,7 @@ internal fun <T> MobileMainNavigationBar(
             } else {
                 Modifier.align(Alignment.CenterEnd).size(80.dp)
             },
-            shape = RoundedCornerShape(if (classicStyle) 20.dp else 28.dp),
+            shape = if (classicStyle) RoundedCornerShape(20.dp) else androidx.compose.foundation.shape.CircleShape,
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
         ) {

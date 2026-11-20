@@ -11,6 +11,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import su.afk.yummy.tv.core.common.coroutines.AppClock
 import su.afk.yummy.tv.core.designsystem.baseScreen.ScreenNavigator
@@ -108,8 +110,24 @@ class MobileMainGraph @Inject internal constructor(
                 ) {
                     MobileMainScaffold(
                         selectedDestination = navManager.currentRoot,
-                        menuItems = mobileMenuItems(),
-                        showBottomBar = atTabRoot && !isRequiredUpdateDestination &&
+                        menuItems = remember(
+                            state.mobileHeaderEnabled,
+                            state.yaniAvatarUrl,
+                            state.unreadNotificationsCount,
+                        ) {
+                            mobileMenuItems().let { items ->
+                                if (state.mobileHeaderEnabled) items else {
+                                    items + su.afk.yummy.tv.feature.main.mobile.model.MobileMenuItem(
+                                        label = "Profile",
+                                        destination = RootTab.ACCOUNT,
+                                        icon = Icons.Filled.Person,
+                                        badgeCount = state.unreadNotificationsCount,
+                                        avatarUrl = if (state.isYaniSignedIn) state.yaniAvatarUrl else "",
+                                    )
+                                }
+                            }
+                        },
+                        showBottomBar = atTabRoot && (!state.mobileHeaderEnabled || true) && !isRequiredUpdateDestination &&
                             !isFullscreenDestination,
                         showRail = showRail,
                         showHeader = state.mobileHeaderEnabled && atTabRoot && !isProfileRoot &&

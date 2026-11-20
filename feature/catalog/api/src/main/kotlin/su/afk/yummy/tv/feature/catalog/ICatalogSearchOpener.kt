@@ -18,4 +18,13 @@ interface ICatalogSearchOpener {
 
     /** Экран каталога поставил фокус — запрос снят. */
     fun consumeSearchFocus()
+
+    /** Есть отложенный запрос на открытие случайного тайтла. */
+    val isRandomAnimePending: StateFlow<Boolean>
+
+    /** Переключает на каталог и просит открыть случайный тайтл. */
+    fun openRandomAnime()
+
+    /** Экран каталога обработал запрос случайного тайтла. */
+    fun consumeRandomAnimeRequest()
 }

@@ -85,6 +85,9 @@ class CatalogViewModel @Inject internal constructor(
         appearanceSettingsStore.showCatalogTitleYear
             .onEach { showTitleYear -> setState { copy(showTitleYear = showTitleYear) } }
             .launchIn(viewModelScope)
+        appearanceSettingsStore.mobileHeaderEnabled
+            .onEach { enabled -> setState { copy(isHeaderSearchEnabled = enabled) } }
+            .launchIn(viewModelScope)
         appearanceSettingsStore.titleCardLayout
             .onEach { layout -> setState { copy(titleCardLayout = layout) } }
             .launchIn(viewModelScope)

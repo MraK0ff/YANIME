@@ -98,7 +98,7 @@ fun ScheduleMobileScreen(
         customTopBar = {
             MobileTopBar(
                 title = stringResource(R.string.schedule_mobile_title),
-                onBack = { onEvent(ScheduleState.Event.BackSelected) },
+                onBack = null,
                 actions = {
                     ScheduleLibraryFilterAction(
                         selected = state.libraryFilter,

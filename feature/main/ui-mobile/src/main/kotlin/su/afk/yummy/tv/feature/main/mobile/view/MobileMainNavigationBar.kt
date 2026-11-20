@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -105,37 +106,36 @@ internal fun <T> MobileMainNavigationBar(
                         var totalDrag = 0f
                         var startIndex = 0
                         var previewIndex = 0f
+                        var lastFingerX = 0f
                         detectHorizontalDragGestures(
                             onDragStart = { offset ->
                                 totalDrag = 0f
                                 startIndex = orderedItems.indexOfFirst {
                                     it.destination == selectedDestination
                                 }.coerceAtLeast(0)
-                                previewIndex = startIndex.toFloat()
-                                dragPreviewIndex = startIndex.toFloat()
+                                lastFingerX = offset.x
+                                previewIndex = (
+                                    offset.x / size.width.coerceAtLeast(1) * orderedItems.size
+                                ).coerceIn(0f, orderedItems.lastIndex.toFloat())
+                                dragPreviewIndex = previewIndex
                             },
                             onHorizontalDrag = { change, amount ->
                                 change.consume()
                                 totalDrag += amount
-                                // Map the finger's absolute position to a fractional tab index.
-                                // The preview can travel smoothly across the whole bar; the real
-                                // destination is committed only after the gesture ends.
-                                val rawIndex = (
-                                    change.position.x / size.width.coerceAtLeast(1) * orderedItems.size - 0.5f
-                                )
-                                previewIndex = rawIndex.coerceIn(0f, orderedItems.lastIndex.toFloat())
+                                lastFingerX = change.position.x
+                                // Continuous scrub: the active pill tracks the finger across
+                                // every item. Navigation itself is committed only on release.
+                                previewIndex = (
+                                    lastFingerX / size.width.coerceAtLeast(1) * orderedItems.size
+                                ).coerceIn(0f, orderedItems.lastIndex.toFloat())
                                 dragPreviewIndex = previewIndex
                             },
                             onDragEnd = {
-                                val target = when {
-                                    abs(totalDrag) > size.width * 0.55f ->
-                                        if (totalDrag < 0f) orderedItems.lastIndex else 0
-                                    previewIndex.roundToInt() != startIndex -> previewIndex.roundToInt()
-                                    abs(totalDrag) > 18f ->
-                                        (startIndex + if (totalDrag < 0f) 1 else -1)
-                                            .coerceIn(0, orderedItems.lastIndex)
-                                    else -> startIndex
-                                }
+                                val nearest = previewIndex.roundToInt().coerceIn(0, orderedItems.lastIndex)
+                                val target = if (nearest == startIndex && abs(totalDrag) > 24f) {
+                                    (startIndex + if (totalDrag < 0f) 1 else -1)
+                                        .coerceIn(0, orderedItems.lastIndex)
+                                } else nearest
                                 if (target != startIndex) {
                                     dragPreviewIndex = target.toFloat()
                                     onDestinationSelected(orderedItems[target].destination)
@@ -191,7 +191,7 @@ internal fun <T> MobileMainNavigationBar(
         if (searchFabEnabled) FloatingActionButton(
             onClick = if (catalogFabEnabled) onCatalogRandomSelected else onSearchSelected,
             modifier = if (classicStyle) {
-                Modifier.align(Alignment.TopEnd).offset(y = (-60).dp).padding(end = 12.dp).size(56.dp)
+                Modifier.align(Alignment.TopEnd).offset(y = (-60).dp).padding(end = 12.dp).size(52.dp)
             } else {
                 Modifier.align(Alignment.CenterEnd).size(56.dp)
             },

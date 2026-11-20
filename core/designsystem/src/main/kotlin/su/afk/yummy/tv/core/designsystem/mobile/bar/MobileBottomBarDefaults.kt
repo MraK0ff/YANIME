@@ -15,12 +15,9 @@ object MobileBottomBarDefaults {
     val ExtraContentBottomPadding: Dp = 16.dp
 
     val contentBottomPadding: Dp
-        @Composable get() = when (LocalMobileNavigationLayout.current) {
-            MobileNavigationLayout.BottomBar -> ExtraContentBottomPadding
-            MobileNavigationLayout.Rail,
-            MobileNavigationLayout.Hidden,
-                -> navigationBarsInset() + ExtraContentBottomPadding
-        }
+        @Composable get() = navigationBarsInset() +
+            (if (LocalMobileNavigationLayout.current == MobileNavigationLayout.BottomBar) BarHeight else 0.dp) +
+            ExtraContentBottomPadding
 
     @Composable
     private fun navigationBarsInset(): Dp =

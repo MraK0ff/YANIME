@@ -61,6 +61,8 @@ internal fun <T> MobileMainScaffold(
     contentDrawsBehindStatusBar: Boolean = false,
     classicBottomBar: Boolean = false,
     searchFabEnabled: Boolean = false,
+    catalogFabEnabled: Boolean = false,
+    onCatalogRandomSelected: () -> Unit = {},
     headerAvatarUrl: String,
     unreadNotificationsCount: Int,
     onSearchSelected: () -> Unit,
@@ -152,7 +154,7 @@ internal fun <T> MobileMainScaffold(
                                     containerColor = Color.Transparent,
                                     avatarUrl = headerAvatarUrl,
                                     unreadNotificationsCount = unreadNotificationsCount,
-                                    showSearchBar = !searchFabEnabled,
+                                    showSearchBar = true,
                                     onSearchSelected = onSearchSelected,
                                     onNotificationsSelected = onNotificationsSelected,
                                     onSettingsSelected = onSettingsSelected,
@@ -247,7 +249,9 @@ internal fun <T> MobileMainScaffold(
                         upFocusRequester = bottomBarUpFocusRequester,
                         classicStyle = classicBottomBar,
                         searchFabEnabled = searchFabEnabled,
+                        catalogFabEnabled = catalogFabEnabled,
                         onSearchSelected = onSearchSelected,
+                        onCatalogRandomSelected = onCatalogRandomSelected,
                         onDestinationSelected = onDestinationSelected,
                     )
                 }

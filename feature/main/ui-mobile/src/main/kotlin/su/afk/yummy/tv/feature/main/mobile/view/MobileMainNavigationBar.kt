@@ -47,6 +47,8 @@ internal fun <T> MobileMainNavigationBar(
     menuItems: List<MobileMenuItem<T>>,
     containerColor: Color,
     upFocusRequester: FocusRequester?,
+    classicStyle: Boolean = false,
+    searchFabEnabled: Boolean = true,
     onSearchSelected: () -> Unit,
     onDestinationSelected: (T) -> Unit,
 ) {
@@ -60,9 +62,9 @@ internal fun <T> MobileMainNavigationBar(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(end = 64.dp)
+                .padding(end = if (searchFabEnabled) 64.dp else 0.dp)
                 .height(80.dp),
-            shape = RoundedCornerShape(24.dp),
+            shape = if (classicStyle) RoundedCornerShape(0.dp) else RoundedCornerShape(28.dp),
             color = containerColor,
             contentColor = MaterialTheme.colorScheme.onSurface,
             tonalElevation = 1.dp,
@@ -128,7 +130,7 @@ internal fun <T> MobileMainNavigationBar(
                 }
             }
         }
-        FloatingActionButton(
+        if (searchFabEnabled) FloatingActionButton(
             onClick = onSearchSelected,
             modifier = Modifier
                 .align(Alignment.CenterEnd)

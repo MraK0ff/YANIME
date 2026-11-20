@@ -433,4 +433,11 @@
     <string name="settings_video_enhancement_off">Выкл.</string>
     <string name="settings_video_enhancement_sharpen">Резкость</string>
     <string name="settings_video_enhancement_quality">Восстановление качества</string>
+    <string name="settings_mobile_navigation_section">Мобильная навигация</string>
+    <string name="settings_mobile_header_enabled">Глобальный Header</string>
+    <string name="settings_mobile_header_enabled_hint">Показывать логотип, поиск, уведомления и профиль сверху</string>
+    <string name="settings_mobile_search_fab_enabled">Плавающая кнопка поиска</string>
+    <string name="settings_mobile_search_fab_enabled_hint">Показывать отдельную кнопку поиска рядом с нижним меню</string>
+    <string name="settings_mobile_classic_bottom_bar">Классическая нижняя панель</string>
+    <string name="settings_mobile_classic_bottom_bar_hint">Использовать стандартную панель на всю ширину вместо плавающей капсулы</string>
 </resources>

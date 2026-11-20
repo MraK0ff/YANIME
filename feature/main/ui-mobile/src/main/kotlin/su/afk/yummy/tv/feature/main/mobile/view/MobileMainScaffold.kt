@@ -54,6 +54,8 @@ internal fun <T> MobileMainScaffold(
     showRail: Boolean,
     showHeader: Boolean,
     overlayHeader: Boolean = false,
+    classicBottomBar: Boolean = false,
+    searchFabEnabled: Boolean = true,
     headerAvatarUrl: String,
     unreadNotificationsCount: Int,
     onSearchSelected: () -> Unit,
@@ -124,6 +126,8 @@ internal fun <T> MobileMainScaffold(
                     menuItems = menuItems,
                     containerColor = surface,
                     upFocusRequester = bottomBarUpFocusRequester,
+                    classicStyle = classicBottomBar,
+                    searchFabEnabled = searchFabEnabled,
                     onSearchSelected = onSearchSelected,
                     onDestinationSelected = onDestinationSelected,
                 )

@@ -19,6 +19,9 @@ import su.afk.yummy.tv.core.preferences.settings.AppearanceSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.appThemeKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.backgroundStyleKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.navTransitionStyleKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.mobileHeaderEnabledKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.mobileSearchFabEnabledKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.mobileClassicBottomBarKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.libraryContinueWatchingCardSizeKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.librarySortDirectionKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.librarySortKey
@@ -87,6 +90,10 @@ internal class DataStoreAppearanceSettingsStore @Inject constructor(
     override val navTransitionStyle: Flow<NavTransitionStyle> =
         store.enumFlow(navTransitionStyleKey, NavTransitionStyle.FADE_SCALE)
 
+    override val mobileHeaderEnabled: Flow<Boolean> = store.boolean(mobileHeaderEnabledKey, true)
+    override val mobileSearchFabEnabled: Flow<Boolean> = store.boolean(mobileSearchFabEnabledKey, true)
+    override val mobileClassicBottomBar: Flow<Boolean> = store.boolean(mobileClassicBottomBarKey, false)
+
     override val libraryTabOrder: Flow<List<LibraryTabKind>> =
         store.data.map { prefs -> prefs[libraryTabOrderKey].toLibraryTabOrder() }
 
@@ -144,6 +151,15 @@ internal class DataStoreAppearanceSettingsStore @Inject constructor(
 
     override suspend fun setNavTransitionStyle(style: NavTransitionStyle) =
         store.setEnum(navTransitionStyleKey, style)
+
+    override suspend fun setMobileHeaderEnabled(enabled: Boolean) =
+        store.setBoolean(mobileHeaderEnabledKey, enabled)
+
+    override suspend fun setMobileSearchFabEnabled(enabled: Boolean) =
+        store.setBoolean(mobileSearchFabEnabledKey, enabled)
+
+    override suspend fun setMobileClassicBottomBar(enabled: Boolean) =
+        store.setBoolean(mobileClassicBottomBarKey, enabled)
 
     override val homeBlocks: Flow<List<HomeBlockConfig>> = store.data.map { prefs ->
         prefs[homeBlocksKey].toHomeBlocks(prefs[newEpisodesSectionEnabledKey] ?: true)

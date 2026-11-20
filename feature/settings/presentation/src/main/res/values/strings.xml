@@ -436,4 +436,11 @@ Search indexer: https://jac-red.ru or Jackett: https://github.com/jackett/jacket
     <string name="settings_video_enhancement_off">Off</string>
     <string name="settings_video_enhancement_sharpen">Sharpen</string>
     <string name="settings_video_enhancement_quality">Quality restoration</string>
+    <string name="settings_mobile_navigation_section">Mobile navigation</string>
+    <string name="settings_mobile_header_enabled">Global header</string>
+    <string name="settings_mobile_header_enabled_hint">Show the logo, search, notifications and profile at the top</string>
+    <string name="settings_mobile_search_fab_enabled">Floating search button</string>
+    <string name="settings_mobile_search_fab_enabled_hint">Show a separate search action beside the bottom menu</string>
+    <string name="settings_mobile_classic_bottom_bar">Classic bottom bar</string>
+    <string name="settings_mobile_classic_bottom_bar_hint">Use a full-width standard bar instead of the floating capsule</string>
 </resources>

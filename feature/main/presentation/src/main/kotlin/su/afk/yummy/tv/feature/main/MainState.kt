@@ -19,6 +19,9 @@ class MainState {
         val appTheme: AppTheme = AppTheme.GRAPHITE,
         val backgroundStyle: BackgroundStyle = BackgroundStyle.AMOLED,
         val navTransitionStyle: NavTransitionStyle = NavTransitionStyle.FADE_SCALE,
+        val mobileHeaderEnabled: Boolean = true,
+        val mobileSearchFabEnabled: Boolean = true,
+        val mobileClassicBottomBar: Boolean = false,
         val seasonalDecorationsEnabled: Boolean = true,
         /** Праздничная тема, включившаяся автоматически, о которой пользователю ещё не сообщили. */
         val seasonalPrompt: SeasonalTheme? = null,

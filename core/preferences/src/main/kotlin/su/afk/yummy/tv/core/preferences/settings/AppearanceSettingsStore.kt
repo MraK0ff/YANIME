@@ -32,6 +32,9 @@ interface AppearanceSettingsStore {
     val appTheme: Flow<AppTheme>
     val backgroundStyle: Flow<BackgroundStyle>
     val navTransitionStyle: Flow<NavTransitionStyle>
+    val mobileHeaderEnabled: Flow<Boolean>
+    val mobileSearchFabEnabled: Flow<Boolean>
+    val mobileClassicBottomBar: Flow<Boolean>
 
     /** Порядок вкладок на экране библиотеки. */
     val libraryTabOrder: Flow<List<LibraryTabKind>>
@@ -67,6 +70,9 @@ interface AppearanceSettingsStore {
     suspend fun setAppTheme(theme: AppTheme)
     suspend fun setBackgroundStyle(style: BackgroundStyle)
     suspend fun setNavTransitionStyle(style: NavTransitionStyle)
+    suspend fun setMobileHeaderEnabled(enabled: Boolean)
+    suspend fun setMobileSearchFabEnabled(enabled: Boolean)
+    suspend fun setMobileClassicBottomBar(enabled: Boolean)
     suspend fun setLibraryTabOrder(order: List<LibraryTabKind>)
     suspend fun setHomeBlocks(blocks: List<HomeBlockConfig>)
     suspend fun setDetailsSections(sections: List<DetailsSectionConfig>)

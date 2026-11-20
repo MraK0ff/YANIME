@@ -133,6 +133,9 @@ class MainViewModel @Inject internal constructor(
     private fun observeSettings() {
         val yaniApplicationTokenState =
             settingsStore.yaniApplicationTokenState.distinctUntilChanged()
+        settingsStore.mobileHeaderEnabled.onEach { enabled -> setState { copy(mobileHeaderEnabled = enabled) } }.launchIn(viewModelScope)
+        settingsStore.mobileSearchFabEnabled.onEach { enabled -> setState { copy(mobileSearchFabEnabled = enabled) } }.launchIn(viewModelScope)
+        settingsStore.mobileClassicBottomBar.onEach { enabled -> setState { copy(mobileClassicBottomBar = enabled) } }.launchIn(viewModelScope)
         settingsStore.mainSettingsSnapshot
             .onEach { snapshot ->
                 val nowMillis = appClock.nowMillis()

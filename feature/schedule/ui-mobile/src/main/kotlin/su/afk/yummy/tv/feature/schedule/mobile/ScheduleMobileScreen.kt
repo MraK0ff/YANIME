@@ -93,6 +93,7 @@ fun ScheduleMobileScreen(
     BaseScreen(
         isScroll = false,
         contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal),
+        topBarWindowInsets = WindowInsets(0.dp),
         customTopBar = {
             MobileTopBar(
                 title = stringResource(R.string.schedule_mobile_title),

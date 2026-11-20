@@ -55,7 +55,7 @@ internal fun <T> MobileMainScaffold(
     showHeader: Boolean,
     overlayHeader: Boolean = false,
     classicBottomBar: Boolean = false,
-    searchFabEnabled: Boolean = true,
+    searchFabEnabled: Boolean = false,
     headerAvatarUrl: String,
     unreadNotificationsCount: Int,
     onSearchSelected: () -> Unit,
@@ -110,6 +110,7 @@ internal fun <T> MobileMainScaffold(
         contentColor = MaterialTheme.colorScheme.onBackground,
     ) {
     NavigationSuiteScaffoldLayout(
+        modifier = Modifier.background(MaterialTheme.colorScheme.background),
         navigationSuiteType = if (isRail) NavigationSuiteType.NavigationRail else suiteType,
         state = suiteState,
         navigationSuite = {
@@ -165,8 +166,10 @@ internal fun <T> MobileMainScaffold(
                         MobileMainHeader(
                             modifier = Modifier.fillMaxWidth(),
                             containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.72f),
+                            showSearchBar = !searchFabEnabled,
                             avatarUrl = headerAvatarUrl,
                             unreadNotificationsCount = unreadNotificationsCount,
+                            showSearchBar = !searchFabEnabled,
                             onSearchSelected = onSearchSelected,
                             onNotificationsSelected = onNotificationsSelected,
                             onSettingsSelected = onSettingsSelected,
@@ -190,6 +193,7 @@ internal fun <T> MobileMainScaffold(
                         MobileMainHeader(
                             avatarUrl = headerAvatarUrl,
                             unreadNotificationsCount = unreadNotificationsCount,
+                            showSearchBar = !searchFabEnabled,
                             onSearchSelected = onSearchSelected,
                             onNotificationsSelected = onNotificationsSelected,
                             onSettingsSelected = onSettingsSelected,

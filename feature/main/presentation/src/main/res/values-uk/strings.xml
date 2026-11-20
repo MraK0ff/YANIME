@@ -24,4 +24,5 @@
     <string name="main_onboarding_library_text">Ваші списки: дивлюся, у планах, переглянуто й обране.</string>
     <string name="main_onboarding_account_title">Акаунт</string>
     <string name="main_onboarding_account_text">Увійдіть, щоб синхронізувати списки та прогрес. Тут же налаштування й сповіщення.</string>
+    <string name="main_header_search_hint">Пошук аніме</string>
 </resources>

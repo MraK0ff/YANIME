@@ -443,4 +443,5 @@ Search indexer: https://jac-red.ru or Jackett: https://github.com/jackett/jacket
     <string name="settings_mobile_search_fab_enabled_hint">Show a separate search action beside the bottom menu</string>
     <string name="settings_mobile_classic_bottom_bar">Classic bottom bar</string>
     <string name="settings_mobile_classic_bottom_bar_hint">Use a full-width standard bar instead of the floating capsule</string>
+    <string name="settings_mobile_search_fab_enabled_hint">When enabled, search appears only as the floating button; otherwise it appears as a compact field in the header</string>
 </resources>

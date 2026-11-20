@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -40,6 +43,7 @@ internal fun MobileMainHeader(
     containerColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.background,
     avatarUrl: String,
     unreadNotificationsCount: Int,
+    showSearchBar: Boolean = true,
     onSearchSelected: () -> Unit,
     onNotificationsSelected: () -> Unit,
     onSettingsSelected: () -> Unit,
@@ -62,10 +66,34 @@ internal fun MobileMainHeader(
         ) {
             AppBrandIcon(Modifier.size(34.dp))
             Spacer(Modifier.weight(1f))
-            IconButton(onClick = onSearchSelected) {
+            if (showSearchBar) {
+                Surface(
+                    modifier = Modifier
+                        .width(156.dp)
+                        .height(38.dp)
+                        .clickable(onClick = onSearchSelected),
+                    shape = RoundedCornerShape(50),
+                    color = MaterialTheme.colorScheme.surfaceContainerLow,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(Icons.Default.Search, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Text(
+                            text = stringResource(R.string.main_header_search_hint),
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(start = 8.dp),
+                            maxLines = 1,
+                        )
+                    }
+                }
+            }
+            IconButton(onClick = onSettingsSelected) {
                 Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = stringResource(R.string.main_header_search),
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = stringResource(R.string.main_header_settings),
                 )
             }
             Box(
@@ -89,12 +117,6 @@ internal fun MobileMainHeader(
                         )
                     }
                 }
-            }
-            IconButton(onClick = onSettingsSelected) {
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = stringResource(R.string.main_header_settings),
-                )
             }
             IconButton(onClick = onProfileSelected) {
                 if (avatarUrl.isNotBlank()) {

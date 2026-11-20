@@ -91,7 +91,7 @@ internal class DataStoreAppearanceSettingsStore @Inject constructor(
         store.enumFlow(navTransitionStyleKey, NavTransitionStyle.FADE_SCALE)
 
     override val mobileHeaderEnabled: Flow<Boolean> = store.boolean(mobileHeaderEnabledKey, true)
-    override val mobileSearchFabEnabled: Flow<Boolean> = store.boolean(mobileSearchFabEnabledKey, true)
+    override val mobileSearchFabEnabled: Flow<Boolean> = store.boolean(mobileSearchFabEnabledKey, false)
     override val mobileClassicBottomBar: Flow<Boolean> = store.boolean(mobileClassicBottomBarKey, false)
 
     override val libraryTabOrder: Flow<List<LibraryTabKind>> =

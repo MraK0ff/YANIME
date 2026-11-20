@@ -20,7 +20,7 @@ class MainState {
         val backgroundStyle: BackgroundStyle = BackgroundStyle.AMOLED,
         val navTransitionStyle: NavTransitionStyle = NavTransitionStyle.FADE_SCALE,
         val mobileHeaderEnabled: Boolean = true,
-        val mobileSearchFabEnabled: Boolean = true,
+        val mobileSearchFabEnabled: Boolean = false,
         val mobileClassicBottomBar: Boolean = false,
         val seasonalDecorationsEnabled: Boolean = true,
         /** Праздничная тема, включившаяся автоматически, о которой пользователю ещё не сообщили. */

@@ -48,7 +48,7 @@ class SettingsState {
         val backgroundStyle: BackgroundStyle = BackgroundStyle.AMOLED,
         val navTransitionStyle: NavTransitionStyle = NavTransitionStyle.FADE_SCALE,
         val mobileHeaderEnabled: Boolean = true,
-        val mobileSearchFabEnabled: Boolean = true,
+        val mobileSearchFabEnabled: Boolean = false,
         val mobileClassicBottomBar: Boolean = false,
         val posterCardSize: PosterCardSize = PosterCardSize.STANDARD,
         val titleCardLayout: TitleCardLayout = TitleCardLayout.TILE,

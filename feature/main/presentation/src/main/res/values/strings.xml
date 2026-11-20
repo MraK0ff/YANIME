@@ -24,4 +24,5 @@
     <string name="main_onboarding_library_text">Your lists: watching, planned, completed and favorites.</string>
     <string name="main_onboarding_account_title">Account</string>
     <string name="main_onboarding_account_text">Sign in to sync lists and progress, and find settings and notifications here.</string>
+    <string name="main_header_search_hint">Search anime</string>
 </resources>

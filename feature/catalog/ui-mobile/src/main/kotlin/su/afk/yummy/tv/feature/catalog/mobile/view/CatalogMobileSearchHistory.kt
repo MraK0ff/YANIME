@@ -57,7 +57,7 @@ internal fun CatalogMobileSearchHistory(
         TextButton(
             onClick = onClear,
             modifier = Modifier.padding(start = 4.dp),
-            contentPadding = PaddingValues(horizontal = 8.dp),
+            contentPadding = PaddingValues(horizontal = 0.dp),
         ) {
             Text(stringResource(R.string.search_mobile_history_clear))
         }

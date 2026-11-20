@@ -181,23 +181,6 @@ fun CatalogMobileScreen(
                     )
                 }
             }
-            if (state.isHeaderSearchEnabled) {
-                item(span = { GridItemSpan(maxLineSpan) }, contentType = "filters") {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        CatalogMobileFilterButton(
-                            activeCount = state.filters.activeCount,
-                            onClick = {
-                                keyboardController?.hide()
-                                onEvent(CatalogState.Event.OpenFilters)
-                            },
-                        )
-                    }
-                }
-            }
             if (state.query.isEmpty() && state.searchHistory.isNotEmpty()) {
                 item(span = { GridItemSpan(maxLineSpan) }, contentType = "search_history") {
                     CatalogMobileSearchHistory(

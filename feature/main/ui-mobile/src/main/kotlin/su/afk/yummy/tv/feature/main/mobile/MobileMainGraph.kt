@@ -157,6 +157,7 @@ class MobileMainGraph @Inject internal constructor(
                         isSearchFocusRequested = catalogSearchFocusRequested,
                         onSearchQueryChange = catalogSearchOpener::updateSearchQuery,
                         onSearchSubmitted = catalogSearchOpener::submitSearch,
+                        onSearchFiltersSelected = catalogSearchOpener::openFilters,
                         onSearchFocusHandled = catalogSearchOpener::consumeSearchFocus,
                         onSearchSelected = { catalogSearchOpener.openSearch() },
                         onCatalogRandomSelected = { catalogSearchOpener.openRandomAnime() },

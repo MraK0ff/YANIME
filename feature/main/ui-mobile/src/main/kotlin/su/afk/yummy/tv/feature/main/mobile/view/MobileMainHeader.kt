@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -59,6 +60,7 @@ internal fun MobileMainHeader(
     isSearchFocusRequested: Boolean = false,
     onSearchQueryChange: (String) -> Unit = {},
     onSearchSubmitted: () -> Unit = {},
+    onSearchFiltersSelected: () -> Unit = {},
     onSearchFocusHandled: () -> Unit = {},
     onSearchSelected: () -> Unit,
     onNotificationsSelected: () -> Unit,
@@ -134,6 +136,9 @@ internal fun MobileMainHeader(
                                 }
                             },
                         )
+                        IconButton(onClick = onSearchFiltersSelected, modifier = Modifier.size(32.dp)) {
+                            Icon(Icons.Default.Tune, contentDescription = null, modifier = Modifier.size(18.dp))
+                        }
                         if (searchQuery.isNotEmpty()) {
                             IconButton(
                                 onClick = { onSearchQueryChange("") },

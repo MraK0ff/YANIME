@@ -2,9 +2,9 @@ package su.afk.yummy.tv.feature.catalog.mobile.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
 import su.afk.yummy.tv.feature.catalog.presentation.R
 
-/** Последние запросы чипами в горизонтальной ленте под пустым полем поиска и кнопка очистки справа. */
+/** Search history with a dedicated, non-overlapping trailing clear action. */
 @Composable
 internal fun CatalogMobileSearchHistory(
     queries: ImmutableList<String>,
@@ -31,14 +31,14 @@ internal fun CatalogMobileSearchHistory(
     onClear: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Box(
+    Row(
         modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        // Let the chip rail use the full viewport. The clear action overlays its
-        // trailing edge, so LazyRow does not truncate a chip at the button boundary.
         LazyRow(
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(end = 4.dp),
+            modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(start = 2.dp, end = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -58,10 +58,13 @@ internal fun CatalogMobileSearchHistory(
         }
         TextButton(
             onClick = onClear,
-            modifier = Modifier.align(Alignment.CenterEnd),
-            contentPadding = PaddingValues(horizontal = 0.dp),
+            contentPadding = PaddingValues(horizontal = 8.dp),
         ) {
-            Text(stringResource(R.string.search_mobile_history_clear))
+            Text(
+                text = stringResource(R.string.search_mobile_history_clear),
+                maxLines = 1,
+                softWrap = false,
+            )
         }
     }
 }

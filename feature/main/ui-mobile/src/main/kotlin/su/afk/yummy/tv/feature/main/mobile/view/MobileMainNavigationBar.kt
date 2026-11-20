@@ -155,8 +155,10 @@ internal fun <T> MobileMainNavigationBar(
                 orderedItems.forEachIndexed { index, item ->
                     val selected = index == animatedPreviewIndex.roundToInt().coerceIn(0, orderedItems.lastIndex)
                     NavigationBarItem(
+                        // The selected destination needs room for its icon + full label.
+                        // Inactive destinations stay compact and icon-only.
                         modifier = Modifier
-                            .weight(1f)
+                            .weight(if (selected) 2.0f else 0.8f)
                             .testTag("main_tab")
                             .onboardingTarget(mobileMainTabTargetId(item.destination))
                             .clickablePointer()
@@ -176,9 +178,9 @@ internal fun <T> MobileMainNavigationBar(
                                     Text(
                                         item.label,
                                         maxLines = 1,
-                                        style = MaterialTheme.typography.labelMedium,
+                                        style = MaterialTheme.typography.labelSmall,
                                         softWrap = false,
-                                        overflow = TextOverflow.Ellipsis,
+                                        overflow = TextOverflow.Clip,
                                     )
                                 }
                             }

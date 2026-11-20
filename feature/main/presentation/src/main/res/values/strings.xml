@@ -11,6 +11,10 @@
     <string name="main_tab_collections">Collections</string>
     <string name="main_settings_content_description">Settings</string>
     <string name="main_account_content_description">Account</string>
+    <string name="main_header_search">Search</string>
+    <string name="main_header_notifications">Notifications</string>
+    <string name="main_header_settings">Settings</string>
+    <string name="main_header_profile">Profile</string>
 
     <string name="main_onboarding_catalog_title">Catalog</string>
     <string name="main_onboarding_catalog_text">Search anime by name and filter by genres, seasons, years and status.</string>

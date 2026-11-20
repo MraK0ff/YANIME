@@ -15,6 +15,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -30,6 +31,7 @@ private val CompactMobileTopBarHeight = 64.dp
 fun MobileTopBar(
     title: String,
     modifier: Modifier = Modifier,
+    containerColor: Color = MaterialTheme.colorScheme.surfaceContainerLow,
     onBack: (() -> Unit)? = null,
     titleLeading: (@Composable () -> Unit)? = null,
     actions: @Composable () -> Unit = {},
@@ -64,7 +66,7 @@ fun MobileTopBar(
         },
         actions = { actions() },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            containerColor = containerColor,
             scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainer,
         ),
     )

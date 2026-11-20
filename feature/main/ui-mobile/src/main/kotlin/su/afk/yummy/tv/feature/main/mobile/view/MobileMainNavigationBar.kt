@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.feature.main.mobile.view
 
 import su.afk.yummy.tv.core.designsystem.seasonal.seasonalNavigationBarItemColors
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,7 +11,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.FloatingActionButton
@@ -30,16 +30,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.style.TextOverflow
-import kotlin.math.abs
 import su.afk.yummy.tv.core.designsystem.mobile.input.clickablePointer
 import su.afk.yummy.tv.core.designsystem.onboarding.onboardingTarget
 import su.afk.yummy.tv.feature.main.mobile.utils.mobileMainTabTargetId
 import su.afk.yummy.tv.core.designsystem.seasonal.SeasonalBarDecoration
 import su.afk.yummy.tv.feature.main.mobile.model.MobileMenuItem
 import su.afk.yummy.tv.feature.main.presentation.R
+import kotlin.math.abs
+import kotlin.math.floor
 
 @Composable
 internal fun <T> MobileMainNavigationBar(
@@ -63,37 +64,59 @@ internal fun <T> MobileMainNavigationBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(end = if (searchFabEnabled) 64.dp else 0.dp)
-                .height(80.dp),
-            shape = if (classicStyle) RoundedCornerShape(0.dp) else RoundedCornerShape(28.dp),
+                .height(64.dp),
+            shape = if (classicStyle) RoundedCornerShape(0.dp) else RoundedCornerShape(32.dp),
             color = containerColor,
             contentColor = MaterialTheme.colorScheme.onSurface,
-            tonalElevation = 1.dp,
-            shadowElevation = 2.dp,
+            tonalElevation = 0.dp,
+            shadowElevation = 0.dp,
         ) {
             NavigationBar(
                 modifier = Modifier
                     .fillMaxSize()
-                    .pointerInput(selectedDestination, orderedItems) {
-                        var dragDistance = 0f
+                    .pointerInput(orderedItems) {
+                        if (orderedItems.size < 2) return@pointerInput
+                        var totalDrag = 0f
+                        var lastX = 0f
+                        var startIndex = 0
+                        var currentSelectedIndex = 0
+                        var selectedDuringDrag = false
                         detectHorizontalDragGestures(
-                            onHorizontalDrag = { _, amount -> dragDistance += amount },
-                            onDragEnd = {
-                                if (abs(dragDistance) >= 48f && orderedItems.isNotEmpty()) {
-                                    val currentIndex = orderedItems.indexOfFirst {
-                                        it.destination == selectedDestination
-                                    }.coerceAtLeast(0)
-                                    val direction = if (dragDistance < 0f) 1 else -1
-                                    val nextIndex = (currentIndex + direction).coerceIn(
-                                        0,
-                                        orderedItems.lastIndex,
-                                    )
-                                    if (nextIndex != currentIndex) {
-                                        onDestinationSelected(orderedItems[nextIndex].destination)
-                                    }
-                                }
-                                dragDistance = 0f
+                            onDragStart = { offset ->
+                                totalDrag = 0f
+                                lastX = offset.x
+                                startIndex = orderedItems.indexOfFirst { it.destination == selectedDestination }.coerceAtLeast(0)
+                                currentSelectedIndex = startIndex
+                                selectedDuringDrag = false
                             },
-                            onDragCancel = { dragDistance = 0f },
+                            onHorizontalDrag = { change, amount ->
+                                change.consume()
+                                totalDrag += amount
+                                lastX = change.position.x
+                                val rawIndex = floor(
+                                    (lastX / size.width.coerceAtLeast(1)) * orderedItems.size
+                                ).toInt()
+                                val index = rawIndex.coerceIn(0, orderedItems.lastIndex)
+                                if (index != currentSelectedIndex) {
+                                    selectedDuringDrag = true
+                                    currentSelectedIndex = index
+                                    onDestinationSelected(orderedItems[index].destination)
+                                }
+                            },
+                            onDragEnd = {
+                                if (abs(totalDrag) > size.width * 0.55f) {
+                                    val edgeIndex = if (totalDrag < 0f) orderedItems.lastIndex else 0
+                                    currentSelectedIndex = edgeIndex
+                                    onDestinationSelected(orderedItems[edgeIndex].destination)
+                                } else if (!selectedDuringDrag && abs(totalDrag) > 18f) {
+                                    val direction = if (totalDrag < 0f) 1 else -1
+                                    val next = (startIndex + direction)
+                                        .coerceIn(0, orderedItems.lastIndex)
+                                    onDestinationSelected(orderedItems[next].destination)
+                                }
+                                totalDrag = 0f
+                            },
+                            onDragCancel = { totalDrag = 0f },
                         )
                     },
                 containerColor = Color.Transparent,
@@ -120,9 +143,9 @@ internal fun <T> MobileMainNavigationBar(
                             Text(
                                 item.label,
                                 maxLines = 1,
-                                style = MaterialTheme.typography.labelSmall.copy(letterSpacing = (-0.2).sp),
+                                style = MaterialTheme.typography.labelSmall.copy(letterSpacing = (-0.3).sp),
                                 softWrap = false,
-                                overflow = TextOverflow.Clip,
+                                overflow = TextOverflow.Ellipsis,
                             )
                         },
                         alwaysShowLabel = true,

@@ -33,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.components.GlobalToastOverlay
 import su.afk.yummy.tv.core.designsystem.mobile.bar.LocalMobileBottomBarUpFocusRequester
@@ -164,7 +165,7 @@ internal fun <T> MobileMainScaffold(
                     ) {
                         MobileMainHeader(
                             modifier = Modifier.fillMaxWidth(),
-                            containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.72f),
+                            containerColor = Color.Transparent,
                             avatarUrl = headerAvatarUrl,
                             unreadNotificationsCount = unreadNotificationsCount,
                             showSearchBar = !searchFabEnabled,
@@ -189,6 +190,7 @@ internal fun <T> MobileMainScaffold(
                         exit = fadeOut() + slideOutVertically { -it / 2 },
                     ) {
                         MobileMainHeader(
+                            containerColor = Color.Transparent,
                             avatarUrl = headerAvatarUrl,
                             unreadNotificationsCount = unreadNotificationsCount,
                             showSearchBar = !searchFabEnabled,

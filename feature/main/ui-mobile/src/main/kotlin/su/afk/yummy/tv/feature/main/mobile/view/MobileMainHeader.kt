@@ -90,12 +90,6 @@ internal fun MobileMainHeader(
                     }
                 }
             }
-            IconButton(onClick = onSettingsSelected) {
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = stringResource(R.string.main_header_settings),
-                )
-            }
             Box(
                 modifier = Modifier.size(48.dp),
                 contentAlignment = Alignment.Center,
@@ -117,6 +111,12 @@ internal fun MobileMainHeader(
                         )
                     }
                 }
+            }
+            IconButton(onClick = onSettingsSelected) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = stringResource(R.string.main_header_settings),
+                )
             }
             IconButton(onClick = onProfileSelected) {
                 if (avatarUrl.isNotBlank()) {

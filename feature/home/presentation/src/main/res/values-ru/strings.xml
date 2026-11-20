@@ -13,6 +13,7 @@
     <string name="home_next_episode_unavailable_toast">Серии %1$s пока нет</string>
     <string name="home_section_my_new_episodes">Новые серии из ваших списков</string>
     <string name="home_mobile_schedule">Расписание</string>
+    <string name="home_mobile_news">Новости</string>
     <string name="home_mobile_reviews">Рецензии</string>
     <string name="home_mobile_more">Ещё</string>
     <string name="home_mobile_blogger_videos">От блогеров</string>

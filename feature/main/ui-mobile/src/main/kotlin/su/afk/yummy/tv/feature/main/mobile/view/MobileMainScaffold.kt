@@ -110,7 +110,6 @@ internal fun <T> MobileMainScaffold(
         contentColor = MaterialTheme.colorScheme.onBackground,
     ) {
     NavigationSuiteScaffoldLayout(
-        modifier = Modifier.background(MaterialTheme.colorScheme.background),
         navigationSuiteType = if (isRail) NavigationSuiteType.NavigationRail else suiteType,
         state = suiteState,
         navigationSuite = {

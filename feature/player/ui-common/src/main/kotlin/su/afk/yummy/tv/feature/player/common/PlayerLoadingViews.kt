@@ -28,6 +28,6 @@ fun PlayerBufferingIndicator(
     // Disposing it on a transient state change restarts the expressive loading animation.
     YummyPlayerLoadingIndicator(
         modifier = modifier.graphicsLayer { alpha = if (visible) 1f else 0f },
-        size = 44.dp,
+        size = 56.dp,
     )
 }

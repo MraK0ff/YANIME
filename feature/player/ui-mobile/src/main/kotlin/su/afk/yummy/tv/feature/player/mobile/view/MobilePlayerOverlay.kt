@@ -87,7 +87,7 @@ internal fun MobilePlayerOverlay(
                 onPlayPause = onPlayPause,
                 onPrevEpisode = onPrevEpisode,
                 onNextEpisode = onNextEpisode,
-                loading = loading,
+                loading = false,
             )
         }
 

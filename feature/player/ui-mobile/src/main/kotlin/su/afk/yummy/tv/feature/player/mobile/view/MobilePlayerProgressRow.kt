@@ -1,10 +1,5 @@
 package su.afk.yummy.tv.feature.player.mobile.view
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Settings
@@ -38,8 +35,6 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.core.designsystem.components.drawExpressiveWavyTimelineTrack
-import kotlin.math.PI
 import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.core.utils.formatting.millisToClockTime
 
@@ -157,6 +152,7 @@ internal fun MobilePlayerProgressRow(
 }
 
 /** Своя дорожка вместо Material Slider: тонкая линия, цвет темы, белый бегунок и буферизация. */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun MobilePlayerTimeline(
     progress: Float,
@@ -168,17 +164,8 @@ private fun MobilePlayerTimeline(
     modifier: Modifier = Modifier,
 ) {
     val playedColor = mobilePlayerTimelinePlayedColor(MaterialTheme.colorScheme.primary)
-    val wavePhase = if (isPlaying) {
-        rememberInfiniteTransition(label = "mobileTimelineWave").animateFloat(
-            initialValue = 0f,
-            targetValue = 1f,
-            animationSpec = infiniteRepeatable(tween(durationMillis = 2200, easing = LinearEasing)),
-            label = "mobileTimelineWavePhase",
-        ).value
-    } else {
-        0f
-    }
     val safeProgress = progress.coerceIn(0f, 1f)
+    val safeBuffered = bufferedProgress.coerceIn(safeProgress, 1f)
     Box(
         modifier = modifier
             .height(32.dp)
@@ -214,14 +201,41 @@ private fun MobilePlayerTimeline(
                     )
                 }
             },
+        contentAlignment = Alignment.Center,
     ) {
+        // Buffer rail remains distinct while the played segment is rendered by the
+        // official Material 3 Expressive wavy indicator below.
         Canvas(Modifier.fillMaxWidth().height(32.dp)) {
-            drawExpressiveWavyTimelineTrack(
-                progress = safeProgress,
-                bufferedProgress = bufferedProgress,
-                playedColor = playedColor,
-                wavePhase = wavePhase,
+            val centerY = size.height / 2f
+            val trackStart = size.width * safeProgress
+            val bufferEnd = size.width * safeBuffered
+            drawLine(
+                color = Color.White.copy(alpha = 0.20f),
+                start = androidx.compose.ui.geometry.Offset(trackStart, centerY),
+                end = androidx.compose.ui.geometry.Offset(size.width, centerY),
+                strokeWidth = 3.dp.toPx(),
+                cap = androidx.compose.ui.graphics.StrokeCap.Round,
             )
+            if (bufferEnd > trackStart) {
+                drawLine(
+                    color = Color.White.copy(alpha = 0.34f),
+                    start = androidx.compose.ui.geometry.Offset(trackStart, centerY),
+                    end = androidx.compose.ui.geometry.Offset(bufferEnd, centerY),
+                    strokeWidth = 3.dp.toPx(),
+                    cap = androidx.compose.ui.graphics.StrokeCap.Round,
+                )
+            }
         }
+        LinearWavyProgressIndicator(
+            progress = { safeProgress },
+            modifier = Modifier.fillMaxWidth(),
+            color = playedColor,
+            trackColor = Color.Transparent,
+            gapSize = 0.dp,
+            stopSize = 0.dp,
+            amplitude = { 0.38f },
+            wavelength = 28.dp,
+            waveSpeed = if (isPlaying) 28.dp else 0.dp,
+        )
     }
 }

@@ -117,6 +117,7 @@ class MobileMainGraph @Inject internal constructor(
                         classicBottomBar = state.mobileClassicBottomBar,
                         searchFabEnabled = state.mobileSearchFabEnabled && navManager.currentRoot != RootTab.CATALOG,
                         overlayHeader = false,
+                        contentDrawsBehindStatusBar = isProfileRoot,
                         headerAvatarUrl = if (state.isYaniSignedIn) state.yaniAvatarUrl else "",
                         unreadNotificationsCount = state.unreadNotificationsCount,
                         onSearchSelected = {

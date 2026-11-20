@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
@@ -98,6 +99,7 @@ fun ScheduleMobileScreen(
         customTopBar = {
             MobileTopBar(
                 title = stringResource(R.string.schedule_mobile_title),
+                containerColor = MaterialTheme.colorScheme.background,
                 onBack = null,
                 actions = {
                     ScheduleLibraryFilterAction(

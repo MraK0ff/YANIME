@@ -66,7 +66,7 @@ internal fun <T> MobileMainNavigationBar(
     val animatedPreviewIndex by animateFloatAsState(
         targetValue = dragPreviewIndex
             ?: orderedItems.indexOfFirst { it.destination == selectedDestination }.coerceAtLeast(0).toFloat(),
-        animationSpec = spring(dampingRatio = 0.78f, stiffness = 520f),
+        animationSpec = spring(dampingRatio = 0.82f, stiffness = 340f),
         label = "navigationDragPreview",
     )
     Box(
@@ -129,7 +129,7 @@ internal fun <T> MobileMainNavigationBar(
                                     dragPreviewIndex = null
                                 }
                             },
-                            onDragCancel = { dragPreviewIndex = Float.NaN },
+                            onDragCancel = { dragPreviewIndex = null },
                         )
                     },
                 containerColor = Color.Transparent,

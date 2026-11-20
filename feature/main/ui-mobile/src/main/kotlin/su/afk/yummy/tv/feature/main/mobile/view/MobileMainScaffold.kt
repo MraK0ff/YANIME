@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
@@ -188,6 +189,7 @@ internal fun <T> MobileMainScaffold(
                                     .fillMaxWidth()
                                     // Header already owns the status-bar inset. Prevent nested
                                     // page Scaffolds from inserting a second empty strip below it.
+                                    .then(if (!showHeader || !headerVisible.value) Modifier.statusBarsPadding() else Modifier)
                                     .consumeWindowInsets(WindowInsets.statusBars),
                             ) {
                                 content()

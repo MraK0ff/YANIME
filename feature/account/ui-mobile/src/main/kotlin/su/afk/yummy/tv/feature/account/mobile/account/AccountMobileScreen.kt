@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.feature.account.mobile.account
 
 import android.widget.Toast
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -47,6 +48,8 @@ import su.afk.yummy.tv.core.designsystem.R as CoreR
 import su.afk.yummy.tv.core.designsystem.baseScreen.BaseScreen
 import su.afk.yummy.tv.core.designsystem.components.OfflineBanner
 import su.afk.yummy.tv.core.designsystem.locals.LocalIsOffline
+import su.afk.yummy.tv.core.designsystem.mobile.MobileSwipeableTabsPager
+import su.afk.yummy.tv.core.designsystem.mobile.rememberMobileSwipeableTabsState
 import su.afk.yummy.tv.core.designsystem.mobile.bar.LocalMobileBottomBarUpFocusRequester
 import su.afk.yummy.tv.core.designsystem.mobile.bar.MobileBottomBarDefaults
 import su.afk.yummy.tv.core.designsystem.mobile.layout.mobileContentMaxWidth
@@ -66,6 +69,7 @@ import su.afk.yummy.tv.feature.account.mobile.view.AccountMobileLogoutConfirmDia
 import su.afk.yummy.tv.feature.account.mobile.view.AccountMobileLogoutProgressDialog
 import su.afk.yummy.tv.feature.account.mobile.view.AccountMobileQuickActionsGrid
 import su.afk.yummy.tv.feature.account.mobile.view.AccountMobileStatsTab
+import su.afk.yummy.tv.feature.account.mobile.view.AccountMobileTabs
 import su.afk.yummy.tv.feature.account.presentation.R
 
 @Preview(name = "Default", device = "spec:width=412dp,height=915dp,dpi=420", showBackground = true)
@@ -381,25 +385,53 @@ fun AccountMobileScreen(
                         }
                     }
                 }
-                item(key = "profile_notifications", contentType = "account_notifications") {
-                    AccountMobileNotificationsTab(
-                        state = state,
-                        onEvent = onEvent,
+                item(key = "tabs", contentType = "account_tabs") {
+                    AccountMobileTabs(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        selected = state.selectedTab,
+                        unreadCount = state.unreadNotificationCount,
+                        onSelected = { tab -> onEvent(AccountState.Event.TabSelected(tab)) },
                     )
                 }
-                item(key = "profile_stats", contentType = "account_stats") {
-                    Box(modifier = Modifier.padding(horizontal = 16.dp)) {
-                        if (state.isStatsLoading && state.stats == null && state.profileSummary == null) {
-                            AccountMobileLoadingIndicator()
-                        } else {
-                            AccountMobileStatsTab(
-                                profileSummary = state.profileSummary,
-                                stats = state.stats,
-                                isLoading = state.isStatsLoading,
-                            )
+                item(key = "tabs_pager", contentType = "account_tabs_pager") {
+                    val accountTabs = AccountState.AccountTab.entries
+                    val tabsState = rememberMobileSwipeableTabsState(
+                        selectedPage = accountTabs.indexOf(state.selectedTab).coerceAtLeast(0),
+                        pageCount = accountTabs.size,
+                        onPageSelected = { page ->
+                            accountTabs.getOrNull(page)?.let { onEvent(AccountState.Event.TabSelected(it)) }
+                        },
+                    )
+                    MobileSwipeableTabsPager(
+                        state = tabsState,
+                        modifier = Modifier.animateContentSize().fillMaxWidth(),
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        pageSpacing = 16.dp,
+                        key = { page -> accountTabs[page].name },
+                    ) { page ->
+                        when (accountTabs[page]) {
+                            AccountState.AccountTab.STATS -> {
+                                if (state.isStatsLoading && state.stats == null && state.profileSummary == null) {
+                                    AccountMobileLoadingIndicator()
+                                } else {
+                                    AccountMobileStatsTab(
+                                        profileSummary = state.profileSummary,
+                                        stats = state.stats,
+                                        isLoading = state.isStatsLoading,
+                                    )
+                                }
+                            }
+                            AccountState.AccountTab.NOTIFICATIONS -> {
+                                if (state.isNotificationsLoading && state.notifications.isEmpty()) {
+                                    AccountMobileLoadingIndicator()
+                                } else {
+                                    AccountMobileNotificationsTab(state = state, onEvent = onEvent)
+                                }
+                            }
                         }
                     }
                 }
+
             }
         }
     }

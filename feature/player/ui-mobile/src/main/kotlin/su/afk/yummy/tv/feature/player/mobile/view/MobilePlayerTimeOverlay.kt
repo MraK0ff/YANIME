@@ -89,7 +89,7 @@ internal fun MobilePlayerTimeOverlay(
                 finishOnly = false,
                 modifier = Modifier.align(Alignment.TopStart)
                     .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Start + WindowInsetsSides.Top))
-                    .background(Color.Black.copy(alpha = 0.24f), RoundedCornerShape(12.dp))
+                    .then(if (controlsActive) Modifier else Modifier.background(Color.Black.copy(alpha = 0.24f), RoundedCornerShape(12.dp)))
                     .padding(start = 8.dp, top = edgeTopPadding),
             )
             if (showFinish) TimeChip(
@@ -107,8 +107,6 @@ internal fun MobilePlayerTimeOverlay(
                 modifier = Modifier.align(Alignment.BottomStart)
                     .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Start + WindowInsetsSides.Bottom))
                     .then(if (controlsActive) Modifier else Modifier.background(Color.Black.copy(alpha = 0.24f), RoundedCornerShape(10.dp)))
-                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Start + WindowInsetsSides.Bottom))
-                    .then(if (controlsActive) Modifier else Modifier.background(Color.Black.copy(alpha = 0.24f), RoundedCornerShape(10.dp)))
                     .padding(start = 8.dp, bottom = edgeBottomPadding),
                 onClick = onTimeCodeClick,
             )
@@ -118,6 +116,8 @@ internal fun MobilePlayerTimeOverlay(
                 value = if (showRemainingTime) "-${remainingMs.millisToClockTime().padStart(5, '0')}"
                     else displayTimeMs.millisToClockTime().padStart(5, '0'),
                 modifier = Modifier.align(Alignment.BottomStart)
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Start + WindowInsetsSides.Bottom))
+                    .then(if (controlsActive) Modifier else Modifier.background(Color.Black.copy(alpha = 0.24f), RoundedCornerShape(10.dp)))
                     .padding(start = 8.dp, bottom = edgeBottomPadding),
                 onClick = onTimeCodeClick,
             )

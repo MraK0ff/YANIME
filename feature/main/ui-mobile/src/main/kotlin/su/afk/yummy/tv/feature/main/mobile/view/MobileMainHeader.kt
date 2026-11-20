@@ -36,6 +36,8 @@ import su.afk.yummy.tv.feature.main.presentation.R
 /** Компактная нейтральная шапка: визуально продолжает фон экрана, а не образует отдельную панель. */
 @Composable
 internal fun MobileMainHeader(
+    modifier: Modifier = Modifier,
+    containerColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.background,
     avatarUrl: String,
     unreadNotificationsCount: Int,
     onSearchSelected: () -> Unit,
@@ -44,7 +46,8 @@ internal fun MobileMainHeader(
     onProfileSelected: () -> Unit,
 ) {
     Surface(
-        color = MaterialTheme.colorScheme.background,
+        modifier = modifier,
+        color = containerColor,
         contentColor = MaterialTheme.colorScheme.onSurface,
         tonalElevation = 0.dp,
         shadowElevation = 0.dp,

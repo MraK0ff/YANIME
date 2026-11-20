@@ -31,6 +31,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.TextOverflow
 import kotlin.math.abs
 import su.afk.yummy.tv.core.designsystem.mobile.input.clickablePointer
 import su.afk.yummy.tv.core.designsystem.onboarding.onboardingTarget
@@ -59,7 +61,7 @@ internal fun <T> MobileMainNavigationBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(end = 64.dp)
-                .height(64.dp),
+                .height(80.dp),
             shape = RoundedCornerShape(24.dp),
             color = containerColor,
             contentColor = MaterialTheme.colorScheme.onSurface,
@@ -101,6 +103,7 @@ internal fun <T> MobileMainNavigationBar(
                     val selected = item.destination == selectedDestination
                     NavigationBarItem(
                         modifier = Modifier
+                            .weight(1f)
                             .testTag("main_tab")
                             .onboardingTarget(mobileMainTabTargetId(item.destination))
                             .clickablePointer()
@@ -115,7 +118,9 @@ internal fun <T> MobileMainNavigationBar(
                             Text(
                                 item.label,
                                 maxLines = 1,
-                                style = MaterialTheme.typography.labelMedium,
+                                style = MaterialTheme.typography.labelSmall.copy(letterSpacing = (-0.2).sp),
+                                softWrap = false,
+                                overflow = TextOverflow.Clip,
                             )
                         },
                         alwaysShowLabel = true,

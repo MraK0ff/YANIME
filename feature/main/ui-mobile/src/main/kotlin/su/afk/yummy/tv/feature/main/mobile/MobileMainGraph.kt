@@ -110,7 +110,8 @@ class MobileMainGraph @Inject internal constructor(
                             !isFullscreenDestination,
                         showRail = showRail,
                         showHeader = atTabRoot && !isRequiredUpdateDestination &&
-                            !isFullscreenDestination && !isProfileRoot,
+                            !isFullscreenDestination,
+                        overlayHeader = isProfileRoot,
                         headerAvatarUrl = if (state.isYaniSignedIn) state.yaniAvatarUrl else "",
                         unreadNotificationsCount = state.unreadNotificationsCount,
                         onSearchSelected = {

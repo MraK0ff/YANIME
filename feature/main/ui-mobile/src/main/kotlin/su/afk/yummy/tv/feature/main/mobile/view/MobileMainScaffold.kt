@@ -23,6 +23,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldLayout
@@ -52,6 +53,7 @@ internal fun <T> MobileMainScaffold(
     showBottomBar: Boolean,
     showRail: Boolean,
     showHeader: Boolean,
+    overlayHeader: Boolean = false,
     headerAvatarUrl: String,
     unreadNotificationsCount: Int,
     onSearchSelected: () -> Unit,
@@ -100,6 +102,11 @@ internal fun <T> MobileMainScaffold(
     }
 
     val surface = MaterialTheme.colorScheme.surfaceContainerHigh
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background,
+        contentColor = MaterialTheme.colorScheme.onBackground,
+    ) {
     NavigationSuiteScaffoldLayout(
         navigationSuiteType = if (isRail) NavigationSuiteType.NavigationRail else suiteType,
         state = suiteState,
@@ -129,40 +136,77 @@ internal fun <T> MobileMainScaffold(
             } else {
                 WindowInsets(0.dp)
             }
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .nestedScroll(headerScrollConnection)
-                    .consumeWindowInsets(barInsets)
-                    .background(MaterialTheme.colorScheme.background),
-            ) {
-                AnimatedVisibility(
-                    visible = showHeader && headerVisible.value,
-                    enter = fadeIn() + slideInVertically { -it / 2 },
-                    exit = fadeOut() + slideOutVertically { -it / 2 },
-                ) {
-                    MobileMainHeader(
-                        avatarUrl = headerAvatarUrl,
-                        unreadNotificationsCount = unreadNotificationsCount,
-                        onSearchSelected = onSearchSelected,
-                        onNotificationsSelected = onNotificationsSelected,
-                        onSettingsSelected = onSettingsSelected,
-                        onProfileSelected = onProfileSelected,
-                    )
-                }
+            if (overlayHeader) {
                 Box(
                     modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
+                        .fillMaxSize()
+                        .nestedScroll(headerScrollConnection)
+                        .consumeWindowInsets(barInsets)
+                        .background(MaterialTheme.colorScheme.background),
                 ) {
-                    content()
-                    if (showSeasonalOverlay) SeasonalOverlay()
-                    GlobalToastOverlay(
-                        text = toastMessage,
-                        modifier = Modifier.padding(bottom = MobileBottomBarDefaults.contentBottomPadding),
-                    )
+                    Box(Modifier.fillMaxSize()) {
+                        content()
+                        if (showSeasonalOverlay) SeasonalOverlay()
+                        GlobalToastOverlay(
+                            text = toastMessage,
+                            modifier = Modifier.padding(bottom = MobileBottomBarDefaults.contentBottomPadding),
+                        )
+                    }
+                    AnimatedVisibility(
+                        visible = showHeader && headerVisible.value,
+                        modifier = Modifier.align(androidx.compose.ui.Alignment.TopCenter),
+                        enter = fadeIn() + slideInVertically { -it / 2 },
+                        exit = fadeOut() + slideOutVertically { -it / 2 },
+                    ) {
+                        MobileMainHeader(
+                            modifier = Modifier.fillMaxWidth(),
+                            containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.72f),
+                            avatarUrl = headerAvatarUrl,
+                            unreadNotificationsCount = unreadNotificationsCount,
+                            onSearchSelected = onSearchSelected,
+                            onNotificationsSelected = onNotificationsSelected,
+                            onSettingsSelected = onSettingsSelected,
+                            onProfileSelected = onProfileSelected,
+                        )
+                    }
+                }
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .nestedScroll(headerScrollConnection)
+                        .consumeWindowInsets(barInsets)
+                        .background(MaterialTheme.colorScheme.background),
+                ) {
+                    AnimatedVisibility(
+                        visible = showHeader && headerVisible.value,
+                        enter = fadeIn() + slideInVertically { -it / 2 },
+                        exit = fadeOut() + slideOutVertically { -it / 2 },
+                    ) {
+                        MobileMainHeader(
+                            avatarUrl = headerAvatarUrl,
+                            unreadNotificationsCount = unreadNotificationsCount,
+                            onSearchSelected = onSearchSelected,
+                            onNotificationsSelected = onNotificationsSelected,
+                            onSettingsSelected = onSettingsSelected,
+                            onProfileSelected = onProfileSelected,
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                    ) {
+                        content()
+                        if (showSeasonalOverlay) SeasonalOverlay()
+                        GlobalToastOverlay(
+                            text = toastMessage,
+                            modifier = Modifier.padding(bottom = MobileBottomBarDefaults.contentBottomPadding),
+                        )
+                    }
                 }
             }
         }
+    }
     }
 }

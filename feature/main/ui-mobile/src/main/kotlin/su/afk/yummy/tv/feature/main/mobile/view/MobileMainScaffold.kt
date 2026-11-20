@@ -72,11 +72,7 @@ internal fun <T> MobileMainScaffold(
 
     val surface = MaterialTheme.colorScheme.surface
     NavigationSuiteScaffoldLayout(
-        navigationSuiteType = if (isRail) {
-            NavigationSuiteType.NavigationRail
-        } else {
-            NavigationSuiteType.NavigationBar
-        },
+        navigationSuiteType = if (isRail) NavigationSuiteType.NavigationRail else suiteType,
         state = suiteState,
         navigationSuite = {
             if (isRail) {

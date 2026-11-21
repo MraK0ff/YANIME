@@ -69,9 +69,10 @@ internal fun <T> MobileMainNavigationBar(
     val orderedItems = remember(menuItems) { menuItems }
     var dragPreviewIndex by remember { mutableStateOf<Float?>(null) }
     LaunchedEffect(selectedDestination) { dragPreviewIndex = null }
+    val selectedItemIndex = orderedItems.indexOfFirst { it.destination == selectedDestination }
+        .takeIf { it >= 0 }
     val animatedPreviewIndex by animateFloatAsState(
-        targetValue = dragPreviewIndex
-            ?: orderedItems.indexOfFirst { it.destination == selectedDestination }.coerceAtLeast(0).toFloat(),
+        targetValue = dragPreviewIndex ?: (selectedItemIndex?.toFloat() ?: -1f),
         // Keep the active indicator responsive to the finger while retaining a soft settle on release.
         animationSpec = spring(dampingRatio = 0.92f, stiffness = 900f),
         label = "navigationDragPreview",
@@ -155,7 +156,8 @@ internal fun <T> MobileMainNavigationBar(
             ) {
                 val itemColors = seasonalNavigationBarItemColors()
                 orderedItems.forEachIndexed { index, item ->
-                    val selected = index == animatedPreviewIndex.roundToInt().coerceIn(0, orderedItems.lastIndex)
+                    val selected = animatedPreviewIndex >= 0f &&
+                        index == animatedPreviewIndex.roundToInt().coerceIn(0, orderedItems.lastIndex)
                     NavigationBarItem(
                         // The selected destination needs room for its icon + full label.
                         // Inactive destinations stay compact and icon-only.
@@ -171,7 +173,9 @@ internal fun <T> MobileMainNavigationBar(
                         colors = itemColors,
                         onClick = { onDestinationSelected(item.destination) },
                         icon = { MobileMainNavigationIcon(item, selected) },
-                        label = if (classicStyle) {
+                        // Material 3's label slot is required in the expressive bar: without it,
+                        // the selected destination silently loses its title.
+                        label = if (classicStyle || selected) {
                             { Text(item.label, maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis) }
                         } else null,
                         alwaysShowLabel = classicStyle,

@@ -229,7 +229,7 @@ internal fun <T> MobileMainNavigationBar(
                         horizontalArrangement = Arrangement.spacedBy(2.dp),
                     ) {
                         orderedItems.forEachIndexed { index, item ->
-                            val selected = index == dragPosition.value.roundToInt().coerceIn(0, orderedItems.lastIndex)
+                            val selected = index == dragState.currentValue.coerceIn(0, orderedItems.lastIndex)
                             val itemShape = CircleShape
                             Box(
                                 modifier = Modifier

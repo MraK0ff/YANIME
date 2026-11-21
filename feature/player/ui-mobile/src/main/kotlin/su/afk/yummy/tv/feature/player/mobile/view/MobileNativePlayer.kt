@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.player.mobile.view
 
-import android.os.SystemClock
 import androidx.activity.compose.BackHandler
 import androidx.annotation.OptIn
 import androidx.compose.animation.core.animateDpAsState
@@ -35,7 +34,6 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.onSizeChanged
@@ -94,6 +92,7 @@ import su.afk.yummy.tv.feature.player.mobile.model.rememberMobilePlayerSettingsS
 import su.afk.yummy.tv.feature.player.common.rememberPlayerSleepTimer
 import su.afk.yummy.tv.feature.player.common.rememberPlayerVolumeController
 import su.afk.yummy.tv.feature.player.common.service.rememberPlayerMediaController
+import su.afk.yummy.tv.feature.player.common.service.setTimelineScrubbingMode
 import su.afk.yummy.tv.feature.player.common.utils.hasOtherSource
 import su.afk.yummy.tv.feature.player.common.utils.isVisible
 import su.afk.yummy.tv.feature.player.common.utils.playerContentScale
@@ -180,8 +179,6 @@ internal fun MobileNativePlayer(
         initialDurationMs = state.playbackDurationMs,
     )
     var settingsMenuOpen by remember { mutableStateOf(false) }
-    var wasPlayingBeforeScrub by remember { mutableStateOf(false) }
-    var lastScrubPreviewAtMs by remember { mutableStateOf(0L) }
     var settingsMenuPage by remember { mutableStateOf(MobilePlayerSettingsPage.Root) }
     var showRemainingTime by rememberSaveable { mutableStateOf(false) }
     var wantsPlay by remember { mutableStateOf(true) }
@@ -644,9 +641,9 @@ internal fun MobileNativePlayer(
                     // above Media3's TextureView, including the fitted side regions.
                     .matchParentSize()
                     .zIndex(10f)
-                    .graphicsLayer {
-                        compositingStrategy = CompositingStrategy.Offscreen
-                    }
+                    // Keep the scrim in the window's normal Compose draw pass. An offscreen
+                    // layer can be composed underneath the TextureView on some Android GPUs,
+                    // leaving the fitted side regions visibly undimmed.
                     .background(Color.Black.copy(alpha = 0.36f)),
             )
         }
@@ -896,7 +893,11 @@ internal fun MobileNativePlayer(
             visible = overlay.visible && !locked && !isInPictureInPictureMode &&
                 !tutorialBlocksPlayback && !settingsMenuOpen,
             wantsPlay = wantsPlay,
-            loading = isBuffering || showRecoveryIndicator,
+            // PiP is a clean video-only surface: never draw Compose loading controls over it.
+            // When the control panel is hidden, MobilePlayerOverlay renders a standalone spinner
+            // without the Play button's glass surface.
+            loading = (isBuffering || showRecoveryIndicator) &&
+                !isInPictureInPictureMode && !settingsMenuOpen && !locked && !tutorialBlocksPlayback,
             isSeeking = progress.isSeeking,
             progress = progress,
             hasPrevEpisode = ui.hasPrevEpisode,
@@ -912,35 +913,36 @@ internal fun MobileNativePlayer(
                     overlay.cancelHide()
                 }
             },
-            onSeekChange = { value ->
+            onSeekStarted = {
                 if (!progress.isSeeking) {
-                    wasPlayingBeforeScrub = wantsPlay
-                    lastScrubPreviewAtMs = 0L
-                    if (wasPlayingBeforeScrub) player.pause()
+                    progress.isSeeking = true
+                    overlay.visible = true
+                    overlay.cancelHide()
+                    // MediaController cannot call ExoPlayer's unstable API directly. This
+                    // session command enables native Media3 scrubbing mode in the playback service.
+                    player.setTimelineScrubbingMode(true)
                 }
-                progress.isSeeking = true
+            },
+            onSeekChange = { value ->
                 progress.seekProgress = value
                 overlay.visible = true
                 overlay.cancelHide()
                 val duration = progress.duration
-                val now = SystemClock.elapsedRealtime()
-                if (duration > 0L && (lastScrubPreviewAtMs == 0L || now - lastScrubPreviewAtMs >= 120L)) {
-                    // MediaController does not expose ExoPlayer's unstable scrubbing-mode API.
-                    // Throttled preview seeks keep the real video surface responsive while dragging.
+                // In scrubbing mode ExoPlayer coalesces rapid seeks and keeps rendering preview
+                // frames instead of aborting each in-flight seek. Taps are committed on release.
+                if (progress.isSeeking && duration > 0L) {
                     player.seekTo((value * duration).toLong().coerceIn(0L, duration))
-                    lastScrubPreviewAtMs = now
                 }
             },
             onSeekFinished = {
+                val wasScrubbing = progress.isSeeking
                 val duration = progress.duration
                 if (duration > 0L) {
                     val newPosition = (progress.seekProgress * duration).toLong().coerceIn(0L, duration)
                     seekController.seekTo(newPosition)
                 }
                 progress.isSeeking = false
-                if (wasPlayingBeforeScrub) player.play()
-                wasPlayingBeforeScrub = false
-                lastScrubPreviewAtMs = 0L
+                if (wasScrubbing) player.setTimelineScrubbingMode(false)
                 overlay.show()
             },
             onStepSeek = seekController::stepSeek,

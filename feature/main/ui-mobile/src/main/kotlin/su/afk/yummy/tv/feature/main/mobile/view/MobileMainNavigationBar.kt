@@ -200,7 +200,8 @@ internal fun <T> MobileMainNavigationBar(
                 Modifier.align(Alignment.TopEnd).offset(y = (-72).dp).padding(end = 12.dp).size(52.dp)
             } else {
                 Modifier.align(Alignment.BottomCenter)
-                    .offset(x = floatingNavWidth / 2 + 4.dp)
+                    // Dock the FAB to the actual right edge of the floating bar and center it vertically.
+                    .offset(x = floatingNavWidth / 2 - 32.dp, y = (-32).dp)
                     .size(56.dp)
             },
             shape = RoundedCornerShape(20.dp),

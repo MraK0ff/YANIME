@@ -79,7 +79,9 @@ class MobileMainGraph @Inject internal constructor(
         ScreenNavigator(viewModel) { state, effect, onEvent ->
             if (!state.appearanceLoaded) return@ScreenNavigator
             val accountSettingsFocusRequester = remember { FocusRequester() }
-            val baseMenuItems = mobileMenuItems()
+            val baseMenuItems = mobileMenuItems(
+                showDownloads = state.hasVideoDownloads || navManager.currentRoot == RootTab.DOWNLOADS,
+            )
             val toast = rememberGlobalToastState()
             val catalogSearchQuery by catalogSearchOpener.searchQuery.collectAsState()
             val catalogSearchFocusRequested by catalogSearchOpener.isSearchFocusPending.collectAsState()

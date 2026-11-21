@@ -2,7 +2,7 @@ package su.afk.yummy.tv.feature.main.mobile.view
 
 import su.afk.yummy.tv.core.designsystem.seasonal.seasonalNavigationBarItemColors
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -79,7 +79,7 @@ internal fun <T> MobileMainNavigationBar(
     val bottomInset = with(LocalDensity.current) {
         WindowInsets.navigationBars.getBottom(this).toDp()
     }
-    Box(
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxWidth()
             .then(
@@ -87,11 +87,13 @@ internal fun <T> MobileMainNavigationBar(
                 else Modifier.navigationBarsPadding().padding(horizontal = 12.dp, vertical = 4.dp),
             ),
     ) {
+        val floatingNavWidth = maxWidth * 0.78f
         Surface(
             modifier = Modifier
-                .align(Alignment.BottomStart)
-                .fillMaxWidth(if (searchFabEnabled && !classicStyle) 0.70f else 1f)
-                .height(if (classicStyle) 68.dp + bottomInset else 64.dp),
+                .align(Alignment.BottomCenter)
+                .offset(x = if (searchFabEnabled && !classicStyle) (-32).dp else 0.dp)
+                .fillMaxWidth(if (classicStyle || !searchFabEnabled) 1f else 0.78f)
+                .height(if (classicStyle) 80.dp + bottomInset else 64.dp),
             shape = if (classicStyle) RoundedCornerShape(0.dp) else RoundedCornerShape(32.dp),
             color = containerColor,
             contentColor = MaterialTheme.colorScheme.onSurface,
@@ -101,7 +103,7 @@ internal fun <T> MobileMainNavigationBar(
             NavigationBar(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(64.dp)
+                    .height(if (classicStyle) 80.dp else 64.dp)
                     .pointerInput(orderedItems, selectedDestination) {
                         if (orderedItems.size < 2) return@pointerInput
                         var totalDrag = 0f
@@ -158,7 +160,7 @@ internal fun <T> MobileMainNavigationBar(
                         // The selected destination needs room for its icon + full label.
                         // Inactive destinations stay compact and icon-only.
                         modifier = Modifier
-                            .weight(if (selected) 2.0f else 0.8f)
+                            .weight(if (classicStyle) 1f else if (selected) 2.0f else 0.8f)
                             .testTag("main_tab")
                             .onboardingTarget(mobileMainTabTargetId(item.destination))
                             .clickablePointer()
@@ -168,25 +170,11 @@ internal fun <T> MobileMainNavigationBar(
                         selected = selected,
                         colors = itemColors,
                         onClick = { onDestinationSelected(item.destination) },
-                        icon = {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            ) {
-                                MobileMainNavigationIcon(item, selected)
-                                if (selected) {
-                                    Text(
-                                        item.label,
-                                        maxLines = 1,
-                                        style = MaterialTheme.typography.labelSmall,
-                                        softWrap = false,
-                                        overflow = TextOverflow.Clip,
-                                    )
-                                }
-                            }
-                        },
-                        label = null,
-                        alwaysShowLabel = false,
+                        icon = { MobileMainNavigationIcon(item, selected) },
+                        label = if (classicStyle) {
+                            { Text(item.label, maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis) }
+                        } else null,
+                        alwaysShowLabel = classicStyle,
                     )
                 }
             }
@@ -194,9 +182,11 @@ internal fun <T> MobileMainNavigationBar(
         if (searchFabEnabled) FloatingActionButton(
             onClick = if (catalogFabEnabled) onCatalogRandomSelected else onSearchSelected,
             modifier = if (classicStyle) {
-                Modifier.align(Alignment.TopEnd).offset(y = (-60).dp).padding(end = 12.dp).size(52.dp)
+                Modifier.align(Alignment.TopEnd).offset(y = (-72).dp).padding(end = 12.dp).size(52.dp)
             } else {
-                Modifier.align(Alignment.CenterEnd).size(56.dp)
+                Modifier.align(Alignment.BottomCenter)
+                    .offset(x = floatingNavWidth / 2 + 4.dp)
+                    .size(56.dp)
             },
             shape = RoundedCornerShape(20.dp),
             containerColor = MaterialTheme.colorScheme.primaryContainer,

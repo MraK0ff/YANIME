@@ -209,6 +209,10 @@ internal fun <T> MobileMainNavigationBar(
                         )
                     }
 
+                    if (actionEnabled && actionFloatsAbove) {
+                        Spacer(Modifier.width(72.dp))
+                    }
+
                     if (actionEnabled && actionInBar) {
                         NavigationBarItem(
                             modifier = Modifier.testTag("main_navigation_action"),
@@ -275,7 +279,7 @@ internal fun <T> MobileMainNavigationBar(
                             val selected = animatedPreviewIndex >= 0f &&
                                 index == animatedPreviewIndex.roundToInt().coerceIn(0, orderedItems.lastIndex)
                             val itemWeight by animateFloatAsState(
-                                targetValue = if (selected) 3f else 1f,
+                                targetValue = if (selected) 3.8f else 1f,
                                 animationSpec = spring(dampingRatio = 0.88f, stiffness = 700f),
                                 label = "expressiveNavigationItemWeight",
                             )

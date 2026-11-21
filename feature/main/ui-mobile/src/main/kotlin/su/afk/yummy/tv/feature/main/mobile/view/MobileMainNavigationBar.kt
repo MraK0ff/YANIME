@@ -8,6 +8,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -237,7 +238,7 @@ internal fun <T> MobileMainNavigationBar(
                                         if (selected) MaterialTheme.colorScheme.secondaryContainer
                                         else Color.Transparent,
                                     )
-                                    .clickablePointer()
+                                    .clickable { onDestinationSelected(item.destination) }
                                     .onboardingTarget(mobileMainTabTargetId(item.destination))
                                     .testTag("main_tab")
                                     .focusProperties {

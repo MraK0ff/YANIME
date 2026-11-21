@@ -46,7 +46,7 @@ import androidx.compose.foundation.layout.width
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.compose.ContentFrame
-import androidx.media3.ui.compose.SURFACE_TYPE_SURFACE_VIEW
+import androidx.media3.ui.compose.SURFACE_TYPE_TEXTURE_VIEW
 import kotlinx.coroutines.delay
 import su.afk.yummy.tv.core.model.settings.VideoEnhancementMode
 import su.afk.yummy.tv.core.utils.cast.CastSupport
@@ -595,7 +595,7 @@ internal fun MobileNativePlayer(
         ) {
             ContentFrame(
                 player = player,
-                surfaceType = SURFACE_TYPE_SURFACE_VIEW,
+                surfaceType = SURFACE_TYPE_TEXTURE_VIEW,
                 contentScale = playerContentScale(state.resizeMode, state.zoomLevel),
                 keepContentOnReset = state.isPlaybackRecovering,
                 modifier = Modifier
@@ -619,16 +619,17 @@ internal fun MobileNativePlayer(
             )
         }
 
-        // Часть затемнения перенесена с поверхностей кнопок на видеоряд.
-        if (overlay.visible && !locked) {
-            Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.36f)))
-        }
-
         PlayerSubtitleOverlay(
             player = player,
             style = state.subtitleStyle,
             modifier = Modifier.fillMaxSize(),
         )
+
+        // TextureView keeps the video in Compose's composition layer, so this scrim
+        // covers the complete viewport (including the video at any scale and subtitles).
+        if (overlay.visible && !locked) {
+            Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.36f)))
+        }
 
         if (state.showResolveLog) {
             PlayerDiagnosticsOverlay(

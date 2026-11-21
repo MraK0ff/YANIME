@@ -48,6 +48,7 @@ internal fun MobilePlayerProgressRow(
     seekProgress: Float,
     bufferedProgress: Float,
     onSeekChange: (Float) -> Unit,
+    onSeekStarted: () -> Unit,
     onSeekFinished: () -> Unit,
     videoWidthFraction: Float = 1f,
     videoBottomInset: Dp = 0.dp,
@@ -84,6 +85,7 @@ internal fun MobilePlayerProgressRow(
                 selectedPlaybackSpeed = selectedSpeed,
                 isSeeking = isSeeking,
                 onValueChange = onSeekChange,
+                onScrubStarted = onSeekStarted,
                 onValueChangeFinished = onSeekFinished,
                 modifier = Modifier
                     .align(Alignment.TopCenter)
@@ -169,6 +171,7 @@ private fun MobilePlayerTimeline(
     enabled: Boolean,
     duration: Long,
     onValueChange: (Float) -> Unit,
+    onScrubStarted: () -> Unit,
     onValueChangeFinished: () -> Unit,
     isPlaying: Boolean,
     selectedPlaybackSpeed: Float,
@@ -202,6 +205,7 @@ private fun MobilePlayerTimeline(
                 if (enabled) {
                     detectDragGestures(
                         onDragStart = { position ->
+                            onScrubStarted()
                             onValueChange((position.x / size.width.toFloat()).coerceIn(0f, 1f))
                         },
                         onDrag = { change, _ ->

@@ -102,7 +102,7 @@ internal fun <T> MobileMainNavigationBar(
     // External navigation (deep links/back handling) and swipe navigation share
     // the same state. A destination is emitted only after the gesture settles.
     LaunchedEffect(selectedDestination, orderedItems) {
-        dragState.animateTo(selectedItemIndex)
+        dragState.snapTo(selectedItemIndex)
     }
     LaunchedEffect(dragState.settledValue) {
         if (orderedItems.isNotEmpty()) {

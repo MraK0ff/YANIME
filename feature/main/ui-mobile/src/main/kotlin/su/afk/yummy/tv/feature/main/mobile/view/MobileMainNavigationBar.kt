@@ -4,6 +4,7 @@ import su.afk.yummy.tv.core.designsystem.seasonal.seasonalNavigationBarItemColor
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -89,119 +90,19 @@ internal fun <T> MobileMainNavigationBar(
     ) {
         val navigationWidthFraction = if (classicStyle || !searchFabEnabled) 1f else 0.78f
         val navigationHeight = if (classicStyle) 80.dp + bottomInset else 64.dp
-        Box(
+
+        // Keep the FAB and navigation surface in a vertical column. This makes it
+        // structurally impossible for the FAB to be measured beside/inside the bar.
+        Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .fillMaxWidth(navigationWidthFraction)
-                .height(navigationHeight + if (searchFabEnabled) 56.dp else 0.dp),
+                .fillMaxWidth(navigationWidthFraction),
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.spacedBy(if (searchFabEnabled) 8.dp else 0.dp),
         ) {
-            Surface(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .height(navigationHeight),
-                shape = if (classicStyle) RoundedCornerShape(0.dp) else RoundedCornerShape(32.dp),
-                color = containerColor,
-                contentColor = MaterialTheme.colorScheme.onSurface,
-                tonalElevation = 0.dp,
-                shadowElevation = 0.dp,
-            ) {
-                NavigationBar(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(if (classicStyle) 80.dp else 64.dp)
-                    .pointerInput(orderedItems, selectedDestination) {
-                        if (orderedItems.size < 2) return@pointerInput
-                        var totalDrag = 0f
-                        var startIndex = 0
-                        var previewIndex = 0f
-                        var lastFingerX = 0f
-                        detectHorizontalDragGestures(
-                            onDragStart = { offset ->
-                                totalDrag = 0f
-                                startIndex = orderedItems.indexOfFirst {
-                                    it.destination == selectedDestination
-                                }.coerceAtLeast(0)
-                                lastFingerX = offset.x
-                                previewIndex = (
-                                    offset.x / size.width.coerceAtLeast(1) * orderedItems.size
-                                ).coerceIn(0f, orderedItems.lastIndex.toFloat())
-                                dragPreviewIndex = previewIndex
-                            },
-                            onHorizontalDrag = { change, amount ->
-                                change.consume()
-                                totalDrag += amount
-                                lastFingerX = change.position.x
-                                // Continuous scrub: the active pill tracks the finger across
-                                // every item. Navigation itself is committed only on release.
-                                previewIndex = (
-                                    lastFingerX / size.width.coerceAtLeast(1) * orderedItems.size
-                                ).coerceIn(0f, orderedItems.lastIndex.toFloat())
-                                dragPreviewIndex = previewIndex
-                            },
-                            onDragEnd = {
-                                val nearest = previewIndex.roundToInt().coerceIn(0, orderedItems.lastIndex)
-                                val target = if (nearest == startIndex && abs(totalDrag) > 24f) {
-                                    (startIndex + if (totalDrag < 0f) 1 else -1)
-                                        .coerceIn(0, orderedItems.lastIndex)
-                                } else nearest
-                                if (target != startIndex) {
-                                    dragPreviewIndex = target.toFloat()
-                                    onDestinationSelected(orderedItems[target].destination)
-                                } else {
-                                    dragPreviewIndex = null
-                                }
-                            },
-                            onDragCancel = { dragPreviewIndex = null },
-                        )
-                    },
-                containerColor = Color.Transparent,
-                tonalElevation = 0.dp,
-                windowInsets = WindowInsets(0.dp),
-            ) {
-                val itemColors = seasonalNavigationBarItemColors()
-                orderedItems.forEachIndexed { index, item ->
-                    val selected = animatedPreviewIndex >= 0f &&
-                        index == animatedPreviewIndex.roundToInt().coerceIn(0, orderedItems.lastIndex)
-                    NavigationBarItem(
-                        // The selected destination needs room for its icon + full label.
-                        // Inactive destinations stay compact and icon-only.
-                        modifier = Modifier
-                            .weight(if (classicStyle) 1f else if (selected) 1.35f else 1f)
-                            .testTag("main_tab")
-                            .onboardingTarget(mobileMainTabTargetId(item.destination))
-                            .clickablePointer()
-                            .focusProperties {
-                                upFocusRequester?.takeIf { selected }?.let { up = it }
-                            },
-                        selected = selected,
-                        colors = itemColors,
-                        onClick = { onDestinationSelected(item.destination) },
-                        icon = {
-                            if (!classicStyle && selected) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                ) {
-                                    MobileMainNavigationIcon(item, selected)
-                                    Text(item.label, maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis)
-                                }
-                            } else {
-                                MobileMainNavigationIcon(item, selected)
-                            }
-                        },
-                        // Classic labels remain below the icon; modern labels sit beside it.
-                        label = if (classicStyle) {
-                            { Text(item.label, maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis) }
-                        } else null,
-                        alwaysShowLabel = classicStyle,
-                    )
-                }
-            }
-            }
             if (searchFabEnabled) FloatingActionButton(
                 onClick = if (catalogFabEnabled) onCatalogRandomSelected else onSearchSelected,
-                modifier = Modifier.align(Alignment.TopEnd).size(56.dp),
+                modifier = Modifier.size(56.dp),
                 shape = RoundedCornerShape(20.dp),
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -212,6 +113,105 @@ internal fun <T> MobileMainNavigationBar(
                         if (catalogFabEnabled) R.string.main_header_random_anime else R.string.main_header_search,
                     ),
                 )
+            }
+
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(navigationHeight),
+                shape = if (classicStyle) RoundedCornerShape(0.dp) else RoundedCornerShape(32.dp),
+                color = containerColor,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                tonalElevation = 0.dp,
+                shadowElevation = 0.dp,
+            ) {
+                NavigationBar(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(if (classicStyle) 80.dp else 64.dp)
+                        .pointerInput(orderedItems, selectedDestination) {
+                            if (orderedItems.size < 2) return@pointerInput
+                            var totalDrag = 0f
+                            var startIndex = 0
+                            var previewIndex = 0f
+                            var lastFingerX = 0f
+                            detectHorizontalDragGestures(
+                                onDragStart = { offset ->
+                                    totalDrag = 0f
+                                    startIndex = orderedItems.indexOfFirst {
+                                        it.destination == selectedDestination
+                                    }.coerceAtLeast(0)
+                                    lastFingerX = offset.x
+                                    previewIndex = (
+                                        offset.x / size.width.coerceAtLeast(1) * orderedItems.size
+                                    ).coerceIn(0f, orderedItems.lastIndex.toFloat())
+                                    dragPreviewIndex = previewIndex
+                                },
+                                onHorizontalDrag = { change, amount ->
+                                    change.consume()
+                                    totalDrag += amount
+                                    lastFingerX = change.position.x
+                                    previewIndex = (
+                                        lastFingerX / size.width.coerceAtLeast(1) * orderedItems.size
+                                    ).coerceIn(0f, orderedItems.lastIndex.toFloat())
+                                    dragPreviewIndex = previewIndex
+                                },
+                                onDragEnd = {
+                                    val nearest = previewIndex.roundToInt().coerceIn(0, orderedItems.lastIndex)
+                                    val target = if (nearest == startIndex && abs(totalDrag) > 24f) {
+                                        (startIndex + if (totalDrag < 0f) 1 else -1)
+                                            .coerceIn(0, orderedItems.lastIndex)
+                                    } else nearest
+                                    if (target != startIndex) {
+                                        dragPreviewIndex = target.toFloat()
+                                        onDestinationSelected(orderedItems[target].destination)
+                                    } else {
+                                        dragPreviewIndex = null
+                                    }
+                                },
+                                onDragCancel = { dragPreviewIndex = null },
+                            )
+                        },
+                    containerColor = Color.Transparent,
+                    tonalElevation = 0.dp,
+                    windowInsets = WindowInsets(0.dp),
+                ) {
+                    val itemColors = seasonalNavigationBarItemColors()
+                    orderedItems.forEachIndexed { index, item ->
+                        val selected = animatedPreviewIndex >= 0f &&
+                            index == animatedPreviewIndex.roundToInt().coerceIn(0, orderedItems.lastIndex)
+                        NavigationBarItem(
+                            modifier = Modifier
+                                .weight(if (classicStyle) 1f else if (selected) 1.35f else 1f)
+                                .testTag("main_tab")
+                                .onboardingTarget(mobileMainTabTargetId(item.destination))
+                                .clickablePointer()
+                                .focusProperties {
+                                    upFocusRequester?.takeIf { selected }?.let { up = it }
+                                },
+                            selected = selected,
+                            colors = itemColors,
+                            onClick = { onDestinationSelected(item.destination) },
+                            icon = {
+                                if (!classicStyle && selected) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    ) {
+                                        MobileMainNavigationIcon(item, selected)
+                                        Text(item.label, maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis)
+                                    }
+                                } else {
+                                    MobileMainNavigationIcon(item, selected)
+                                }
+                            },
+                            label = if (classicStyle) {
+                                { Text(item.label, maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis) }
+                            } else null,
+                            alwaysShowLabel = classicStyle,
+                        )
+                    }
+                }
             }
         }
         SeasonalBarDecoration(Modifier.align(Alignment.TopCenter))

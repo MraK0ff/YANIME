@@ -90,19 +90,24 @@ internal fun <T> MobileMainNavigationBar(
     ) {
         val navigationWidthFraction = if (classicStyle || !searchFabEnabled) 1f else 0.78f
         val navigationHeight = if (classicStyle) 80.dp + bottomInset else 64.dp
-        val floatingNavWidth = maxWidth * navigationWidthFraction
-        Surface(
+        Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth(navigationWidthFraction)
-                .height(navigationHeight),
-            shape = if (classicStyle) RoundedCornerShape(0.dp) else RoundedCornerShape(32.dp),
-            color = containerColor,
-            contentColor = MaterialTheme.colorScheme.onSurface,
-            tonalElevation = 0.dp,
-            shadowElevation = 0.dp,
+                .height(navigationHeight + if (searchFabEnabled) 56.dp else 0.dp),
         ) {
-            NavigationBar(
+            Surface(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(navigationHeight),
+                shape = if (classicStyle) RoundedCornerShape(0.dp) else RoundedCornerShape(32.dp),
+                color = containerColor,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                tonalElevation = 0.dp,
+                shadowElevation = 0.dp,
+            ) {
+                NavigationBar(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(if (classicStyle) 80.dp else 64.dp)
@@ -194,28 +199,20 @@ internal fun <T> MobileMainNavigationBar(
                     )
                 }
             }
-        }
-        if (searchFabEnabled) FloatingActionButton(
-            onClick = if (catalogFabEnabled) onCatalogRandomSelected else onSearchSelected,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                // Anchor to the measured navigation surface: the FAB sits immediately
-                // above its upper-right corner and follows its width and height.
-                .offset(
-                    x = floatingNavWidth / 2 - 28.dp,
-                    y = -(navigationHeight / 2 + 28.dp),
+            if (searchFabEnabled) FloatingActionButton(
+                onClick = if (catalogFabEnabled) onCatalogRandomSelected else onSearchSelected,
+                modifier = Modifier.align(Alignment.TopEnd).size(56.dp),
+                shape = RoundedCornerShape(20.dp),
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            ) {
+                Icon(
+                    imageVector = if (catalogFabEnabled) Icons.Default.Shuffle else Icons.Default.Search,
+                    contentDescription = stringResource(
+                        if (catalogFabEnabled) R.string.main_header_random_anime else R.string.main_header_search,
+                    ),
                 )
-                .size(56.dp),
-            shape = RoundedCornerShape(20.dp),
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        ) {
-            Icon(
-                imageVector = if (catalogFabEnabled) Icons.Default.Shuffle else Icons.Default.Search,
-                contentDescription = stringResource(
-                    if (catalogFabEnabled) R.string.main_header_random_anime else R.string.main_header_search,
-                ),
-            )
+            }
         }
         SeasonalBarDecoration(Modifier.align(Alignment.TopCenter))
     }

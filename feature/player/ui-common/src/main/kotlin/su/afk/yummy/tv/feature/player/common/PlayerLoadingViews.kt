@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -23,7 +24,10 @@ fun PlayerBufferingIndicator(
     visible: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    if (visible) {
-        YummyPlayerLoadingIndicator(modifier = modifier, size = 44.dp)
-    }
+    // Keep the indicator composed while playback toggles between buffering/paused states.
+    // Disposing it on a transient state change restarts the expressive loading animation.
+    YummyPlayerLoadingIndicator(
+        modifier = modifier.graphicsLayer { alpha = if (visible) 1f else 0f },
+        size = 56.dp,
+    )
 }

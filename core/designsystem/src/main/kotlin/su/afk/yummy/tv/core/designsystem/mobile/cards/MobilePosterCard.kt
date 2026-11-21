@@ -12,8 +12,13 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -35,9 +40,11 @@ import su.afk.yummy.tv.core.designsystem.dimensions.currentMobilePosterTitleStyl
 import su.afk.yummy.tv.core.designsystem.dimensions.currentMobilePosterTitleWeight
 import su.afk.yummy.tv.core.designsystem.dimensions.currentMobilePosterWidth
 import su.afk.yummy.tv.core.designsystem.locals.LocalLibraryListStatuses
+import su.afk.yummy.tv.core.designsystem.locals.LocalLibraryFavoriteAnimeIds
 import su.afk.yummy.tv.core.designsystem.mobile.input.clickablePointer
 import su.afk.yummy.tv.core.designsystem.mobile.input.onSecondaryClick
 import su.afk.yummy.tv.core.designsystem.seasonal.seasonalCardDecor
+import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
 import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
@@ -48,19 +55,16 @@ fun MobilePosterCard(
     posterUrls: List<String>,
     modifier: Modifier = Modifier.width(currentMobilePosterWidth()),
     subtitle: String? = null,
-    /** Акцентная строка под [subtitle] — например вид связи тайтла («продолжение»). */
     caption: String? = null,
-    /** Резерв высоты под [caption], чтобы карточки с короткой и длинной подписью в ряду были одной высоты. */
     captionMinLines: Int = 1,
     badge: String? = null,
     rating: Double? = null,
+    /** Kept for source compatibility; list membership is shown with status metadata, not an outline. */
+    highlightSelectedList: Boolean = false,
     titleMinLines: Int = 2,
-    /** Если задан — карточка подписывается списком пользователя, в котором лежит тайтл. */
     animeId: Int? = null,
     posterOverlay: @Composable BoxScope.() -> Unit = {},
-    /** Слот под карточкой — например кнопки голосования. Живёт внутри Card, клик не перехватывает. */
     footer: @Composable ColumnScope.() -> Unit = {},
-    /** Долгое нажатие по карточке — например контекстное меню тайтла. */
     onLongClick: (() -> Unit)? = null,
     onClick: () -> Unit,
 ) {
@@ -116,7 +120,6 @@ fun MobilePosterCard(
                     )
                 }
                 val listStatus = animeId?.let { LocalLibraryListStatuses.current[it] }
-                // Плашка занимает нижнюю кромку постера, поэтому нижние оверлеи (год) поднимаем над ней.
                 Box(
                     Modifier
                         .matchParentSize()
@@ -132,14 +135,28 @@ fun MobilePosterCard(
                 }
             }
             Column(Modifier.padding(horizontal = currentMobilePosterTextPadding(), vertical = YummySpacing.Small)) {
-                Text(
-                    text = title,
-                    minLines = titleMinLines,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    style = currentMobilePosterTitleStyle(),
-                    fontWeight = currentMobilePosterTitleWeight(),
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = title,
+                        modifier = Modifier.weight(1f),
+                        minLines = titleMinLines,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        style = currentMobilePosterTitleStyle(),
+                        fontWeight = currentMobilePosterTitleWeight(),
+                    )
+                    if (animeId?.let { it in LocalLibraryFavoriteAnimeIds.current } == true) {
+                        Icon(
+                            imageVector = Icons.Filled.Favorite,
+                            contentDescription = null,
+                            tint = YummySemanticColors.StatusFavorite,
+                            modifier = Modifier.padding(start = 4.dp).size(16.dp),
+                        )
+                    }
+                }
                 if (!subtitle.isNullOrBlank()) {
                     Spacer(Modifier.height(YummySpacing.XSmall))
                     Text(

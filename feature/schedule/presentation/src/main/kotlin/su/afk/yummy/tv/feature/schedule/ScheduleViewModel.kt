@@ -2,7 +2,9 @@ package su.afk.yummy.tv.feature.schedule
 
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -14,7 +16,12 @@ import su.afk.yummy.tv.core.model.text.UiText
 import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.preferences.api.YaniAccountSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.preferences.settings.contentLanguageChanges
+import su.afk.yummy.tv.domain.home.usecase.ObserveLibraryNewEpisodeAnimeIdsUseCase
+import su.afk.yummy.tv.domain.home.usecase.ObserveWatchedEpisodesUseCase
+import su.afk.yummy.tv.domain.library.usecase.ObserveLibraryFavoriteAnimeIdsUseCase
+import su.afk.yummy.tv.domain.library.usecase.ObserveLibraryItemsUseCase
 import su.afk.yummy.tv.domain.schedule.usecase.GetAnimeScheduleUseCase
 import su.afk.yummy.tv.feature.details.IDetailsNavigator
 import su.afk.yummy.tv.feature.schedule.mapper.toTimelineUi
@@ -23,6 +30,7 @@ import java.time.Instant
 import java.time.ZoneId
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class ScheduleViewModel @Inject internal constructor(
     override val errorHandler: ErrorHandler,
@@ -33,13 +41,50 @@ class ScheduleViewModel @Inject internal constructor(
     private val analytics: ScheduleAnalytics,
     private val accountSettingsStore: YaniAccountSettingsStore,
     private val appClock: AppClock,
+    private val settingsStore: SettingsStore,
+    private val observeLibraryNewEpisodeAnimeIds: ObserveLibraryNewEpisodeAnimeIdsUseCase,
+    private val observeLibraryFavoriteAnimeIds: ObserveLibraryFavoriteAnimeIdsUseCase,
+    private val observeLibraryItems: ObserveLibraryItemsUseCase,
+    private val observeWatchedEpisodes: ObserveWatchedEpisodesUseCase,
 ) : BaseViewModel<ScheduleState.State, ScheduleState.Event, ScheduleState.Effect>() {
 
     override fun createInitialState() = ScheduleState.State()
 
+    private var prioritizedAnimeIds: Set<Int> = emptySet()
+    private var favoriteAnimeIds: Set<Int> = emptySet()
+    private var allLibraryAnimeIds: Set<Int> = emptySet()
+    private var watchedEpisodes: Map<Int, Set<Int>> = emptyMap()
+
     init {
         analytics.eventScreenOpened()
         load()
+        settingsStore.newEpisodesSources
+            .flatMapLatest { sources -> observeLibraryNewEpisodeAnimeIds(sources) }
+            .onEach(::updatePrioritizedAnimeIds)
+            .launchIn(viewModelScope)
+        settingsStore.scheduleLibraryFilter
+            .onEach { value ->
+                val filter = ScheduleState.LibraryFilter.entries.firstOrNull { it.name == value }
+                    ?: ScheduleState.LibraryFilter.ALL
+                setState { copy(libraryFilter = filter) }
+                rebuildTimeline()
+            }
+            .launchIn(viewModelScope)
+        observeLibraryFavoriteAnimeIds()
+            .onEach(::updateFavoriteAnimeIds)
+            .launchIn(viewModelScope)
+        observeWatchedEpisodes()
+            .onEach { watched ->
+                watchedEpisodes = watched
+                rebuildTimeline()
+            }
+            .launchIn(viewModelScope)
+        observeLibraryItems()
+            .onEach { items ->
+                allLibraryAnimeIds = items.mapTo(HashSet()) { it.animeId }
+                rebuildTimeline()
+            }
+            .launchIn(viewModelScope)
         accountSettingsStore.contentLanguageChanges()
             .onEach { load() }
             .launchIn(viewModelScope)
@@ -52,6 +97,17 @@ class ScheduleViewModel @Inject internal constructor(
             is ScheduleState.Event.AnimeSelected -> {
                 analytics.eventAnimeSelected(event.animeId)
                 nav.navigate(detailsNavigator.getDetailsDest(event.animeId))
+            }
+
+            is ScheduleState.Event.HideWatchedToggled -> {
+                setState { copy(hideWatched = event.enabled) }
+                rebuildTimeline()
+            }
+
+            is ScheduleState.Event.LibraryFilterSelected -> {
+                setState { copy(libraryFilter = event.filter) }
+                viewModelScope.launch { settingsStore.setScheduleLibraryFilter(event.filter.name) }
+                rebuildTimeline()
             }
 
             is ScheduleState.Event.DateSelected -> {
@@ -67,6 +123,34 @@ class ScheduleViewModel @Inject internal constructor(
             }
 
             ScheduleState.Event.RefreshRequested -> refresh()
+        }
+    }
+
+    private fun updatePrioritizedAnimeIds(ids: Set<Int>) {
+        prioritizedAnimeIds = ids
+        rebuildTimeline()
+    }
+
+    private fun updateFavoriteAnimeIds(ids: Set<Int>) {
+        favoriteAnimeIds = ids
+        rebuildTimeline()
+    }
+
+    private fun rebuildTimeline() {
+        val now = Instant.ofEpochMilli(appClock.nowMillis()).atZone(ZoneId.systemDefault())
+        setState {
+            copy(
+                tvSchedule = days.toList().toTimelineUi(
+                    now = now,
+                    selectedEpochDay = tvSchedule.selectedEpochDay,
+                    prioritizedAnimeIds = prioritizedAnimeIds,
+                    favoriteAnimeIds = favoriteAnimeIds,
+                    libraryOnly = libraryFilter == ScheduleState.LibraryFilter.LIBRARY,
+                    libraryAnimeIds = allLibraryAnimeIds,
+                    hideWatched = hideWatched,
+                    watchedEpisodes = watchedEpisodes,
+                ),
+            )
         }
     }
 
@@ -115,6 +199,12 @@ class ScheduleViewModel @Inject internal constructor(
                             tvSchedule = days.toTimelineUi(
                                 now = now,
                                 selectedEpochDay = tvSchedule.selectedEpochDay,
+                                prioritizedAnimeIds = prioritizedAnimeIds,
+                                favoriteAnimeIds = favoriteAnimeIds,
+                                libraryOnly = libraryFilter == ScheduleState.LibraryFilter.LIBRARY,
+                                libraryAnimeIds = allLibraryAnimeIds,
+                                hideWatched = hideWatched,
+                                watchedEpisodes = watchedEpisodes,
                             ),
                         )
                     }

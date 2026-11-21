@@ -388,14 +388,6 @@ fun DetailsMobileScreen(
                     )
                 }
             }
-            item(key = "comments", contentType = "details_comments") {
-                DetailsCommentsBar(
-                    commentsDetailsLink(
-                        commentsBadge = details.commentsCount.takeIf { it > 0 }?.toCompactCount(),
-                        onCommentsSelected = { onEvent(DetailsState.Event.CommentsSelected) },
-                    ),
-                )
-            }
         }
         DetailsPickerSheets(
             state = state,

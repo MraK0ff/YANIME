@@ -33,7 +33,8 @@ flowchart LR
   `MainSideEffectsHandler.syncLibrary`. Какие списки считаются, задаёт enum `NewEpisodesSource`
   (`core/model`): `WATCHING`, `PLANNED`, `COMPLETED`, `POSTPONED`, `DROPPED`, `FAVORITES`. По умолчанию
   включены `WATCHING` и `FAVORITES`. Сопоставление — `LibraryItem.matches` (`NewEpisodesSourceUtils`).
-- **Расписание.** `GET /anime/schedule`, `YaniScheduleRepository` через `offlineFirstCache`, TTL 1 час
+- **Расписание и доступные серии.** `GET /anime/schedule` плюс локальный кэш серий, уже загруженных
+  со страницы тайтла. Расписание кэшируется через `offlineFirstCache`, TTL 1 час
   (см. [storage-and-cache.md](storage-and-cache.md)).
 - **Просмотренные.** `ObserveWatchedEpisodesUseCase` объединяет локальные отметки и серверный `watched`
   из кэша `/videos` (см. [watch-progress.md](watch-progress.md)).
@@ -42,13 +43,15 @@ flowchart LR
 
 Формула: недавно вышедшие по расписанию ∩ тайтлы из выбранных списков − уже просмотренные.
 
-- `GetRecentlyAiredScheduleUseCase` оставляет тайтлы, у которых последняя серия вышла не раньше 14 дней
-  назад (`RECENT_WINDOW_SECONDS`), сортирует от свежих к старым, убирает дубли по `animeId`. Номер серии
-  берётся из `aired`.
-- Дату последней серии считает `AnimeScheduleItem.lastAiredSeconds` (`HomeScheduleUtils`). У анонсов
-  `prev_date` — общая заглушка, поэтому дата берётся только при `aired > 0`. Из `prev_date` и `next_date`
-  выбирается максимум в диапазоне `1..now`: прошедший `next_date` тоже считается выходом.
-  Подробнее про странности — [yani-api.md](yani-api.md).
+- `GetRecentlyAiredScheduleUseCase` рассматривает только самую новую подходящую серию тайтла за последние
+  14 дней (`RECENT_WINDOW_SECONDS`). Если локальный кэш страницы тайтла знает количество доступных серий,
+  новая серия должна иметь номер строго больше этого количества. Без такого кэша используется количество
+  вышедших серий из расписания — номер также должен быть строго больше. Если оба значения неизвестны,
+  событие не создаётся.
+- Время из `new_videos.date` — время публикации конкретного видео/озвучки, а не гарантированная дата
+  премьеры эпизода. Поэтому публикация старой серии (например, серии 6 при уже доступных 8) не создаёт
+  новинку и не двигает карточку. Количество доступных серий берётся из локального кэша страницы тайтла;
+  если его нет, используется количество вышедших серий из расписания.
 - `HomeFeed.withMyNewEpisodes` (`HomeViewModelUtils`) фильтрует по id из библиотеки, убирает просмотренные и
   ставит секцию `MY_NEW_EPISODES` первой. Блок включается `HomeBlockKind.MY_NEW_EPISODES`; расписание
   перечитывается при старте, возврате на экран и pull-to-refresh.

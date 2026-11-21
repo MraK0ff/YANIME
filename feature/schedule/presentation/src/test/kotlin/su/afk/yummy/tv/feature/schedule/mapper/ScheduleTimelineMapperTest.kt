@@ -17,10 +17,45 @@ class ScheduleTimelineMapperTest {
     private val nowSeconds = now.toEpochSecond()
 
     @Test
-    fun `past Japanese previous date is not shown without a published video`() {
-        val timeline = listOf(day(item(previousDate = nowSeconds - DAY))).toTimelineUi(zone, now)
+    fun `current episode video removes the waiting schedule entry`() {
+        val broadcastAt = nowSeconds - 60L * 60L
+        val publishedAt = nowSeconds - 5L * 60L
+        val timeline = listOf(
+            day(
+                item(
+                    previousDate = broadcastAt,
+                    releases = listOf(release(episode = 3, publishedAt = publishedAt)),
+                ),
+            ),
+        ).toTimelineUi(zone, now)
 
-        assertTrue(timeline.dayGroups.isEmpty())
+        val release = timeline.dayGroups.single().items.single()
+        assertEquals(3, release.episode)
+        assertEquals(publishedAt, release.epochSeconds)
+        assertTrue(release.aired)
+    }
+
+    @Test
+    fun `current aired episode is grouped by Japanese broadcast date not first feed observation`() {
+        val japaneseBroadcastAt = Instant.parse("2026-11-13T20:00:00Z").epochSecond
+        val firstObservedAt = nowSeconds - 60L
+        val scheduleItem = item(
+            previousDate = japaneseBroadcastAt,
+            airedEpisodes = 7,
+            releases = listOf(release(episode = 7, publishedAt = firstObservedAt)),
+        )
+
+        val nextDayTimeline = listOf(day(scheduleItem)).toTimelineUi(zone, now)
+        assertEquals(
+            Instant.parse("2026-11-13T20:00:00Z").atZone(zone).toLocalDate(),
+            nextDayTimeline.dayGroups.single().date,
+        )
+        assertEquals(japaneseBroadcastAt, nextDayTimeline.dayGroups.single().items.single().epochSeconds)
+
+        val severalDaysLater = now.plusDays(5)
+        val delayedTimeline = listOf(day(scheduleItem)).toTimelineUi(zone, severalDaysLater)
+        // A Nov 13 broadcast first observed on Nov 19 must not be moved into Nov 19.
+        assertTrue(delayedTimeline.dayGroups.isEmpty())
     }
 
     @Test
@@ -39,6 +74,105 @@ class ScheduleTimelineMapperTest {
         assertEquals(4, release.episode)
         assertEquals(publishedAt, release.epochSeconds)
         assertTrue(release.aired)
+    }
+
+    @Test
+    fun `late dub of an episode older than the aired count is not a calendar event`() {
+        val publishedAt = nowSeconds - 3_600L
+        val timeline = listOf(
+            day(
+                item(
+                    airedEpisodes = 8,
+                    releases = listOf(release(episode = 6, publishedAt = publishedAt)),
+                ),
+            ),
+        ).toTimelineUi(zone, now)
+
+        assertTrue(timeline.dayGroups.isEmpty())
+    }
+
+    @Test
+    fun `local cache does not reject the current aired episode`() {
+        val publishedAt = nowSeconds - 3_600L
+        val timeline = listOf(
+            day(
+                item(
+                    airedEpisodes = 8,
+                    availableEpisodeCount = 8,
+                    releases = listOf(release(episode = 7, publishedAt = publishedAt)),
+                ),
+            ),
+        ).toTimelineUi(zone, now)
+
+        assertTrue(timeline.dayGroups.isEmpty())
+    }
+
+    @Test
+    fun `local page cache does not hide current aired release`() {
+        val publishedAt = nowSeconds - 3_600L
+        val timeline = listOf(
+            day(
+                item(
+                    airedEpisodes = 8,
+                    availableEpisodeCount = 8,
+                    releases = listOf(release(episode = 8, publishedAt = publishedAt)),
+                ),
+            ),
+        ).toTimelineUi(zone, now)
+
+        assertEquals(8, timeline.dayGroups.single().items.single().episode)
+    }
+
+    @Test
+    fun `calendar keeps only the newest eligible episode for an anime`() {
+        val olderAt = nowSeconds - 7_200L
+        val latestAt = nowSeconds - 3_600L
+        val timeline = listOf(
+            day(
+                item(
+                    airedEpisodes = 7,
+                    releases = listOf(
+                        release(episode = 6, publishedAt = olderAt),
+                        release(episode = 8, publishedAt = latestAt),
+                    ),
+                ),
+            ),
+        ).toTimelineUi(zone, now)
+
+        val release = timeline.dayGroups.single().items.single()
+        assertEquals(8, release.episode)
+        assertEquals(latestAt, release.epochSeconds)
+    }
+
+    @Test
+    fun `selected library titles do not change chronological order within a schedule day`() {
+        val publishedAt = nowSeconds - 3_600L
+        val timeline = listOf(
+            AnimeScheduleDay(
+                "day",
+                listOf(
+                    item(animeId = 1, releases = listOf(release(episode = 2, publishedAt = publishedAt))),
+                    item(animeId = 2, releases = listOf(release(episode = 3, publishedAt = publishedAt))),
+                    item(animeId = 3, releases = listOf(release(episode = 4, publishedAt = publishedAt))),
+                ),
+            ),
+        ).toTimelineUi(zone, now, prioritizedAnimeIds = setOf(2, 3))
+
+        val releases = timeline.dayGroups.single().items
+        assertEquals(listOf(1, 2, 3), releases.map { it.item.animeId })
+        assertEquals(listOf(false, true, true), releases.map { it.isFromSelectedList })
+    }
+
+    @Test
+    fun `favorite state is exposed independently from list membership`() {
+        val publishedAt = nowSeconds - 3_600L
+        val timeline = listOf(
+            day(item(releases = listOf(release(episode = 4, publishedAt = publishedAt)))),
+        ).toTimelineUi(zone, now, favoriteAnimeIds = setOf(1))
+
+        val release = timeline.dayGroups.single().items.single()
+        assertTrue(release.isFavorite)
+        assertFalse(release.isFromSelectedList)
     }
 
     @Test
@@ -138,6 +272,7 @@ class ScheduleTimelineMapperTest {
         val timeline = listOf(
             day(
                 item(
+                    airedEpisodes = 2,
                     releases = listOf(
                         release(episode = 3, publishedAt = laterDuplicateAt),
                         release(episode = 3, publishedAt = firstPublishedAt),
@@ -155,18 +290,21 @@ class ScheduleTimelineMapperTest {
     private fun day(item: AnimeScheduleItem) = AnimeScheduleDay("day", listOf(item))
 
     private fun item(
+        animeId: Int = 1,
         previousDate: Long? = null,
         nextDate: Long? = null,
-        airedEpisodes: Int? = 4,
+        airedEpisodes: Int? = 3,
+        availableEpisodeCount: Int? = null,
         releases: List<AnimeEpisodeRelease> = emptyList(),
     ) = AnimeScheduleItem(
-        animeId = 1,
-        title = "Anime",
+        animeId = animeId,
+        title = "Anime $animeId",
         poster = null,
         nextDateEpochSeconds = nextDate,
         previousDateEpochSeconds = previousDate,
         airedEpisodes = airedEpisodes,
         totalEpisodes = 12,
+        availableEpisodeCount = availableEpisodeCount,
         videoReleases = releases,
     )
 

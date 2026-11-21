@@ -1,10 +1,8 @@
 package su.afk.yummy.tv.core.storage.outbox
 
 /**
- * Плоские `|`-разделённые кодировщики для [PendingMutationEntry.payloadJson] (имя поля осталось
- * от первоначального плана хранить JSON, но для нескольких примитивных полей на мутацию формат
- * не важен — а лишний парсер не нужен). Кодирует enqueue-сторона (presentation-хендлеры), декодирует
- * воркер синхронизации — оба используют один и тот же формат отсюда, так что рассинхрона не будет.
+ * Плоские кодировщики payload для [PendingMutationEntry.payloadJson]. Формат хранится в одном
+ * месте: presentation-кодирует, а app worker декодирует записи из durable outbox.
  */
 data class MarkWatchedPayload(
     val videoId: Int,
@@ -12,12 +10,10 @@ data class MarkWatchedPayload(
     val durationSeconds: Int,
     val times: List<Int> = emptyList(),
 ) {
-    /** Секунды пишутся диапазонами (`0-120,300-310`): серия на 20 минут не раздувает запись в тысячи чисел. */
     fun encode(): String = "$videoId|$timeSeconds|$durationSeconds|${times.toSecondRanges()}"
 
     companion object {
         fun decode(payload: String): MarkWatchedPayload {
-            // Записи старого формата (без секунд) состоят из трёх полей.
             val parts = payload.split("|")
             return MarkWatchedPayload(
                 videoId = parts[0].toInt(),
@@ -76,9 +72,15 @@ data class SetListPayload(val animeId: Int, val listId: Int) {
 
 data class AnimeIdPayload(val animeId: Int) {
     fun encode(): String = animeId.toString()
-
     companion object {
         fun decode(payload: String): AnimeIdPayload = AnimeIdPayload(payload.toInt())
+    }
+}
+
+data class NotificationIdPayload(val notificationId: Int) {
+    fun encode(): String = notificationId.toString()
+    companion object {
+        fun decode(payload: String): NotificationIdPayload = NotificationIdPayload(payload.toInt())
     }
 }
 

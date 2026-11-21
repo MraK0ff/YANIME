@@ -436,4 +436,23 @@ Search indexer: https://jac-red.ru or Jackett: https://github.com/jackett/jacket
     <string name="settings_video_enhancement_off">Off</string>
     <string name="settings_video_enhancement_sharpen">Sharpen</string>
     <string name="settings_video_enhancement_quality">Quality restoration</string>
+    <string name="settings_mobile_navigation_section">Mobile navigation</string>
+    <string name="settings_mobile_header_enabled">Global header</string>
+    <string name="settings_mobile_header_enabled_hint">Show the logo, search, notifications and profile at the top</string>
+    <string name="settings_mobile_search_fab_enabled">Floating search button</string>
+    <string name="settings_mobile_classic_bottom_bar">Classic bottom bar</string>
+    <string name="settings_mobile_classic_bottom_bar_hint">Use a full-width standard bar instead of the floating capsule</string>
+    <string name="settings_mobile_search_fab_enabled_hint">When enabled, search appears only as the floating button; otherwise it appears as a compact field in the header</string>
+    <string name="settings_mobile_main_tabs_customize">Customize navigation tabs</string>
+    <string name="settings_mobile_main_tabs_customize_hint">Choose which sections appear and change their order.</string>
+    <string name="settings_mobile_main_tabs_dialog_hint">Turn sections on or off, then use the arrows to change their order.</string>
+    <string name="settings_mobile_main_tab_schedule">Schedule</string>
+    <string name="settings_mobile_main_tab_home">Home</string>
+    <string name="settings_mobile_main_tab_library">Library</string>
+    <string name="settings_mobile_main_tab_downloads">Downloads</string>
+    <string name="settings_mobile_main_tab_news">News</string>
+    <string name="settings_mobile_main_tab_collections">Collections</string>
+    <string name="settings_mobile_main_tabs_save">Save</string>
+    <string name="settings_mobile_main_tabs_cancel">Cancel</string>
+    <string name="settings_mobile_main_tabs_reset">Reset</string>
 </resources>

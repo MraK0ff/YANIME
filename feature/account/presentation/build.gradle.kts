@@ -8,6 +8,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:model"))
     implementation(project(":feature:comments:api"))
     implementation(project(":feature:comments:domain"))
     implementation(project(":core:analytics"))

@@ -6,6 +6,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object AccountDestination : NavKey
 
+/** Отдельный маршрут центра уведомлений, не привязанный к вкладке профиля. */
+@Serializable
+data object AccountNotificationsDestination : NavKey
+
 @Serializable
 data class UserProfileDestination(val userId: Int) : NavKey
 

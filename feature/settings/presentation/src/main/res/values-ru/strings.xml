@@ -433,4 +433,23 @@
     <string name="settings_video_enhancement_off">Выкл.</string>
     <string name="settings_video_enhancement_sharpen">Резкость</string>
     <string name="settings_video_enhancement_quality">Восстановление качества</string>
+    <string name="settings_mobile_navigation_section">Мобильная навигация</string>
+    <string name="settings_mobile_header_enabled">Глобальный Header</string>
+    <string name="settings_mobile_header_enabled_hint">Показывать логотип, поиск, уведомления и профиль сверху</string>
+    <string name="settings_mobile_search_fab_enabled">Плавающая кнопка поиска</string>
+    <string name="settings_mobile_classic_bottom_bar">Классическая нижняя панель</string>
+    <string name="settings_mobile_classic_bottom_bar_hint">Использовать стандартную панель на всю ширину вместо плавающей капсулы</string>
+    <string name="settings_mobile_search_fab_enabled_hint">Если включено, поиск отображается только как FAB; иначе — компактным полем в Header</string>
+    <string name="settings_mobile_main_tabs_customize">Настроить вкладки</string>
+    <string name="settings_mobile_main_tabs_customize_hint">Выберите отображаемые разделы и измените их порядок.</string>
+    <string name="settings_mobile_main_tabs_dialog_hint">Включайте и выключайте разделы, а стрелками меняйте их порядок.</string>
+    <string name="settings_mobile_main_tab_schedule">Расписание</string>
+    <string name="settings_mobile_main_tab_home">Главная</string>
+    <string name="settings_mobile_main_tab_library">Библиотека</string>
+    <string name="settings_mobile_main_tab_downloads">Загрузки</string>
+    <string name="settings_mobile_main_tab_news">Новости</string>
+    <string name="settings_mobile_main_tab_collections">Коллекции</string>
+    <string name="settings_mobile_main_tabs_save">Сохранить</string>
+    <string name="settings_mobile_main_tabs_cancel">Отмена</string>
+    <string name="settings_mobile_main_tabs_reset">Сбросить</string>
 </resources>

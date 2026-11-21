@@ -70,6 +70,71 @@ class YaniNewReleaseTrackerTest {
     }
 
     @Test
+    fun `older episode upload is ignored when the schedule already passed it`() {
+        val baseline = tracker.merge(listOf(video(1, "5")), emptyList(), 100L)
+        val updated = tracker.merge(
+            videos = listOf(video(1, "6", dub = "Late dub", videoId = 66)),
+            history = baseline,
+            now = 200L,
+            airedEpisodeCounts = mapOf(1 to 8),
+        )
+
+        assertTrue(updated.isEmpty())
+    }
+
+    @Test
+    fun `stale history card is removed even when the feed is empty`() {
+        val baseline = tracker.merge(listOf(video(1, "6")), emptyList(), 100L)
+        val updated = tracker.merge(
+            videos = emptyList(),
+            history = baseline,
+            now = 200L,
+            airedEpisodeCounts = mapOf(1 to 8),
+        )
+
+        assertTrue(updated.isEmpty())
+    }
+
+    @Test
+    fun `untracked old episode is not added as a new release`() {
+        val result = tracker.merge(
+            videos = listOf(video(1, "6")),
+            history = emptyList(),
+            now = 200L,
+            airedEpisodeCounts = mapOf(1 to 8),
+        )
+
+        assertTrue(result.isEmpty())
+    }
+
+    @Test
+    fun `episode equal to aired count is accepted as the current release`() {
+        val baseline = tracker.merge(listOf(video(1, "7")), emptyList(), 100L)
+        val updated = tracker.merge(
+            videos = listOf(video(1, "8", dub = "Alternate dub", videoId = 88)),
+            history = baseline,
+            now = 200L,
+            airedEpisodeCounts = mapOf(1 to 8),
+        )
+
+        assertEquals(8, updated.single().episodeNumber)
+    }
+
+    @Test
+    fun `episode beyond the known available count is promoted`() {
+        val baseline = tracker.merge(listOf(video(1, "8")), emptyList(), 100L)
+        val updated = tracker.merge(
+            videos = listOf(video(1, "9")),
+            history = baseline,
+            now = 200L,
+            airedEpisodeCounts = mapOf(1 to 8),
+        )
+
+        assertEquals(9, updated.single().episodeNumber)
+        assertEquals(200L, updated.single().lastUpdatedAt)
+    }
+
+    @Test
     fun `specials and invalid episode labels are ignored`() {
         val result = tracker.merge(
             listOf(video(1, "OVA"), video(2, "SP"), video(3, "7.5"), video(4, "0"), video(5, "8")),

@@ -36,6 +36,8 @@ class CatalogState {
          * до того, как экран начнёт собирать эффекты, и снимается событием [Event.SearchFocusHandled].
          */
         val isSearchFocusRequested: Boolean = false,
+        /** Header search replaces the inline field only while the global header is enabled. */
+        val isHeaderSearchEnabled: Boolean = true,
         /** Последние поисковые запросы, от новых к старым. */
         val searchHistory: ImmutableList<String> = persistentListOf(),
     ) : UiState

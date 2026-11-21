@@ -85,6 +85,9 @@ class CatalogViewModel @Inject internal constructor(
         appearanceSettingsStore.showCatalogTitleYear
             .onEach { showTitleYear -> setState { copy(showTitleYear = showTitleYear) } }
             .launchIn(viewModelScope)
+        appearanceSettingsStore.mobileHeaderEnabled
+            .onEach { enabled -> setState { copy(isHeaderSearchEnabled = enabled) } }
+            .launchIn(viewModelScope)
         appearanceSettingsStore.titleCardLayout
             .onEach { layout -> setState { copy(titleCardLayout = layout) } }
             .launchIn(viewModelScope)
@@ -93,6 +96,35 @@ class CatalogViewModel @Inject internal constructor(
             .launchIn(viewModelScope)
         searchOpener.isSearchFocusPending
             .onEach { pending -> setState { copy(isSearchFocusRequested = pending) } }
+            .launchIn(viewModelScope)
+        searchOpener.searchQuery
+            .onEach { query ->
+                if (query != currentState.query) onQueryChanged(query)
+            }
+            .launchIn(viewModelScope)
+        searchOpener.isSearchSubmitPending
+            .onEach { pending ->
+                if (pending) {
+                    searchOpener.consumeSearchSubmit()
+                    onEvent(CatalogState.Event.SearchSubmitted)
+                }
+            }
+            .launchIn(viewModelScope)
+        searchOpener.isFilterOpenPending
+            .onEach { pending ->
+                if (pending) {
+                    searchOpener.consumeFilterOpen()
+                    onEvent(CatalogState.Event.OpenFilters)
+                }
+            }
+            .launchIn(viewModelScope)
+        searchOpener.isRandomAnimePending
+            .onEach { pending ->
+                if (pending) {
+                    searchOpener.consumeRandomAnimeRequest()
+                    onEvent(CatalogState.Event.RandomAnimeSelected)
+                }
+            }
             .launchIn(viewModelScope)
         accountSettingsStore.contentLanguageChanges()
             .onEach {
@@ -127,6 +159,7 @@ class CatalogViewModel @Inject internal constructor(
             // Снимок мог сохранить год, который сервер отвергает: без чистки каталог падал бы при каждом открытии.
             val filters = snapshot.toSearchFilters().normalizedYears()
             setState { copy(query = query, filters = filters, draftFilters = filters) }
+            searchOpener.updateSearchQuery(query)
             setSearchResults(query, filters)
         }
     }
@@ -193,6 +226,7 @@ class CatalogViewModel @Inject internal constructor(
             CatalogState.Event.SearchFocusHandled -> searchOpener.consumeSearchFocus()
             is CatalogState.Event.SearchHistorySelected -> {
                 setState { copy(query = event.query) }
+                searchOpener.updateSearchQuery(event.query)
                 onSearchSubmitted()
             }
 
@@ -235,6 +269,7 @@ class CatalogViewModel @Inject internal constructor(
                 isFilterPanelOpen = false,
             )
         }
+        searchOpener.updateSearchQuery(normalizedQuery)
         if (normalizedQuery.isNotBlank()) analytics.eventExternalSearchSubmitted()
         rememberQuery(normalizedQuery)
         setSearchResults(normalizedQuery, SearchFilters.EMPTY)
@@ -245,6 +280,7 @@ class CatalogViewModel @Inject internal constructor(
         if (query.isBlank()) {
             // Очистили поле — сразу возвращаем каталог, без ожидания debounce.
             setState { copy(query = query) }
+            searchOpener.updateSearchQuery(query)
             setSearchResults("", currentState.filters)
             return
         }
@@ -256,6 +292,7 @@ class CatalogViewModel @Inject internal constructor(
                 isSearchPending = true,
             )
         }
+        searchOpener.updateSearchQuery(query)
         searchJob = viewModelScope.launch {
             delay(DEBOUNCE)
             setSearchResults(query.trim(), currentState.filters)
@@ -271,6 +308,7 @@ class CatalogViewModel @Inject internal constructor(
         )
         searchJob?.cancel()
         setState { copy(query = query) }
+        searchOpener.updateSearchQuery(query)
         rememberQuery(query)
         setSearchResults(query, filters)
     }

@@ -698,9 +698,9 @@ class AccountViewModel @Inject internal constructor(
         result.onSuccess { counts -> setState { copy(notificationCounts = counts.toImmutableList()) } }
     }
 
-    // Notification mutations apply to local state immediately so the UI never waits on a
-    // network round trip; the server call runs in the background and only a failure re-syncs
-    // from `hubHandler`, since a stale response is otherwise indistinguishable from success.
+    // Notification mutations update the visible state immediately. Network failures are persisted
+    // in the durable mutation outbox and replayed when connectivity returns; permanent failures
+    // restore the previous state and refresh the unread count.
 
     private fun markNotificationReadOptimistically(id: Int) {
         val notification = currentState.notifications.firstOrNull { it.id == id } ?: return

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android TV 16:9 banner: YANIME fox mark on a restrained branded gradient. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="0"
+                android:startColor="#160F18"
+                android:centerColor="#2A1725"
+                android:endColor="#160F18"
+                android:type="linear" />
+        </shape>
+    </item>
+    <item
+        android:drawable="@drawable/ic_launcher_foreground"
+        android:width="124dp"
+        android:height="124dp"
+        android:gravity="center" />
+</layer-list>

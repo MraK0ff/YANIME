@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.feature.catalog.mobile.view
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -21,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
 import su.afk.yummy.tv.feature.catalog.presentation.R
 
-/** Последние запросы чипами в горизонтальной ленте под пустым полем поиска и кнопка очистки справа. */
+/** Search history with a dedicated, non-overlapping trailing clear action. */
 @Composable
 internal fun CatalogMobileSearchHistory(
     queries: ImmutableList<String>,
@@ -32,10 +33,13 @@ internal fun CatalogMobileSearchHistory(
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         LazyRow(
             modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(start = 2.dp, end = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             items(queries, key = { it }) { query ->
                 SuggestionChip(
@@ -51,8 +55,15 @@ internal fun CatalogMobileSearchHistory(
                 )
             }
         }
-        TextButton(onClick = onClear) {
-            Text(stringResource(R.string.search_mobile_history_clear))
+        TextButton(
+            onClick = onClear,
+            contentPadding = PaddingValues(horizontal = 8.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.search_mobile_history_clear),
+                maxLines = 1,
+                softWrap = false,
+            )
         }
     }
 }

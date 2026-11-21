@@ -15,9 +15,25 @@ internal fun List<AnimeScheduleDay>.toTimelineUi(
     zone: ZoneId = ZoneId.systemDefault(),
     now: ZonedDateTime = ZonedDateTime.now(zone),
     selectedEpochDay: Long? = null,
+    prioritizedAnimeIds: Set<Int> = emptySet(),
+    favoriteAnimeIds: Set<Int> = emptySet(),
+    libraryOnly: Boolean = false,
+    libraryAnimeIds: Set<Int> = emptySet(),
+    hideWatched: Boolean = false,
+    watchedEpisodes: Map<Int, Set<Int>> = emptyMap(),
 ): ScheduleTimelineUi {
     val today = now.toLocalDate()
-    val dayGroups = toUiDayGroups(zone = zone, today = today, nowSeconds = now.toEpochSecond())
+    val dayGroups = toUiDayGroups(
+        zone = zone,
+        today = today,
+        nowSeconds = now.toEpochSecond(),
+        prioritizedAnimeIds = prioritizedAnimeIds,
+        favoriteAnimeIds = favoriteAnimeIds,
+        libraryOnly = libraryOnly,
+        libraryAnimeIds = libraryAnimeIds,
+        hideWatched = hideWatched,
+        watchedEpisodes = watchedEpisodes,
+    )
     val availableEpochDays = dayGroups.map { it.date.toEpochDay() }
     val nextSelectedEpochDay = selectedEpochDay(
         availableEpochDays = availableEpochDays,
@@ -50,22 +66,49 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
     zone: ZoneId,
     today: LocalDate,
     nowSeconds: Long,
+    prioritizedAnimeIds: Set<Int>,
+    favoriteAnimeIds: Set<Int>,
+    libraryOnly: Boolean,
+    libraryAnimeIds: Set<Int>,
+    hideWatched: Boolean,
+    watchedEpisodes: Map<Int, Set<Int>>,
 ): List<ScheduleDayUi> =
     flatMap { it.items }
         .flatMap { item ->
             buildList {
                 // Feed may include a scheduled video with a future timestamp. It is not an aired episode;
                 // future entries must come from the schedule API's nextDate instead.
-                item.videoReleases
-                    .filter { it.firstVideoAtSeconds <= nowSeconds }
-                    .forEach { release ->
+                val airedCount = item.airedEpisodes?.takeIf { it > 0 }
+                // airedEpisodes includes the currently released episode. Reject only older
+                // uploads; a local page cache can already contain a genuinely new episode.
+                val latestEligibleRelease = item.videoReleases
+                    .asSequence()
+                    .filter { release ->
+                        airedCount != null && release.episodeNumber >= airedCount
+                    }
+                    .filter { it.firstVideoAtSeconds in 1..nowSeconds }
+                    .sortedWith(
+                        compareByDescending<su.afk.yummy.tv.domain.schedule.model.AnimeEpisodeRelease> { it.episodeNumber }
+                            .thenBy { it.firstVideoAtSeconds },
+                    )
+                    .firstOrNull()
+                latestEligibleRelease?.let { release ->
                     add(
                         ScheduleReleaseUi(
                             item = item,
-                            epochSeconds = release.firstVideoAtSeconds,
+                            // For the currently aired episode, use the schedule's Japanese
+                            // broadcast timestamp. Feed time is only when this app first
+                            // observed the video and can be days later (e.g. after cache reset).
+                            epochSeconds = if (release.episodeNumber == airedCount) {
+                                item.previousDateEpochSeconds ?: release.firstVideoAtSeconds
+                            } else {
+                                release.firstVideoAtSeconds
+                            },
                             episode = release.episodeNumber,
                             aired = true,
-                        )
+                            isFromSelectedList = item.animeId in prioritizedAnimeIds,
+                            isFavorite = item.animeId in favoriteAnimeIds,
+                        ),
                     )
                 }
                 // Японское расписание используется только для будущих серий.
@@ -78,10 +121,18 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
                                 epochSeconds = nextDate,
                                 episode = (item.airedEpisodes ?: 0) + 1,
                                 aired = false,
+                                isFromSelectedList = item.animeId in prioritizedAnimeIds,
+                                isFavorite = item.animeId in favoriteAnimeIds,
                             )
                         )
                     }
             }
+        }
+        .filter { release ->
+            !hideWatched || release.episode !in watchedEpisodes[release.item.animeId].orEmpty()
+        }
+        .filter { release ->
+            !libraryOnly || release.item.animeId in libraryAnimeIds || release.isFromSelectedList || release.isFavorite
         }
         .filter { release ->
             Instant.ofEpochSecond(release.epochSeconds).atZone(zone).toLocalDate() >= today.minusDays(1)
@@ -109,6 +160,7 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
                             .thenBy { it.epochSeconds },
                     )
                 }
+                // Keep the calendar chronological; library membership must never reorder releases.
                 .sortedBy { it.epochSeconds }
             ScheduleDayUi(
                 date = date,

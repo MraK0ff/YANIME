@@ -268,13 +268,12 @@ internal fun <T> MobileMainNavigationBar(
                                     .then(
                                         if (selected) Modifier
                                             .height(48.dp)
-                                            .clip(itemShape)
-                                            .background(MaterialTheme.colorScheme.secondaryContainer)
+                                            .background(MaterialTheme.colorScheme.secondaryContainer, itemShape)
                                             .clickable { onDestinationSelected(item.destination) }
                                             .padding(horizontal = 10.dp)
                                         else Modifier
                                             .size(48.dp)
-                                            .clip(itemShape)
+                                            .background(Color.Transparent, itemShape)
                                             .clickable { onDestinationSelected(item.destination) },
                                     )
                                     .onboardingTarget(mobileMainTabTargetId(item.destination))

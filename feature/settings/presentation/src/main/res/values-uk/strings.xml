@@ -440,4 +440,16 @@
     <string name="settings_mobile_classic_bottom_bar">Класична нижня панель</string>
     <string name="settings_mobile_classic_bottom_bar_hint">Використовувати стандартну панель на всю ширину замість плаваючої капсули</string>
     <string name="settings_mobile_search_fab_enabled_hint">Якщо ввімкнено, пошук відображається лише як FAB; інакше — компактним полем у Header</string>
+    <string name="settings_mobile_main_tabs_customize">Налаштувати вкладки</string>
+    <string name="settings_mobile_main_tabs_customize_hint">Оберіть видимі розділи та змініть їхній порядок.</string>
+    <string name="settings_mobile_main_tabs_dialog_hint">Вмикайте або вимикайте розділи, а стрілками змінюйте їхній порядок.</string>
+    <string name="settings_mobile_main_tab_schedule">Розклад</string>
+    <string name="settings_mobile_main_tab_home">Головна</string>
+    <string name="settings_mobile_main_tab_library">Бібліотека</string>
+    <string name="settings_mobile_main_tab_downloads">Завантаження</string>
+    <string name="settings_mobile_main_tab_news">Новини</string>
+    <string name="settings_mobile_main_tab_collections">Колекції</string>
+    <string name="settings_mobile_main_tabs_save">Зберегти</string>
+    <string name="settings_mobile_main_tabs_cancel">Скасувати</string>
+    <string name="settings_mobile_main_tabs_reset">Скинути</string>
 </resources>

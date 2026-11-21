@@ -1,5 +1,6 @@
 package su.afk.yummy.tv.feature.player.common.service
 
+import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.media3.session.MediaController
 
@@ -7,3 +8,11 @@ import androidx.media3.session.MediaController
 @Composable
 fun rememberPlayerMediaController(): MediaController? =
     rememberPlayerPlaybackSessionClient().player
+
+/** Requests ExoPlayer's optimized frame-preview mode for the duration of a timeline drag. */
+fun MediaController.setTimelineScrubbingMode(enabled: Boolean) {
+    sendCustomCommand(
+        PlayerSessionCommands.SET_SCRUBBING_MODE,
+        Bundle().apply { putBoolean(PlayerSessionCommands.KEY_SCRUBBING_ENABLED, enabled) },
+    )
+}

@@ -424,7 +424,7 @@ internal fun MobileNativePlayer(
 
     PlayerQualityAdaptationEffect(
         player = player,
-        enabled = ui.adaptiveQuality,
+        enabled = ui.adaptiveQuality && !state.isOfflinePlayback,
         qualities = ui.qualityLabels,
         activeQuality = ui.activeQuality,
         ceilingHeight = ui.adaptiveCeilingHeight,

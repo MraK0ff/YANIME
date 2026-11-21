@@ -100,10 +100,10 @@ internal class DataStoreAppearanceSettingsStore @Inject constructor(
         (stored + AppearanceSettingsStore.defaultMobileMainTabsOrder).distinct()
             .filter { it in AppearanceSettingsStore.defaultMobileMainTabsOrder }
     }
-    override val mobileMainTabsEnabled: Flow<Set<String>> =
-        store.stringSet(mobileMainTabsEnabledKey).map { values ->
-            values.takeIf { it.isNotEmpty() } ?: AppearanceSettingsStore.defaultMobileMainTabsEnabled
-        }
+    override val mobileMainTabsEnabled: Flow<Set<String>> = store.data.map { prefs ->
+        prefs[mobileMainTabsEnabledKey]?.split(',')?.filter(String::isNotBlank)?.toSet()
+            ?: AppearanceSettingsStore.defaultMobileMainTabsEnabled
+    }
 
     override val libraryTabOrder: Flow<List<LibraryTabKind>> =
         store.data.map { prefs -> prefs[libraryTabOrderKey].toLibraryTabOrder() }
@@ -180,7 +180,7 @@ internal class DataStoreAppearanceSettingsStore @Inject constructor(
 
     override suspend fun setMobileMainTabsEnabled(enabled: Set<String>) {
         val normalized = enabled.filter { it in AppearanceSettingsStore.defaultMobileMainTabsOrder }.toSet()
-        store.edit { prefs -> prefs[mobileMainTabsEnabledKey] = normalized }
+        store.edit { prefs -> prefs[mobileMainTabsEnabledKey] = normalized.joinToString(",") }
     }
 
     override val homeBlocks: Flow<List<HomeBlockConfig>> = store.data.map { prefs ->

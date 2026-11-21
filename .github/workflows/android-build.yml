@@ -21,8 +21,7 @@ jobs:
     name: Build optimized APK
     outputs:
       version_name: ${{ steps.app_version.outputs.version_name }}
-    # Internal PRs are already built by their branch push; avoid a duplicate runner.
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
+    # Build every PR as well as branch pushes so Kotlin/API regressions are caught before merge.
     runs-on: ubuntu-24.04
     timeout-minutes: 40
 

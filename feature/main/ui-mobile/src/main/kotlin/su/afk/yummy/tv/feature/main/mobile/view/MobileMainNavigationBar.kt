@@ -199,6 +199,7 @@ internal fun <T> MobileMainNavigationBar(
                     )
                 }
             }
+            }
             if (searchFabEnabled) FloatingActionButton(
                 onClick = if (catalogFabEnabled) onCatalogRandomSelected else onSearchSelected,
                 modifier = Modifier.align(Alignment.TopEnd).size(56.dp),

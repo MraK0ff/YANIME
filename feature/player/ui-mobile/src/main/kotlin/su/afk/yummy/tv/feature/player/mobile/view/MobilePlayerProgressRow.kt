@@ -119,13 +119,15 @@ internal fun MobilePlayerProgressRow(
                     horizontalArrangement = Arrangement.spacedBy(5.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Row(
-                        modifier = Modifier.height(40.dp).clickable(onClick = onQualityClick).padding(horizontal = 5.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        Icon(Icons.Filled.HighQuality, contentDescription = null, tint = Color.White, modifier = Modifier.size(21.dp))
-                        Text(qualityLabel, style = MaterialTheme.typography.labelLarge, color = Color.White, maxLines = 1)
+                    if (qualityLabel.isNotBlank()) {
+                        Row(
+                            modifier = Modifier.height(40.dp).clickable(onClick = onQualityClick).padding(horizontal = 5.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            Icon(Icons.Filled.HighQuality, contentDescription = null, tint = Color.White, modifier = Modifier.size(21.dp))
+                            Text(qualityLabel, style = MaterialTheme.typography.labelLarge, color = Color.White, maxLines = 1)
+                        }
                     }
                     Row(
                         modifier = Modifier.height(40.dp).clickable(onClick = onSpeedClick).padding(horizontal = 5.dp),
@@ -238,9 +240,9 @@ private fun MobilePlayerTimeline(
             amplitude = { 0.38f },
             wavelength = 28.dp,
             // Keep the wave motion perceptually tied to playback speed.
-            // The previous 28dp/s baseline felt too energetic at normal speed.
-            // Scale linearly so 0.5x is half-speed and 2x is twice-speed.
-            waveSpeed = if (isPlaying) (10.dp * selectedPlaybackSpeed.coerceIn(0.25f, 3f)) else 0.dp,
+            // Use the effective player rate (including temporary speed boost) and a calmer 1x baseline.
+            // The wave advances linearly with playback: half speed = half motion, double = double.
+            waveSpeed = if (isPlaying) (6.dp * selectedPlaybackSpeed.coerceIn(0.25f, 3f)) else 0.dp,
         )
     }
 }

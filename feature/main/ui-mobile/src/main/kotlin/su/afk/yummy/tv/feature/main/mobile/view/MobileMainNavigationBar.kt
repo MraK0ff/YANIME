@@ -88,36 +88,21 @@ internal fun <T> MobileMainNavigationBar(
                 else Modifier.navigationBarsPadding().padding(horizontal = 12.dp, vertical = 4.dp),
             ),
     ) {
-        val navigationWidthFraction = if (classicStyle || !searchFabEnabled) 1f else 0.78f
         val navigationHeight = if (classicStyle) 80.dp + bottomInset else 64.dp
 
-        // Keep the FAB and navigation surface in a vertical column. This makes it
-        // structurally impossible for the FAB to be measured beside/inside the bar.
-        Column(
+        // In the modern layout the FAB is a sibling of the bar, not a second row
+        // above it. Both are measured in the same Row so their vertical centers align
+        // and the navigation receives exactly the width left after the FAB and gap.
+        Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .fillMaxWidth(navigationWidthFraction),
-            horizontalAlignment = Alignment.End,
-            verticalArrangement = Arrangement.spacedBy(if (searchFabEnabled) 8.dp else 0.dp),
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(if (searchFabEnabled) 10.dp else 0.dp),
         ) {
-            if (searchFabEnabled) FloatingActionButton(
-                onClick = if (catalogFabEnabled) onCatalogRandomSelected else onSearchSelected,
-                modifier = Modifier.size(56.dp),
-                shape = RoundedCornerShape(20.dp),
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-            ) {
-                Icon(
-                    imageVector = if (catalogFabEnabled) Icons.Default.Shuffle else Icons.Default.Search,
-                    contentDescription = stringResource(
-                        if (catalogFabEnabled) R.string.main_header_random_anime else R.string.main_header_search,
-                    ),
-                )
-            }
-
             Surface(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .weight(1f)
                     .height(navigationHeight),
                 shape = if (classicStyle) RoundedCornerShape(0.dp) else RoundedCornerShape(32.dp),
                 color = containerColor,
@@ -182,7 +167,7 @@ internal fun <T> MobileMainNavigationBar(
                             index == animatedPreviewIndex.roundToInt().coerceIn(0, orderedItems.lastIndex)
                         NavigationBarItem(
                             modifier = Modifier
-                                .weight(if (classicStyle) 1f else if (selected) 1.35f else 1f)
+                                .weight(1f)
                                 .testTag("main_tab")
                                 .onboardingTarget(mobileMainTabTargetId(item.destination))
                                 .clickablePointer()
@@ -211,6 +196,23 @@ internal fun <T> MobileMainNavigationBar(
                             alwaysShowLabel = classicStyle,
                         )
                     }
+                }
+            }
+
+            if (searchFabEnabled) {
+                FloatingActionButton(
+                    onClick = if (catalogFabEnabled) onCatalogRandomSelected else onSearchSelected,
+                    modifier = Modifier.size(56.dp),
+                    shape = RoundedCornerShape(20.dp),
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                ) {
+                    Icon(
+                        imageVector = if (catalogFabEnabled) Icons.Default.Shuffle else Icons.Default.Search,
+                        contentDescription = stringResource(
+                            if (catalogFabEnabled) R.string.main_header_random_anime else R.string.main_header_search,
+                        ),
+                    )
                 }
             }
         }

@@ -34,6 +34,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import su.afk.yummy.tv.core.designsystem.components.rememberCachedImageRequest
@@ -63,6 +65,18 @@ internal fun AccountMobileProfileHero(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val surface = MaterialTheme.colorScheme.surfaceContainer
+    val configuration = LocalConfiguration.current
+    val view = LocalView.current
+    val hasTopRightCutout = remember(view, configuration.orientation) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val cutout = view.rootWindowInsets?.displayCutout
+            cutout != null &&
+                cutout.safeInsetTop > 0 &&
+                cutout.boundingRects.any { it.right > view.width * 0.65f }
+        } else false
+    }
+    val centerTopActions = configuration.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT &&
+        hasTopRightCutout
     var avatarOpened by remember { mutableStateOf(false) }
     if (avatarOpened && avatarUrl.isNotBlank()) {
         AccountMobileAvatarViewer(avatarUrl = avatarUrl, onDismiss = { avatarOpened = false })
@@ -134,12 +148,16 @@ internal fun AccountMobileProfileHero(
                 content = navigationAction,
             )
             Row(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .statusBarsPadding()
-                    .padding(top = topExtra)
-                    .padding(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = if (centerTopActions) {
+                    Modifier.align(Alignment.CenterEnd).padding(12.dp)
+                } else {
+                    Modifier
+                        .align(Alignment.TopEnd)
+                        .statusBarsPadding()
+                        .padding(top = topExtra)
+                        .padding(12.dp)
+                },
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
                 content = topActions,
             )
         }

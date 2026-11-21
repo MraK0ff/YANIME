@@ -68,12 +68,13 @@ internal fun AccountMobileProfileHero(
     val surface = MaterialTheme.colorScheme.surfaceContainer
     val configuration = LocalConfiguration.current
     val density = LocalDensity.current
-    val cutoutInsets = WindowInsets.displayCutout
-    val cutoutTop = with(density) { cutoutInsets.getTop(this).toDp() }
     val view = LocalView.current
     val displayCutout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
         view.rootWindowInsets?.displayCutout
     } else null
+    // Use the platform cutout data directly: the Compose version in this project
+    // does not expose WindowInsets.displayCutout.
+    val cutoutTop = with(density) { (displayCutout?.safeInsetTop ?: 0).toDp() }
     // Read the current cutout geometry on every inset-driven recomposition. Some punch-hole
     // displays report a top safe inset but no left/right safe inset, so use bounding rectangles
     // to distinguish a side camera from a centered notch.

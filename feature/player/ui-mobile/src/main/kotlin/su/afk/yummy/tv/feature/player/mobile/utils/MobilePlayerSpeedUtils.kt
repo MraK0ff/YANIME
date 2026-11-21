@@ -28,6 +28,7 @@ internal fun Float.toSpeedChipLabel(): String =
         .trimEnd('0').let { if (it.endsWith(',') || it.endsWith('.')) it + "0" else it }
 
 /** Для строки меню: «1x», «1,5x». */
-internal fun Float.toSpeedMenuValue(): String = toSpeedChipLabel().let { "${it}x" }
+internal fun Float.toSpeedMenuValue(): String =
+    if (abs(this - 1f) < 0.001f) "1x" else "${toSpeedChipLabel()}x"
 
 internal const val MOBILE_PLAYER_SPEED_SLIDER_STEPS = 54

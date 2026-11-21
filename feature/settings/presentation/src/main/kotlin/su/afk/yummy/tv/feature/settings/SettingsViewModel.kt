@@ -96,6 +96,8 @@ class SettingsViewModel @Inject internal constructor(
         settingsStore.mobileHeaderEnabled.onEach { setState { copy(mobileHeaderEnabled = it) } }.launchIn(viewModelScope)
         settingsStore.mobileSearchFabEnabled.onEach { setState { copy(mobileSearchFabEnabled = it) } }.launchIn(viewModelScope)
         settingsStore.mobileClassicBottomBar.onEach { setState { copy(mobileClassicBottomBar = it) } }.launchIn(viewModelScope)
+        settingsStore.mobileMainTabsOrder.onEach { setState { copy(mobileMainTabsOrder = it) } }.launchIn(viewModelScope)
+        settingsStore.mobileMainTabsEnabled.onEach { setState { copy(mobileMainTabsEnabled = it) } }.launchIn(viewModelScope)
         settingsStore.settingsSnapshot
             .onEach { snapshot ->
                 setState {
@@ -297,6 +299,12 @@ class SettingsViewModel @Inject internal constructor(
             }
             SettingsState.Event.MobileClassicBottomBarToggled -> viewModelScope.launch {
                 settingsStore.setMobileClassicBottomBar(!currentState.mobileClassicBottomBar)
+            }
+            is SettingsState.Event.MobileMainTabsOrderChanged -> viewModelScope.launch {
+                settingsStore.setMobileMainTabsOrder(event.order)
+            }
+            is SettingsState.Event.MobileMainTabsEnabledChanged -> viewModelScope.launch {
+                settingsStore.setMobileMainTabsEnabled(event.enabled)
             }
 
             SettingsState.Event.NewEpisodesSectionToggled -> viewModelScope.launch {

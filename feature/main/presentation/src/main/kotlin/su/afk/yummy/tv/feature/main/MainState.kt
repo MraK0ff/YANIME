@@ -34,6 +34,8 @@ class MainState {
         val isYaniAuthResolved: Boolean = false,
         val unreadNotificationsCount: Int = 0,
         val isOnline: Boolean = true,
+        /** Есть ли локальные/активные загрузки для отдельной вкладки. */
+        val hasVideoDownloads: Boolean = false,
         /** Списки пользователя по animeId — для подписи карточек тайтлов. */
         val libraryListStatuses: Map<Int, CardListStatus> = emptyMap(),
         /** Избранные тайтлы; не зависит от статуса пользовательского списка. */

@@ -13,7 +13,6 @@ import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,7 +22,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -70,8 +68,7 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 
 private const val CLASSIC_ACTION_TILE = 0
-private const val CLASSIC_FLOATING_FAB = 1
-private const val EXPRESSIVE_FLOATING = 2
+private const val EXPRESSIVE_FLOATING = 1
 
 @Composable
 internal fun <T> MobileMainNavigationBar(
@@ -93,9 +90,8 @@ internal fun <T> MobileMainNavigationBar(
     }
     var showVariantMenu by remember { mutableStateOf(false) }
 
-    val isClassic = panelVariant != EXPRESSIVE_FLOATING
-    val actionInBar = panelVariant == CLASSIC_ACTION_TILE
-    val actionFloatsAbove = panelVariant == CLASSIC_FLOATING_FAB
+    val isClassic = panelVariant == CLASSIC_ACTION_TILE
+    val actionInBar = isClassic
     val actionEnabled = searchFabEnabled
 
     val onAction = {
@@ -161,8 +157,8 @@ internal fun <T> MobileMainNavigationBar(
             .fillMaxWidth()
             .navigationBarsPadding()
             .padding(
-                start = if (isClassic) 0.dp else 16.dp,
-                end = if (isClassic) 0.dp else 16.dp,
+                start = if (isClassic) 0.dp else 8.dp,
+                end = if (isClassic) 0.dp else 8.dp,
                 bottom = if (isClassic) 0.dp else 8.dp,
             ),
     ) {
@@ -207,10 +203,6 @@ internal fun <T> MobileMainNavigationBar(
                             },
                             alwaysShowLabel = true,
                         )
-                    }
-
-                    if (actionEnabled && actionFloatsAbove) {
-                        Spacer(Modifier.width(72.dp))
                     }
 
                     if (actionEnabled && actionInBar) {
@@ -258,12 +250,12 @@ internal fun <T> MobileMainNavigationBar(
             }
         } else {
             Row(
-                modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.align(Alignment.BottomCenter),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Surface(
-                    modifier = Modifier.weight(1f).height(64.dp).then(dragModifier),
+                    modifier = Modifier.height(64.dp),
                     shape = RoundedCornerShape(24.dp),
                     color = MaterialTheme.colorScheme.surfaceContainerHigh,
                     contentColor = MaterialTheme.colorScheme.onSurface,
@@ -271,28 +263,28 @@ internal fun <T> MobileMainNavigationBar(
                     shadowElevation = 2.dp,
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxSize().padding(horizontal = 6.dp, vertical = 6.dp),
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(2.dp),
                     ) {
                         orderedItems.forEachIndexed { index, item ->
                             val selected = animatedPreviewIndex >= 0f &&
                                 index == animatedPreviewIndex.roundToInt().coerceIn(0, orderedItems.lastIndex)
-                            val itemWeight by animateFloatAsState(
-                                targetValue = if (selected) 3.8f else 1f,
-                                animationSpec = spring(dampingRatio = 0.88f, stiffness = 700f),
-                                label = "expressiveNavigationItemWeight",
-                            )
+                            val itemShape = CircleShape
                             Box(
                                 modifier = Modifier
-                                    .weight(itemWeight)
-                                    .fillMaxHeight()
-                                    .clip(CircleShape)
-                                    .background(
-                                        if (selected) MaterialTheme.colorScheme.secondaryContainer
-                                        else Color.Transparent,
+                                    .then(
+                                        if (selected) Modifier
+                                            .height(48.dp)
+                                            .clip(itemShape)
+                                            .background(MaterialTheme.colorScheme.secondaryContainer)
+                                            .clickable { onDestinationSelected(item.destination) }
+                                            .padding(horizontal = 10.dp)
+                                        else Modifier
+                                            .size(48.dp)
+                                            .clip(itemShape)
+                                            .clickable { onDestinationSelected(item.destination) },
                                     )
-                                    .clickable { onDestinationSelected(item.destination) }
                                     .onboardingTarget(mobileMainTabTargetId(item.destination))
                                     .testTag("main_tab")
                                     .focusProperties {
@@ -302,9 +294,8 @@ internal fun <T> MobileMainNavigationBar(
                                 contentAlignment = Alignment.Center,
                             ) {
                                 Row(
-                                    modifier = Modifier.padding(horizontal = 4.dp),
                                     verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Center,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
                                 ) {
                                     MobileMainNavigationIcon(item, selected)
                                     AnimatedVisibility(
@@ -314,11 +305,11 @@ internal fun <T> MobileMainNavigationBar(
                                     ) {
                                         Text(
                                             text = item.label,
-                                            modifier = Modifier.padding(start = 4.dp),
                                             maxLines = 1,
                                             softWrap = false,
                                             overflow = TextOverflow.Clip,
                                             fontSize = 12.sp,
+                                            lineHeight = 16.sp,
                                             fontWeight = FontWeight.SemiBold,
                                             color = MaterialTheme.colorScheme.onSecondaryContainer,
                                         )
@@ -355,8 +346,7 @@ internal fun <T> MobileMainNavigationBar(
             DropdownMenu(expanded = showVariantMenu, onDismissRequest = { showVariantMenu = false }) {
                 listOf(
                     "Классическая · действие в панели",
-                    "Классическая · FAB над панелью",
-                    "Современная · плавающая капсула",
+                    "Современная · компактная капсула",
                 ).forEachIndexed { index, label ->
                     DropdownMenuItem(
                         text = { Text(label) },

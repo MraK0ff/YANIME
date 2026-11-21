@@ -15,12 +15,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -40,6 +38,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -78,7 +77,6 @@ internal fun <T> MobileMainNavigationBar(
 ) {
     val orderedItems = remember(menuItems) { menuItems }
     val isClassic = classicStyle
-    val actionInBar = isClassic
     var isDragging by remember { mutableStateOf(false) }
     val selectedItemIndex = orderedItems.indexOfFirst { it.destination == selectedDestination }
         .takeIf { it >= 0 } ?: 0
@@ -209,7 +207,7 @@ internal fun <T> MobileMainNavigationBar(
                         )
                     }
 
-                    if (actionEnabled && actionInBar) {
+                    if (actionEnabled && isClassic) {
                         NavigationBarItem(
                             modifier = Modifier.testTag("main_navigation_action"),
                             selected = false,

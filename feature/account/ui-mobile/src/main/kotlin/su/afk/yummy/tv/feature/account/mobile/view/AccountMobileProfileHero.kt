@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.displayCutout
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
@@ -132,9 +131,8 @@ internal fun AccountMobileProfileHero(
             Box(
                 modifier = Modifier
                     .align(Alignment.TopStart)
-                    .statusBarsPadding()
-                    // Локально учитываем вырезы по горизонтали, не сдвигая баннер и контент профиля.
-                    .windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal))
+                    // Safe drawing includes the status bar and the camera cutout, on every orientation.
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
                     .padding(top = topExtra)
                     .padding(12.dp),
                 content = navigationAction,
@@ -142,9 +140,8 @@ internal fun AccountMobileProfileHero(
             Row(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .statusBarsPadding()
-                    // Учитываем cutout с любой стороны в landscape только для ряда действий.
-                    .windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal))
+                    // Keep edit/logout actions outside both the status bar and the display cutout.
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
                     .padding(top = topExtra)
                     .padding(12.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),

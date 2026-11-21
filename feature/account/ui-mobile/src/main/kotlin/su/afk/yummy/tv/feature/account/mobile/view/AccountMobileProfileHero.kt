@@ -70,7 +70,6 @@ internal fun AccountMobileProfileHero(
     val density = LocalDensity.current
     val cutoutInsets = WindowInsets.displayCutout
     val cutoutTop = with(density) { cutoutInsets.getTop(this).toDp() }
-    val cutoutLeft = with(density) { cutoutInsets.getLeft(this).toDp() }
     val view = LocalView.current
     val displayCutout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
         view.rootWindowInsets?.displayCutout

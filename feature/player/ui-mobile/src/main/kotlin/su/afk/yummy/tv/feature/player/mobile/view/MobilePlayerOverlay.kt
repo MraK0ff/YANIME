@@ -70,6 +70,7 @@ internal fun MobilePlayerOverlay(
     balancerLabel: String = "",
     qualityLabel: String = "",
     selectedSpeed: Float = 1f,
+    isSeeking: Boolean = false,
     onQualityClick: () -> Unit = {},
     onSpeedClick: () -> Unit = {},
 ) {
@@ -126,6 +127,7 @@ internal fun MobilePlayerOverlay(
                 dubbingLabel = dubbingLabel,
                 qualityLabel = qualityLabel,
                 selectedSpeed = selectedSpeed,
+                isSeeking = isSeeking,
                 onQualityClick = onQualityClick,
                 onSpeedClick = onSpeedClick,
                 onMoreActions = onMoreActions,

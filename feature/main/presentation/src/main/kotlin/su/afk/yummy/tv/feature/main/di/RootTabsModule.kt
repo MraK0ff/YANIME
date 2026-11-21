@@ -15,6 +15,7 @@ import su.afk.yummy.tv.feature.posts.navigator.PostsDestination
 import su.afk.yummy.tv.feature.schedule.navigator.ScheduleDestination
 import su.afk.yummy.tv.feature.catalog.navigator.CatalogDestination
 import su.afk.yummy.tv.feature.settings.navigator.SettingsDestination
+import su.afk.yummy.tv.feature.videodownload.navigator.VideoDownloadDestination
 
 /** Корневой экран каждого таба; общий для mobile и TV, набор табов определяет main-фича. */
 @Module
@@ -25,6 +26,7 @@ internal object RootTabsModule {
     fun provideRootTabs(): @JvmSuppressWildcards Map<RootTab, NavKey> = mapOf(
         RootTab.ACCOUNT to AccountDestination,
         RootTab.CATALOG to CatalogDestination(),
+        RootTab.DOWNLOADS to VideoDownloadDestination,
         RootTab.HOME to HomeDestination,
         RootTab.POSTS to PostsDestination,
         RootTab.COLLECTIONS to CollectionsCatalogDestination,

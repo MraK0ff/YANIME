@@ -111,14 +111,6 @@ internal fun MobilePlayerSpeedPage(
                         )
                     }
                 }
-                if (1f in rowChips) {
-                    Text(
-                        text = stringResource(R.string.player_speed_normal),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.align(Alignment.CenterHorizontally),
-                    )
-                }
             }
         }
     }

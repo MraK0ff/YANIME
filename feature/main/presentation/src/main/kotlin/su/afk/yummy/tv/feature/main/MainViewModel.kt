@@ -145,6 +145,8 @@ class MainViewModel @Inject internal constructor(
         settingsStore.mobileHeaderEnabled.onEach { enabled -> setState { copy(mobileHeaderEnabled = enabled) } }.launchIn(viewModelScope)
         settingsStore.mobileSearchFabEnabled.onEach { enabled -> setState { copy(mobileSearchFabEnabled = enabled) } }.launchIn(viewModelScope)
         settingsStore.mobileClassicBottomBar.onEach { enabled -> setState { copy(mobileClassicBottomBar = enabled) } }.launchIn(viewModelScope)
+        settingsStore.mobileMainTabsOrder.onEach { order -> setState { copy(mobileMainTabsOrder = order) } }.launchIn(viewModelScope)
+        settingsStore.mobileMainTabsEnabled.onEach { enabled -> setState { copy(mobileMainTabsEnabled = enabled) } }.launchIn(viewModelScope)
         settingsStore.mainSettingsSnapshot
             .onEach { snapshot ->
                 val nowMillis = appClock.nowMillis()

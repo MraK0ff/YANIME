@@ -50,6 +50,7 @@ internal fun MobilePlayerProgressRow(
     onSeekChange: (Float) -> Unit,
     onSeekStarted: () -> Unit,
     onSeekFinished: () -> Unit,
+    seekEnabled: Boolean = true,
     videoWidthFraction: Float = 1f,
     videoBottomInset: Dp = 0.dp,
     timeDisplaySettings: PlayerTimeDisplaySettings = PlayerTimeDisplaySettings(),
@@ -79,7 +80,7 @@ internal fun MobilePlayerProgressRow(
             MobilePlayerTimeline(
                 progress = seekProgress.coerceIn(0f, 1f),
                 bufferedProgress = bufferedProgress.coerceIn(seekProgress.coerceIn(0f, 1f), 1f),
-                enabled = duration > 0L,
+                enabled = duration > 0L && seekEnabled,
                 duration = duration,
                 isPlaying = isPlaying,
                 selectedPlaybackSpeed = selectedSpeed,

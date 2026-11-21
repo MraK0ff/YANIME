@@ -17,8 +17,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -35,7 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import su.afk.yummy.tv.core.designsystem.components.rememberCachedImageRequest
@@ -66,17 +66,17 @@ internal fun AccountMobileProfileHero(
 ) {
     val surface = MaterialTheme.colorScheme.surfaceContainer
     val configuration = LocalConfiguration.current
-    val view = LocalView.current
-    val hasTopRightCutout = remember(view, configuration.orientation) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            val cutout = view.rootWindowInsets?.displayCutout
-            cutout != null &&
-                cutout.safeInsetTop > 0 &&
-                cutout.boundingRects.any { it.right > view.width * 0.65f }
-        } else false
-    }
+    val density = LocalDensity.current
+    val cutoutInsets = WindowInsets.displayCutout
+    val cutoutTop = with(density) { cutoutInsets.getTop(this).toDp() }
+    val cutoutLeft = with(density) { cutoutInsets.getLeft(this).toDp() }
+    val cutoutRight = with(density) { cutoutInsets.getRight(this).toDp() }
+    // WindowInsets are observable Compose state: unlike a remembered View snapshot,
+    // this updates when the window is resized, rotated, or its display cutout changes.
+    val hasTopSideCutout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
+        cutoutTop > 0.dp && (cutoutLeft > 0.dp || cutoutRight > 0.dp)
     val centerTopActions = configuration.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT &&
-        hasTopRightCutout
+        hasTopSideCutout
     var avatarOpened by remember { mutableStateOf(false) }
     if (avatarOpened && avatarUrl.isNotBlank()) {
         AccountMobileAvatarViewer(avatarUrl = avatarUrl, onDismiss = { avatarOpened = false })
@@ -97,8 +97,8 @@ internal fun AccountMobileProfileHero(
                 .background(
                     Brush.linearGradient(
                         listOf(
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.40f),
-                            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.16f),
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.55f),
+                            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.25f),
                         ),
                     ),
                 ),
@@ -164,7 +164,7 @@ internal fun AccountMobileProfileHero(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 20.dp, end = 20.dp, top = bannerHeight - (AvatarSize + AvatarRing * 2) / 3, bottom = 16.dp),
+                .padding(start = 20.dp, end = 20.dp, top = bannerHeight - (AvatarSize + AvatarRing * 2) / 3, bottom = 20.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             SeasonalAvatarFrame(avatarSize = AvatarSize + AvatarRing * 2) {
@@ -192,7 +192,7 @@ internal fun AccountMobileProfileHero(
     }
 }
 
-private val BannerHeight = 88.dp
-private val HeroCorner = 24.dp
-private val AvatarSize = 84.dp
-private val AvatarRing = 3.dp
+private val BannerHeight = 96.dp
+private val HeroCorner = 28.dp
+private val AvatarSize = 90.dp
+private val AvatarRing = 4.dp

@@ -46,6 +46,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -106,6 +107,7 @@ internal fun <T> MobileMainNavigationBar(
         var totalDrag = 0f
         var startIndex = selectedItemIndex
         var stepPx = 1f
+        val velocityTracker = VelocityTracker()
         detectHorizontalDragGestures(
             onDragStart = {
                 isDragging = true
@@ -113,11 +115,14 @@ internal fun <T> MobileMainNavigationBar(
                 startIndex = orderedItems.indexOfFirst {
                     it.destination == selectedDestination
                 }.coerceIn(0, orderedItems.lastIndex)
-                stepPx = size.width.toFloat() / orderedItems.size.coerceAtLeast(1)
+                val navigationSlots = orderedItems.size + if (isClassic && actionEnabled) 1 else 0
+                stepPx = size.width.toFloat() / navigationSlots.coerceAtLeast(1)
+                velocityTracker.resetTracking()
                 coroutineScope.launch { dragPosition.snapTo(startIndex.toFloat()) }
             },
             onHorizontalDrag = { change, amount ->
                 change.consume()
+                velocityTracker.addPosition(change.uptimeMillis, change.position)
                 totalDrag += amount
                 val fingerPosition = (
                     startIndex - totalDrag / stepPx.coerceAtLeast(1f)
@@ -127,8 +132,10 @@ internal fun <T> MobileMainNavigationBar(
             onDragEnd = {
                 var target = dragPosition.value.roundToInt().coerceIn(0, orderedItems.lastIndex)
                 val minimumTravel = stepPx * 0.18f
-                if (target == startIndex && abs(totalDrag) >= minimumTravel) {
-                    target = (startIndex + if (totalDrag < 0f) 1 else -1)
+                val releaseVelocity = velocityTracker.calculateVelocity().x
+                val isFling = abs(releaseVelocity) >= 1_200f
+                if (target == startIndex && (abs(totalDrag) >= minimumTravel || isFling)) {
+                    target = (startIndex + if (if (isFling) releaseVelocity < 0f else totalDrag < 0f) 1 else -1)
                         .coerceIn(0, orderedItems.lastIndex)
                 }
                 isDragging = false

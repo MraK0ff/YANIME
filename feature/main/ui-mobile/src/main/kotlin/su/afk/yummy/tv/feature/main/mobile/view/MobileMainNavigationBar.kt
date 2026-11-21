@@ -2,6 +2,7 @@ package su.afk.yummy.tv.feature.main.mobile.view
 
 import su.afk.yummy.tv.core.designsystem.seasonal.seasonalNavigationBarItemColors
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth

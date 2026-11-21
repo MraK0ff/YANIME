@@ -74,13 +74,8 @@ internal fun MobilePlayerOverlay(
 ) {
     if (!visible) return
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
-        // Scrim belongs to the full player viewport, not the aspect-ratio video surface.
-        // This keeps controls legible in letterboxed/pillarboxed playback too.
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.22f)),
-        )
+        // A single viewport-level scrim is drawn by MobileNativePlayer. Keeping a second
+        // overlay-local scrim here would compound the dimming and make it look uneven.
         val expandedControlsOffset = minOf(56.dp, maxHeight * 0.10f)
         Box(
             modifier = Modifier.align(Alignment.Center)

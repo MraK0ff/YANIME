@@ -135,7 +135,8 @@ internal fun <T> MobileMainNavigationBar(
                 val releaseVelocity = velocityTracker.calculateVelocity().x
                 val isFling = abs(releaseVelocity) >= 1_200f
                 if (target == startIndex && (abs(totalDrag) >= minimumTravel || isFling)) {
-                    target = (startIndex + if (if (isFling) releaseVelocity < 0f else totalDrag < 0f) 1 else -1)
+                    val movingForward = if (isFling) releaseVelocity < 0f else totalDrag < 0f
+                    target = (startIndex + if (movingForward) 1 else -1)
                         .coerceIn(0, orderedItems.lastIndex)
                 }
                 isDragging = false

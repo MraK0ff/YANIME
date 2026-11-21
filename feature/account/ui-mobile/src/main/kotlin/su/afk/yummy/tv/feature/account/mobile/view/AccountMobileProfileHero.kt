@@ -36,6 +36,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import su.afk.yummy.tv.core.designsystem.components.rememberCachedImageRequest
@@ -70,11 +71,17 @@ internal fun AccountMobileProfileHero(
     val cutoutInsets = WindowInsets.displayCutout
     val cutoutTop = with(density) { cutoutInsets.getTop(this).toDp() }
     val cutoutLeft = with(density) { cutoutInsets.getLeft(this).toDp() }
-    val cutoutRight = with(density) { cutoutInsets.getRight(this).toDp() }
-    // WindowInsets are observable Compose state: unlike a remembered View snapshot,
-    // this updates when the window is resized, rotated, or its display cutout changes.
-    val hasTopSideCutout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
-        cutoutTop > 0.dp && (cutoutLeft > 0.dp || cutoutRight > 0.dp)
+    val view = LocalView.current
+    val displayCutout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        view.rootWindowInsets?.displayCutout
+    } else null
+    // Read the current cutout geometry on every inset-driven recomposition. Some punch-hole
+    // displays report a top safe inset but no left/right safe inset, so use bounding rectangles
+    // to distinguish a side camera from a centered notch.
+    val hasTopSideCutout = cutoutTop > 0.dp && displayCutout?.boundingRects?.any { bounds ->
+        val centerX = bounds.centerX()
+        centerX < view.width * 0.35f || centerX > view.width * 0.65f
+    } == true
     val centerTopActions = configuration.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT &&
         hasTopSideCutout
     var avatarOpened by remember { mutableStateOf(false) }

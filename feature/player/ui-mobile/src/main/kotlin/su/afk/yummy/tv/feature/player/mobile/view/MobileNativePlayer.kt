@@ -40,6 +40,7 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -147,6 +148,7 @@ internal fun MobileNativePlayer(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
     val playerSettingsStore = rememberMobilePlayerSettingsStore()
     val timeDisplaySettings by playerSettingsStore.playerTimeDisplaySettings.collectAsStateWithLifecycle(
         initialValue = PlayerTimeDisplaySettings(),
@@ -649,6 +651,9 @@ internal fun MobileNativePlayer(
             locked = locked,
             onTap = {
                 if (locked) {
+                    // A touch on the locked player must return focus to the video surface,
+                    // not leave keyboard/accessibility focus trapped on a hidden control.
+                    focusManager.clearFocus(force = true)
                     // При активной блокировке касание не должно оставлять панель «наготове»:
                     // после разблокировки она останется скрытой до следующего обычного тапа.
                     overlay.visible = false

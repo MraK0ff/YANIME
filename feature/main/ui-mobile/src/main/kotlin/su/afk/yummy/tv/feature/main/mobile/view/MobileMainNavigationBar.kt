@@ -1,16 +1,14 @@
-package su.afk.yummy.tv.feature.main.mobile.view
-
 import su.afk.yummy.tv.core.designsystem.seasonal.seasonalNavigationBarItemColors
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.DraggableAnchors
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -19,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -36,17 +35,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -59,9 +55,6 @@ import su.afk.yummy.tv.core.designsystem.seasonal.SeasonalBarDecoration
 import su.afk.yummy.tv.feature.main.mobile.model.MobileMenuItem
 import su.afk.yummy.tv.feature.main.mobile.utils.mobileMainTabTargetId
 import su.afk.yummy.tv.feature.main.presentation.R
-import kotlin.math.abs
-import kotlin.math.roundToInt
-import kotlinx.coroutines.launch
 
 @Composable
 internal fun <T> MobileMainNavigationBar(
@@ -78,11 +71,47 @@ internal fun <T> MobileMainNavigationBar(
 ) {
     val orderedItems = remember(menuItems) { menuItems }
     val isClassic = classicStyle
-    var isDragging by remember { mutableStateOf(false) }
     val selectedItemIndex = orderedItems.indexOfFirst { it.destination == selectedDestination }
         .takeIf { it >= 0 } ?: 0
-    val dragPosition = remember { Animatable(selectedItemIndex.toFloat()) }
-    val coroutineScope = rememberCoroutineScope()
+    val dragState = remember {
+        AnchoredDraggableState(initialValue = selectedItemIndex)
+    }
+
+    // Keep anchors tied to the measured navigation surface. The action tile is a
+    // real slot in the classic bar, but never a destination in the swipe sequence.
+    val dragModifier = Modifier
+        .onSizeChanged { measuredSize ->
+            val destinationCount = orderedItems.size
+            if (destinationCount > 0 && measuredSize.width > 0) {
+                val slotCount = destinationCount + if (isClassic && searchFabEnabled) 1 else 0
+                val anchors = DraggableAnchors {
+                    orderedItems.indices.forEach { index ->
+                        val anchor = measuredSize.width.toFloat() *
+                            (index + 0.5f) / slotCount.coerceAtLeast(1)
+                        index at anchor
+                    }
+                }
+                dragState.updateAnchors(anchors)
+            }
+        }
+        .anchoredDraggable(
+            state = dragState,
+            orientation = Orientation.Horizontal,
+        )
+
+    // External navigation (deep links/back handling) and swipe navigation share
+    // the same state. A destination is emitted only after the gesture settles.
+    LaunchedEffect(selectedDestination, orderedItems) {
+        dragState.animateTo(selectedItemIndex)
+    }
+    LaunchedEffect(dragState.settledValue) {
+        val settledIndex = dragState.settledValue.coerceIn(0, orderedItems.lastIndex)
+        val settledDestination = orderedItems.getOrNull(settledIndex)?.destination
+        if (settledDestination != null && settledDestination != selectedDestination) {
+            onDestinationSelected(settledDestination)
+        }
+    }
+
     val actionEnabled = searchFabEnabled
 
     val onAction = {
@@ -130,7 +159,7 @@ internal fun <T> MobileMainNavigationBar(
                 coroutineScope.launch { dragPosition.snapTo(fingerPosition) }
             },
             onDragEnd = {
-                var target = dragPosition.value.roundToInt().coerceIn(0, orderedItems.lastIndex)
+                var target = dragState.currentValue.coerceIn(0, orderedItems.lastIndex)
                 val minimumTravel = stepPx * 0.18f
                 val releaseVelocity = velocityTracker.calculateVelocity().x
                 val isFling = abs(releaseVelocity) >= 1_200f

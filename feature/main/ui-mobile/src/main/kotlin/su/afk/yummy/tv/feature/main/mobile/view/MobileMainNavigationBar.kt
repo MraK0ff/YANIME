@@ -3,7 +3,8 @@ package su.afk.yummy.tv.feature.main.mobile.view
 import su.afk.yummy.tv.core.designsystem.seasonal.seasonalNavigationBarItemColors
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -27,12 +28,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Shuffle
-import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -41,13 +38,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
@@ -66,9 +61,7 @@ import su.afk.yummy.tv.feature.main.mobile.utils.mobileMainTabTargetId
 import su.afk.yummy.tv.feature.main.presentation.R
 import kotlin.math.abs
 import kotlin.math.roundToInt
-
-private const val CLASSIC_ACTION_TILE = 0
-private const val EXPRESSIVE_FLOATING = 1
+import kotlinx.coroutines.launch
 
 @Composable
 internal fun <T> MobileMainNavigationBar(
@@ -84,14 +77,13 @@ internal fun <T> MobileMainNavigationBar(
     onDestinationSelected: (T) -> Unit,
 ) {
     val orderedItems = remember(menuItems) { menuItems }
-    var dragPreviewIndex by remember { mutableStateOf<Float?>(null) }
-    var panelVariant by remember(classicStyle) {
-        mutableIntStateOf(if (classicStyle) CLASSIC_ACTION_TILE else EXPRESSIVE_FLOATING)
-    }
-    var showVariantMenu by remember { mutableStateOf(false) }
-
-    val isClassic = panelVariant == CLASSIC_ACTION_TILE
+    val isClassic = classicStyle
     val actionInBar = isClassic
+    var isDragging by remember { mutableStateOf(false) }
+    val selectedItemIndex = orderedItems.indexOfFirst { it.destination == selectedDestination }
+        .takeIf { it >= 0 } ?: 0
+    val dragPosition = remember { Animatable(selectedItemIndex.toFloat()) }
+    val coroutineScope = rememberCoroutineScope()
     val actionEnabled = searchFabEnabled
 
     val onAction = {
@@ -102,53 +94,66 @@ internal fun <T> MobileMainNavigationBar(
         if (catalogFabEnabled) R.string.main_header_random_anime else R.string.main_header_search,
     )
 
-    LaunchedEffect(selectedDestination) { dragPreviewIndex = null }
+    LaunchedEffect(selectedDestination) {
+        if (!isDragging) {
+            dragPosition.animateTo(
+                selectedItemIndex.toFloat(),
+                animationSpec = spring(dampingRatio = 0.86f, stiffness = 520f),
+            )
+        }
+    }
 
-    val selectedItemIndex = orderedItems.indexOfFirst { it.destination == selectedDestination }
-        .takeIf { it >= 0 }
-    val animatedPreviewIndex by animateFloatAsState(
-        targetValue = dragPreviewIndex ?: (selectedItemIndex?.toFloat() ?: -1f),
-        animationSpec = spring(dampingRatio = 0.92f, stiffness = 900f),
-        label = "navigationDragPreview",
-    )
-
-    val dragModifier = Modifier.pointerInput(orderedItems, selectedDestination) {
+    val dragModifier = Modifier.pointerInput(orderedItems, selectedDestination, actionEnabled, isClassic) {
         if (orderedItems.size < 2) return@pointerInput
         var totalDrag = 0f
-        var startIndex = 0
-        var previewIndex = 0f
-        var lastFingerX = 0f
+        var startIndex = selectedItemIndex
+        var stepPx = 1f
         detectHorizontalDragGestures(
-            onDragStart = { offset ->
+            onDragStart = {
+                isDragging = true
                 totalDrag = 0f
                 startIndex = orderedItems.indexOfFirst {
                     it.destination == selectedDestination
-                }.coerceAtLeast(0)
-                lastFingerX = offset.x
-                previewIndex = (offset.x / size.width.coerceAtLeast(1) * orderedItems.size)
-                    .coerceIn(0f, orderedItems.lastIndex.toFloat())
-                dragPreviewIndex = previewIndex
+                }.coerceIn(0, orderedItems.lastIndex)
+                stepPx = size.width.toFloat() / orderedItems.size.coerceAtLeast(1)
+                coroutineScope.launch { dragPosition.snapTo(startIndex.toFloat()) }
             },
             onHorizontalDrag = { change, amount ->
                 change.consume()
                 totalDrag += amount
-                lastFingerX = change.position.x
-                previewIndex = (lastFingerX / size.width.coerceAtLeast(1) * orderedItems.size)
-                    .coerceIn(0f, orderedItems.lastIndex.toFloat())
-                dragPreviewIndex = previewIndex
+                val fingerPosition = (
+                    startIndex - totalDrag / stepPx.coerceAtLeast(1f)
+                ).coerceIn(0f, orderedItems.lastIndex.toFloat())
+                coroutineScope.launch { dragPosition.snapTo(fingerPosition) }
             },
             onDragEnd = {
-                val nearest = previewIndex.roundToInt().coerceIn(0, orderedItems.lastIndex)
-                val target = if (nearest == startIndex && abs(totalDrag) > 24f) {
-                    (startIndex + if (totalDrag < 0f) 1 else -1)
+                var target = dragPosition.value.roundToInt().coerceIn(0, orderedItems.lastIndex)
+                val minimumTravel = stepPx * 0.18f
+                if (target == startIndex && abs(totalDrag) >= minimumTravel) {
+                    target = (startIndex + if (totalDrag < 0f) 1 else -1)
                         .coerceIn(0, orderedItems.lastIndex)
-                } else nearest
-                if (target != startIndex) {
-                    dragPreviewIndex = target.toFloat()
-                    onDestinationSelected(orderedItems[target].destination)
-                } else dragPreviewIndex = null
+                }
+                isDragging = false
+                coroutineScope.launch {
+                    dragPosition.animateTo(
+                        target.toFloat(),
+                        animationSpec = spring(
+                            dampingRatio = 0.78f,
+                            stiffness = Spring.StiffnessMediumLow,
+                        ),
+                    )
+                }
+                if (target != startIndex) onDestinationSelected(orderedItems[target].destination)
             },
-            onDragCancel = { dragPreviewIndex = null },
+            onDragCancel = {
+                isDragging = false
+                coroutineScope.launch {
+                    dragPosition.animateTo(
+                        startIndex.toFloat(),
+                        animationSpec = spring(dampingRatio = 0.82f, stiffness = Spring.StiffnessMedium),
+                    )
+                }
+            },
         )
     }
 
@@ -179,8 +184,7 @@ internal fun <T> MobileMainNavigationBar(
                 ) {
                     val itemColors = seasonalNavigationBarItemColors()
                     orderedItems.forEachIndexed { index, item ->
-                        val selected = animatedPreviewIndex >= 0f &&
-                            index == animatedPreviewIndex.roundToInt().coerceIn(0, orderedItems.lastIndex)
+                        val selected = index == dragPosition.value.roundToInt().coerceIn(0, orderedItems.lastIndex)
                         NavigationBarItem(
                             modifier = Modifier
                                 .testTag("main_tab")
@@ -257,8 +261,7 @@ internal fun <T> MobileMainNavigationBar(
                         horizontalArrangement = Arrangement.spacedBy(2.dp),
                     ) {
                         orderedItems.forEachIndexed { index, item ->
-                            val selected = animatedPreviewIndex >= 0f &&
-                                index == animatedPreviewIndex.roundToInt().coerceIn(0, orderedItems.lastIndex)
+                            val selected = index == dragPosition.value.roundToInt().coerceIn(0, orderedItems.lastIndex)
                             val itemShape = CircleShape
                             Box(
                                 modifier = Modifier
@@ -319,34 +322,6 @@ internal fun <T> MobileMainNavigationBar(
                     ) {
                         Icon(actionIcon, contentDescription = actionDescription, modifier = Modifier.size(24.dp))
                     }
-                }
-            }
-        }
-
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .offset(y = if (isClassic) (-44).dp else (-42).dp)
-                .padding(end = if (isClassic) 8.dp else if (actionEnabled) 68.dp else 8.dp),
-        ) {
-            IconButton(onClick = { showVariantMenu = true }) {
-                Icon(Icons.Default.Tune, contentDescription = "Выбрать вариант панели", tint = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            DropdownMenu(expanded = showVariantMenu, onDismissRequest = { showVariantMenu = false }) {
-                listOf(
-                    "Классическая · действие в панели",
-                    "Современная · компактная капсула",
-                ).forEachIndexed { index, label ->
-                    DropdownMenuItem(
-                        text = { Text(label) },
-                        leadingIcon = {
-                            if (panelVariant == index) Icon(Icons.Default.Tune, contentDescription = null)
-                        },
-                        onClick = {
-                            panelVariant = index
-                            showVariantMenu = false
-                        },
-                    )
                 }
             }
         }

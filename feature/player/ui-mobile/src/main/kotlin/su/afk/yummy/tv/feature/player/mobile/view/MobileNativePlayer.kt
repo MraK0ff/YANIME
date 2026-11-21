@@ -340,7 +340,7 @@ internal fun MobileNativePlayer(
 
     // A screen transition can dispose the timeline during an active drag. Always release
     // ExoPlayer's temporary scrubbing mode so playback cannot remain suppressed.
-    DisposableEffect(player) {
+    DisposableEffect(player, progress) {
         onDispose { player.setTimelineScrubbingMode(false) }
     }
 
@@ -472,6 +472,8 @@ internal fun MobileNativePlayer(
     LaunchedEffect(isInPictureInPictureMode) {
         if (isInPictureInPictureMode) {
             overlay.visible = false
+            progress.isSeeking = false
+            player.setTimelineScrubbingMode(false)
             endFlow.hideAll()
             gestures.resetForPictureInPicture()
             settingsMenuOpen = false
@@ -905,6 +907,7 @@ internal fun MobileNativePlayer(
             loading = (isBuffering || showRecoveryIndicator) &&
                 !isInPictureInPictureMode && !settingsMenuOpen && !locked && !tutorialBlocksPlayback,
             isSeeking = progress.isSeeking,
+            seekEnabled = player.isCurrentMediaItemSeekable,
             progress = progress,
             hasPrevEpisode = ui.hasPrevEpisode,
             hasNextEpisode = ui.hasNextEpisode,

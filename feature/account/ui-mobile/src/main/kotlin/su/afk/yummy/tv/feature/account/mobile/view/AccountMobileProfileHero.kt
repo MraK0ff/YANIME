@@ -11,16 +11,13 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -131,8 +128,9 @@ internal fun AccountMobileProfileHero(
             Box(
                 modifier = Modifier
                     .align(Alignment.TopStart)
-                    // Safe drawing includes the status bar and the camera cutout, on every orientation.
-                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
+                    // Keep the original upstream inset behavior: statusBarsPadding also
+                    // accounts for the display cutout on devices/orientations where it overlaps.
+                    .statusBarsPadding()
                     .padding(top = topExtra)
                     .padding(12.dp),
                 content = navigationAction,
@@ -140,8 +138,8 @@ internal fun AccountMobileProfileHero(
             Row(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    // Keep edit/logout actions outside both the status bar and the display cutout.
-                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
+                    // Match the upstream profile action inset implementation.
+                    .statusBarsPadding()
                     .padding(top = topExtra)
                     .padding(12.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),

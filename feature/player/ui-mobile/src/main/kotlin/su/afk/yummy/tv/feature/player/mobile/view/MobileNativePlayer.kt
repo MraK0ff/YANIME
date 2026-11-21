@@ -175,6 +175,8 @@ internal fun MobileNativePlayer(
         initialDurationMs = state.playbackDurationMs,
     )
     var settingsMenuOpen by remember { mutableStateOf(false) }
+    var wasPlayingBeforeScrub by remember { mutableStateOf(false) }
+    var lastScrubPreviewAtMs by remember { mutableStateOf(0L) }
     var settingsMenuPage by remember { mutableStateOf(MobilePlayerSettingsPage.Root) }
     var showRemainingTime by rememberSaveable { mutableStateOf(false) }
     var wantsPlay by remember { mutableStateOf(true) }
@@ -872,6 +874,7 @@ internal fun MobileNativePlayer(
                 !tutorialBlocksPlayback && !settingsMenuOpen,
             wantsPlay = wantsPlay,
             loading = isBuffering || showRecoveryIndicator,
+            isSeeking = progress.isSeeking,
             progress = progress,
             hasPrevEpisode = ui.hasPrevEpisode,
             hasNextEpisode = ui.hasNextEpisode,
@@ -887,18 +890,34 @@ internal fun MobileNativePlayer(
                 }
             },
             onSeekChange = { value ->
+                if (!progress.isSeeking) {
+                    wasPlayingBeforeScrub = wantsPlay
+                    lastScrubPreviewAtMs = 0L
+                    if (wasPlayingBeforeScrub) player.pause()
+                }
                 progress.isSeeking = true
                 progress.seekProgress = value
                 overlay.visible = true
                 overlay.cancelHide()
+                val duration = progress.duration
+                val now = SystemClock.elapsedRealtime()
+                if (duration > 0L && (lastScrubPreviewAtMs == 0L || now - lastScrubPreviewAtMs >= 120L)) {
+                    // MediaController does not expose ExoPlayer's unstable scrubbing-mode API.
+                    // Throttled preview seeks keep the real video surface responsive while dragging.
+                    player.seekTo((value * duration).toLong().coerceIn(0L, duration))
+                    lastScrubPreviewAtMs = now
+                }
             },
             onSeekFinished = {
                 val duration = progress.duration
-                if (duration > 0) {
+                if (duration > 0L) {
                     val newPosition = (progress.seekProgress * duration).toLong().coerceIn(0L, duration)
                     seekController.seekTo(newPosition)
                 }
                 progress.isSeeking = false
+                if (wasPlayingBeforeScrub) player.play()
+                wasPlayingBeforeScrub = false
+                lastScrubPreviewAtMs = 0L
                 overlay.show()
             },
             onStepSeek = seekController::stepSeek,

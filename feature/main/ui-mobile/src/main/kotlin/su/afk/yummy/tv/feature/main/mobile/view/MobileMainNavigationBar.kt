@@ -14,12 +14,17 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Shuffle
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -29,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.animation.core.animateFloatAsState
@@ -69,6 +75,13 @@ internal fun <T> MobileMainNavigationBar(
 ) {
     val orderedItems = remember(menuItems) { menuItems }
     var dragPreviewIndex by remember { mutableStateOf<Float?>(null) }
+    // Session-local A/B chooser: compare layouts without changing the saved preference.
+    var panelVariant by remember(classicStyle) { mutableIntStateOf(if (classicStyle) 0 else 2) }
+    var showVariantMenu by remember { mutableStateOf(false) }
+    var showFabActions by remember { mutableStateOf(false) }
+    val isClassic = panelVariant == 0 || panelVariant == 1
+    val attachedFab = panelVariant == 0 || panelVariant == 4
+    val expandableFab = panelVariant == 3
     LaunchedEffect(selectedDestination) { dragPreviewIndex = null }
     val selectedItemIndex = orderedItems.indexOfFirst { it.destination == selectedDestination }
         .takeIf { it >= 0 }
@@ -89,7 +102,7 @@ internal fun <T> MobileMainNavigationBar(
                 else Modifier.navigationBarsPadding().padding(horizontal = 12.dp, vertical = 4.dp),
             ),
     ) {
-        val navigationHeight = if (classicStyle) 80.dp + bottomInset else 64.dp
+        val navigationHeight = if (isClassic) 80.dp + bottomInset else 64.dp
 
         // In the modern layout the FAB is a sibling of the bar, not a second row
         // above it. Both are measured in the same Row so their vertical centers align
@@ -99,13 +112,13 @@ internal fun <T> MobileMainNavigationBar(
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(if (searchFabEnabled) 10.dp else 0.dp),
+            horizontalArrangement = Arrangement.spacedBy(if (searchFabEnabled && !attachedFab) 10.dp else 0.dp),
         ) {
             Surface(
                 modifier = Modifier
                     .weight(1f)
                     .height(navigationHeight),
-                shape = if (classicStyle) RoundedCornerShape(0.dp) else RoundedCornerShape(32.dp),
+                shape = if (isClassic) RoundedCornerShape(0.dp) else RoundedCornerShape(32.dp),
                 color = containerColor,
                 contentColor = MaterialTheme.colorScheme.onSurface,
                 tonalElevation = 0.dp,
@@ -114,7 +127,7 @@ internal fun <T> MobileMainNavigationBar(
                 NavigationBar(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(if (classicStyle) 80.dp else 64.dp)
+                        .height(if (isClassic) 80.dp else 64.dp)
                         .pointerInput(orderedItems, selectedDestination) {
                             if (orderedItems.size < 2) return@pointerInput
                             var totalDrag = 0f
@@ -179,7 +192,7 @@ internal fun <T> MobileMainNavigationBar(
                             colors = itemColors,
                             onClick = { onDestinationSelected(item.destination) },
                             icon = {
-                                if (!classicStyle && selected) {
+                                if (!isClassic && selected) {
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.spacedBy(2.dp),
@@ -191,28 +204,70 @@ internal fun <T> MobileMainNavigationBar(
                                     MobileMainNavigationIcon(item, selected)
                                 }
                             },
-                            label = if (classicStyle) {
+                            label = if (isClassic) {
                                 { Text(item.label, maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis) }
                             } else null,
-                            alwaysShowLabel = classicStyle,
+                            alwaysShowLabel = isClassic,
                         )
                     }
                 }
             }
 
             if (searchFabEnabled) {
-                FloatingActionButton(
-                    onClick = if (catalogFabEnabled) onCatalogRandomSelected else onSearchSelected,
-                    modifier = Modifier.size(56.dp),
-                    shape = RoundedCornerShape(20.dp),
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                ) {
-                    Icon(
-                        imageVector = if (catalogFabEnabled) Icons.Default.Shuffle else Icons.Default.Search,
-                        contentDescription = stringResource(
-                            if (catalogFabEnabled) R.string.main_header_random_anime else R.string.main_header_search,
-                        ),
+                Box {
+                    FloatingActionButton(
+                        onClick = {
+                            if (expandableFab) showFabActions = true
+                            else if (catalogFabEnabled) onCatalogRandomSelected() else onSearchSelected()
+                        },
+                        modifier = Modifier.size(56.dp),
+                        shape = if (attachedFab) RoundedCornerShape(18.dp) else RoundedCornerShape(20.dp),
+                        containerColor = if (attachedFab) containerColor else MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = if (attachedFab) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onPrimaryContainer,
+                    ) {
+                        Icon(
+                            imageVector = if (catalogFabEnabled) Icons.Default.Shuffle else Icons.Default.Search,
+                            contentDescription = stringResource(
+                                if (catalogFabEnabled) R.string.main_header_random_anime else R.string.main_header_search,
+                            ),
+                        )
+                    }
+                    DropdownMenu(expanded = showFabActions, onDismissRequest = { showFabActions = false }) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.main_header_search)) },
+                            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                            onClick = { showFabActions = false; onSearchSelected() },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.main_header_random_anime)) },
+                            leadingIcon = { Icon(Icons.Default.Shuffle, contentDescription = null) },
+                            onClick = { showFabActions = false; onCatalogRandomSelected() },
+                        )
+                    }
+                }
+            }
+        }
+        Box(
+            modifier = Modifier.align(Alignment.TopEnd)
+                .offset(y = (-44).dp)
+                .padding(end = if (isClassic) 8.dp else 14.dp),
+        ) {
+            IconButton(onClick = { showVariantMenu = true }) {
+                Icon(Icons.Default.Tune, contentDescription = "Выбрать вариант панели",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            DropdownMenu(expanded = showVariantMenu, onDismissRequest = { showVariantMenu = false }) {
+                listOf(
+                    "Классическая · FAB встроен",
+                    "Классическая · FAB отдельно",
+                    "Современная · FAB справа",
+                    "Современная · меню действий FAB",
+                    "Современная · FAB встроен",
+                ).forEachIndexed { index, label ->
+                    DropdownMenuItem(
+                        text = { Text(label) },
+                        leadingIcon = { if (panelVariant == index) Icon(Icons.Default.Tune, contentDescription = null) },
+                        onClick = { panelVariant = index; showFabActions = false; showVariantMenu = false },
                     )
                 }
             }

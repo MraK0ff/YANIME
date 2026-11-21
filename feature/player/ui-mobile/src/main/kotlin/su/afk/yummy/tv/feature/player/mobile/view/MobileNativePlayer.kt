@@ -742,6 +742,7 @@ internal fun MobileNativePlayer(
             },
             visible = overlay.visible && !locked && !isInPictureInPictureMode && !tutorialBlocksPlayback,
             episodeExpanded = episodesExpanded,
+            trackSettingsExpanded = settingsMenuOpen && settingsMenuPage == MobilePlayerSettingsPage.Sources,
             modifier = Modifier.offset(x = videoLeftDp, y = videoTopDp).width(videoWidthDp).height(videoHeightDp),
         )
 
@@ -913,7 +914,6 @@ internal fun MobileNativePlayer(
                 settingsMenuPage = MobilePlayerSettingsPage.Sources
                 settingsMenuOpen = true
                 overlay.visible = true
-                overlay.visible = true
                 overlay.cancelHide()
             },
             onMoreActions = {
@@ -950,13 +950,13 @@ internal fun MobileNativePlayer(
             onTimeCodeClick = { showRemainingTime = !showRemainingTime },
             dubbingLabel = ui.activeDubbingLabel.dubbingDisplayName().removePrefix("Озвучка ").removePrefix("озвучка "),
             balancerLabel = ui.activeBalancerLabel,
-            qualityLabel = playerQualityButtonLabel(
+            qualityLabel = if (state.isOfflinePlayback) "" else playerQualityButtonLabel(
                 activeQuality = selectedQuality,
                 adaptiveQuality = ui.adaptiveQuality,
                 adaptiveLimitQuality = ui.adaptiveLimitLabel,
                 adaptiveLimitBest = ui.adaptiveLimitBest,
             ),
-            selectedSpeed = selectedSpeed,
+            selectedSpeed = effectiveSpeed,
             onQualityClick = {
                 endFlow.hideAll()
                 settingsMenuPage = MobilePlayerSettingsPage.Quality

@@ -22,6 +22,8 @@ import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.navTrans
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.mobileHeaderEnabledKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.mobileSearchFabEnabledKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.mobileClassicBottomBarKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.mobileMainTabsOrderKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.mobileMainTabsEnabledKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.libraryContinueWatchingCardSizeKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.librarySortDirectionKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.librarySortKey
@@ -93,6 +95,15 @@ internal class DataStoreAppearanceSettingsStore @Inject constructor(
     override val mobileHeaderEnabled: Flow<Boolean> = store.boolean(mobileHeaderEnabledKey, true)
     override val mobileSearchFabEnabled: Flow<Boolean> = store.boolean(mobileSearchFabEnabledKey, false)
     override val mobileClassicBottomBar: Flow<Boolean> = store.boolean(mobileClassicBottomBarKey, false)
+    override val mobileMainTabsOrder: Flow<List<String>> = store.data.map { prefs ->
+        val stored = prefs[mobileMainTabsOrderKey].orEmpty().split(',').filter(String::isNotBlank)
+        (stored + AppearanceSettingsStore.defaultMobileMainTabsOrder).distinct()
+            .filter { it in AppearanceSettingsStore.defaultMobileMainTabsOrder }
+    }
+    override val mobileMainTabsEnabled: Flow<Set<String>> =
+        store.stringSet(mobileMainTabsEnabledKey).map { values ->
+            values.takeIf { it.isNotEmpty() } ?: AppearanceSettingsStore.defaultMobileMainTabsEnabled
+        }
 
     override val libraryTabOrder: Flow<List<LibraryTabKind>> =
         store.data.map { prefs -> prefs[libraryTabOrderKey].toLibraryTabOrder() }
@@ -160,6 +171,17 @@ internal class DataStoreAppearanceSettingsStore @Inject constructor(
 
     override suspend fun setMobileClassicBottomBar(enabled: Boolean) =
         store.setBoolean(mobileClassicBottomBarKey, enabled)
+
+    override suspend fun setMobileMainTabsOrder(order: List<String>) {
+        val normalized = (order + AppearanceSettingsStore.defaultMobileMainTabsOrder).distinct()
+            .filter { it in AppearanceSettingsStore.defaultMobileMainTabsOrder }
+        store.edit { prefs -> prefs[mobileMainTabsOrderKey] = normalized.joinToString(",") }
+    }
+
+    override suspend fun setMobileMainTabsEnabled(enabled: Set<String>) {
+        val normalized = enabled.filter { it in AppearanceSettingsStore.defaultMobileMainTabsOrder }.toSet()
+        store.edit { prefs -> prefs[mobileMainTabsEnabledKey] = normalized }
+    }
 
     override val homeBlocks: Flow<List<HomeBlockConfig>> = store.data.map { prefs ->
         prefs[homeBlocksKey].toHomeBlocks(prefs[newEpisodesSectionEnabledKey] ?: true)

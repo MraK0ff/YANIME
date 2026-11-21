@@ -81,13 +81,13 @@ internal fun MobilePlayerOverlay(
             modifier = Modifier
                 .align(Alignment.Center)
                 .offset(y = if (visible && episodesStripVisible) -expandedControlsOffset else 0.dp)
-                .graphicsLayer { alpha = if (visible) 1f else 0f },
+                .graphicsLayer { alpha = if (visible || loading) 1f else 0f },
             contentAlignment = Alignment.Center,
         ) {
             MobilePlayerCenterControls(
                 wantsPlay = wantsPlay,
-                hasPrevEpisode = hasPrevEpisode,
-                hasNextEpisode = hasNextEpisode,
+                hasPrevEpisode = visible && hasPrevEpisode,
+                hasNextEpisode = visible && hasNextEpisode,
                 onPlayPause = onPlayPause,
                 onPrevEpisode = onPrevEpisode,
                 onNextEpisode = onNextEpisode,

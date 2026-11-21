@@ -97,7 +97,7 @@ internal object SettingsPreferenceKeys {
     val mobileSearchFabEnabledKey = booleanPreferencesKey("mobile_search_fab_enabled")
     val mobileClassicBottomBarKey = booleanPreferencesKey("mobile_classic_bottom_bar")
     val mobileMainTabsOrderKey = stringPreferencesKey("mobile_main_tabs_order")
-    val mobileMainTabsEnabledKey = stringSetPreferencesKey("mobile_main_tabs_enabled")
+    val mobileMainTabsEnabledKey = stringPreferencesKey("mobile_main_tabs_enabled")
     val yaniApplicationTokenKey = stringPreferencesKey("yani_application_token")
     val yaniAccessTokenKey = stringPreferencesKey("yani_access_token")
     val yaniUserIdKey = intPreferencesKey("yani_user_id")

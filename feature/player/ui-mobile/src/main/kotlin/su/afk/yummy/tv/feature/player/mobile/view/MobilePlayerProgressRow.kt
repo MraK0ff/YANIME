@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.feature.player.mobile.view
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxSize
@@ -78,6 +79,7 @@ internal fun MobilePlayerProgressRow(
                 progress = seekProgress.coerceIn(0f, 1f),
                 bufferedProgress = bufferedProgress.coerceIn(seekProgress.coerceIn(0f, 1f), 1f),
                 enabled = duration > 0L,
+                duration = duration,
                 isPlaying = isPlaying,
                 selectedPlaybackSpeed = selectedSpeed,
                 isSeeking = isSeeking,
@@ -165,6 +167,7 @@ private fun MobilePlayerTimeline(
     progress: Float,
     bufferedProgress: Float,
     enabled: Boolean,
+    duration: Long,
     onValueChange: (Float) -> Unit,
     onValueChangeFinished: () -> Unit,
     isPlaying: Boolean,

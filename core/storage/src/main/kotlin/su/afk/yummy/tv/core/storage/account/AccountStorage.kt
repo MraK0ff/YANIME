@@ -83,6 +83,12 @@ interface AccountStorage {
         prunePagesCachedBefore: Long? = null,
     )
 
+    /** Локальные изменения ленты применяются сразу, даже без подключения к сети. */
+    suspend fun markNotificationViewedLocally(userId: Int, notificationId: Int)
+    suspend fun markAllNotificationsViewedLocally(userId: Int)
+    suspend fun deleteNotificationLocally(userId: Int, notificationId: Int)
+    suspend fun deleteAllNotificationsLocally(userId: Int)
+
     /** Инвалидирует кэш: помечает устаревшим, записи остаются запасными, пока перезагрузка не удалась. */
     suspend fun deleteNotifications(userId: Int)
 

@@ -135,6 +135,22 @@ internal class AccountStorageStore(
         notificationsDao.replaceNotifications(cache, prunePagesCachedBefore)
     }
 
+    override suspend fun markNotificationViewedLocally(userId: Int, notificationId: Int) {
+        notificationsDao.markNotificationViewed(userId, notificationId)
+    }
+
+    override suspend fun markAllNotificationsViewedLocally(userId: Int) {
+        notificationsDao.markAllNotificationsViewed(userId)
+    }
+
+    override suspend fun deleteNotificationLocally(userId: Int, notificationId: Int) {
+        notificationsDao.deleteNotificationLocally(userId, notificationId)
+    }
+
+    override suspend fun deleteAllNotificationsLocally(userId: Int) {
+        notificationsDao.deleteAllNotificationsLocally(userId)
+    }
+
     override suspend fun deleteNotifications(userId: Int) {
         notificationsDao.expireNotificationPages(userId)
     }

@@ -76,6 +76,7 @@ internal fun MobilePlayerProgressRow(
                 bufferedProgress = bufferedProgress.coerceIn(seekProgress.coerceIn(0f, 1f), 1f),
                 enabled = duration > 0L,
                 isPlaying = isPlaying,
+                selectedPlaybackSpeed = selectedSpeed,
                 onValueChange = onSeekChange,
                 onValueChangeFinished = onSeekFinished,
                 modifier = Modifier
@@ -161,6 +162,7 @@ private fun MobilePlayerTimeline(
     onValueChange: (Float) -> Unit,
     onValueChangeFinished: () -> Unit,
     isPlaying: Boolean,
+    selectedPlaybackSpeed: Float,
     modifier: Modifier = Modifier,
 ) {
     val playedColor = mobilePlayerTimelinePlayedColor(MaterialTheme.colorScheme.primary)
@@ -235,7 +237,10 @@ private fun MobilePlayerTimeline(
             stopSize = 0.dp,
             amplitude = { 0.38f },
             wavelength = 28.dp,
-            waveSpeed = if (isPlaying) 28.dp else 0.dp,
+            // Keep the wave motion perceptually tied to playback speed.
+            // The previous 28dp/s baseline felt too energetic at normal speed.
+            // Scale linearly so 0.5x is half-speed and 2x is twice-speed.
+            waveSpeed = if (isPlaying) (10.dp * selectedPlaybackSpeed.coerceIn(0.25f, 3f)) else 0.dp,
         )
     }
 }

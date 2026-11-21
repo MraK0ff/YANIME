@@ -74,20 +74,15 @@ internal fun MobilePlayerOverlay(
     onQualityClick: () -> Unit = {},
     onSpeedClick: () -> Unit = {},
 ) {
-    if (!visible) {
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+        // Keep the spinner composed while the controls are toggled so its animation never restarts.
         if (loading) {
-            BoxWithConstraints(modifier = modifier.fillMaxSize()) {
-                Box(Modifier.align(Alignment.Center)) {
-                    YummyPlayerLoadingIndicator(size = 44.dp, color = Color.White)
-                }
+            Box(Modifier.align(Alignment.Center)) {
+                YummyPlayerLoadingIndicator(size = 44.dp, color = Color.White)
             }
         }
-        return
-    }
-    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
-        // A single viewport-level scrim is drawn by MobileNativePlayer. Keeping a second
-        // overlay-local scrim here would compound the dimming and make it look uneven.
-        val expandedControlsOffset = minOf(56.dp, maxHeight * 0.10f)
+        if (visible) {
+            val expandedControlsOffset = minOf(56.dp, maxHeight * 0.10f)
         Box(
             modifier = Modifier.align(Alignment.Center)
                 .offset(y = if (episodesStripVisible) -expandedControlsOffset else 0.dp),
@@ -100,7 +95,7 @@ internal fun MobilePlayerOverlay(
                 onPlayPause = onPlayPause,
                 onPrevEpisode = onPrevEpisode,
                 onNextEpisode = onNextEpisode,
-                loading = loading,
+                loading = false,
             )
         }
 
@@ -144,6 +139,7 @@ internal fun MobilePlayerOverlay(
                     }
                 }
             }
+        }
         }
     }
 }

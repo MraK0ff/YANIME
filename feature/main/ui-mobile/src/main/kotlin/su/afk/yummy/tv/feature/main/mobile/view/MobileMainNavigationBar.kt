@@ -172,10 +172,21 @@ internal fun <T> MobileMainNavigationBar(
                         selected = selected,
                         colors = itemColors,
                         onClick = { onDestinationSelected(item.destination) },
-                        icon = { MobileMainNavigationIcon(item, selected) },
-                        // Material 3's label slot is required in the expressive bar: without it,
-                        // the selected destination silently loses its title.
-                        label = if (classicStyle || selected) {
+                        icon = {
+                            if (!classicStyle && selected) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                ) {
+                                    MobileMainNavigationIcon(item, selected)
+                                    Text(item.label, maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis)
+                                }
+                            } else {
+                                MobileMainNavigationIcon(item, selected)
+                            }
+                        },
+                        // Classic labels remain below the icon; modern labels sit beside it.
+                        label = if (classicStyle) {
                             { Text(item.label, maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis) }
                         } else null,
                         alwaysShowLabel = classicStyle,

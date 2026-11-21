@@ -11,6 +11,9 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -131,6 +134,8 @@ internal fun AccountMobileProfileHero(
                     // Keep the original upstream inset behavior: statusBarsPadding also
                     // accounts for the display cutout on devices/orientations where it overlaps.
                     .statusBarsPadding()
+                    // Include landscape display-cutout insets; status-bar insets alone are insufficient.
+                    .windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal))
                     .padding(top = topExtra)
                     .padding(12.dp),
                 content = navigationAction,
@@ -140,6 +145,8 @@ internal fun AccountMobileProfileHero(
                     .align(Alignment.TopEnd)
                     // Match the upstream profile action inset implementation.
                     .statusBarsPadding()
+                    // Include landscape display-cutout insets; status-bar insets alone are insufficient.
+                    .windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal))
                     .padding(top = topExtra)
                     .padding(12.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),

@@ -20,7 +20,7 @@ import su.afk.yummy.tv.feature.main.mobile.model.MobileMenuItem
 @Composable
 internal fun <T> MobileMainNavigationIcon(item: MobileMenuItem<T>, selected: Boolean) {
     BadgedBox(
-        modifier = Modifier.size(34.dp),
+        modifier = Modifier.size(32.dp),
         badge = {
             if (item.badgeCount > 0) {
                 Badge { Text(item.badgeCount.toString()) }
@@ -33,19 +33,24 @@ internal fun <T> MobileMainNavigationIcon(item: MobileMenuItem<T>, selected: Boo
                 contentDescription = item.label,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .size(AvatarIconSize)
+                    .size(NavigationIconSize)
                     .seasonalAvatarHat()
                     .clip(CircleShape)
                     .border(
                         width = 2.dp,
-                        color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+                        color = if (selected) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
                         shape = CircleShape,
                     ),
             )
         } else {
-            Icon(item.icon, contentDescription = item.label)
+            Icon(
+                imageVector = item.icon,
+                contentDescription = item.label,
+                modifier = Modifier.size(NavigationIconSize),
+            )
         }
     }
 }
 
-private val AvatarIconSize = 26.dp
+private val NavigationIconSize = 24.dp

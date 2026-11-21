@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.compose.foundation.layout.width
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.compose.ContentFrame
 import androidx.media3.ui.compose.SURFACE_TYPE_TEXTURE_VIEW
@@ -336,6 +337,18 @@ internal fun MobileNativePlayer(
     if (player == null) {
         PlayerBlackBackdrop()
         return
+    }
+
+    var mediaSeekable by remember(player) { mutableStateOf(player.isCurrentMediaItemSeekable) }
+    DisposableEffect(player) {
+        val listener = object : Player.Listener {
+            override fun onEvents(player: Player, events: Player.Events) {
+                mediaSeekable = player.isCurrentMediaItemSeekable
+            }
+        }
+        player.addListener(listener)
+        mediaSeekable = player.isCurrentMediaItemSeekable
+        onDispose { player.removeListener(listener) }
     }
 
     // A screen transition can dispose the timeline during an active drag. Always release
@@ -907,7 +920,7 @@ internal fun MobileNativePlayer(
             loading = (isBuffering || showRecoveryIndicator) &&
                 !isInPictureInPictureMode && !settingsMenuOpen && !locked && !tutorialBlocksPlayback,
             isSeeking = progress.isSeeking,
-            seekEnabled = player.isCurrentMediaItemSeekable,
+            seekEnabled = mediaSeekable,
             progress = progress,
             hasPrevEpisode = ui.hasPrevEpisode,
             hasNextEpisode = ui.hasNextEpisode,

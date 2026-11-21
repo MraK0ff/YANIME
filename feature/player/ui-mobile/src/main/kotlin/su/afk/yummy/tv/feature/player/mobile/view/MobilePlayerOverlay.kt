@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
@@ -35,7 +36,6 @@ import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.feature.player.common.model.PlayerPlaybackProgressState
 import su.afk.yummy.tv.feature.player.common.model.StepSeekDirection
 import su.afk.yummy.tv.feature.player.presentation.R
-import su.afk.yummy.tv.core.designsystem.components.YummyPlayerLoadingIndicator
 
 @Composable
 internal fun MobilePlayerOverlay(
@@ -75,17 +75,13 @@ internal fun MobilePlayerOverlay(
     onSpeedClick: () -> Unit = {},
 ) {
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
-        // Keep the spinner composed while the controls are toggled so its animation never restarts.
-        if (loading) {
-            Box(Modifier.align(Alignment.Center)) {
-                YummyPlayerLoadingIndicator(size = 44.dp, color = Color.White)
-            }
-        }
-        if (visible) {
-            val expandedControlsOffset = minOf(56.dp, maxHeight * 0.10f)
+        // Keep the central action (and its spinner animation) in composition while controls hide.
+        val expandedControlsOffset = minOf(56.dp, maxHeight * 0.10f)
         Box(
-            modifier = Modifier.align(Alignment.Center)
-                .offset(y = if (episodesStripVisible) -expandedControlsOffset else 0.dp),
+            modifier = Modifier
+                .align(Alignment.Center)
+                .offset(y = if (visible && episodesStripVisible) -expandedControlsOffset else 0.dp)
+                .graphicsLayer { alpha = if (visible) 1f else 0f },
             contentAlignment = Alignment.Center,
         ) {
             MobilePlayerCenterControls(
@@ -95,9 +91,11 @@ internal fun MobilePlayerOverlay(
                 onPlayPause = onPlayPause,
                 onPrevEpisode = onPrevEpisode,
                 onNextEpisode = onNextEpisode,
-                loading = false,
+                loading = loading,
+                enabled = visible,
             )
         }
+        if (visible) {
 
         Column(
             modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()

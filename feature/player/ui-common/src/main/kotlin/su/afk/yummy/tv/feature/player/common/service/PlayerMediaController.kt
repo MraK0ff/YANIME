@@ -11,8 +11,10 @@ fun rememberPlayerMediaController(): MediaController? =
 
 /** Requests ExoPlayer's optimized frame-preview mode for the duration of a timeline drag. */
 fun MediaController.setTimelineScrubbingMode(enabled: Boolean) {
-    sendCustomCommand(
-        PlayerSessionCommands.SET_SCRUBBING_MODE,
-        Bundle().apply { putBoolean(PlayerSessionCommands.KEY_SCRUBBING_ENABLED, enabled) },
-    )
+    runCatching {
+        sendCustomCommand(
+            PlayerSessionCommands.SET_SCRUBBING_MODE,
+            Bundle().apply { putBoolean(PlayerSessionCommands.KEY_SCRUBBING_ENABLED, enabled) },
+        )
+    }
 }

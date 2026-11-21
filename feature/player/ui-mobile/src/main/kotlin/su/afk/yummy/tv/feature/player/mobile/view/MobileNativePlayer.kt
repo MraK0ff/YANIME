@@ -44,6 +44,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.compose.foundation.layout.width
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
@@ -633,9 +634,17 @@ internal fun MobileNativePlayer(
         // TextureView keeps the video in Compose's composition layer, so this scrim
         // covers the complete viewport (including the video at any scale and subtitles).
         if (overlay.visible && !locked) {
-            Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.36f)))
+            // Draw above the TextureView even when its video content is transformed/zoomed.
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .zIndex(0.5f)
+                    .background(Color.Black.copy(alpha = 0.36f)),
+            )
         }
 
+        // Keep every interactive layer above the viewport scrim and the TextureView.
+        Box(Modifier.fillMaxSize().zIndex(1f)) {
         if (state.showResolveLog) {
             PlayerDiagnosticsOverlay(
                 player = player,
@@ -1237,6 +1246,7 @@ internal fun MobileNativePlayer(
                 onStopCasting = { stopCasting(context) },
                 modifier = Modifier.align(Alignment.Center),
             )
+        }
         }
     }
 }

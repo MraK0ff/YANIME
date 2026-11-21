@@ -638,13 +638,14 @@ internal fun MobileNativePlayer(
             Box(
                 Modifier
                     .fillMaxSize()
-                    .zIndex(0.5f)
+                    // Use a high root-level layer so letterbox/side-fill areas are dimmed too.
+                    .zIndex(10f)
                     .background(Color.Black.copy(alpha = 0.36f)),
             )
         }
 
         // Keep every interactive layer above the viewport scrim and the TextureView.
-        Box(Modifier.fillMaxSize().zIndex(1f)) {
+        Box(Modifier.fillMaxSize().zIndex(20f)) {
         if (state.showResolveLog) {
             PlayerDiagnosticsOverlay(
                 player = player,

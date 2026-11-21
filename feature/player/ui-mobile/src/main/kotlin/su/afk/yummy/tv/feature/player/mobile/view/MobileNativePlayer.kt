@@ -35,6 +35,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.onSizeChanged
@@ -637,9 +638,15 @@ internal fun MobileNativePlayer(
             // Draw above the TextureView even when its video content is transformed/zoomed.
             Box(
                 Modifier
-                    .fillMaxSize()
-                    // Use a high root-level layer so letterbox/side-fill areas are dimmed too.
+                    // This overlay is a direct child of the full-screen player root, not of
+                    // ContentFrame's clipped video viewport. The offscreen layer makes the
+                    // translucent Compose scrim participate in the same window composition
+                    // above Media3's TextureView, including the fitted side regions.
+                    .matchParentSize()
                     .zIndex(10f)
+                    .graphicsLayer {
+                        compositingStrategy = CompositingStrategy.Offscreen
+                    }
                     .background(Color.Black.copy(alpha = 0.36f)),
             )
         }

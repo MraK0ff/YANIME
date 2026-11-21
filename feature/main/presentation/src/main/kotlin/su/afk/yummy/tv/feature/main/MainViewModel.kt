@@ -52,7 +52,7 @@ class MainViewModel @Inject internal constructor(
     private val observeLibraryListStatuses: ObserveLibraryListStatusesUseCase,
     private val observeLibraryFavoriteAnimeIds: ObserveLibraryFavoriteAnimeIdsUseCase,
     private val observeLibraryUserRatings: ObserveLibraryUserRatingsUseCase,
-    private val observeVideoDownloads: ObserveVideoDownloadsUseCase,
+    private val observeVideoDownloadsUseCase: ObserveVideoDownloadsUseCase,
     private val appClock: AppClock,
 ) : BaseViewModel<MainState.State, MainState.Event, MainState.Effect>() {
 
@@ -114,7 +114,7 @@ class MainViewModel @Inject internal constructor(
     }
 
     private fun observeVideoDownloads() {
-        observeVideoDownloads()
+        observeVideoDownloadsUseCase()
             .onEach { downloads -> setState { copy(hasVideoDownloads = downloads.isNotEmpty()) } }
             .launchIn(viewModelScope)
     }

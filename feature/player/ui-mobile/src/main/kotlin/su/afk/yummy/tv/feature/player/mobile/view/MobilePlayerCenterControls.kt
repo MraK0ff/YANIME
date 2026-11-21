@@ -66,6 +66,7 @@ internal fun MobilePlayerCenterControls(
                 sizeMultiplier = CENTER_SWITCH_SCALE,
                 iconScale = CENTER_SWITCH_ICON_SCALE,
                 surface = false,
+                enabled = enabled,
             )
         }
     }

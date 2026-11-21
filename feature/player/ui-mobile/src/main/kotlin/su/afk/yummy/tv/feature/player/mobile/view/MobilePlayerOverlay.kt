@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.text.style.TextOverflow
@@ -36,6 +37,7 @@ import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.feature.player.common.model.PlayerPlaybackProgressState
 import su.afk.yummy.tv.feature.player.common.model.StepSeekDirection
 import su.afk.yummy.tv.feature.player.presentation.R
+import su.afk.yummy.tv.core.designsystem.components.YummyPlayerLoadingIndicator
 
 @Composable
 internal fun MobilePlayerOverlay(
@@ -78,23 +80,34 @@ internal fun MobilePlayerOverlay(
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         // Keep the central action (and its spinner animation) in composition while controls hide.
         val expandedControlsOffset = minOf(56.dp, maxHeight * 0.10f)
-        Box(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .offset(y = if (visible && episodesStripVisible) -expandedControlsOffset else 0.dp)
-                .graphicsLayer { alpha = if (visible || loading) 1f else 0f },
-            contentAlignment = Alignment.Center,
-        ) {
-            MobilePlayerCenterControls(
-                wantsPlay = wantsPlay,
-                hasPrevEpisode = visible && hasPrevEpisode,
-                hasNextEpisode = visible && hasNextEpisode,
-                onPlayPause = onPlayPause,
-                onPrevEpisode = onPrevEpisode,
-                onNextEpisode = onNextEpisode,
-                loading = loading,
-                enabled = visible,
-            )
+        if (visible || loading) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .offset(y = if (visible && episodesStripVisible) -expandedControlsOffset else 0.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (visible) {
+                    MobilePlayerCenterControls(
+                        wantsPlay = wantsPlay,
+                        hasPrevEpisode = hasPrevEpisode,
+                        hasNextEpisode = hasNextEpisode,
+                        onPlayPause = onPlayPause,
+                        onPrevEpisode = onPrevEpisode,
+                        onNextEpisode = onNextEpisode,
+                        loading = loading,
+                        enabled = true,
+                    )
+                } else {
+                    // The inactive panel must not leave the primary action's tinted glass
+                    // background behind the loader. Match the original standalone spinner.
+                    YummyPlayerLoadingIndicator(
+                        modifier = Modifier.size(44.dp),
+                        size = 44.dp,
+                        color = Color.White,
+                    )
+                }
+            }
         }
         if (visible) {
 

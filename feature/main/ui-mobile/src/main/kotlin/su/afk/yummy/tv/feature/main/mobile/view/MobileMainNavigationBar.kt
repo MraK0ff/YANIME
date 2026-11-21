@@ -1,3 +1,5 @@
+package su.afk.yummy.tv.feature.main.mobile.view
+
 import su.afk.yummy.tv.core.designsystem.seasonal.seasonalNavigationBarItemColors
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -36,8 +38,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -105,10 +105,12 @@ internal fun <T> MobileMainNavigationBar(
         dragState.animateTo(selectedItemIndex)
     }
     LaunchedEffect(dragState.settledValue) {
-        val settledIndex = dragState.settledValue.coerceIn(0, orderedItems.lastIndex)
-        val settledDestination = orderedItems.getOrNull(settledIndex)?.destination
-        if (settledDestination != null && settledDestination != selectedDestination) {
-            onDestinationSelected(settledDestination)
+        if (orderedItems.isNotEmpty()) {
+            val settledIndex = dragState.settledValue.coerceIn(0, orderedItems.lastIndex)
+            val settledDestination = orderedItems.getOrNull(settledIndex)?.destination
+            if (settledDestination != null && settledDestination != selectedDestination) {
+                onDestinationSelected(settledDestination)
+            }
         }
     }
 
@@ -122,75 +124,6 @@ internal fun <T> MobileMainNavigationBar(
         if (catalogFabEnabled) R.string.main_header_random_anime else R.string.main_header_search,
     )
 
-    LaunchedEffect(selectedDestination) {
-        if (!isDragging) {
-            dragPosition.animateTo(
-                selectedItemIndex.toFloat(),
-                animationSpec = spring(dampingRatio = 0.86f, stiffness = 520f),
-            )
-        }
-    }
-
-    val dragModifier = Modifier.pointerInput(orderedItems, selectedDestination, actionEnabled, isClassic) {
-        if (orderedItems.size < 2) return@pointerInput
-        var totalDrag = 0f
-        var startIndex = selectedItemIndex
-        var stepPx = 1f
-        val velocityTracker = VelocityTracker()
-        detectHorizontalDragGestures(
-            onDragStart = {
-                isDragging = true
-                totalDrag = 0f
-                startIndex = orderedItems.indexOfFirst {
-                    it.destination == selectedDestination
-                }.coerceIn(0, orderedItems.lastIndex)
-                val navigationSlots = orderedItems.size + if (isClassic && actionEnabled) 1 else 0
-                stepPx = size.width.toFloat() / navigationSlots.coerceAtLeast(1)
-                velocityTracker.resetTracking()
-                coroutineScope.launch { dragPosition.snapTo(startIndex.toFloat()) }
-            },
-            onHorizontalDrag = { change, amount ->
-                change.consume()
-                velocityTracker.addPosition(change.uptimeMillis, change.position)
-                totalDrag += amount
-                val fingerPosition = (
-                    startIndex - totalDrag / stepPx.coerceAtLeast(1f)
-                ).coerceIn(0f, orderedItems.lastIndex.toFloat())
-                coroutineScope.launch { dragPosition.snapTo(fingerPosition) }
-            },
-            onDragEnd = {
-                var target = dragState.currentValue.coerceIn(0, orderedItems.lastIndex)
-                val minimumTravel = stepPx * 0.18f
-                val releaseVelocity = velocityTracker.calculateVelocity().x
-                val isFling = abs(releaseVelocity) >= 1_200f
-                if (target == startIndex && (abs(totalDrag) >= minimumTravel || isFling)) {
-                    val movingForward = if (isFling) releaseVelocity < 0f else totalDrag < 0f
-                    target = (startIndex + if (movingForward) 1 else -1)
-                        .coerceIn(0, orderedItems.lastIndex)
-                }
-                isDragging = false
-                coroutineScope.launch {
-                    dragPosition.animateTo(
-                        target.toFloat(),
-                        animationSpec = spring(
-                            dampingRatio = 0.78f,
-                            stiffness = Spring.StiffnessMediumLow,
-                        ),
-                    )
-                }
-                if (target != startIndex) onDestinationSelected(orderedItems[target].destination)
-            },
-            onDragCancel = {
-                isDragging = false
-                coroutineScope.launch {
-                    dragPosition.animateTo(
-                        startIndex.toFloat(),
-                        animationSpec = spring(dampingRatio = 0.82f, stiffness = Spring.StiffnessMedium),
-                    )
-                }
-            },
-        )
-    }
 
     Box(
         modifier = Modifier
@@ -219,7 +152,7 @@ internal fun <T> MobileMainNavigationBar(
                 ) {
                     val itemColors = seasonalNavigationBarItemColors()
                     orderedItems.forEachIndexed { index, item ->
-                        val selected = index == dragPosition.value.roundToInt().coerceIn(0, orderedItems.lastIndex)
+                        val selected = index == dragState.currentValue.coerceIn(0, orderedItems.lastIndex)
                         NavigationBarItem(
                             modifier = Modifier
                                 .testTag("main_tab")

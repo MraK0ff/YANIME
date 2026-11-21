@@ -77,7 +77,7 @@ internal fun AccountMobileProfileHero(
     // Read the current cutout geometry on every inset-driven recomposition. Some punch-hole
     // displays report a top safe inset but no left/right safe inset, so use bounding rectangles
     // to distinguish a side camera from a centered notch.
-    val hasTopSideCutout = cutoutTop > 0.dp && displayCutout?.boundingRects?.any { bounds ->
+    val hasTopSideCutout = view.width > 0 && cutoutTop > 0.dp && displayCutout?.boundingRects?.any { bounds ->
         val centerX = bounds.centerX()
         centerX < view.width * 0.35f || centerX > view.width * 0.65f
     } == true

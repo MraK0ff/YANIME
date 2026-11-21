@@ -12,7 +12,7 @@ object MobileBottomBarDefaults {
     /** Полная высота плавающей панели с вертикальными полями; сама капсула имеет высоту 64 dp. */
     val BarHeight: Dp = 72.dp
 
-    val ExtraContentBottomPadding: Dp = 32.dp
+    val ExtraContentBottomPadding: Dp = 12.dp
 
     val contentBottomPadding: Dp
         @Composable get() = navigationBarsInset() +

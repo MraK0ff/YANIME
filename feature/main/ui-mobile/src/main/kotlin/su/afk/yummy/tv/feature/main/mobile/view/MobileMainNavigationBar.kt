@@ -237,17 +237,6 @@ internal fun <T> MobileMainNavigationBar(
                 }
             }
 
-            if (actionEnabled && actionFloatsAbove) {
-                FloatingActionButton(
-                    onClick = onAction,
-                    modifier = Modifier.align(Alignment.TopEnd).offset(y = (-28).dp).padding(end = 16.dp).size(56.dp),
-                    shape = CircleShape,
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                ) {
-                    Icon(actionIcon, contentDescription = actionDescription, modifier = Modifier.size(24.dp))
-                }
-            }
         } else {
             Row(
                 modifier = Modifier.align(Alignment.BottomCenter),

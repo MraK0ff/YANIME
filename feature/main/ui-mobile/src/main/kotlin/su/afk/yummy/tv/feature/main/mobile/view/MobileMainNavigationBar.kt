@@ -13,14 +13,17 @@ import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -66,6 +69,10 @@ import su.afk.yummy.tv.feature.main.presentation.R
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
+private const val CLASSIC_ACTION_TILE = 0
+private const val CLASSIC_FLOATING_FAB = 1
+private const val EXPRESSIVE_FLOATING = 2
+
 @Composable
 internal fun <T> MobileMainNavigationBar(
     selectedDestination: T,
@@ -81,14 +88,23 @@ internal fun <T> MobileMainNavigationBar(
 ) {
     val orderedItems = remember(menuItems) { menuItems }
     var dragPreviewIndex by remember { mutableStateOf<Float?>(null) }
-
-    // The variants are intentionally independent: classic is a conventional full-width bar,
-    // expressive is a floating capsule with a separate circular action button.
     var panelVariant by remember(classicStyle) {
-        mutableIntStateOf(if (classicStyle) 0 else 1)
+        mutableIntStateOf(if (classicStyle) CLASSIC_ACTION_TILE else EXPRESSIVE_FLOATING)
     }
     var showVariantMenu by remember { mutableStateOf(false) }
-    val isClassic = panelVariant == 0
+
+    val isClassic = panelVariant != EXPRESSIVE_FLOATING
+    val actionInBar = panelVariant == CLASSIC_ACTION_TILE
+    val actionFloatsAbove = panelVariant == CLASSIC_FLOATING_FAB
+    val actionEnabled = searchFabEnabled
+
+    val onAction = {
+        if (catalogFabEnabled) onCatalogRandomSelected() else onSearchSelected()
+    }
+    val actionIcon = if (catalogFabEnabled) Icons.Default.Shuffle else Icons.Default.Search
+    val actionDescription = stringResource(
+        if (catalogFabEnabled) R.string.main_header_random_anime else R.string.main_header_search,
+    )
 
     LaunchedEffect(selectedDestination) { dragPreviewIndex = null }
 
@@ -146,78 +162,112 @@ internal fun <T> MobileMainNavigationBar(
             .navigationBarsPadding()
             .padding(
                 start = if (isClassic) 0.dp else 16.dp,
-                end = 16.dp,
+                end = if (isClassic) 0.dp else 16.dp,
                 bottom = if (isClassic) 0.dp else 8.dp,
             ),
     ) {
-        Row(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(if (searchFabEnabled) 12.dp else 0.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (isClassic) {
-                Surface(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(80.dp),
-                    shape = RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp),
-                    color = containerColor,
+        if (isClassic) {
+            Surface(
+                modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(80.dp),
+                color = containerColor,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                tonalElevation = 0.dp,
+                shadowElevation = 0.dp,
+            ) {
+                NavigationBar(
+                    modifier = Modifier.fillMaxSize().then(dragModifier),
+                    containerColor = Color.Transparent,
                     contentColor = MaterialTheme.colorScheme.onSurface,
                     tonalElevation = 0.dp,
-                    shadowElevation = 0.dp,
+                    windowInsets = WindowInsets(0.dp),
                 ) {
-                    NavigationBar(
-                        modifier = Modifier.fillMaxHeight().then(dragModifier),
-                        containerColor = Color.Transparent,
-                        contentColor = MaterialTheme.colorScheme.onSurface,
-                        tonalElevation = 0.dp,
-                        windowInsets = WindowInsets(0.dp),
-                    ) {
-                        val itemColors = seasonalNavigationBarItemColors()
-                        orderedItems.forEachIndexed { index, item ->
-                            val selected = animatedPreviewIndex >= 0f &&
-                                index == animatedPreviewIndex.roundToInt().coerceIn(0, orderedItems.lastIndex)
-                            NavigationBarItem(
-                                modifier = Modifier
-                                    .testTag("main_tab")
-                                    .onboardingTarget(mobileMainTabTargetId(item.destination))
-                                    .clickablePointer()
-                                    .focusProperties {
-                                        upFocusRequester?.takeIf { selected }?.let { up = it }
-                                    },
-                                selected = selected,
-                                colors = itemColors,
-                                onClick = { onDestinationSelected(item.destination) },
-                                icon = { MobileMainNavigationIcon(item, selected) },
-                                label = {
-                                    Text(
-                                        item.label,
-                                        maxLines = 1,
-                                        softWrap = false,
-                                        overflow = TextOverflow.Ellipsis,
-                                    )
+                    val itemColors = seasonalNavigationBarItemColors()
+                    orderedItems.forEachIndexed { index, item ->
+                        val selected = animatedPreviewIndex >= 0f &&
+                            index == animatedPreviewIndex.roundToInt().coerceIn(0, orderedItems.lastIndex)
+                        NavigationBarItem(
+                            modifier = Modifier
+                                .testTag("main_tab")
+                                .onboardingTarget(mobileMainTabTargetId(item.destination))
+                                .clickablePointer()
+                                .focusProperties {
+                                    upFocusRequester?.takeIf { selected }?.let { up = it }
                                 },
-                                alwaysShowLabel = true,
-                            )
-                        }
+                            selected = selected,
+                            colors = itemColors,
+                            onClick = { onDestinationSelected(item.destination) },
+                            icon = { MobileMainNavigationIcon(item, selected) },
+                            label = {
+                                Text(
+                                    item.label,
+                                    maxLines = 1,
+                                    softWrap = false,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            },
+                            alwaysShowLabel = true,
+                        )
+                    }
+
+                    if (actionEnabled && actionInBar) {
+                        NavigationBarItem(
+                            modifier = Modifier.testTag("main_navigation_action"),
+                            selected = false,
+                            onClick = onAction,
+                            colors = itemColors,
+                            icon = {
+                                Surface(
+                                    modifier = Modifier.size(40.dp),
+                                    shape = RoundedCornerShape(14.dp),
+                                    color = MaterialTheme.colorScheme.primaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Icon(actionIcon, contentDescription = actionDescription, modifier = Modifier.size(24.dp))
+                                    }
+                                }
+                            },
+                            label = {
+                                Text(
+                                    if (catalogFabEnabled) "Рандом" else "Поиск",
+                                    maxLines = 1,
+                                    softWrap = false,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            },
+                            alwaysShowLabel = true,
+                        )
                     }
                 }
-            } else {
-                Surface(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(68.dp)
-                        .then(dragModifier),
+            }
+
+            if (actionEnabled && actionFloatsAbove) {
+                FloatingActionButton(
+                    onClick = onAction,
+                    modifier = Modifier.align(Alignment.TopEnd).offset(y = (-28).dp).padding(end = 16.dp).size(56.dp),
                     shape = CircleShape,
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                ) {
+                    Icon(actionIcon, contentDescription = actionDescription, modifier = Modifier.size(24.dp))
+                }
+            }
+        } else {
+            Row(
+                modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Surface(
+                    modifier = Modifier.weight(1f).height(64.dp).then(dragModifier),
+                    shape = RoundedCornerShape(24.dp),
                     color = MaterialTheme.colorScheme.surfaceContainerHigh,
                     contentColor = MaterialTheme.colorScheme.onSurface,
                     tonalElevation = 0.dp,
                     shadowElevation = 2.dp,
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 6.dp),
+                        modifier = Modifier.fillMaxSize().padding(horizontal = 6.dp, vertical = 6.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(2.dp),
                     ) {
@@ -225,9 +275,9 @@ internal fun <T> MobileMainNavigationBar(
                             val selected = animatedPreviewIndex >= 0f &&
                                 index == animatedPreviewIndex.roundToInt().coerceIn(0, orderedItems.lastIndex)
                             val itemWeight by animateFloatAsState(
-                                targetValue = if (selected) 1.55f else 1f,
-                                animationSpec = spring(dampingRatio = 0.86f, stiffness = 700f),
-                                label = "navigationItemWeight",
+                                targetValue = if (selected) 3f else 1f,
+                                animationSpec = spring(dampingRatio = 0.88f, stiffness = 700f),
+                                label = "expressiveNavigationItemWeight",
                             )
                             Box(
                                 modifier = Modifier
@@ -248,7 +298,7 @@ internal fun <T> MobileMainNavigationBar(
                                 contentAlignment = Alignment.Center,
                             ) {
                                 Row(
-                                    modifier = Modifier.padding(horizontal = 8.dp),
+                                    modifier = Modifier.padding(horizontal = 4.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.Center,
                                 ) {
@@ -260,10 +310,10 @@ internal fun <T> MobileMainNavigationBar(
                                     ) {
                                         Text(
                                             text = item.label,
-                                            modifier = Modifier.padding(start = 5.dp),
+                                            modifier = Modifier.padding(start = 4.dp),
                                             maxLines = 1,
                                             softWrap = false,
-                                            overflow = TextOverflow.Ellipsis,
+                                            overflow = TextOverflow.Clip,
                                             fontSize = 12.sp,
                                             fontWeight = FontWeight.SemiBold,
                                             color = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -274,32 +324,17 @@ internal fun <T> MobileMainNavigationBar(
                         }
                     }
                 }
-            }
 
-            if (searchFabEnabled) {
-                FloatingActionButton(
-                    onClick = {
-                        if (catalogFabEnabled) onCatalogRandomSelected()
-                        else onSearchSelected()
-                    },
-                    modifier = Modifier.size(56.dp),
-                    shape = CircleShape,
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                    contentColor = MaterialTheme.colorScheme.primary,
-                    elevation = androidx.compose.material3.FloatingActionButtonDefaults.elevation(
-                        defaultElevation = 2.dp,
-                        pressedElevation = 4.dp,
-                        focusedElevation = 3.dp,
-                        hoveredElevation = 3.dp,
-                    ),
-                ) {
-                    Icon(
-                        imageVector = if (catalogFabEnabled) Icons.Default.Shuffle else Icons.Default.Search,
-                        contentDescription = stringResource(
-                            if (catalogFabEnabled) R.string.main_header_random_anime
-                            else R.string.main_header_search,
-                        ),
-                    )
+                if (actionEnabled) {
+                    FloatingActionButton(
+                        onClick = onAction,
+                        modifier = Modifier.size(56.dp),
+                        shape = CircleShape,
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    ) {
+                        Icon(actionIcon, contentDescription = actionDescription, modifier = Modifier.size(24.dp))
+                    }
                 }
             }
         }
@@ -308,20 +343,17 @@ internal fun <T> MobileMainNavigationBar(
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .offset(y = if (isClassic) (-44).dp else (-42).dp)
-                .padding(end = if (isClassic) 8.dp else 72.dp),
+                .padding(end = if (isClassic) 8.dp else if (actionEnabled) 68.dp else 8.dp),
         ) {
             IconButton(onClick = { showVariantMenu = true }) {
-                Icon(
-                    Icons.Default.Tune,
-                    contentDescription = "Выбрать вариант панели",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                Icon(Icons.Default.Tune, contentDescription = "Выбрать вариант панели", tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            DropdownMenu(
-                expanded = showVariantMenu,
-                onDismissRequest = { showVariantMenu = false },
-            ) {
-                listOf("Классическая", "Современная · Expressive").forEachIndexed { index, label ->
+            DropdownMenu(expanded = showVariantMenu, onDismissRequest = { showVariantMenu = false }) {
+                listOf(
+                    "Классическая · действие в панели",
+                    "Классическая · FAB над панелью",
+                    "Современная · плавающая капсула",
+                ).forEachIndexed { index, label ->
                     DropdownMenuItem(
                         text = { Text(label) },
                         leadingIcon = {

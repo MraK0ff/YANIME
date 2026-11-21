@@ -2,6 +2,28 @@ package su.afk.yummy.tv.feature.settings.mobile.view.category
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.weight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -31,6 +53,9 @@ internal fun SettingsMobileAppearanceContent(
     onEvent: (SettingsState.Event) -> Unit,
     onPickerRequested: (SettingsMobilePicker) -> Unit,
 ) {
+    var showMainTabsEditor by remember { mutableStateOf(false) }
+    var draftMainTabsOrder by remember(state.mobileMainTabsOrder) { mutableStateOf(state.mobileMainTabsOrder) }
+    var draftMainTabsEnabled by remember(state.mobileMainTabsEnabled) { mutableStateOf(state.mobileMainTabsEnabled) }
     Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
         SettingsMobileSection(title = stringResource(R.string.settings_section_general_appearance)) {
             SettingsMobileOptionRow(
@@ -86,6 +111,15 @@ internal fun SettingsMobileAppearanceContent(
                 hint = stringResource(R.string.settings_mobile_classic_bottom_bar_hint),
                 enabled = state.mobileClassicBottomBar,
                 onClick = { onEvent(SettingsState.Event.MobileClassicBottomBarToggled) },
+            )
+            SettingsMobileNavigationRow(
+                label = stringResource(R.string.settings_mobile_main_tabs_customize),
+                hint = stringResource(R.string.settings_mobile_main_tabs_customize_hint),
+                onClick = {
+                    draftMainTabsOrder = state.mobileMainTabsOrder
+                    draftMainTabsEnabled = state.mobileMainTabsEnabled
+                    showMainTabsEditor = true
+                },
             )
         }
         SettingsMobileSection(title = stringResource(R.string.settings_section_posters)) {
@@ -183,4 +217,111 @@ internal fun SettingsMobileAppearanceContent(
             }
         }
     }
+    if (showMainTabsEditor) {
+        MobileMainTabsCustomizationDialog(
+            order = draftMainTabsOrder,
+            enabled = draftMainTabsEnabled,
+            onOrderChanged = { draftMainTabsOrder = it },
+            onEnabledChanged = { draftMainTabsEnabled = it },
+            onDismiss = { showMainTabsEditor = false },
+            onSave = {
+                onEvent(SettingsState.Event.MobileMainTabsOrderChanged(draftMainTabsOrder))
+                onEvent(SettingsState.Event.MobileMainTabsEnabledChanged(draftMainTabsEnabled))
+                showMainTabsEditor = false
+            },
+        )
+    }
+}
+
+@Composable
+private fun MobileMainTabsCustomizationDialog(
+    order: List<String>,
+    enabled: Set<String>,
+    onOrderChanged: (List<String>) -> Unit,
+    onEnabledChanged: (Set<String>) -> Unit,
+    onDismiss: () -> Unit,
+    onSave: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.settings_mobile_main_tabs_customize)) },
+        text = {
+            Column(
+                modifier = Modifier.heightIn(max = 440.dp).verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Text(
+                    text = stringResource(R.string.settings_mobile_main_tabs_dialog_hint),
+                    style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                )
+                order.forEachIndexed { index, key ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Checkbox(
+                            checked = key in enabled,
+                            onCheckedChange = { checked ->
+                                onEnabledChanged(if (checked) enabled + key else enabled - key)
+                            },
+                        )
+                        Text(
+                            text = when (key) {
+                                "SCHEDULE" -> stringResource(R.string.settings_mobile_main_tab_schedule)
+                                "HOME" -> stringResource(R.string.settings_mobile_main_tab_home)
+                                "LIBRARY" -> stringResource(R.string.settings_mobile_main_tab_library)
+                                "DOWNLOADS" -> stringResource(R.string.settings_mobile_main_tab_downloads)
+                                "POSTS" -> stringResource(R.string.settings_mobile_main_tab_news)
+                                "COLLECTIONS" -> stringResource(R.string.settings_mobile_main_tab_collections)
+                                else -> key
+                            },
+                            modifier = Modifier.weight(1f),
+                            style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
+                        )
+                        IconButton(
+                            enabled = index > 0,
+                            onClick = {
+                                val next = order.toMutableList()
+                                val item = next.removeAt(index)
+                                next.add(index - 1, item)
+                                onOrderChanged(next)
+                            },
+                        ) {
+                            Icon(Icons.Filled.KeyboardArrowUp, contentDescription = null)
+                        }
+                        IconButton(
+                            enabled = index < order.lastIndex,
+                            onClick = {
+                                val next = order.toMutableList()
+                                val item = next.removeAt(index)
+                                next.add(index + 1, item)
+                                onOrderChanged(next)
+                            },
+                        ) {
+                            Icon(Icons.Filled.KeyboardArrowDown, contentDescription = null)
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onSave) {
+                Text(stringResource(R.string.settings_mobile_main_tabs_save))
+            }
+        },
+        dismissButton = {
+            Row {
+                TextButton(onClick = {
+                    onOrderChanged(listOf("SCHEDULE", "HOME", "LIBRARY", "DOWNLOADS", "POSTS", "COLLECTIONS"))
+                    onEnabledChanged(setOf("SCHEDULE", "HOME", "LIBRARY", "DOWNLOADS"))
+                }) {
+                    Text(stringResource(R.string.settings_mobile_main_tabs_reset))
+                }
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(R.string.settings_mobile_main_tabs_cancel))
+                }
+            }
+        },
+    )
 }

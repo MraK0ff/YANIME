@@ -10,6 +10,7 @@ import su.afk.yummy.tv.core.mvi.UiEffect
 import su.afk.yummy.tv.core.mvi.UiEvent
 import su.afk.yummy.tv.core.mvi.UiState
 import su.afk.yummy.tv.core.navigation.root.RootTab
+import su.afk.yummy.tv.core.preferences.settings.AppearanceSettingsStore
 
 class MainState {
 
@@ -36,6 +37,8 @@ class MainState {
         val isOnline: Boolean = true,
         /** Есть ли локальные/активные загрузки для отдельной вкладки. */
         val hasVideoDownloads: Boolean = false,
+        val mobileMainTabsOrder: List<String> = AppearanceSettingsStore.defaultMobileMainTabsOrder,
+        val mobileMainTabsEnabled: Set<String> = AppearanceSettingsStore.defaultMobileMainTabsEnabled,
         /** Списки пользователя по animeId — для подписи карточек тайтлов. */
         val libraryListStatuses: Map<Int, CardListStatus> = emptyMap(),
         /** Избранные тайтлы; не зависит от статуса пользовательского списка. */

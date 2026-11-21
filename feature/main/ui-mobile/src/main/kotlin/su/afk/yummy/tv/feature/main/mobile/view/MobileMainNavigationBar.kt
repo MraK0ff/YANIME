@@ -88,13 +88,14 @@ internal fun <T> MobileMainNavigationBar(
                 else Modifier.navigationBarsPadding().padding(horizontal = 12.dp, vertical = 4.dp),
             ),
     ) {
-        val floatingNavWidth = maxWidth * 0.78f
+        val navigationWidthFraction = if (classicStyle || !searchFabEnabled) 1f else 0.78f
+        val navigationHeight = if (classicStyle) 80.dp + bottomInset else 64.dp
+        val floatingNavWidth = maxWidth * navigationWidthFraction
         Surface(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .offset(x = if (searchFabEnabled && !classicStyle) (-32).dp else 0.dp)
-                .fillMaxWidth(if (classicStyle || !searchFabEnabled) 1f else 0.78f)
-                .height(if (classicStyle) 80.dp + bottomInset else 64.dp),
+                .fillMaxWidth(navigationWidthFraction)
+                .height(navigationHeight),
             shape = if (classicStyle) RoundedCornerShape(0.dp) else RoundedCornerShape(32.dp),
             color = containerColor,
             contentColor = MaterialTheme.colorScheme.onSurface,
@@ -162,7 +163,7 @@ internal fun <T> MobileMainNavigationBar(
                         // The selected destination needs room for its icon + full label.
                         // Inactive destinations stay compact and icon-only.
                         modifier = Modifier
-                            .weight(if (classicStyle) 1f else if (selected) 2.0f else 0.8f)
+                            .weight(if (classicStyle) 1f else if (selected) 1.35f else 1f)
                             .testTag("main_tab")
                             .onboardingTarget(mobileMainTabTargetId(item.destination))
                             .clickablePointer()
@@ -196,14 +197,15 @@ internal fun <T> MobileMainNavigationBar(
         }
         if (searchFabEnabled) FloatingActionButton(
             onClick = if (catalogFabEnabled) onCatalogRandomSelected else onSearchSelected,
-            modifier = if (classicStyle) {
-                Modifier.align(Alignment.TopEnd).offset(y = (-72).dp).padding(end = 12.dp).size(52.dp)
-            } else {
-                Modifier.align(Alignment.BottomCenter)
-                    // Dock the FAB to the actual right edge of the floating bar and center it vertically.
-                    .offset(x = floatingNavWidth / 2 - 32.dp, y = (-32).dp)
-                    .size(56.dp)
-            },
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                // Anchor to the measured navigation surface: the FAB sits immediately
+                // above its upper-right corner and follows its width and height.
+                .offset(
+                    x = floatingNavWidth / 2 - 28.dp,
+                    y = -(navigationHeight / 2 + 28.dp),
+                )
+                .size(56.dp),
             shape = RoundedCornerShape(20.dp),
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             contentColor = MaterialTheme.colorScheme.onPrimaryContainer,

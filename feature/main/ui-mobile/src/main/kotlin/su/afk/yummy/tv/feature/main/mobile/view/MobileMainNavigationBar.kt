@@ -255,7 +255,7 @@ internal fun <T> MobileMainNavigationBar(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Surface(
-                    modifier = Modifier.height(64.dp),
+                    modifier = Modifier.height(64.dp).then(dragModifier),
                     shape = RoundedCornerShape(24.dp),
                     color = MaterialTheme.colorScheme.surfaceContainerHigh,
                     contentColor = MaterialTheme.colorScheme.onSurface,

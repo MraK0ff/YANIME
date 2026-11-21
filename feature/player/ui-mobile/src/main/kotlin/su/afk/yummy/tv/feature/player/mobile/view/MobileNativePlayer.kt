@@ -338,6 +338,12 @@ internal fun MobileNativePlayer(
         return
     }
 
+    // A screen transition can dispose the timeline during an active drag. Always release
+    // ExoPlayer's temporary scrubbing mode so playback cannot remain suppressed.
+    DisposableEffect(player) {
+        onDispose { player.setTimelineScrubbingMode(false) }
+    }
+
     val trackMenu = rememberPlayerTrackMenu(player, state)
     val sleepTimer = rememberPlayerSleepTimer(player = player, onElapsed = { overlay.show() })
 

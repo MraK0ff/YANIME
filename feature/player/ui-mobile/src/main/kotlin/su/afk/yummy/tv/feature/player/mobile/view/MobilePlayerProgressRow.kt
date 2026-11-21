@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.MaterialTheme
@@ -56,6 +58,7 @@ internal fun MobilePlayerProgressRow(
     onTrackSettings: () -> Unit = {},
     qualityLabel: String = "",
     selectedSpeed: Float = 1f,
+    isSeeking: Boolean = false,
     isPlaying: Boolean,
     onQualityClick: () -> Unit = {},
     onSpeedClick: () -> Unit = {},
@@ -77,6 +80,7 @@ internal fun MobilePlayerProgressRow(
                 enabled = duration > 0L,
                 isPlaying = isPlaying,
                 selectedPlaybackSpeed = selectedSpeed,
+                isSeeking = isSeeking,
                 onValueChange = onSeekChange,
                 onValueChangeFinished = onSeekFinished,
                 modifier = Modifier
@@ -165,6 +169,7 @@ private fun MobilePlayerTimeline(
     onValueChangeFinished: () -> Unit,
     isPlaying: Boolean,
     selectedPlaybackSpeed: Float,
+    isSeeking: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val playedColor = mobilePlayerTimelinePlayedColor(MaterialTheme.colorScheme.primary)
@@ -229,6 +234,19 @@ private fun MobilePlayerTimeline(
                     cap = androidx.compose.ui.graphics.StrokeCap.Round,
                 )
             }
+        }
+        if (isSeeking && duration > 0L) {
+            Text(
+                text = (duration * safeProgress).toLong().millisToClockTime(),
+                style = MaterialTheme.typography.labelMedium,
+                color = Color.White,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .offset(y = (-24).dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color.Black.copy(alpha = 0.84f))
+                    .padding(horizontal = 9.dp, vertical = 4.dp),
+            )
         }
         LinearWavyProgressIndicator(
             progress = { safeProgress },

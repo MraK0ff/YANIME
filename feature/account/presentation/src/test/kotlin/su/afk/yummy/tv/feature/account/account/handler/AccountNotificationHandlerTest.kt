@@ -8,6 +8,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import su.afk.yummy.tv.core.preferences.api.YaniAccountSettingsStore
+import su.afk.yummy.tv.core.model.mutation.PendingMutation
+import su.afk.yummy.tv.core.model.mutation.PendingMutationQueue
 import su.afk.yummy.tv.core.testing.BaseUnitTest
 import su.afk.yummy.tv.domain.account.usecase.DeleteAllNotificationsUseCase
 import su.afk.yummy.tv.domain.account.usecase.DeleteNotificationUseCase
@@ -24,6 +26,7 @@ class AccountNotificationHandlerTest : BaseUnitTest() {
     private val markAllRead: MarkAllNotificationsReadUseCase = mockk()
     private val delete: DeleteNotificationUseCase = mockk()
     private val deleteAll: DeleteAllNotificationsUseCase = mockk()
+    private val pendingMutationQueue: PendingMutationQueue = mockk()
 
     @Test
     fun `notification opens its title when the slug resolves`() = runTest {
@@ -56,7 +59,7 @@ class AccountNotificationHandlerTest : BaseUnitTest() {
         coEvery { markRead(1) } returns true
         coEvery { delete(1) } returns false
         coEvery { deleteAll() } throws IllegalStateException("500")
-        val mutations = AccountNotificationMutationHandler(createHandler())
+        val mutations = AccountNotificationMutationHandler(createHandler(), pendingMutationQueue)
 
         assertEquals(AccountNotificationMutationOutcome.Success, mutations.markNotificationRead(1))
         assertEquals(AccountNotificationMutationOutcome.Unchanged, mutations.deleteNotification(1))
@@ -72,8 +75,22 @@ class AccountNotificationHandlerTest : BaseUnitTest() {
 
         assertEquals(
             AccountNotificationMutationOutcome.Failure(AccountUiError.UPDATE_NOTIFICATION_FAILED),
-            AccountNotificationMutationHandler(createHandler()).markNotificationRead(1),
+            AccountNotificationMutationHandler(createHandler(), pendingMutationQueue).markNotificationRead(1),
         )
+    }
+
+    @Test
+    fun `network failure is persisted in the offline queue and treated as success`() = runTest {
+        coEvery { markRead(7) } throws java.io.IOException("offline")
+        coEvery { pendingMutationQueue.enqueueOnNetworkFailure(PendingMutation.MarkNotificationRead(7), any()) } returns true
+
+        assertEquals(
+            AccountNotificationMutationOutcome.Success,
+            AccountNotificationMutationHandler(createHandler(), pendingMutationQueue).markNotificationRead(7),
+        )
+        coVerify(exactly = 1) {
+            pendingMutationQueue.enqueueOnNetworkFailure(PendingMutation.MarkNotificationRead(7), any())
+        }
     }
 
     private fun createHandler() = AccountNotificationHandler(

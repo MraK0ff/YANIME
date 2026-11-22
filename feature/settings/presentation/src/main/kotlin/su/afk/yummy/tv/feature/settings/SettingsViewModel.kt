@@ -41,7 +41,7 @@ import su.afk.yummy.tv.domain.videodownload.usecase.SelectVideoExportDestination
 import su.afk.yummy.tv.domain.videodownload.usecase.SetVideoDownloadWifiOnlyUseCase
 import su.afk.yummy.tv.feature.account.IAccountNavigator
 import su.afk.yummy.tv.feature.library.ILibraryNavigator
-import su.afk.yummy.tv.feature.settings.mapper.toReleaseNoteItem
+import su.afk.yummy.tv.feature.settings.mapper.buildReleaseNoteItems
 import su.afk.yummy.tv.feature.settings.model.ReleaseNotesStatus
 import su.afk.yummy.tv.feature.settings.model.TorrServerCheckStatus
 import su.afk.yummy.tv.feature.settings.navigator.SettingsCategoryDestination
@@ -723,7 +723,14 @@ class SettingsViewModel @Inject internal constructor(
                 getAppReleaseHistory(versionName, includePrerelease = settingsStore.betaUpdatesEnabled.first())
             }.fold(
                 onSuccess = { releases ->
-                    ReleaseNotesStatus.Loaded(releases.map { it.toReleaseNoteItem(versionName) }.toImmutableList())
+                    ReleaseNotesStatus.Loaded(
+                        buildReleaseNoteItems(
+                            currentVersion = versionName,
+                            yanimeHistory = releases,
+                            originalHistory = emptyList(),
+                            latestYanimeRelease = releases.firstOrNull(),
+                        ).toImmutableList(),
+                    )
                 },
                 onFailure = { ReleaseNotesStatus.Error },
             )

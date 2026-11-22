@@ -664,7 +664,6 @@ internal fun MobileNativePlayer(
             modifier = Modifier.align(Alignment.BottomCenter),
             visible = overlay.visible && !locked && !isInPictureInPictureMode && !tutorialBlocksPlayback,
             progress = progress,
-            isPlaying = wantsPlay,
             openingStartMs = ui.activeSkips.opening?.startMs?.takeIf { state.showOpeningOnTimeline },
             openingEndMs = ui.activeSkips.opening?.endMs?.takeIf { state.showOpeningOnTimeline },
             onSeekChange = { value ->

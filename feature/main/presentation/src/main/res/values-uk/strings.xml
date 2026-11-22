@@ -21,4 +21,10 @@
     <string name="main_onboarding_library_text">Ваші списки: дивлюся, у планах, переглянуто й обране.</string>
     <string name="main_onboarding_account_title">Акаунт</string>
     <string name="main_onboarding_account_text">Увійдіть, щоб синхронізувати списки та прогрес. Тут же налаштування й сповіщення.</string>
+    <string name="main_header_search_hint">Пошук аніме…</string>
+    <string name="main_header_notifications">Сповіщення</string>
+    <string name="main_header_settings">Налаштування</string>
+    <string name="main_header_profile">Профіль</string>
+    <string name="main_header_random_anime">Випадкове аніме</string>
+    <string name="main_header_search">Пошук</string>
 </resources>

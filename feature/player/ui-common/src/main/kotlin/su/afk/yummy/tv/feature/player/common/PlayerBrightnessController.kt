@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.preferences.settings.PlayerSettingsStore
@@ -40,22 +39,19 @@ class PlayerBrightnessController @Inject constructor(
 
     init {
         scope.launch {
-            val autoEnabled = settingsStore.mobilePlayerAutoBrightnessEnabled.first()
-            val storedPercent = settingsStore.mobilePlayerBrightnessPercent.first()
-            // Жест мог успеть сработать раньше, чем DataStore ответил: его значение главнее.
-            if (_brightness.value == null) {
-                _brightness.value = if (autoEnabled) null else
-                    ((storedPercent ?: 100) / 100f).coerceIn(MIN_BRIGHTNESS, MAX_BRIGHTNESS)
-            }
-            restored = true
-        }
-        scope.launch {
-            settingsStore.mobilePlayerAutoBrightnessEnabled.distinctUntilChanged().collect { enabled ->
-                if (enabled) {
-                    _brightness.value = null
-                } else if (_brightness.value == null) {
-                    val percent = settingsStore.mobilePlayerBrightnessPercent.first() ?: 100
-                    _brightness.value = (percent / 100f).coerceIn(MIN_BRIGHTNESS, MAX_BRIGHTNESS)
+            settingsStore.mobilePlayerBrightnessPercent.distinctUntilChanged().collect { storedPercent ->
+                if (!restored) {
+                    // Не перетираем жест, который пользователь успел сделать до ответа DataStore.
+                    if (_brightness.value == null) {
+                        _brightness.value = storedPercent?.let {
+                            (it / 100f).coerceIn(MIN_BRIGHTNESS, MAX_BRIGHTNESS)
+                        }
+                    }
+                    restored = true
+                } else {
+                    _brightness.value = storedPercent?.let {
+                        (it / 100f).coerceIn(MIN_BRIGHTNESS, MAX_BRIGHTNESS)
+                    }
                 }
             }
         }
@@ -75,13 +71,11 @@ class PlayerBrightnessController @Inject constructor(
 
     fun setFraction(value: Float) {
         _brightness.value = value.coerceIn(MIN_BRIGHTNESS, MAX_BRIGHTNESS)
-        scope.launch { settingsStore.setMobilePlayerAutoBrightnessEnabled(false) }
     }
 
     /** Возвращает автояркость: ручное значение снимается и в памяти, и в хранилище. */
     fun setAuto() {
         _brightness.value = null
-        scope.launch { settingsStore.setMobilePlayerAutoBrightnessEnabled(true) }
     }
 
     companion object {

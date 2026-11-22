@@ -1,12 +1,8 @@
 package su.afk.yummy.tv.feature.player.view.player
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.core.snap
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,14 +26,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.core.designsystem.skeleton.rememberAnimationsEnabled
-import su.afk.yummy.tv.core.designsystem.theme.YummyMotion
 import su.afk.yummy.tv.feature.player.common.model.PlayerActiveSkip
 import su.afk.yummy.tv.feature.player.model.PlayerPlaybackUiState
 import su.afk.yummy.tv.feature.player.model.TvPlayerFocusRequesters
 import su.afk.yummy.tv.feature.player.common.model.PlayerPlaybackProgressState
-import su.afk.yummy.tv.feature.player.common.model.StepSeekDirection
-import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.feature.player.presentation.R
 
 /** Нижний блок контролов: кнопка пропуска, прогресс и ряд эпизода/настроек. */
@@ -46,7 +38,6 @@ internal fun BoxScope.TvPlayerControlsOverlay(
     visible: Boolean,
     focus: TvPlayerFocusRequesters,
     progress: PlayerPlaybackProgressState,
-    timeDisplaySettings: PlayerTimeDisplaySettings,
     wantsPlay: Boolean,
     playback: PlayerPlaybackUiState,
     animeTitle: String,
@@ -57,16 +48,10 @@ internal fun BoxScope.TvPlayerControlsOverlay(
     highlightedSkipKey: String?,
     qualityCount: Int,
     currentQualityLabel: String,
-    speeds: List<Float>,
-    activeSpeed: Float,
-    onCycleSpeed: () -> Unit,
-    onOpenSpeedPanel: () -> Unit,
     adaptiveQuality: Boolean,
     showAllohaButton: Boolean,
-    showSubtitleButton: Boolean,
     onPlayPause: () -> Unit,
     onSeekTo: (positionMs: Long) -> Unit,
-    onStepSeek: (StepSeekDirection) -> Unit,
     onInteraction: () -> Unit,
     onSkipActiveSegment: () -> Unit,
     onStayAutoSkip: () -> Unit,
@@ -79,26 +64,24 @@ internal fun BoxScope.TvPlayerControlsOverlay(
     onToggleEpisodes: () -> Unit,
     onTogglePlayerSettings: () -> Unit,
     onToggleAlloha: () -> Unit,
-    onToggleSubtitles: () -> Unit,
     /** Ряд управления остаётся в композиции (держит фокус), но невидим, пока поверх него лента серий. */
     hidden: Boolean = false,
 ) {
-    val animationsEnabled = rememberAnimationsEnabled()
-    val playerControlsTransition = if (animationsEnabled) {
-        tween<Float>(YummyMotion.FastEffectsMillis)
-    } else {
-        snap()
+    val progressDownFocusRequester = when {
+        playback.dubbingNames.size > 1 -> focus.dubbing
+        playback.balancerNames.size > 1 -> focus.balancer
+        qualityCount > 0 -> focus.quality
+        showAllohaButton -> focus.alloha
+        else -> focus.playerSettings
     }
-    // Первый переход вниз с таймлайна всегда попадает на скорость.
-    val progressDownFocusRequester = focus.speed
 
     AnimatedVisibility(
         visible = visible,
         modifier = Modifier
             .align(Alignment.BottomCenter)
             .fillMaxWidth(),
-        enter = if (animationsEnabled) fadeIn(playerControlsTransition) else EnterTransition.None,
-        exit = if (animationsEnabled) fadeOut(playerControlsTransition) else ExitTransition.None,
+        enter = fadeIn(),
+        exit = fadeOut(),
     ) {
         Box(
             modifier = Modifier
@@ -108,8 +91,7 @@ internal fun BoxScope.TvPlayerControlsOverlay(
                     Brush.verticalGradient(
                         listOf(
                             Color.Transparent,
-                            Color.Black.copy(alpha = 0.14f),
-                            Color.Black.copy(alpha = 0.70f)
+                            Color.Black.copy(alpha = 0.88f)
                         )
                     )
                 ),
@@ -119,10 +101,10 @@ internal fun BoxScope.TvPlayerControlsOverlay(
                     .fillMaxWidth()
                     // Подсказка «Серии» сама занимает низ, поэтому нижний отступ при ней меньше.
                     .padding(
-                        start = 40.dp,
-                        end = 40.dp,
+                        start = 48.dp,
+                        end = 48.dp,
                         top = 20.dp,
-                        bottom = if (playback.episodes.isNotEmpty()) 8.dp else 24.dp,
+                        bottom = if (playback.episodes.isNotEmpty()) 6.dp else 20.dp,
                     ),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
@@ -183,7 +165,6 @@ internal fun BoxScope.TvPlayerControlsOverlay(
                     wantsPlay = wantsPlay,
                     displayTime = progress.displayTimeMs,
                     duration = progress.duration,
-                    timeDisplaySettings = timeDisplaySettings,
                     isSeeking = progress.isSeeking,
                     seekProgress = progress.seekProgress,
                     bufferedProgress = progress.bufferedProgress,
@@ -201,7 +182,6 @@ internal fun BoxScope.TvPlayerControlsOverlay(
                         progress.isSeeking = true
                         progress.seekProgress = v
                     },
-                    onStepSeek = onStepSeek,
                     onSeekFinished = {
                         if (progress.isSeeking) {
                             onSeekTo((progress.seekProgress * progress.duration).toLong())
@@ -223,11 +203,6 @@ internal fun BoxScope.TvPlayerControlsOverlay(
                     playerName = playback.activeBalancerName,
                     dubbing = playback.activeDubbing,
                     currentQualityLabel = currentQualityLabel,
-                    speeds = speeds,
-                    activeSpeed = activeSpeed,
-                    onCycleSpeed = onCycleSpeed,
-                    onOpenSpeedPanel = onOpenSpeedPanel,
-                    speedFocusRequester = focus.speed,
                     adaptiveQuality = adaptiveQuality,
                     qualityFocusRequester = focus.quality,
                     dubbingFocusRequester = focus.dubbing,
@@ -246,11 +221,8 @@ internal fun BoxScope.TvPlayerControlsOverlay(
                     onTogglePlayerSettings = onTogglePlayerSettings,
                     allohaFocusRequester = focus.alloha,
                     showAllohaButton = showAllohaButton,
-                    showSubtitleButton = showSubtitleButton,
-                    subtitlesFocusRequester = focus.subtitles,
                     nextEpisodeFocusRequester = focus.nextEpisodeControl,
                     onToggleAlloha = onToggleAlloha,
-                    onToggleSubtitles = onToggleSubtitles,
                 )
                 if (playback.episodes.isNotEmpty()) {
                     TvPlayerEpisodesHint()

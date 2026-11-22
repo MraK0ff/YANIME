@@ -390,4 +390,6 @@
     <string name="settings_section_anime_list">Список аниме</string>
     <string name="settings_list_transfer_title">Импорт и экспорт списка</string>
     <string name="settings_list_transfer_hint">Перенос файлов списков Shikimori и MyAnimeList</string>
+    <string name="settings_interface_auto">Автоматически</string>
+    <string name="settings_interface_auto_hint">Определять интерфейс по типу устройства</string>
 </resources>

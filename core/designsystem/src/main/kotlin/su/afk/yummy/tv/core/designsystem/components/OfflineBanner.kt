@@ -7,6 +7,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,9 +32,8 @@ import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 /**
- * Плашка «нет сети». Встраивается в вёрстку главной (над поиском на мобилке, под
- * «Продолжить просмотр» на ТВ), а не рисуется оверлеем: глобальная плашка перекрывала
- * плеер и другие экраны. Появляясь, раздвигает контент, а не наезжает на него.
+ * Ненавязчивый адаптивный статус соединения. Использует нейтральный контейнер,
+ * чтобы состояние сети не выглядело как ошибка и не конкурировало с контентом.
  */
 @Composable
 fun OfflineBanner(
@@ -52,26 +52,29 @@ fun OfflineBanner(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = horizontalPadding, vertical = YummySpacing.Small),
-            shape = YummyShapeTokens.Pill,
-            color = MaterialTheme.colorScheme.errorContainer,
-            contentColor = MaterialTheme.colorScheme.onErrorContainer,
-            shadowElevation = 6.dp,
+                .padding(horizontal = horizontalPadding, vertical = YummySpacing.XSmall),
+            shape = YummyShapeTokens.Control,
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f)),
+            shadowElevation = 0.dp,
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = YummySpacing.Large, vertical = YummySpacing.Small),
-                horizontalArrangement = Arrangement.spacedBy(YummySpacing.Small, Alignment.CenterHorizontally),
+                modifier = Modifier.padding(horizontal = YummySpacing.Medium, vertical = YummySpacing.Small),
+                horizontalArrangement = Arrangement.spacedBy(YummySpacing.Small),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
                     imageVector = Icons.Filled.CloudOff,
                     contentDescription = null,
-                    modifier = Modifier.size(16.dp),
+                    modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
                     text = stringResource(R.string.offline_banner_message),
                     style = MaterialTheme.typography.labelMedium,
-                    textAlign = TextAlign.Center,
+                    textAlign = TextAlign.Start,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }

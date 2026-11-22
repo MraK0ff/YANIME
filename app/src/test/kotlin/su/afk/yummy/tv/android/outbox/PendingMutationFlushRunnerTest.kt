@@ -16,6 +16,10 @@ import su.afk.yummy.tv.core.storage.outbox.PendingMutationEntry
 import su.afk.yummy.tv.core.storage.outbox.PendingMutationOutbox
 import su.afk.yummy.tv.core.storage.outbox.PendingMutationTypes
 import su.afk.yummy.tv.core.testing.BaseUnitTest
+import su.afk.yummy.tv.domain.account.usecase.DeleteAllNotificationsUseCase
+import su.afk.yummy.tv.domain.account.usecase.DeleteNotificationUseCase
+import su.afk.yummy.tv.domain.account.usecase.MarkAllNotificationsReadUseCase
+import su.afk.yummy.tv.domain.account.usecase.MarkNotificationReadUseCase
 import su.afk.yummy.tv.domain.account.usecase.DeleteAnimeRatingUseCase
 import su.afk.yummy.tv.domain.account.usecase.RemoveAnimeListUseCase
 import su.afk.yummy.tv.domain.account.usecase.RemoveWatchedVideosUseCase
@@ -42,6 +46,10 @@ class PendingMutationFlushRunnerTest : BaseUnitTest() {
         setAnimeRating = mockk<SetAnimeRatingUseCase>(),
         deleteAnimeRating = mockk<DeleteAnimeRatingUseCase>(),
         voteReview = mockk<VoteReviewUseCase>(),
+        markNotificationRead = mockk<MarkNotificationReadUseCase>(),
+        markAllNotificationsRead = mockk<MarkAllNotificationsReadUseCase>(),
+        deleteNotification = mockk<DeleteNotificationUseCase>(),
+        deleteAllNotifications = mockk<DeleteAllNotificationsUseCase>(),
     )
 
     private fun removeList(id: Long, attempts: Int = 0) =

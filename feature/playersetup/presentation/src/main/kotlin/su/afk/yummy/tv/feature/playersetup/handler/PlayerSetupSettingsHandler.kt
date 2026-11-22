@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.feature.playersetup.handler
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.combine
 import su.afk.yummy.tv.core.model.settings.AppInterfaceLanguage
 import su.afk.yummy.tv.core.model.settings.AppTheme
@@ -27,59 +28,52 @@ internal class PlayerSetupSettingsHandler @Inject constructor(
 
     fun initialContentLanguage(): YaniContentLanguage = accountStore.resolveSystemYaniContentLanguage()
 
-    fun observe(): Flow<PlayerSetupState.State> = combine(
-        combine(
+    fun observe(): Flow<PlayerSetupState.State> {
+        val toggles = combine(
             store.showOpeningOnTimeline,
             store.autoSkipOpeningsEndings,
             store.autoPlayNextEpisode,
             store.suggestNextEpisodeOnWatched,
-            store.mobilePlayerAutoBrightnessEnabled,
-        ) { showOpening, autoSkip, autoPlay, suggestNext, autoBrightness ->
+        ) { showOpening, autoSkip, autoPlay, suggestNext ->
             PlayerSetupState.State(
                 showOpeningOnTimeline = showOpening,
                 autoSkipOpeningsEndings = autoSkip,
                 autoPlayNextEpisode = autoPlay,
                 suggestNextEpisodeOnWatched = suggestNext,
-                autoBrightnessEnabled = autoBrightness,
             )
-        },
-        combine(
-            combine(
-                store.adaptiveVideoQualityEnabled,
-                store.preferredVideoQuality,
-                store.playerOrientationMode,
-                store.pictureInPictureEnabled,
-                accountStore.yaniContentLanguage,
-            ) { adaptive, quality, orientation, pip, language ->
-                PlayerSetupState.State(
-                    adaptiveVideoQualityEnabled = adaptive,
-                    preferredVideoQuality = quality,
-                    playerOrientationMode = orientation,
-                    pictureInPictureEnabled = pip,
-                    contentLanguage = language,
-                )
-            },
-            combine(appearanceStore.appTheme, appearanceStore.backgroundStyle) { theme, background ->
-                PlayerSetupState.State(appTheme = theme, backgroundStyle = background)
-            },
-        ) { playback, appearance ->
-            playback.copy(
+        }
+        val playback = combine(
+            store.adaptiveVideoQualityEnabled,
+            store.preferredVideoQuality,
+            store.playerOrientationMode,
+            store.pictureInPictureEnabled,
+            accountStore.yaniContentLanguage,
+        ) { adaptive, quality, orientation, pip, language ->
+            PlayerSetupState.State(
+                adaptiveVideoQualityEnabled = adaptive,
+                preferredVideoQuality = quality,
+                playerOrientationMode = orientation,
+                pictureInPictureEnabled = pip,
+                contentLanguage = language,
+            )
+        }
+        val appearance = combine(appearanceStore.appTheme, appearanceStore.backgroundStyle) { theme, background ->
+            PlayerSetupState.State(appTheme = theme, backgroundStyle = background)
+        }
+        return combine(toggles, playback, store.mobilePlayerBrightnessPercent, appearance) {
+                base, player, brightnessPercent, appearanceState ->
+            base.copy(
+                autoBrightnessEnabled = brightnessPercent == null,
+                adaptiveVideoQualityEnabled = player.adaptiveVideoQualityEnabled,
+                preferredVideoQuality = player.preferredVideoQuality,
+                playerOrientationMode = player.playerOrientationMode,
+                pictureInPictureEnabled = player.pictureInPictureEnabled,
+                contentLanguage = player.contentLanguage,
                 interfaceLanguage = interfaceLanguagePreferences.selectedLanguage,
-                appTheme = appearance.appTheme,
-                backgroundStyle = appearance.backgroundStyle,
+                appTheme = appearanceState.appTheme,
+                backgroundStyle = appearanceState.backgroundStyle,
             )
-        },
-    ) { toggles, playback ->
-        toggles.copy(
-            adaptiveVideoQualityEnabled = playback.adaptiveVideoQualityEnabled,
-            preferredVideoQuality = playback.preferredVideoQuality,
-            playerOrientationMode = playback.playerOrientationMode,
-            pictureInPictureEnabled = playback.pictureInPictureEnabled,
-            contentLanguage = playback.contentLanguage,
-            interfaceLanguage = playback.interfaceLanguage,
-            appTheme = playback.appTheme,
-            backgroundStyle = playback.backgroundStyle,
-        )
+        }
     }
 
     suspend fun setShowOpeningOnTimeline(enabled: Boolean) = store.setShowOpeningOnTimeline(enabled)
@@ -94,8 +88,13 @@ internal class PlayerSetupSettingsHandler @Inject constructor(
 
     suspend fun setPictureInPictureEnabled(enabled: Boolean) = store.setPictureInPictureEnabled(enabled)
 
-    suspend fun setAutoBrightnessEnabled(enabled: Boolean) =
-        store.setMobilePlayerAutoBrightnessEnabled(enabled)
+    suspend fun setAutoBrightnessEnabled(enabled: Boolean) {
+        if (enabled) {
+            store.clearMobilePlayerBrightness()
+        } else if (store.mobilePlayerBrightnessPercent.first() == null) {
+            store.setMobilePlayerBrightnessPercent(100)
+        }
+    }
 
     fun setInterfaceLanguage(language: AppInterfaceLanguage) = interfaceLanguagePreferences.select(language)
 

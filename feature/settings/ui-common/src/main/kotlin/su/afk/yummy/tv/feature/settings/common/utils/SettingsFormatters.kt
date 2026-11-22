@@ -45,6 +45,7 @@ fun optionalStringResource(@StringRes id: Int?): String = id?.let { stringResour
 @Composable
 fun AppInterfaceMode.label(): String = stringResource(
     when (this) {
+        AppInterfaceMode.AUTO -> R.string.settings_interface_auto
         AppInterfaceMode.MOBILE -> R.string.settings_interface_mobile
         AppInterfaceMode.TV -> R.string.settings_interface_tv
     },
@@ -241,7 +242,6 @@ val videoQualitySliderEntries: List<PreferredVideoQuality> = listOf(
 @Composable
 fun AppInterfaceLanguage.label(): String = stringResource(
     when (this) {
-        AppInterfaceLanguage.SYSTEM -> R.string.settings_interface_language_system
         AppInterfaceLanguage.RUSSIAN -> R.string.settings_interface_language_russian
         AppInterfaceLanguage.ENGLISH -> R.string.settings_interface_language_english
         AppInterfaceLanguage.UKRAINIAN -> R.string.settings_interface_language_ukrainian

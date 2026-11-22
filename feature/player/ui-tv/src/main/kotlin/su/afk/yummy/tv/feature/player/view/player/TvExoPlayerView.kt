@@ -400,6 +400,7 @@ internal fun TvExoPlayerView(
                     TvPlayerPanel.Episodes -> PanelReturnFocusTarget.Episodes
                     TvPlayerPanel.PlayerSettings -> PanelReturnFocusTarget.PlayerSettings
                     TvPlayerPanel.Alloha -> PanelReturnFocusTarget.Alloha
+                    TvPlayerPanel.Speed, TvPlayerPanel.Subtitles -> PanelReturnFocusTarget.PlayerSettings
                     null -> null
                 },
             )
@@ -554,6 +555,7 @@ internal fun TvExoPlayerView(
             showAllohaButton = trackMenu.showAudioChoice,
             onPlayPause = { if (wantsPlay) player.pause() else player.play() },
             onSeekTo = seekController::seekTo,
+            onStepSeek = seekController::stepSeek,
             onInteraction = ::onInteraction,
             onSkipActiveSegment = { skipActiveSegment() },
             onStayAutoSkip = {

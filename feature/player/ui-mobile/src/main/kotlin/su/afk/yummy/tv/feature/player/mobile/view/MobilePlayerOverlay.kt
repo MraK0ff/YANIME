@@ -45,6 +45,7 @@ import su.afk.yummy.tv.feature.player.presentation.R
 internal fun MobilePlayerOverlay(
     visible: Boolean,
     progress: PlayerPlaybackProgressState,
+    isPlaying: Boolean = false,
     openingStartMs: Long?,
     openingEndMs: Long?,
     onSeekChange: (Float) -> Unit,
@@ -88,6 +89,8 @@ internal fun MobilePlayerOverlay(
             duration = progress.duration,
             seekProgress = progress.progressFraction,
             bufferedProgress = progress.bufferedProgress,
+            onSeekStarted = {},
+            isPlaying = isPlaying,
             openingStartMs = openingStartMs,
             openingEndMs = openingEndMs,
             onSeekChange = onSeekChange,

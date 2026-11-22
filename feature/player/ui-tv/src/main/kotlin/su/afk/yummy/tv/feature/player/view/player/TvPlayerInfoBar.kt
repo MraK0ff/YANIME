@@ -78,11 +78,16 @@ internal fun TvPlayerInfoBar(
 internal fun TvPlayerNameBadge(
     visible: Boolean,
     playerName: String,
+    isDownloaded: Boolean = false,
     episodeFlags: EpisodeFlags?,
     modifier: Modifier = Modifier,
 ) {
     val fillerColor = Color(0xFFFFC107)
     val recapColor = Color(0xFF90CAF9)
+    val badgeText = listOfNotNull(
+        playerName.takeIf(String::isNotBlank),
+        stringResource(R.string.player_badge_downloaded).takeIf { isDownloaded },
+    ).joinToString(" • ")
     val flagLabel: Pair<String, Color>? = when {
         episodeFlags == null -> null
         episodeFlags.filler -> Pair(stringResource(R.string.player_episode_flag_filler), fillerColor)
@@ -90,7 +95,7 @@ internal fun TvPlayerNameBadge(
         else -> null
     }
     AnimatedVisibility(
-        visible = visible && flagLabel != null,
+        visible = visible && (badgeText.isNotBlank() || flagLabel != null),
         modifier = modifier
             .windowInsetsPadding(WindowInsets.safeDrawing)
             .padding(top = 16.dp, end = 16.dp),
@@ -101,6 +106,17 @@ internal fun TvPlayerNameBadge(
             horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
+            if (badgeText.isNotBlank()) {
+                Text(
+                    text = badgeText.uppercase(),
+                    style = MaterialTheme.typography.labelSmall.overline(),
+                    color = Color.White,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(Color.Black.copy(alpha = 0.72f))
+                        .padding(horizontal = 8.dp, vertical = 3.dp),
+                )
+            }
             if (flagLabel != null) {
                 Text(
                     text = flagLabel.first,

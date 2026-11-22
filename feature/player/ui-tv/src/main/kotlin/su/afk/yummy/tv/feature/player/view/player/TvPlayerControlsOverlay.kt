@@ -30,6 +30,7 @@ import su.afk.yummy.tv.feature.player.common.model.PlayerActiveSkip
 import su.afk.yummy.tv.feature.player.model.PlayerPlaybackUiState
 import su.afk.yummy.tv.feature.player.model.TvPlayerFocusRequesters
 import su.afk.yummy.tv.feature.player.common.model.PlayerPlaybackProgressState
+import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.feature.player.presentation.R
 
 /** Нижний блок контролов: кнопка пропуска, прогресс и ряд эпизода/настроек. */
@@ -38,6 +39,8 @@ internal fun BoxScope.TvPlayerControlsOverlay(
     visible: Boolean,
     focus: TvPlayerFocusRequesters,
     progress: PlayerPlaybackProgressState,
+    timeDisplaySettings: PlayerTimeDisplaySettings = PlayerTimeDisplaySettings(),
+    onStepSeek: (StepSeekDirection) -> Unit = {},
     wantsPlay: Boolean,
     playback: PlayerPlaybackUiState,
     animeTitle: String,
@@ -165,6 +168,7 @@ internal fun BoxScope.TvPlayerControlsOverlay(
                     wantsPlay = wantsPlay,
                     displayTime = progress.displayTimeMs,
                     duration = progress.duration,
+                    timeDisplaySettings = timeDisplaySettings,
                     isSeeking = progress.isSeeking,
                     seekProgress = progress.seekProgress,
                     bufferedProgress = progress.bufferedProgress,
@@ -178,6 +182,7 @@ internal fun BoxScope.TvPlayerControlsOverlay(
                     progressFocusRequester = focus.progress,
                     progressDownFocusRequester = progressDownFocusRequester,
                     onPlayPause = onPlayPause,
+                    onStepSeek = onStepSeek,
                     onSeekChange = { v ->
                         progress.isSeeking = true
                         progress.seekProgress = v

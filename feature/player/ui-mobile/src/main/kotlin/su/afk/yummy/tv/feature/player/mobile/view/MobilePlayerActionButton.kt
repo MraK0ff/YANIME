@@ -35,6 +35,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.components.YummyPlayerLoadingIndicator
@@ -48,6 +49,7 @@ internal fun MobilePlayerActionButton(
     contentDescription: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    size: Dp? = null,
     enabled: Boolean = true,
     primary: Boolean = false,
     pauseButton: Boolean = false,
@@ -69,7 +71,7 @@ internal fun MobilePlayerActionButton(
         else -> Color.White
     }
     val holdProgress = remember { Animatable(0f) }
-    val buttonSize = mobilePlayerControlButtonSize(primary) * sizeMultiplier
+    val buttonSize = size ?: mobilePlayerControlButtonSize(primary) * sizeMultiplier
 
     val baseViewConfiguration = LocalViewConfiguration.current
     val quickLongPressConfiguration = remember(baseViewConfiguration) {

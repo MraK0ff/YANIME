@@ -47,6 +47,8 @@ internal fun MobilePlayerProgressRow(
     duration: Long,
     seekProgress: Float,
     bufferedProgress: Float,
+    openingStartMs: Long? = null,
+    openingEndMs: Long? = null,
     onSeekChange: (Float) -> Unit,
     onSeekStarted: () -> Unit,
     onSeekFinished: () -> Unit,

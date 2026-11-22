@@ -1,42 +1,20 @@
 package su.afk.yummy.tv.feature.player.mobile.view
 
-import androidx.compose.foundation.lazy.rememberLazyListState
-import su.afk.yummy.tv.core.designsystem.components.ScrollToTopOnChange
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.core.designsystem.baseScreen.BaseBottomSheetCustom
+import su.afk.yummy.tv.core.designsystem.baseScreen.BaseBottomSheet
 import su.afk.yummy.tv.core.designsystem.baseScreen.HideSheetWindowSystemBars
-import su.afk.yummy.tv.core.designsystem.components.LogoBadge
-import su.afk.yummy.tv.core.designsystem.utils.balancerFallbackIcon
-import su.afk.yummy.tv.core.designsystem.utils.balancerLogoRes
 import su.afk.yummy.tv.feature.player.presentation.R
 
+/** Выбор балансера при восстановлении — тот же контейнер и строки, что у остальных настроек. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun MobilePlayerBalancerSheet(
@@ -47,111 +25,42 @@ internal fun MobilePlayerBalancerSheet(
     onBalancerSelected: (Int) -> Unit,
     onDismiss: () -> Unit,
 ) {
-
-    val listState = rememberLazyListState()
-    ScrollToTopOnChange(order = balancerNames, state = listState)
-    BaseBottomSheetCustom(onDismissRequest = onDismiss) { maxHeight ->
-        HideSheetWindowSystemBars()
-
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(max = maxHeight)
-                .windowInsetsPadding(WindowInsets.navigationBars),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 18.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            item {
-                Text(
-                    text = stringResource(R.string.player_name_prefix),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(bottom = 2.dp),
-                )
-            }
-            itemsIndexed(balancerNames, key = { index, name -> "$index-$name" }) { index, name ->
-                val enabled = balancerAvailability.getOrElse(index) { true }
-                MobilePlayerBalancerRow(
-                    label = name,
-                    metaLabel = if (enabled) {
-                        stringResource(
-                            if (balancerExternal.getOrElse(index) { false }) {
-                                R.string.player_balancer_external_meta
-                            } else {
-                                R.string.player_balancer_meta
-                            },
-                        )
-                    } else {
-                        stringResource(R.string.player_episode_unavailable)
-                    },
-                    selected = index == selectedIndex,
-                    enabled = enabled,
-                    onClick = { onBalancerSelected(index) },
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun MobilePlayerBalancerRow(
-    label: String,
-    metaLabel: String?,
-    selected: Boolean,
-    enabled: Boolean,
-    onClick: () -> Unit,
-) {
-    val shape = MaterialTheme.shapes.medium
-    val background = if (selected) {
-        MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
-    } else {
-        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.58f)
-    }
-    // Названия плееров — акцентным цветом, как в шторках выбора озвучки и скачивания.
-    // Выбранный отличается подложкой, жирностью и галочкой.
-    val textColor = MaterialTheme.colorScheme.primary
-        .let { if (enabled) it else it.copy(alpha = 0.42f) }
-    val metaColor = MaterialTheme.colorScheme.onSurfaceVariant
-        .let { if (enabled) it else it.copy(alpha = 0.42f) }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(shape)
-            .background(background)
-            .clickable(
-                enabled = enabled,
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onClick,
-            )
-            .padding(horizontal = 14.dp, vertical = 13.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    BaseBottomSheet(
+        onDismissRequest = onDismiss,
+        scrollableContent = true,
+        dragHandle = { MobilePlayerPanelDragTitle(stringResource(R.string.player_balancer_name_prefix)) },
     ) {
-        LogoBadge(logoRes = balancerLogoRes(label), size = 32.dp, fallbackIcon = balancerFallbackIcon(label))
+        HideSheetWindowSystemBars()
         Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(3.dp),
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-                color = textColor,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            if (!metaLabel.isNullOrBlank()) {
-                Text(
-                    text = metaLabel,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = metaColor,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
+            balancerNames.indices
+                .filter { balancerAvailability.getOrElse(it) { true } }
+                .forEach { index ->
+                    MobilePlayerSelectionRow(
+                        label = balancerNames[index],
+                        selected = index == selectedIndex,
+                        enabled = true,
+                        accentLabel = true,
+                        metaContent = { contentColor ->
+                            Text(
+                                text = stringResource(
+                                    if (balancerExternal.getOrElse(index) { false }) {
+                                        R.string.player_balancer_external_meta
+                                    } else {
+                                        R.string.player_balancer_meta
+                                    },
+                                ),
+                                style = androidx.compose.material3.MaterialTheme.typography.labelSmall,
+                                color = contentColor,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        },
+                        onClick = { onBalancerSelected(index) },
+                    )
+                }
         }
     }
 }

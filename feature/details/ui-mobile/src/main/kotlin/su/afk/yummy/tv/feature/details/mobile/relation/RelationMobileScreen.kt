@@ -92,7 +92,7 @@ fun RelationMobileScreen(
         ) {
             val relation = state.relation ?: return@MobileStateContent
             MobilePosterGrid(contentPadding = PaddingValues(bottom = 16.dp)) {
-                item(span = { GridItemSpan(maxLineSpan) }) {
+                item(span = { GridItemSpan(maxLineSpan) }, contentType = "relation_header") {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
@@ -121,7 +121,7 @@ fun RelationMobileScreen(
                     }
                 }
                 relation.anime.forEach { item ->
-                    item(key = lazyKey("relation", item.animeId)) {
+                    item(key = lazyKey("relation", item.animeId), contentType = "relation_title") {
                         MobilePosterCard(
                             title = item.title,
                             posterUrls = item.poster.posterUrls(),

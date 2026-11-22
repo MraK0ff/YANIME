@@ -1,18 +1,15 @@
 package su.afk.yummy.tv.feature.player.mobile.view
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -28,8 +25,12 @@ internal fun MobilePlayerRecoveryHint(
 ) {
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
-            .background(Color.Black.copy(alpha = 0.60f))
+            .mobilePlayerGlassSurface(
+                shape = MobilePlayerInteractiveShape,
+                fill = Color.Black.copy(alpha = 0.58f),
+                borderColor = MobilePlayerGlassBorder,
+                elevation = 6.dp,
+            )
             .padding(horizontal = 16.dp, vertical = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp),

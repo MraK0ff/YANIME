@@ -10,6 +10,7 @@
     <string name="interface_mode_mobile_hint">Compact layout optimized for touchscreen controls</string>
     <string name="episode_push_notification_channel">Profile notifications</string>
     <string name="library_episode_push_notification_channel">New episodes from your lists</string>
+    <string name="subscribed_episode_push_notification_channel">New episodes from subscriptions</string>
     <string name="episode_push_action_watch">Watch</string>
     <string name="episode_push_action_details">Details</string>
     <string name="shortcut_search">Search</string>
@@ -21,4 +22,5 @@
     <string name="widget_episode">Episode</string>
     <string name="widget_episode_number">Episode %1$s</string>
     <string name="library_episode_push_text">Episode %1$d is out</string>
+    <string name="subscribed_episode_push_text">New episode %1$d is available in your subscribed voiceover</string>
 </resources>

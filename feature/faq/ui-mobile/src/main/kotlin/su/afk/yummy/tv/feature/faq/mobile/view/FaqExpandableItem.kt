@@ -32,15 +32,15 @@ internal fun FaqExpandableItem(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(8.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.34f),
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
     ) {
         Column {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable(onClick = onClick)
-                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                    .padding(horizontal = 14.dp, vertical = 14.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
@@ -60,7 +60,7 @@ internal fun FaqExpandableItem(
             AnimatedVisibility(visible = expanded) {
                 Text(
                     text = answer,
-                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 14.dp),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

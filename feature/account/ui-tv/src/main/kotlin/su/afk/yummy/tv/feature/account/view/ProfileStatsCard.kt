@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,6 +24,8 @@ import su.afk.yummy.tv.feature.account.presentation.R
 import su.afk.yummy.tv.feature.account.utils.PROFILE_STATS_BODY_HEIGHT_DP
 import su.afk.yummy.tv.feature.account.utils.totalLabel
 import su.afk.yummy.tv.feature.account.common.utils.positiveValueSum
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 @Composable
 internal fun ProfileStatsCard(
@@ -34,7 +35,7 @@ internal fun ProfileStatsCard(
 ) {
     val positiveSlices = remember(page.slices) { page.slices.filter { it.value > 0L } }
     val totalValue = remember(positiveSlices) { positiveSlices.positiveValueSum() }
-    val shape = RoundedCornerShape(12.dp)
+    val shape = YummyShapeTokens.Card
 
     Column(
         modifier = modifier
@@ -44,12 +45,12 @@ internal fun ProfileStatsCard(
                 focusedScale = 1.015f,
                 unfocusedContainerAlpha = 0.055f,
             )
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+            .padding(YummySpacing.Large),
+        verticalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(YummySpacing.Small),
         ) {
             Icon(
                 imageVector = page.icon,
@@ -73,7 +74,7 @@ internal fun ProfileStatsCard(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(18.dp),
+                horizontalArrangement = Arrangement.spacedBy(YummySpacing.Large + YummySpacing.XSmall),
             ) {
                 ProfileStatsDonutChart(
                     slices = positiveSlices,

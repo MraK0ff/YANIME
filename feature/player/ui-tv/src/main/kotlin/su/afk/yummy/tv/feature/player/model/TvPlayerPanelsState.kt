@@ -8,13 +8,15 @@ import androidx.compose.runtime.setValue
 
 internal enum class TvPlayerPanel {
     Quality,
+    Speed,
     Dubbing,
     Balancer,
     Episodes,
-    /** Боковое меню справа: скорость, масштаб, субтитры и звук. */
+    Subtitles,
+    /** Боковое меню справа: масштаб, время на экране и звук. */
     PlayerSettings,
 
-    /** Alloha's own dubbings; its subtitles live in [PlayerSettings]. */
+    /** Alloha's own audio tracks. */
     Alloha,
 }
 

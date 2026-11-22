@@ -20,10 +20,7 @@ import su.afk.yummy.tv.feature.player.common.icon
 import su.afk.yummy.tv.feature.player.common.label
 import su.afk.yummy.tv.feature.player.presentation.R
 
-/**
- * Оформление субтитров в боковой панели: размер и отступ ползунками, цвет и фон чипами. Изменения
- * сразу видны на текущем кадре — оверлей субтитров читает стиль из того же стейта.
- */
+/** Настройка размера, положения, цвета и фона субтитров в общей странице настроек. */
 @Composable
 internal fun MobilePlayerSubtitleStyleSection(
     style: PlayerSubtitleStyleSettings,
@@ -34,7 +31,7 @@ internal fun MobilePlayerSubtitleStyleSection(
         icon = Icons.Filled.Palette,
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            MobilePlayerSidePanelLabel(stringResource(R.string.player_subtitle_size_title))
+            MobilePlayerSubtitleStyleLabel(stringResource(R.string.player_subtitle_size_title))
             // Ползунок в шагах по 10%: при шаге 1% полторы сотни делений сливаются в двойную полосу.
             val sizeStep = PlayerSubtitleStyleOptions.TEXT_SIZE_STEP
             val sizeRange = PlayerSubtitleStyleOptions.textSizeRange
@@ -44,14 +41,14 @@ internal fun MobilePlayerSubtitleStyleSection(
                 valueLabel = { "${it * sizeStep}%" },
                 onValueCommitted = { onStyleChange(style.copy(textSize = it * sizeStep)) },
             )
-            MobilePlayerSidePanelLabel(stringResource(R.string.player_subtitle_offset_title))
+            MobilePlayerSubtitleStyleLabel(stringResource(R.string.player_subtitle_offset_title))
             MobilePlayerSliderRow(
                 value = style.offset,
                 valueRange = PlayerSubtitleStyleOptions.offsetRange,
                 valueLabel = { "$it%" },
                 onValueCommitted = { onStyleChange(style.copy(offset = it)) },
             )
-            MobilePlayerSidePanelLabel(stringResource(R.string.player_subtitle_color_title))
+            MobilePlayerSubtitleStyleLabel(stringResource(R.string.player_subtitle_color_title))
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -65,7 +62,7 @@ internal fun MobilePlayerSubtitleStyleSection(
                     )
                 }
             }
-            MobilePlayerSidePanelLabel(stringResource(R.string.player_subtitle_background_title))
+            MobilePlayerSubtitleStyleLabel(stringResource(R.string.player_subtitle_background_title))
             MobilePlayerIconChoiceRow(
                 options = PlayerSubtitleBackground.entries,
                 selected = style.background,
@@ -73,7 +70,7 @@ internal fun MobilePlayerSubtitleStyleSection(
                 label = { it.label() },
                 onSelected = { onStyleChange(style.copy(background = it)) },
             )
-            MobilePlayerSidePanelLabel(stringResource(R.string.player_subtitle_edge_title))
+            MobilePlayerSubtitleStyleLabel(stringResource(R.string.player_subtitle_edge_title))
             MobilePlayerIconChoiceRow(
                 options = PlayerSubtitleEdge.entries,
                 selected = style.edge,
@@ -86,7 +83,7 @@ internal fun MobilePlayerSubtitleStyleSection(
 }
 
 @Composable
-private fun MobilePlayerSidePanelLabel(text: String) {
+private fun MobilePlayerSubtitleStyleLabel(text: String) {
     Text(
         text = text,
         style = MaterialTheme.typography.bodyMedium,

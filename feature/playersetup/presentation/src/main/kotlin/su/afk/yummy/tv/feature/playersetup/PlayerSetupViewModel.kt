@@ -21,9 +21,13 @@ class PlayerSetupViewModel @Inject internal constructor(
     private val settingsNavigator: ISettingsNavigator,
 ) : BaseViewModel<PlayerSetupState.State, PlayerSetupState.Event, PlayerSetupState.Effect>() {
 
-    override fun createInitialState() = PlayerSetupState.State()
+    override fun createInitialState() = PlayerSetupState.State(
+        contentLanguage = settingsHandler.initialContentLanguage(),
+    )
 
     init {
+        // Сразу подставляем язык устройства/сохранённый язык до первой отрисовки мастера.
+        setState { copy(interfaceLanguage = settingsHandler.selectedInterfaceLanguage()) }
         settingsHandler.observe()
             .onEach { settings -> setState { settings } }
             .launchIn(viewModelScope)
@@ -51,10 +55,20 @@ class PlayerSetupViewModel @Inject internal constructor(
                 settingsHandler.setPictureInPictureEnabled(!currentState.pictureInPictureEnabled)
             }
 
+            PlayerSetupState.Event.AutoBrightnessToggled -> launchWrite {
+                settingsHandler.setAutoBrightnessEnabled(!currentState.autoBrightnessEnabled)
+            }
+
             PlayerSetupState.Event.AdaptiveVideoQualityToggled -> launchWrite {
                 settingsHandler.setAdaptiveVideoQualityEnabled(!currentState.adaptiveVideoQualityEnabled)
             }
 
+            is PlayerSetupState.Event.InterfaceLanguageSelected -> {
+                settingsHandler.setInterfaceLanguage(event.language)
+                setState { copy(interfaceLanguage = event.language) }
+            }
+            is PlayerSetupState.Event.AppThemeSelected -> launchWrite { settingsHandler.setAppTheme(event.theme) }
+            is PlayerSetupState.Event.BackgroundStyleSelected -> launchWrite { settingsHandler.setBackgroundStyle(event.style) }
             is PlayerSetupState.Event.ContentLanguageSelected -> launchWrite {
                 settingsHandler.setContentLanguage(event.language)
             }

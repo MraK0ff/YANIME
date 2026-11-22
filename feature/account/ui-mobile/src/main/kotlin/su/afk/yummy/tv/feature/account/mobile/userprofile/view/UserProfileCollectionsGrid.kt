@@ -40,12 +40,12 @@ internal fun UserProfileCollectionsGrid(
     val append = collections.loadState.append
     MobilePosterGrid(contentPadding = PaddingValues(bottom = 32.dp), minCellWidth = 300.dp) {
         when {
-            refresh is LoadState.Loading -> item(key = "loading", span = { GridItemSpan(maxLineSpan) }) {
+            refresh is LoadState.Loading -> item(key = "loading", span = { GridItemSpan(maxLineSpan) }, contentType = "loading_state") {
                 AccountMobileLoadingIndicator()
             }
 
             refresh is LoadState.Error && collections.itemCount == 0 ->
-                item(key = "error", span = { GridItemSpan(maxLineSpan) }) {
+                item(key = "error", span = { GridItemSpan(maxLineSpan) }, contentType = "error_state") {
                     UserProfileMessage(
                         text = refresh.error.uiMessage(),
                         action = stringResource(CoreR.string.common_retry),
@@ -53,13 +53,14 @@ internal fun UserProfileCollectionsGrid(
                     )
                 }
 
-            collections.itemCount == 0 -> item(key = "empty", span = { GridItemSpan(maxLineSpan) }) {
+            collections.itemCount == 0 -> item(key = "empty", span = { GridItemSpan(maxLineSpan) }, contentType = "empty_state") {
                 AccountMobileEmptyText(text = stringResource(R.string.user_profile_section_empty))
             }
         }
         items(
             count = collections.itemCount,
             key = collections.safeItemKey("collection") { "collection_${it.id}" },
+            contentType = { "user_collection" },
         ) { index ->
             collections.getOrNull(index)?.let { item ->
                 MobileCollectionCard(

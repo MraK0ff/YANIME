@@ -33,6 +33,9 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.Flow
 import su.afk.yummy.tv.core.designsystem.baseScreen.BaseScreen
 import su.afk.yummy.tv.core.designsystem.mobile.layout.mobileContentMaxWidth
+import su.afk.yummy.tv.core.model.settings.AppInterfaceLanguage
+import su.afk.yummy.tv.core.model.settings.AppTheme
+import su.afk.yummy.tv.core.model.settings.BackgroundStyle
 import su.afk.yummy.tv.core.model.settings.PlayerOrientationMode
 import su.afk.yummy.tv.core.model.settings.PreferredVideoQuality
 import su.afk.yummy.tv.core.model.settings.YaniContentLanguage
@@ -82,6 +85,27 @@ fun PlayerSetupMobileScreen(
 
             PlayerSetupMobileSection(title = stringResource(R.string.player_setup_mobile_section_general)) {
                 PlayerSetupMobileOptionRow(
+                    label = stringResource(R.string.player_setup_interface_language_label),
+                    icon = Icons.Outlined.Language,
+                    value = state.interfaceLanguage.setupLabel(),
+                    hint = stringResource(R.string.player_setup_interface_language_hint),
+                    onClick = { activePicker = PlayerSetupMobilePicker.INTERFACE_LANGUAGE },
+                )
+                PlayerSetupMobileOptionRow(
+                    label = stringResource(R.string.player_setup_theme_label),
+                    icon = Icons.Outlined.Speed,
+                    value = state.appTheme.setupLabel(),
+                    hint = stringResource(R.string.player_setup_theme_hint),
+                    onClick = { activePicker = PlayerSetupMobilePicker.THEME },
+                )
+                PlayerSetupMobileOptionRow(
+                    label = stringResource(R.string.player_setup_background_label),
+                    icon = Icons.Outlined.Speed,
+                    value = state.backgroundStyle.setupLabel(),
+                    hint = stringResource(R.string.player_setup_background_hint),
+                    onClick = { activePicker = PlayerSetupMobilePicker.BACKGROUND },
+                )
+                PlayerSetupMobileOptionRow(
                     label = stringResource(R.string.player_setup_language_label),
                     icon = Icons.Outlined.Language,
                     value = state.contentLanguage.setupLabel(),
@@ -125,6 +149,13 @@ fun PlayerSetupMobileScreen(
             }
 
             PlayerSetupMobileSection(title = stringResource(R.string.player_setup_mobile_section_playback)) {
+                PlayerSetupMobileToggleRow(
+                    label = stringResource(R.string.player_setup_auto_brightness_label),
+                    icon = Icons.Outlined.Lightbulb,
+                    hint = stringResource(R.string.player_setup_auto_brightness_hint),
+                    enabled = state.autoBrightnessEnabled,
+                    onClick = { onEvent(PlayerSetupState.Event.AutoBrightnessToggled) },
+                )
                 PlayerSetupMobileOptionRow(
                     label = stringResource(R.string.player_setup_mobile_orientation_label),
                     icon = Icons.Outlined.ScreenRotation,
@@ -172,6 +203,27 @@ fun PlayerSetupMobileScreen(
     }
 
     when (activePicker) {
+        PlayerSetupMobilePicker.INTERFACE_LANGUAGE -> PlayerSetupMobilePickerSheet(
+            title = stringResource(R.string.player_setup_interface_language_label),
+            selectedValue = state.interfaceLanguage,
+            options = AppInterfaceLanguage.entries.map { PlayerSetupMobilePickerOption(it, it.setupLabel()) },
+            onDismiss = { activePicker = null },
+            onSelected = { onEvent(PlayerSetupState.Event.InterfaceLanguageSelected(it)); activePicker = null },
+        )
+        PlayerSetupMobilePicker.THEME -> PlayerSetupMobilePickerSheet(
+            title = stringResource(R.string.player_setup_theme_label),
+            selectedValue = state.appTheme,
+            options = AppTheme.entries.map { PlayerSetupMobilePickerOption(it, it.setupLabel()) },
+            onDismiss = { activePicker = null },
+            onSelected = { onEvent(PlayerSetupState.Event.AppThemeSelected(it)); activePicker = null },
+        )
+        PlayerSetupMobilePicker.BACKGROUND -> PlayerSetupMobilePickerSheet(
+            title = stringResource(R.string.player_setup_background_label),
+            selectedValue = state.backgroundStyle,
+            options = BackgroundStyle.entries.map { PlayerSetupMobilePickerOption(it, it.setupLabel()) },
+            onDismiss = { activePicker = null },
+            onSelected = { onEvent(PlayerSetupState.Event.BackgroundStyleSelected(it)); activePicker = null },
+        )
         PlayerSetupMobilePicker.LANGUAGE -> PlayerSetupMobilePickerSheet(
             title = stringResource(R.string.player_setup_language_label),
             selectedValue = state.contentLanguage,

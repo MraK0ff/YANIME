@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -37,42 +39,45 @@ internal fun MobilePlayerSelectionRow(
     trailingContent: @Composable (() -> Unit)? = null,
     onClick: () -> Unit,
 ) {
-    val shape = MaterialTheme.shapes.medium
+    val shape = MobilePlayerInteractiveShape
+    val contentAlpha = if (enabled) 1f else 0.42f
     val background = if (selected) {
-        MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+        MaterialTheme.colorScheme.secondaryContainer
     } else {
-        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.58f)
+        MaterialTheme.colorScheme.surfaceContainerLow
     }
-    val textColor = if (selected || accentLabel) {
-        MaterialTheme.colorScheme.primary
-    } else {
-        MaterialTheme.colorScheme.onSurface
-    }.let { if (enabled) it else it.copy(alpha = 0.42f) }
-    // Акцент только на названии: просмотры, число серий и список балансеров остаются
-    // нейтральными, как в шторках выбора на экране деталей.
-    val metaColor = if (accentLabel) {
-        MaterialTheme.colorScheme.onSurfaceVariant.let { if (enabled) it else it.copy(alpha = 0.42f) }
-    } else {
-        textColor
+    val selectedContentColor = MaterialTheme.colorScheme.onSecondaryContainer
+    val textColor = when {
+        selected -> selectedContentColor
+        accentLabel -> MaterialTheme.colorScheme.primary
+        else -> MaterialTheme.colorScheme.onSurface
+    }.copy(alpha = contentAlpha)
+    val metaColor = when {
+        selected -> selectedContentColor.copy(alpha = 0.82f * contentAlpha)
+        accentLabel -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = contentAlpha)
+        else -> textColor
     }
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .heightIn(min = 64.dp)
             .clip(shape)
             .background(background)
             .clickable(
                 enabled = enabled,
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
+                role = Role.RadioButton,
+                onClickLabel = label,
                 onClick = onClick,
             )
-            .padding(horizontal = 14.dp, vertical = 13.dp),
+            .padding(horizontal = 14.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         if (logoFallbackIcon != null) {
-            LogoBadge(logoRes = logoRes, size = 32.dp, fallbackIcon = logoFallbackIcon)
+            LogoBadge(logoRes = logoRes, size = 36.dp, fallbackIcon = logoFallbackIcon)
         }
         Column(
             modifier = Modifier.weight(1f),
@@ -80,8 +85,8 @@ internal fun MobilePlayerSelectionRow(
         ) {
             Text(
                 text = label,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
                 color = textColor,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

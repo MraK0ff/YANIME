@@ -15,11 +15,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.feature.settings.common.utils.color
-import su.afk.yummy.tv.feature.settings.common.utils.hint
-import su.afk.yummy.tv.feature.settings.common.utils.label
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 @Composable
 internal fun SettingsMobileActionRow(
@@ -34,15 +31,14 @@ internal fun SettingsMobileActionRow(
             .fillMaxWidth()
             .graphicsLayer { alpha = if (enabled) 1f else 0.58f }
             .clickable(enabled = enabled, onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+            .padding(horizontal = YummySpacing.Large, vertical = YummySpacing.Medium),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = label,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.bodyLargeEmphasized,
                 color = MaterialTheme.colorScheme.onBackground,
             )
             Text(

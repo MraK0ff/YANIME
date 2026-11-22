@@ -27,14 +27,14 @@ internal fun DialogMobileRow(dialog: DialogSummary, onClick: () -> Unit) {
     val context = LocalContext.current
     Card(
         shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
     ) {
         Row(
-            modifier = Modifier.padding(14.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             DialogMobileAvatar(avatarUrl = dialog.avatarUrl, name = dialog.displayName())

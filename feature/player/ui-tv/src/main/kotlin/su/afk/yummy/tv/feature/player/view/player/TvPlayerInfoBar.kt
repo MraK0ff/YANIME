@@ -3,8 +3,8 @@ package su.afk.yummy.tv.feature.player.view.player
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
@@ -15,9 +15,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.background
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.theme.overline
@@ -30,77 +32,65 @@ internal fun TvPlayerInfoBar(
     visible: Boolean,
     animeTitle: String,
     episode: String,
+    episodeTitle: String? = null,
     dubbing: String,
     modifier: Modifier = Modifier,
 ) {
     AnimatedVisibility(
-        visible = visible && (animeTitle.isNotBlank() || episode.isNotBlank() || dubbing.isNotBlank()),
+        visible = visible && (animeTitle.isNotBlank() || episode.isNotBlank()),
         modifier = modifier
             .windowInsetsPadding(WindowInsets.safeDrawing)
-            .padding(top = 16.dp, start = 16.dp),
+            .padding(top = 24.dp, start = 48.dp, end = 48.dp),
         enter = fadeIn(),
         exit = fadeOut(),
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            if (animeTitle.isNotBlank() || episode.isNotBlank()) {
-                val infoText = when {
-                    animeTitle.isNotBlank() && episode.isNotBlank() -> stringResource(
-                        R.string.player_info_title_episode,
-                        animeTitle,
-                        episode,
-                    )
-                    animeTitle.isNotBlank() -> animeTitle
-                    else -> stringResource(R.string.player_episode_number, episode)
-                }
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            if (animeTitle.isNotBlank()) {
                 Text(
-                    text = infoText,
-                    style = MaterialTheme.typography.bodyMedium,
+                    text = animeTitle,
+                    style = MaterialTheme.typography.titleMedium,
                     color = Color.White,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(Color.Black.copy(alpha = 0.55f))
-                        .padding(horizontal = 10.dp, vertical = 5.dp),
+                    textAlign = TextAlign.Center,
+                    maxLines = 2,
                 )
             }
-            if (dubbing.isNotBlank()) {
+            if (episode.isNotBlank()) {
                 Text(
-                    text = dubbing.dubbingDisplayName(),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = Color.White.copy(alpha = 0.85f),
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(Color.Black.copy(alpha = 0.55f))
-                        .padding(horizontal = 8.dp, vertical = 3.dp),
+                    text = buildString {
+                        append(stringResource(R.string.player_episode_number, episode))
+                        episodeTitle?.takeIf { it.isNotBlank() }?.let { append(" • ").append(it) }
+                    },
+                    style = MaterialTheme.typography.labelLarge,
+                    color = Color.White.copy(alpha = 0.82f),
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
                 )
             }
         }
     }
 }
 
-private val TvFlagFillerColor = Color(0xFFFFC107)
-private val TvFlagRecapColor = Color(0xFF90CAF9)
-
-/** Правый верхний угол: имя плеера и под ним пометка текущей серии («Филлер»/«Рекап»). */
 @Composable
 internal fun TvPlayerNameBadge(
     visible: Boolean,
     playerName: String,
-    isDownloaded: Boolean,
     episodeFlags: EpisodeFlags?,
     modifier: Modifier = Modifier,
 ) {
-    val badgeText = listOfNotNull(
-        playerName.takeIf(String::isNotBlank),
-        stringResource(R.string.player_badge_downloaded).takeIf { isDownloaded },
-    ).joinToString(" • ")
-    val flagLabel = when {
+    val fillerColor = Color(0xFFFFC107)
+    val recapColor = Color(0xFF90CAF9)
+    val flagLabel: Pair<String, Color>? = when {
         episodeFlags == null -> null
-        episodeFlags.filler -> stringResource(R.string.player_episode_flag_filler) to TvFlagFillerColor
-        episodeFlags.recap -> stringResource(R.string.player_episode_flag_recap) to TvFlagRecapColor
+        episodeFlags.filler -> Pair(stringResource(R.string.player_episode_flag_filler), fillerColor)
+        episodeFlags.recap -> Pair(stringResource(R.string.player_episode_flag_recap), recapColor)
         else -> null
     }
     AnimatedVisibility(
-        visible = visible && (badgeText.isNotBlank() || flagLabel != null),
+        visible = visible && flagLabel != null,
         modifier = modifier
             .windowInsetsPadding(WindowInsets.safeDrawing)
             .padding(top = 16.dp, end = 16.dp),
@@ -111,17 +101,6 @@ internal fun TvPlayerNameBadge(
             horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            if (badgeText.isNotBlank()) {
-                Text(
-                    text = badgeText.uppercase(),
-                    style = MaterialTheme.typography.labelSmall.overline(),
-                    color = Color.Black,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(Color.White.copy(alpha = 0.90f))
-                        .padding(horizontal = 8.dp, vertical = 3.dp),
-                )
-            }
             if (flagLabel != null) {
                 Text(
                     text = flagLabel.first,

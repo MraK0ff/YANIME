@@ -27,10 +27,7 @@ import su.afk.yummy.tv.feature.player.common.PlayerVolumeController
 import su.afk.yummy.tv.feature.player.presentation.R
 import kotlin.math.roundToInt
 
-/**
- * Громкость плеера (независимая от системной, шаг 1%) и стабилизация громкости в боковой панели.
- * Ползунок применяется на лету: [PlayerVolumeController] сам дебаунсит запись.
- */
+/** Громкость и стабилизация звука в общей системе настроек плеера. */
 @Composable
 internal fun MobilePlayerVolumeSection(
     showVolume: Boolean,

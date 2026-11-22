@@ -5,7 +5,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Badge
@@ -24,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.feature.catalog.presentation.R
 
 /** Высота совпадает с полем поиска (минимум OutlinedTextField), чтобы ряд шапки был ровным. */
@@ -47,13 +47,13 @@ internal fun FilterButton(
             .size(CatalogTvHeaderButtonHeight)
             .semantics { contentDescription = description },
         interactionSource = interactionSource,
-        shape = RoundedCornerShape(12.dp),
+        shape = YummyShapeTokens.Control,
         colors = ButtonDefaults.buttonColors(
             containerColor = if (focused) colors.primary else Color.Transparent,
             contentColor = if (focused) colors.onPrimary else colors.onSurface,
         ),
         border = BorderStroke(
-            width = if (focused) 2.dp else 1.dp,
+            width = if (focused) 2.dp else 0.75.dp,
             color = if (focused) colors.primary else colors.outline,
         ),
         contentPadding = PaddingValues(0.dp),

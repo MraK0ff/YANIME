@@ -1,0 +1,182 @@
+package su.afk.yummy.tv.feature.player.mobile.view
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material3.Icon
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
+import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplayMode
+import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
+import su.afk.yummy.tv.core.utils.formatting.millisToClockTime
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+@Composable
+internal fun MobilePlayerTimeOverlay(
+    settings: PlayerTimeDisplaySettings,
+    displayTimeMs: Long,
+    durationMs: Long,
+    controlsActive: Boolean,
+    videoTopInset: Dp,
+    videoBottomInset: Dp,
+    showRemainingTime: Boolean,
+    onTimeCodeClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val showClock = shouldShow(settings.systemClock, controlsActive)
+    val showFinish = durationMs > 0L && shouldShow(settings.finishAt, controlsActive)
+    var nowMs by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    // Keep the wall-clock ticker dormant when both time indicators are hidden.
+    LaunchedEffect(showClock, showFinish) {
+        if (!showClock && !showFinish) return@LaunchedEffect
+        while (true) {
+            nowMs = System.currentTimeMillis()
+            delay(1_000L)
+        }
+    }
+    val remainingMs = (durationMs - displayTimeMs).coerceAtLeast(0L)
+    val clockFormat = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
+    val systemClock = clockFormat.format(Date(nowMs))
+    val finishAt = clockFormat.format(Date(nowMs + remainingMs))
+    val combineClockAndFinish = settings.combineClockAndFinishAt && showClock && showFinish
+    // Split time chips belong to the idle player only; active controls show one combined timecode.
+    val showCombined = !settings.separateTimecodes && !controlsActive && durationMs > 0L && shouldShow(settings.elapsed, controlsActive)
+    val showElapsed = settings.separateTimecodes && !controlsActive && durationMs > 0L && shouldShow(settings.elapsed, controlsActive)
+    val showDuration = settings.separateTimecodes && !controlsActive && durationMs > 0L && shouldShow(settings.duration, controlsActive)
+    val edgeTopPadding = 56.dp + videoTopInset.coerceAtLeast(0.dp)
+    val edgeBottomPadding = if (videoBottomInset > 0.dp) videoBottomInset / 2 else 12.dp
+
+    Box(modifier = modifier.fillMaxSize()) {
+        if (combineClockAndFinish) {
+            TimeChip(
+                values = listOf(systemClock, finishAt), idleDim = !controlsActive,
+                modifier = Modifier.align(Alignment.TopEnd)
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.End + WindowInsetsSides.Top))
+                    .padding(end = 8.dp, top = edgeTopPadding),
+            )
+        } else {
+            if (showClock) TimeChip(
+                values = listOf(systemClock),
+                finishOnly = false, idleDim = !controlsActive,
+                modifier = Modifier.align(Alignment.TopStart)
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Start + WindowInsetsSides.Top))
+                    .padding(start = 8.dp, top = edgeTopPadding),
+            )
+            if (showFinish) TimeChip(
+                values = listOf(finishAt),
+                finishOnly = true, idleDim = !controlsActive,
+                modifier = Modifier.align(Alignment.TopEnd)
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.End + WindowInsetsSides.Top))
+                    .padding(end = 8.dp, top = edgeTopPadding),
+            )
+        }
+        if (showCombined) {
+            TimeValueChip(
+                value = "${displayTimeMs.millisToClockTime()} / ${durationMs.millisToClockTime()}",
+                idleDim = !controlsActive,
+                modifier = Modifier.align(Alignment.BottomStart)
+                    .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom))
+                    .padding(start = 8.dp, bottom = edgeBottomPadding),
+                onClick = onTimeCodeClick,
+            )
+        }
+        if (showElapsed) {
+            TimeValueChip(
+                value = if (showRemainingTime) "-${remainingMs.millisToClockTime().padStart(5, '0')}"
+                    else displayTimeMs.millisToClockTime().padStart(5, '0'),
+                idleDim = !controlsActive,
+                modifier = Modifier.align(Alignment.BottomStart)
+                    .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom))
+                    .padding(start = 8.dp, bottom = edgeBottomPadding),
+                onClick = onTimeCodeClick,
+            )
+        }
+        if (showDuration) {
+            TimeValueChip(
+                value = durationMs.millisToClockTime().padStart(5, '0'),
+                idleDim = !controlsActive,
+                modifier = Modifier.align(Alignment.BottomEnd)
+                    .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom))
+                    .padding(end = 8.dp, bottom = edgeBottomPadding),
+                onClick = onTimeCodeClick,
+            )
+        }
+    }
+}
+
+@Composable
+private fun TimeChip(values: List<String>, modifier: Modifier = Modifier, finishOnly: Boolean = false, idleDim: Boolean = false) {
+    Row(
+        modifier = modifier
+            .then(if (idleDim) Modifier.background(Color.Black.copy(alpha = 0.56f), RoundedCornerShape(8.dp)) else Modifier)
+            .padding(horizontal = 8.dp, vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        values.forEachIndexed { index, value ->
+            val isFinishTime = finishOnly || index > 0
+            Icon(
+                imageVector = if (isFinishTime) Icons.Filled.Timer else Icons.Filled.AccessTime,
+                contentDescription = null,
+                tint = Color.White.copy(alpha = 0.76f),
+                modifier = Modifier.size(14.dp),
+            )
+            Text(text = value, style = MaterialTheme.typography.labelMedium, color = Color.White, maxLines = 1)
+        }
+    }
+}
+
+@Composable
+private fun TimeValueChip(
+    value: String,
+    modifier: Modifier = Modifier,
+    idleDim: Boolean = false,
+    onClick: () -> Unit,
+) {
+    Text(
+        text = value,
+        style = MaterialTheme.typography.labelSmall,
+        color = Color.White,
+        maxLines = 1,
+        modifier = modifier
+            .clickable(onClick = onClick)
+            .then(if (idleDim) Modifier.background(Color.Black.copy(alpha = 0.56f), RoundedCornerShape(8.dp)) else Modifier)
+            .padding(horizontal = 9.dp, vertical = 4.dp),
+    )
+}
+
+private fun shouldShow(mode: PlayerTimeDisplayMode, controlsActive: Boolean): Boolean =
+    when (mode) {
+        PlayerTimeDisplayMode.ALWAYS -> true
+        PlayerTimeDisplayMode.CONTROLS -> controlsActive
+        PlayerTimeDisplayMode.NEVER -> false
+    }

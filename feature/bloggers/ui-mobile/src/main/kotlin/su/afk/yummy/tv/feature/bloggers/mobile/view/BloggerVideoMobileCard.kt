@@ -8,11 +8,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.ThumbUp
@@ -29,11 +29,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.utils.formatting.formatFeedDateTime
 import su.afk.yummy.tv.core.utils.formatting.toCompactCount
 import su.afk.yummy.tv.domain.bloggers.model.BloggerVideo
@@ -49,11 +52,11 @@ fun BloggerVideoMobileCard(
     ElevatedCard(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = YummyShapeTokens.Card,
         colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         ),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 0.dp),
     ) {
         Box(
             modifier = Modifier
@@ -69,7 +72,7 @@ fun BloggerVideoMobileCard(
             )
             Surface(
                 modifier = Modifier.align(Alignment.Center),
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.94f),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.86f),
                 contentColor = MaterialTheme.colorScheme.onPrimary,
                 shape = CircleShape,
                 shadowElevation = 6.dp,
@@ -78,15 +81,15 @@ fun BloggerVideoMobileCard(
                     imageVector = Icons.Filled.PlayArrow,
                     contentDescription = stringResource(R.string.blogger_video_watch),
                     modifier = Modifier
-                        .padding(12.dp)
-                        .size(28.dp),
+                        .padding(10.dp)
+                        .size(24.dp),
                 )
             }
             Row(
                 modifier = Modifier
                     .align(Alignment.TopStart)
-                    .padding(10.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    .padding(YummySpacing.Medium),
+                horizontalArrangement = Arrangement.spacedBy(YummySpacing.XSmall),
             ) {
                 VideoBadge(video.category.title, MaterialTheme.colorScheme.primary)
                 if (video.hasSpoiler) {
@@ -99,34 +102,35 @@ fun BloggerVideoMobileCard(
         }
 
         Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(YummySpacing.Medium),
+            verticalArrangement = Arrangement.spacedBy(YummySpacing.Small),
         ) {
             Text(
                 text = video.title,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleLargeEmphasized,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(YummySpacing.Small),
             ) {
                 AsyncImage(
                     model = video.creator.avatarUrl,
                     contentDescription = video.creator.nickname,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .size(34.dp)
+                        .size(YummySpacing.TouchTarget)
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.surfaceVariant)
-                        .clickable(onClick = onBloggerClick),
+                        .clickable(role = Role.Button, onClick = onBloggerClick),
                 )
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        .clickable(onClick = onBloggerClick),
+                        .heightIn(min = YummySpacing.TouchTarget)
+                        .clickable(role = Role.Button, onClick = onBloggerClick),
                 ) {
                     Text(
                         text = video.creator.nickname,
@@ -159,13 +163,13 @@ private fun VideoBadge(label: String, color: androidx.compose.ui.graphics.Color)
         contentColor = if (color == MaterialTheme.colorScheme.primary) {
             MaterialTheme.colorScheme.onPrimary
         } else MaterialTheme.colorScheme.onError,
-        shape = RoundedCornerShape(50),
+        shape = YummyShapeTokens.Pill,
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp),
+            modifier = Modifier.padding(horizontal = YummySpacing.Medium, vertical = YummySpacing.XSmall),
         )
     }
 }
@@ -178,7 +182,7 @@ private fun VideoMetric(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(YummySpacing.XSmall),
     ) {
         Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(16.dp))
         Text(value, style = MaterialTheme.typography.labelMedium, color = color)

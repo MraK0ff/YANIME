@@ -18,6 +18,7 @@ dependencies {
     implementation(project(":core:tv:api"))
     implementation(project(":core:utils"))
     implementation(project(":feature:home:domain"))
+    implementation(project(":feature:schedule:domain"))
 
     implementation(libs.kotlinx.serialization.json)
 

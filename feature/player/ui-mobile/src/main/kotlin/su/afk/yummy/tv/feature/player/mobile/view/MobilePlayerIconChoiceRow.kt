@@ -34,7 +34,7 @@ internal fun <T> MobilePlayerIconChoiceRow(
     label: @Composable (T) -> String,
     onSelected: (T) -> Unit,
 ) {
-    val shape = MaterialTheme.shapes.medium
+    val shape = MobilePlayerInteractiveShape
     val colors = MaterialTheme.colorScheme
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(
@@ -49,7 +49,7 @@ internal fun <T> MobilePlayerIconChoiceRow(
                         .height(48.dp)
                         .clip(shape)
                         .background(
-                            if (isSelected) colors.primary.copy(alpha = 0.18f) else colors.surfaceVariant.copy(alpha = 0.58f),
+                            if (isSelected) colors.primary.copy(alpha = MobilePlayerSelectedContainerAlpha) else colors.surfaceVariant.copy(alpha = MobilePlayerUnselectedContainerAlpha),
                         )
                         .border(1.dp, if (isSelected) colors.primary else Color.Transparent, shape)
                         .clickable(role = Role.RadioButton) { onSelected(option) },

@@ -21,6 +21,11 @@ class LazyKeysTest : BaseUnitTest() {
     fun `one id in one section gives one key regardless of position`() {
         assertEquals(lazyKey("post", 7, index = 0), lazyKey("post", 7, index = 3))
     }
+
+    @Test
+    fun `different paging placeholders have different keys`() {
+        assertNotEquals(lazyKey("video", null, index = 0), lazyKey("video", null, index = 1))
+    }
 }
 
 class PagingItemKeyTest : BaseUnitTest() {

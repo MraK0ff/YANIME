@@ -5,10 +5,14 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import dagger.hilt.android.AndroidEntryPoint
-import su.afk.yummy.tv.android.view.InterfaceModeDialog
-import su.afk.yummy.tv.core.designsystem.theme.YummyTvTheme
 import su.afk.yummy.tv.core.preferences.interface_language.AppInterfaceLanguageContext
+import su.afk.yummy.tv.core.preferences.device.DeviceTypeDetector
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceModePreferences
 import javax.inject.Inject
@@ -23,6 +27,9 @@ import javax.inject.Inject
 class InterfaceRouterActivity : ComponentActivity() {
 
     @Inject
+    lateinit var deviceTypeDetector: DeviceTypeDetector
+
+    @Inject
     lateinit var interfaceModePreferences: AppInterfaceModePreferences
 
     override fun attachBaseContext(newBase: Context) {
@@ -31,49 +38,26 @@ class InterfaceRouterActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        observeInterfaceLanguageChanges()
 
-        // Отсутствие значения означает первый запуск после установки или очистки данных.
-        val selectedMode = interfaceModePreferences.selectedMode
-        if (selectedMode == null) {
-            showInterfaceModeDialog()
-        } else {
-            // Сохранённый выбор позволяет сразу открыть нужный граф без повторного диалога.
-            openSelectedInterface(selectedMode)
-        }
+        openDetectedInterface()
     }
 
-    private fun showInterfaceModeDialog() {
-        setContent {
-            YummyTvTheme {
-                InterfaceModeDialog(
-                    onTvSelected = { selectAndOpenInterface(AppInterfaceMode.TV) },
-                    onMobileSelected = { selectAndOpenInterface(AppInterfaceMode.MOBILE) },
-                )
-            }
+    private fun openDetectedInterface() {
+        val useTvInterface = when (interfaceModePreferences.selectedMode ?: AppInterfaceMode.AUTO) {
+            AppInterfaceMode.AUTO -> deviceTypeDetector.isTv
+            AppInterfaceMode.MOBILE -> false
+            AppInterfaceMode.TV -> true
         }
-    }
-
-    private fun selectAndOpenInterface(mode: AppInterfaceMode) {
-        interfaceModePreferences.select(mode)
-        openSelectedInterface(mode)
-    }
-
-    private fun openSelectedInterface(mode: AppInterfaceMode) {
-        val target = when (mode) {
-            AppInterfaceMode.MOBILE -> MobileActivity::class.java
-            AppInterfaceMode.TV -> TvActivity::class.java
-        }
+        val target = if (useTvInterface) TvActivity::class.java else MobileActivity::class.java
         val sourceIntent = intent
-        // Не переносим launcher-флаги исходного Intent, но переиспользуем уже открытую Activity,
-        // чтобы в одном task не появлялись два NavHost с общим NavigationManager.
         val targetIntent = Intent(this, target).apply {
             action = sourceIntent.action
             data = sourceIntent.data
             putExtras(sourceIntent)
             clipData = sourceIntent.clipData
             flags = (sourceIntent.flags and FORWARDED_URI_PERMISSION_FLAGS) or
-                Intent.FLAG_ACTIVITY_CLEAR_TOP or
-                Intent.FLAG_ACTIVITY_SINGLE_TOP
+                Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
         startActivity(targetIntent)
         finish()
@@ -86,4 +70,17 @@ class InterfaceRouterActivity : ComponentActivity() {
                 Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION or
                 Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
     }
+
+    private fun observeInterfaceLanguageChanges() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                AppInterfaceLanguageContext.languageChanges.collect {
+                    // Обновляется только Activity: процесс и состояние навигации сохраняются.
+                    recreate()
+                }
+            }
+        }
+    }
+
+
 }

@@ -5,8 +5,10 @@ internal enum class PlayerControlFocusTarget {
     Balancer,
     Episodes,
     Quality,
+    Speed,
+    Subtitles,
 
-    /** Боковое меню настроек справа: скорость, масштаб, субтитры и звук. */
+    /** Боковое меню настроек справа: масштаб, время на экране и звук. */
     PlayerSettings,
     Alloha,
 

@@ -10,4 +10,8 @@ object PendingMutationTypes {
     const val SET_RATING = "set_rating"
     const val DELETE_RATING = "delete_rating"
     const val VOTE_REVIEW = "vote_review"
+    const val MARK_NOTIFICATION_READ = "mark_notification_read"
+    const val MARK_ALL_NOTIFICATIONS_READ = "mark_all_notifications_read"
+    const val DELETE_NOTIFICATION = "delete_notification"
+    const val DELETE_ALL_NOTIFICATIONS = "delete_all_notifications"
 }

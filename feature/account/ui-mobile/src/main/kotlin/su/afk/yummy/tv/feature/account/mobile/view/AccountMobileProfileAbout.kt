@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
@@ -26,6 +25,8 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.feature.account.mobile.account.utils.linkifyUrls
 import su.afk.yummy.tv.feature.account.presentation.R
 
@@ -52,9 +53,9 @@ internal fun AccountMobileProfileAbout(
             .fillMaxWidth()
             .animateContentSize()
             // Скругляем, чтобы подсветка нажатия не была квадратной.
-            .clip(RoundedCornerShape(12.dp))
+            .clip(YummyShapeTokens.Compact)
             .then(if (toggleable) Modifier.clickable { expanded = !expanded } else Modifier)
-            .padding(vertical = 4.dp),
+            .padding(vertical = YummySpacing.XSmall),
         verticalAlignment = Alignment.Top,
     ) {
         Text(
@@ -73,7 +74,7 @@ internal fun AccountMobileProfileAbout(
                     if (expanded) R.string.account_mobile_about_collapse else R.string.account_mobile_about_expand,
                 ),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f),
-                modifier = Modifier.padding(start = 8.dp),
+                modifier = Modifier.padding(start = YummySpacing.Small),
             )
         }
     }

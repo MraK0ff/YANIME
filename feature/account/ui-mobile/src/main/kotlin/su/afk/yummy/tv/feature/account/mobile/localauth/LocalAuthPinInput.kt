@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -131,15 +130,15 @@ private fun PinCell(
     Box(
         modifier = Modifier
             .size(width = 22.dp, height = 44.dp)
-            .clip(RoundedCornerShape(8.dp))
+            .clip(MaterialTheme.shapes.small)
             .background(colorScheme.surfaceVariant.copy(alpha = 0.34f))
-            .border(borderWidth, borderColor, RoundedCornerShape(8.dp)),
+            .border(borderWidth, borderColor, MaterialTheme.shapes.small),
         contentAlignment = Alignment.Center,
     ) {
         if (digit != null) {
             Text(
                 text = digit.toString(),
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleMediumEmphasized,
                 color = colorScheme.onSurface,
             )
         } else {
@@ -147,7 +146,7 @@ private fun PinCell(
             Box(
                 modifier = Modifier
                     .size(width = 8.dp, height = 2.dp)
-                    .clip(RoundedCornerShape(1.dp))
+                    .clip(MaterialTheme.shapes.extraSmall)
                     .background(colorScheme.outlineVariant),
             )
         }

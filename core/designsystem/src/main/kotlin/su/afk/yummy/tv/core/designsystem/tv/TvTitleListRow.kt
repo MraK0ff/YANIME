@@ -29,14 +29,14 @@ fun TvTitleListRow(
     /** Действие в правом верхнем углу (крестик удаления), как `trailingAction` на мобилке. */
     trailingAction: (@Composable () -> Unit)? = null,
 ) {
-    val shape = RoundedCornerShape(10.dp)
+    val shape = RoundedCornerShape(12.dp)
     Column(
         modifier = modifier
             .fillMaxWidth()
             // Фокус (масштаб и рамка) — снаружи clip: иначе скруглённый clip срезает и то и другое.
             .tvFocusableClick(onClick = onClick, onLongClick = onLongClick, shape = shape)
             .clip(shape)
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.34f)),
+            .background(MaterialTheme.colorScheme.surfaceContainerLow),
     ) {
         TitleListRowContent(
             item = item,

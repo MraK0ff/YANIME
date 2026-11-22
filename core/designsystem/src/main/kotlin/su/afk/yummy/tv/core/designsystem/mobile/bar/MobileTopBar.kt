@@ -15,18 +15,23 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.R
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
-private val CompactMobileTopBarHeight = 52.dp
+private val CompactMobileTopBarHeight = 64.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MobileTopBar(
     title: String,
     modifier: Modifier = Modifier,
+    containerColor: Color = MaterialTheme.colorScheme.surfaceContainerLow,
     onBack: (() -> Unit)? = null,
     titleLeading: (@Composable () -> Unit)? = null,
     actions: @Composable () -> Unit = {},
@@ -38,10 +43,12 @@ fun MobileTopBar(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 titleLeading?.let {
                     it()
-                    Spacer(Modifier.width(10.dp))
+                    Spacer(Modifier.width(YummySpacing.Medium))
                 }
                 Text(
                     text = title,
+                    style = MaterialTheme.typography.titleLargeEmphasized,
+                    modifier = Modifier.semantics { heading() },
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -59,8 +66,8 @@ fun MobileTopBar(
         },
         actions = { actions() },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            scrolledContainerColor = MaterialTheme.colorScheme.surface,
+            containerColor = containerColor,
+            scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainer,
         ),
     )
 }

@@ -181,7 +181,7 @@ fun PostsTvScreen(
                         onClick = { onEvent(PostsListState.Event.CategorySelected(null)) },
                     )
                 }
-                items(state.categories, key = { it.uri }) { category ->
+                items(state.categories, key = { it.uri }, contentType = { "post_category" }) { category ->
                     TvChip(
                         label = category.title,
                         selected = state.selectedCategory == category.uri,
@@ -220,7 +220,11 @@ fun PostsTvScreen(
             }
 
             else -> {
-                items(posts.itemCount, key = posts.safeItemKey(POST_KEY_PREFIX) { lazyKey(POST_KEY_PREFIX, it.id) }) { index ->
+                items(
+                    count = posts.itemCount,
+                    key = posts.safeItemKey(POST_KEY_PREFIX) { lazyKey(POST_KEY_PREFIX, it.id) },
+                    contentType = { "post" },
+                ) { index ->
                     posts.getOrNull(index)?.let { post ->
                         PostTvCard(
                             post,

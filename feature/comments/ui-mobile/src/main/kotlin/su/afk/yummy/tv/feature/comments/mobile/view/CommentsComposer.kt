@@ -27,6 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import coil3.compose.AsyncImage
 import su.afk.yummy.tv.core.designsystem.R as CoreR
 import su.afk.yummy.tv.feature.comments.CommentsState
@@ -50,7 +51,7 @@ internal fun CommentsComposer(
         Surface(
             tonalElevation = 1.dp,
             shadowElevation = 0.dp,
-            color = MaterialTheme.colorScheme.surface,
+            color = MaterialTheme.colorScheme.surfaceContainerLow,
         ) {
             if (!isSignedIn) {
                 Text(
@@ -59,15 +60,15 @@ internal fun CommentsComposer(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                        .padding(horizontal = YummySpacing.Large - 2.dp, vertical = YummySpacing.Medium - 2.dp),
                 )
                 return@Surface
             }
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
+                    .padding(horizontal = YummySpacing.Medium, vertical = YummySpacing.Small),
+                verticalArrangement = Arrangement.spacedBy(YummySpacing.Small - 2.dp),
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -137,11 +138,11 @@ private fun ComposerModeLabel(
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .size(20.dp)
+                    .size(YummySpacing.Large + YummySpacing.XSmall)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)),
             )
-            Box(Modifier.width(6.dp))
+            Box(Modifier.width(YummySpacing.Small - 2.dp))
             Text(
                 text = stringResource(R.string.comments_reply_to, mode.replyToName),
                 style = MaterialTheme.typography.labelSmall,

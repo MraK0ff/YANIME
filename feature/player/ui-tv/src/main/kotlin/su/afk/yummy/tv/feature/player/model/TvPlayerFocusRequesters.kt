@@ -7,14 +7,18 @@ import androidx.compose.ui.focus.FocusRequester
 internal class TvPlayerFocusRequesters {
     val play = FocusRequester()
     val progress = FocusRequester()
+    val speed = FocusRequester()
     val quality = FocusRequester()
+    val subtitles = FocusRequester()
     val dubbing = FocusRequester()
     val balancer = FocusRequester()
     val episodes = FocusRequester()
     val playerSettings = FocusRequester()
     val alloha = FocusRequester()
     val overlay = FocusRequester()
+    val selectedSpeed = FocusRequester()
     val selectedQuality = FocusRequester()
+    val selectedSubtitles = FocusRequester()
     val selectedDubbing = FocusRequester()
     val selectedBalancer = FocusRequester()
     val selectedEpisodes = FocusRequester()
@@ -30,6 +34,8 @@ internal class TvPlayerFocusRequesters {
     fun control(target: PlayerControlFocusTarget): FocusRequester =
         when (target) {
             PlayerControlFocusTarget.Quality -> quality
+            PlayerControlFocusTarget.Speed -> speed
+            PlayerControlFocusTarget.Subtitles -> subtitles
             PlayerControlFocusTarget.Dubbing -> dubbing
             PlayerControlFocusTarget.Balancer -> balancer
             PlayerControlFocusTarget.Episodes -> episodes

@@ -43,7 +43,11 @@ fun HomeRecommendationsMobileScreen(
         MobilePosterGrid(
             contentPadding = PaddingValues(bottom = MobileBottomBarDefaults.contentBottomPadding),
         ) {
-            items(state.items, key = { lazyKey("homerecommendation", it.id) }) { item ->
+            items(
+                items = state.items,
+                key = { lazyKey("homerecommendation", it.id) },
+                contentType = { "recommendation" },
+            ) { item ->
                 MobilePosterCard(
                     title = item.title,
                     posterUrls = item.poster.posterUrls(),

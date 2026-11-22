@@ -17,7 +17,7 @@ import su.afk.yummy.tv.domain.home.model.LibraryEpisodePush
 import javax.inject.Inject
 
 /**
- * Пуш о новой серии. Основной тап и кнопка «Смотреть» ведут в `yummytv://continue/{id}` — сразу
+ * Пуш о новой серии. Основной тап и кнопка «Смотреть» ведут в `yanime://continue/{id}` — сразу
  * плеер (без записи «продолжить» резолвер сам откроет детали), «Подробнее» — в детали тайтла.
  * Без id тайтла пуш просто открывает главную и кнопок не имеет.
  */
@@ -46,6 +46,17 @@ class NewEpisodePushNotificationService @Inject constructor(
             title = push.title,
             text = context.getString(R.string.library_episode_push_text, push.episodeNumber),
             animeId = push.animeId,
+        )
+    }
+
+    /** Уведомление о новой серии одной из выбранных пользователем озвучек. */
+    fun showSubscribedEpisode(animeId: Int, title: String, episodeNumber: Int) {
+        show(
+            channel = Channel.SUBSCRIPTIONS,
+            notificationId = SUBSCRIPTION_NOTIFICATION_ID_BASE + animeId,
+            title = title,
+            text = context.getString(R.string.subscribed_episode_push_text, episodeNumber),
+            animeId = animeId,
         )
     }
 
@@ -114,15 +125,17 @@ class NewEpisodePushNotificationService @Inject constructor(
 
         /** Локальные пуши о новых сериях из списков пользователя. */
         LIBRARY("library_new_episodes", R.string.library_episode_push_notification_channel),
+        SUBSCRIPTIONS("subscribed_new_episodes", R.string.subscribed_episode_push_notification_channel),
     }
 
     private companion object {
         const val NOTIFICATION_ID_BASE = 61_000
         const val LIBRARY_NOTIFICATION_ID_BASE = 1_000_000
+        const val SUBSCRIPTION_NOTIFICATION_ID_BASE = 2_000_000
 
-        const val CONTINUE_DEEP_LINK_PREFIX = "yummytv://continue/"
-        const val DETAILS_DEEP_LINK_PREFIX = "yummytv://details/"
-        const val HOME_DEEP_LINK = "yummytv://home"
+        const val CONTINUE_DEEP_LINK_PREFIX = "yanime://continue/"
+        const val DETAILS_DEEP_LINK_PREFIX = "yanime://details/"
+        const val HOME_DEEP_LINK = "yanime://home"
         const val ACCENT_COLOR = 0xFFFF6666.toInt()
     }
 }

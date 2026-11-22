@@ -116,6 +116,7 @@ internal fun CatalogResultsGrid(
                 items(
                     count = itemCount,
                     key = results.safeItemKey("search") { it.id },
+                    contentType = { "catalog_poster" },
                 ) { index ->
                     val item = results.getOrNull(index) ?: return@items
                     val stableOnClick = remember(item.id, index) {

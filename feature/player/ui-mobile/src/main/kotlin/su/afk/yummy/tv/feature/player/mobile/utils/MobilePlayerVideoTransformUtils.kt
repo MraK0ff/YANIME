@@ -33,7 +33,18 @@ internal fun calculateMobileVideoTransform(
     )
 }
 
-private fun Offset.clampedForMobileVideoScale(scale: Float, size: IntSize): Offset {
+internal fun MobileVideoTransform.clampedForPlayerSize(size: IntSize): MobileVideoTransform {
+    // Stored offsets are in pixels and may outlive an orientation/window-size change.
+    // Keep valid user zoom, but never let stale coordinates move the frame outside the viewport.
+    val safeScale = scale.takeIf { it.isFinite() && it in MOBILE_PLAYER_MIN_VIDEO_SCALE..MOBILE_PLAYER_MAX_VIDEO_SCALE }
+        ?: MOBILE_PLAYER_MIN_VIDEO_SCALE
+    return copy(
+        scale = safeScale,
+        offset = offset.clampedForMobileVideoScale(safeScale, size),
+    )
+}
+
+internal fun Offset.clampedForMobileVideoScale(scale: Float, size: IntSize): Offset {
     if (scale <= MOBILE_PLAYER_MIN_VIDEO_SCALE || size == IntSize.Zero) return Offset.Zero
 
     val maxX = (size.width * (scale - MOBILE_PLAYER_MIN_VIDEO_SCALE) / 2f).coerceAtLeast(0f)

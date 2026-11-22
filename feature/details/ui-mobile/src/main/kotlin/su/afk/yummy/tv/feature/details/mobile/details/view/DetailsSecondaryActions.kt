@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.feature.details.details.DetailsState
 
 @Composable
@@ -26,7 +26,7 @@ internal fun DetailsSecondaryActions(
 
     Row(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(YummySpacing.Small),
     ) {
         actions.forEach { action ->
             DetailsActionCard(

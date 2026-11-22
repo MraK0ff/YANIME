@@ -7,16 +7,14 @@ import javax.inject.Inject
 internal class SharedPreferencesAppInterfaceModePreferences @Inject constructor(
     @ApplicationContext context: Context,
 ) : AppInterfaceModePreferences {
-
     private val preferences = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
 
     override val selectedMode: AppInterfaceMode?
-        get() = preferences.getString(SELECTED_MODE_KEY, null)?.let { value ->
-            runCatching { AppInterfaceMode.valueOf(value) }.getOrNull()
-        }
+        get() = preferences.getString(PLAYER_INTERFACE_MODE_KEY, null)
+            ?.let { runCatching { AppInterfaceMode.valueOf(it) }.getOrNull() }
 
     override fun select(mode: AppInterfaceMode) {
-        preferences.edit().putString(SELECTED_MODE_KEY, mode.name).apply()
+        preferences.edit().putString(PLAYER_INTERFACE_MODE_KEY, mode.name).apply()
     }
 
     override fun consumePlayerSetupPending(): Boolean {
@@ -27,7 +25,7 @@ internal class SharedPreferencesAppInterfaceModePreferences @Inject constructor(
 
     private companion object {
         const val PREFERENCES_NAME = "app_interface_mode"
-        const val SELECTED_MODE_KEY = "selected_mode"
         const val PLAYER_SETUP_SHOWN_KEY = "player_setup_shown"
+        const val PLAYER_INTERFACE_MODE_KEY = "manual_mode"
     }
 }

@@ -39,14 +39,14 @@ internal fun RelationTvHeaderCard(
         modifier = Modifier.fillMaxWidth(),
         shape = shape,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         ),
     ) {
         Column(
             modifier = Modifier
-                .padding(28.dp)
+                .padding(24.dp)
                 .then(if (hasSubGenres) Modifier.focusGroup() else Modifier),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             // Фокус-стоп — отдельный от чипов элемент (сиблинг, а не их родитель):
             // если сделать фокусируемой всю карточку целиком, вложенные фокусируемые
@@ -65,7 +65,7 @@ internal fun RelationTvHeaderCard(
                 )
                 Text(
                     text = relation.title,
-                    style = MaterialTheme.typography.displaySmall,
+                    style = MaterialTheme.typography.headlineMedium,
                 )
                 relation.secondaryTitle?.let { secondaryTitle ->
                     Text(

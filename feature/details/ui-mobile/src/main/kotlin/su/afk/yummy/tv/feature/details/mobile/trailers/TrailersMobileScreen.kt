@@ -68,6 +68,7 @@ fun TrailersMobileScreen(
                 itemsIndexed(
                     state.trailers,
                     key = { _, trailer -> trailer.iframeUrl },
+                    contentType = { _, _ -> "trailer" },
                 ) { index, trailer ->
                     TrailerMobileCard(
                         number = index + 1,

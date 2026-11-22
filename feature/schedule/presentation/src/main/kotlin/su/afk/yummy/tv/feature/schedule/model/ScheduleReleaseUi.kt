@@ -7,6 +7,11 @@ data class ScheduleReleaseUi(
     val epochSeconds: Long,
     val episode: Int,
     val aired: Boolean,
+    val isFromSelectedList: Boolean = false,
+    val isFavorite: Boolean = false,
 ) {
-    val focusKey: String = "${item.animeId}:$epochSeconds:$aired"
+    // Different episodes may share the same publication timestamp.
+    // The episode number is part of the mapper's deduplication identity,
+    // so it must also be part of the LazyColumn item key.
+    val focusKey: String = "${item.animeId}:$episode:$aired"
 }

@@ -115,7 +115,7 @@ internal fun CollectionHeader(
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 6.dp)
             .bringIntoViewRequester(headerBringIntoViewRequester),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.Top,
     ) {
         Column(modifier = Modifier.weight(1f)) {
@@ -147,7 +147,7 @@ internal fun CollectionHeader(
             ) {
                 Text(
                     text = collection.title,
-                    style = MaterialTheme.typography.headlineMedium,
+                    style = MaterialTheme.typography.titleLargeEmphasized,
                     color = if (isTitleFocused) {
                         MaterialTheme.colorScheme.primary
                     } else {
@@ -301,7 +301,7 @@ private fun CollectionDescriptionParagraph(
             .clip(RoundedCornerShape(12.dp))
             .background(if (focused) MaterialTheme.colorScheme.surfaceContainerHigh else Color.Transparent)
             .focusable(interactionSource = interactionSource)
-            .padding(horizontal = 16.dp, vertical = 10.dp),
+            .padding(horizontal = 14.dp, vertical = 8.dp),
     )
 }
 

@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -27,15 +26,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.components.FallbackAsyncImage
 import su.afk.yummy.tv.core.designsystem.mobile.cards.MobileRatingBadge
 import su.afk.yummy.tv.core.model.anime.posterUrls
 import su.afk.yummy.tv.domain.home.model.HomeFeedItem
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 /** Фиксированная высота: длина названия и описания не должна менять высоту карусели. */
-private val HERO_CARD_HEIGHT = 220.dp
-private val HERO_POSTER_SHAPE = RoundedCornerShape(10.dp)
+private val HERO_CARD_HEIGHT = 224.dp
+private val HERO_POSTER_SHAPE = YummyShapeTokens.ProminentCard
 
 @Composable
 internal fun HomeHeroCard(
@@ -48,8 +50,8 @@ internal fun HomeHeroCard(
         modifier = modifier
             .fillMaxWidth()
             .height(HERO_CARD_HEIGHT)
-            .clickable(onClick = onClick),
-        shape = MaterialTheme.shapes.large,
+            .clickable(role = Role.Button, onClick = onClick),
+        shape = YummyShapeTokens.HeroSurface,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
         Box(
@@ -64,7 +66,7 @@ internal fun HomeHeroCard(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .matchParentSize()
-                    .blur(28.dp)
+                    .blur(22.dp)
                     .background(MaterialTheme.colorScheme.surfaceVariant),
             )
             Box(
@@ -73,9 +75,9 @@ internal fun HomeHeroCard(
                     .background(
                         Brush.horizontalGradient(
                             colorStops = arrayOf(
-                                0f to Color.Black.copy(alpha = 0.45f),
-                                0.45f to MaterialTheme.colorScheme.surface.copy(alpha = 0.72f),
-                                1f to MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
+                                0f to Color.Black.copy(alpha = 0.38f),
+                                0.45f to MaterialTheme.colorScheme.surface.copy(alpha = 0.78f),
+                                1f to MaterialTheme.colorScheme.surface.copy(alpha = 0.94f),
                             ),
                         ),
                     ),
@@ -84,14 +86,14 @@ internal fun HomeHeroCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
-                    .padding(14.dp),
-                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    .padding(YummySpacing.Large),
+                horizontalArrangement = Arrangement.spacedBy(YummySpacing.Large),
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
                         .aspectRatio(2f / 3f)
-                        .shadow(8.dp, HERO_POSTER_SHAPE)
+                        .shadow(4.dp, HERO_POSTER_SHAPE)
                         .clip(HERO_POSTER_SHAPE)
                         .background(MaterialTheme.colorScheme.surfaceVariant),
                 ) {
@@ -114,13 +116,13 @@ internal fun HomeHeroCard(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight(),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(YummySpacing.Small),
                 ) {
                     Text(
                         text = item.title,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.onSurface,
-                        minLines = 2,
+                        minLines = 1,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -128,9 +130,10 @@ internal fun HomeHeroCard(
                     if (item.description.isNotBlank()) {
                         Text(
                             text = item.description,
+                            modifier = Modifier.weight(1f),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 5,
+                            maxLines = 14,
                             overflow = TextOverflow.Ellipsis,
                         )
                     }

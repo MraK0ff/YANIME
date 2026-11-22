@@ -1,30 +1,10 @@
 package su.afk.yummy.tv.feature.settings.mobile.view
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.feature.settings.common.utils.color
-import su.afk.yummy.tv.feature.settings.common.utils.hint
-import su.afk.yummy.tv.feature.settings.common.utils.label
+import su.afk.yummy.tv.core.designsystem.mobile.settings.MobileSettingOptionRow
 
 @Composable
 internal fun SettingsMobileOptionRow(
@@ -38,63 +18,15 @@ internal fun SettingsMobileOptionRow(
     /** Если задана, вместо текста значения показывается значок; текст уходит в contentDescription. */
     valueIcon: ImageVector? = null,
 ) {
-    BoxWithConstraints(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-    ) {
-        // Значение без потолка по ширине вытесняло подпись: вес был только у колонки с ней, а длинное
-        // значение («Смотрю, В планах, … Избранное») забирало строку целиком. Потолок оставляет подписи
-        // больше половины, а само значение переносится на вторую строку. Подпись и подсказка
-        // переносятся без ограничения строк: с крупным системным шрифтом длинные заголовки
-        // («Карточки «Продолжить просмотр»») иначе обрезались многоточием.
-        val valueMaxWidth = maxWidth * VALUE_MAX_WIDTH_FRACTION
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onBackground,
-                )
-                if (hint.isNotBlank()) {
-                    Text(
-                        text = hint,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-            if (valueIcon != null) {
-                Icon(
-                    imageVector = valueIcon,
-                    contentDescription = value,
-                    tint = valueColor ?: MaterialTheme.colorScheme.primary,
-                )
-            } else {
-                Text(
-                    text = value,
-                    modifier = Modifier.widthIn(max = valueMaxWidth),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = valueColor ?: MaterialTheme.colorScheme.primary,
-                    textAlign = TextAlign.End,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-            Icon(
-                imageVector = Icons.Filled.KeyboardArrowDown,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-    }
+    MobileSettingOptionRow(
+        label = label,
+        value = value,
+        hint = hint,
+        onClick = onClick,
+        modifier = modifier,
+        valueColor = valueColor,
+        valueIcon = valueIcon,
+        valueMaxWidthFraction = 0.4f,
+        valueMaxLines = 2,
+    )
 }
-
-/** Какую долю ширины строки может занять значение; остальное остаётся подписи. */
-private const val VALUE_MAX_WIDTH_FRACTION = 0.4f

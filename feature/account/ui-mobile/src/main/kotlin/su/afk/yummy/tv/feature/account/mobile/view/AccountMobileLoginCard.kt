@@ -41,6 +41,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.components.AppBrandIcon
 import su.afk.yummy.tv.core.designsystem.components.YummyLoadingIndicator
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.feature.account.account.AccountState
 import su.afk.yummy.tv.feature.account.mobile.account.utils.accountErrorMessage
 import su.afk.yummy.tv.feature.account.presentation.R
@@ -53,19 +55,19 @@ internal fun AccountMobileLoginCard(
     modifier: Modifier = Modifier,
 ) {
     AccountMobileSurfacePanel(modifier = modifier) {
-        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(YummySpacing.Large)) {
             Box(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center,
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(YummySpacing.Small + YummySpacing.XSmall),
                 ) {
                     AppBrandIcon(modifier = Modifier.size(76.dp))
                     Text(
                         text = stringResource(R.string.account_mobile_title),
-                        style = MaterialTheme.typography.headlineSmall,
+                        style = MaterialTheme.typography.headlineSmallEmphasized,
                         color = MaterialTheme.colorScheme.onBackground,
                         textAlign = TextAlign.Center,
                     )
@@ -78,7 +80,7 @@ internal fun AccountMobileLoginCard(
                 onValueChange = { onEvent(AccountState.Event.LoginChanged(it)) },
                 placeholder = { Text(stringResource(R.string.account_login_placeholder)) },
                 singleLine = true,
-                shape = MaterialTheme.shapes.large,
+                shape = YummyShapeTokens.Control,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -114,7 +116,7 @@ internal fun AccountMobileLoginCard(
                         )
                     }
                 },
-                shape = MaterialTheme.shapes.large,
+                shape = YummyShapeTokens.Control,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
                 // Done на клавиатуре отправляет форму, как кнопка «Войти»; при капче её нет.
                 keyboardActions = KeyboardActions(
@@ -127,7 +129,7 @@ internal fun AccountMobileLoginCard(
             if (!state.isCaptchaRequired) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     TextButton(
@@ -150,7 +152,7 @@ internal fun AccountMobileLoginCard(
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     HorizontalDivider(modifier = Modifier.weight(1f))

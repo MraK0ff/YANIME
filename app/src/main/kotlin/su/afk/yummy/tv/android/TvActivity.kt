@@ -12,7 +12,11 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import dagger.hilt.android.AndroidEntryPoint
 import su.afk.yummy.tv.android.episodepush.utils.cancelEpisodePushNotification
 import su.afk.yummy.tv.core.deeplink.api.DeepLinkHandler
@@ -48,6 +52,7 @@ class TvActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        observeInterfaceLanguageChanges()
         enableEdgeToEdge()
         tvIntegration.bindBrowsableChannelRequests(this, lifecycleScope)
 
@@ -85,4 +90,17 @@ class TvActivity : ComponentActivity() {
             deepLinkHandler.handle(intent)
         }
     }
+
+    private fun observeInterfaceLanguageChanges() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                AppInterfaceLanguageContext.languageChanges.collect {
+                    // Обновляется только Activity: процесс и состояние навигации сохраняются.
+                    recreate()
+                }
+            }
+        }
+    }
+
+
 }

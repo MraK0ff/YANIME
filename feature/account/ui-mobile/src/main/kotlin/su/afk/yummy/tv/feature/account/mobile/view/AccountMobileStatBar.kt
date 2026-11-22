@@ -7,15 +7,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.feature.account.common.utils.label
 
 @Composable
@@ -27,12 +27,12 @@ internal fun AccountMobileStatBar(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 5.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
+            .padding(vertical = YummySpacing.XSmall + 1.dp),
+        verticalArrangement = Arrangement.spacedBy(YummySpacing.Small),
     ) {
         androidx.compose.foundation.layout.Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
         ) {
             Text(
                 text = label,
@@ -45,22 +45,22 @@ internal fun AccountMobileStatBar(
             Text(
                 text = valueLabel,
                 style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
+                
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(8.dp)
-                .clip(RoundedCornerShape(4.dp))
+                .height(YummySpacing.Small)
+                .clip(YummyShapeTokens.Pill)
                 .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)),
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth(fraction.coerceIn(0f, 1f))
                     .height(8.dp)
-                    .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(4.dp)),
+                    .background(MaterialTheme.colorScheme.primary, YummyShapeTokens.Pill),
             )
         }
     }

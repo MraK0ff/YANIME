@@ -1,5 +1,6 @@
 package su.afk.yummy.tv.feature.player.mobile.view
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -53,6 +55,14 @@ internal fun MobilePlayerMenuRow(
                 onClickLabel = label,
                 onClick = onClick,
             )
+            .background(
+                color = if (trailing is MobilePlayerMenuRowTrailing.Choice && trailing.selected) {
+                    MaterialTheme.colorScheme.secondaryContainer
+                } else {
+                    Color.Transparent
+                },
+                shape = RoundedCornerShape(20.dp),
+            )
             .padding(horizontal = 8.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -72,7 +82,9 @@ internal fun MobilePlayerMenuRow(
                 text = label,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = if (trailing is MobilePlayerMenuRowTrailing.Choice && trailing.selected) FontWeight.SemiBold else null,
-                color = labelColor,
+                color = if (trailing is MobilePlayerMenuRowTrailing.Choice && trailing.selected) {
+                    MaterialTheme.colorScheme.onSecondaryContainer
+                } else labelColor,
             )
             if (subtitle != null) {
                 Text(

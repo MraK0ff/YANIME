@@ -25,6 +25,7 @@ internal fun MobilePlayerCenterControls(
     onPrevEpisode: () -> Unit,
     onNextEpisode: () -> Unit,
     loading: Boolean,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -40,6 +41,7 @@ internal fun MobilePlayerCenterControls(
                 sizeMultiplier = CENTER_SWITCH_SCALE,
                 iconScale = CENTER_SWITCH_ICON_SCALE,
                 surface = false,
+                enabled = enabled,
             )
         }
         val playPauseDescription = stringResource(
@@ -51,6 +53,7 @@ internal fun MobilePlayerCenterControls(
             onClick = onPlayPause,
             primary = true,
             loading = loading,
+            enabled = enabled,
             sizeMultiplier = 0.99f,
             iconScale = 0.75f,
             surface = true,
@@ -63,6 +66,7 @@ internal fun MobilePlayerCenterControls(
                 sizeMultiplier = CENTER_SWITCH_SCALE,
                 iconScale = CENTER_SWITCH_ICON_SCALE,
                 surface = false,
+                enabled = enabled,
             )
         }
     }

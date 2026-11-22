@@ -8,12 +8,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
@@ -36,14 +39,17 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.compose.foundation.layout.width
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.compose.ContentFrame
-import androidx.media3.ui.compose.SURFACE_TYPE_SURFACE_VIEW
+import androidx.media3.ui.compose.SURFACE_TYPE_TEXTURE_VIEW
 import kotlinx.coroutines.delay
 import su.afk.yummy.tv.core.model.settings.VideoEnhancementMode
 import su.afk.yummy.tv.core.utils.cast.CastSupport
@@ -51,7 +57,6 @@ import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.feature.player.PlayerState
 import su.afk.yummy.tv.feature.player.common.PlayerBlackBackdrop
 import su.afk.yummy.tv.feature.player.common.PlayerDiagnosticsOverlay
-import su.afk.yummy.tv.feature.player.common.PlayerBufferingIndicator
 import su.afk.yummy.tv.feature.player.common.PlayerDecoderCapabilityEffect
 import su.afk.yummy.tv.feature.player.common.PlayerEpisodeEndController
 import su.afk.yummy.tv.feature.player.common.PlayerKeepScreenOnEffect
@@ -88,6 +93,7 @@ import su.afk.yummy.tv.feature.player.mobile.model.rememberMobilePlayerSettingsS
 import su.afk.yummy.tv.feature.player.common.rememberPlayerSleepTimer
 import su.afk.yummy.tv.feature.player.common.rememberPlayerVolumeController
 import su.afk.yummy.tv.feature.player.common.service.rememberPlayerMediaController
+import su.afk.yummy.tv.feature.player.common.service.setTimelineScrubbingMode
 import su.afk.yummy.tv.feature.player.common.utils.hasOtherSource
 import su.afk.yummy.tv.feature.player.common.utils.isVisible
 import su.afk.yummy.tv.feature.player.common.utils.playerContentScale
@@ -144,6 +150,7 @@ internal fun MobileNativePlayer(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
     val playerSettingsStore = rememberMobilePlayerSettingsStore()
     val timeDisplaySettings by playerSettingsStore.playerTimeDisplaySettings.collectAsStateWithLifecycle(
         initialValue = PlayerTimeDisplaySettings(),
@@ -332,6 +339,24 @@ internal fun MobileNativePlayer(
         return
     }
 
+    var mediaSeekable by remember(player) { mutableStateOf(player.isCurrentMediaItemSeekable) }
+    DisposableEffect(player) {
+        val listener = object : Player.Listener {
+            override fun onEvents(player: Player, events: Player.Events) {
+                mediaSeekable = player.isCurrentMediaItemSeekable
+            }
+        }
+        player.addListener(listener)
+        mediaSeekable = player.isCurrentMediaItemSeekable
+        onDispose { player.removeListener(listener) }
+    }
+
+    // A screen transition can dispose the timeline during an active drag. Always release
+    // ExoPlayer's temporary scrubbing mode so playback cannot remain suppressed.
+    DisposableEffect(player, progress) {
+        onDispose { player.setTimelineScrubbingMode(false) }
+    }
+
     val trackMenu = rememberPlayerTrackMenu(player, state)
     val sleepTimer = rememberPlayerSleepTimer(player = player, onElapsed = { overlay.show() })
 
@@ -422,7 +447,7 @@ internal fun MobileNativePlayer(
 
     PlayerQualityAdaptationEffect(
         player = player,
-        enabled = ui.adaptiveQuality,
+        enabled = ui.adaptiveQuality && !state.isOfflinePlayback,
         qualities = ui.qualityLabels,
         activeQuality = ui.activeQuality,
         ceilingHeight = ui.adaptiveCeilingHeight,
@@ -460,6 +485,8 @@ internal fun MobileNativePlayer(
     LaunchedEffect(isInPictureInPictureMode) {
         if (isInPictureInPictureMode) {
             overlay.visible = false
+            progress.isSeeking = false
+            player.setTimelineScrubbingMode(false)
             endFlow.hideAll()
             gestures.resetForPictureInPicture()
             settingsMenuOpen = false
@@ -593,7 +620,7 @@ internal fun MobileNativePlayer(
         ) {
             ContentFrame(
                 player = player,
-                surfaceType = SURFACE_TYPE_SURFACE_VIEW,
+                surfaceType = SURFACE_TYPE_TEXTURE_VIEW,
                 contentScale = playerContentScale(state.resizeMode, state.zoomLevel),
                 keepContentOnReset = state.isPlaybackRecovering,
                 modifier = Modifier
@@ -617,17 +644,33 @@ internal fun MobileNativePlayer(
             )
         }
 
-        // Часть затемнения перенесена с поверхностей кнопок на видеоряд.
-        if (overlay.visible && !locked) {
-            Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.36f)))
-        }
-
         PlayerSubtitleOverlay(
             player = player,
             style = state.subtitleStyle,
             modifier = Modifier.fillMaxSize(),
         )
 
+        // TextureView keeps the video in Compose's composition layer, so this scrim
+        // covers the complete viewport (including the video at any scale and subtitles).
+        if (overlay.visible && !locked) {
+            // Draw above the TextureView even when its video content is transformed/zoomed.
+            Box(
+                Modifier
+                    // This overlay is a direct child of the full-screen player root, not of
+                    // ContentFrame's clipped video viewport. The offscreen layer makes the
+                    // translucent Compose scrim participate in the same window composition
+                    // above Media3's TextureView, including the fitted side regions.
+                    .matchParentSize()
+                    .zIndex(10f)
+                    // Keep the scrim in the window's normal Compose draw pass. An offscreen
+                    // layer can be composed underneath the TextureView on some Android GPUs,
+                    // leaving the fitted side regions visibly undimmed.
+                    .background(Color.Black.copy(alpha = 0.36f)),
+            )
+        }
+
+        // Keep every interactive layer above the viewport scrim and the TextureView.
+        Box(Modifier.fillMaxSize().zIndex(20f)) {
         if (state.showResolveLog) {
             PlayerDiagnosticsOverlay(
                 player = player,
@@ -643,6 +686,9 @@ internal fun MobileNativePlayer(
             locked = locked,
             onTap = {
                 if (locked) {
+                    // A touch on the locked player must return focus to the video surface,
+                    // not leave keyboard/accessibility focus trapped on a hidden control.
+                    focusManager.clearFocus(force = true)
                     // При активной блокировке касание не должно оставлять панель «наготове»:
                     // после разблокировки она останется скрытой до следующего обычного тапа.
                     overlay.visible = false
@@ -740,6 +786,7 @@ internal fun MobileNativePlayer(
             },
             visible = overlay.visible && !locked && !isInPictureInPictureMode && !tutorialBlocksPlayback,
             episodeExpanded = episodesExpanded,
+            trackSettingsExpanded = settingsMenuOpen && settingsMenuPage == MobilePlayerSettingsPage.Sources,
             modifier = Modifier.offset(x = videoLeftDp, y = videoTopDp).width(videoWidthDp).height(videoHeightDp),
         )
 
@@ -752,7 +799,9 @@ internal fun MobileNativePlayer(
                 }
             },
             buttonSize = controlSize,
-            modifier = Modifier.align(Alignment.TopStart).offset(x = unlockRightOffset, y = videoTopDp + 8.dp),
+            modifier = Modifier.align(Alignment.TopStart)
+                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Start + WindowInsetsSides.Top))
+                .offset(x = unlockRightOffset, y = videoTopDp + 8.dp),
         )
 
         if (settingsMenuOpen && !isInPictureInPictureMode && !tutorialBlocksPlayback) {
@@ -860,18 +909,18 @@ internal fun MobileNativePlayer(
             )
         }
 
-        // Индикатор рисуется поверх жестового слоя и центральных кнопок управления.
-        PlayerBufferingIndicator(
-            visible = isBuffering || showRecoveryIndicator,
-            modifier = Modifier.align(Alignment.Center),
-        )
-
         MobilePlayerOverlay(
             modifier = Modifier.align(Alignment.Center),
             visible = overlay.visible && !locked && !isInPictureInPictureMode &&
                 !tutorialBlocksPlayback && !settingsMenuOpen,
             wantsPlay = wantsPlay,
-            loading = isBuffering || showRecoveryIndicator,
+            // PiP is a clean video-only surface: never draw Compose loading controls over it.
+            // When the control panel is hidden, MobilePlayerOverlay renders a standalone spinner
+            // without the Play button's glass surface.
+            loading = (isBuffering || showRecoveryIndicator) &&
+                !isInPictureInPictureMode && !settingsMenuOpen && !locked && !tutorialBlocksPlayback,
+            isSeeking = progress.isSeeking,
+            seekEnabled = mediaSeekable,
             progress = progress,
             hasPrevEpisode = ui.hasPrevEpisode,
             hasNextEpisode = ui.hasNextEpisode,
@@ -886,19 +935,36 @@ internal fun MobileNativePlayer(
                     overlay.cancelHide()
                 }
             },
+            onSeekStarted = {
+                if (!progress.isSeeking) {
+                    progress.isSeeking = true
+                    overlay.visible = true
+                    overlay.cancelHide()
+                    // MediaController cannot call ExoPlayer's unstable API directly. This
+                    // session command enables native Media3 scrubbing mode in the playback service.
+                    player.setTimelineScrubbingMode(true)
+                }
+            },
             onSeekChange = { value ->
-                progress.isSeeking = true
                 progress.seekProgress = value
                 overlay.visible = true
                 overlay.cancelHide()
+                val duration = progress.duration
+                // In scrubbing mode ExoPlayer coalesces rapid seeks and keeps rendering preview
+                // frames instead of aborting each in-flight seek. Taps are committed on release.
+                if (progress.isSeeking && duration > 0L) {
+                    player.seekTo((value * duration).toLong().coerceIn(0L, duration))
+                }
             },
             onSeekFinished = {
+                val wasScrubbing = progress.isSeeking
                 val duration = progress.duration
-                if (duration > 0) {
+                if (duration > 0L) {
                     val newPosition = (progress.seekProgress * duration).toLong().coerceIn(0L, duration)
                     seekController.seekTo(newPosition)
                 }
                 progress.isSeeking = false
+                if (wasScrubbing) player.setTimelineScrubbingMode(false)
                 overlay.show()
             },
             onStepSeek = seekController::stepSeek,
@@ -914,7 +980,6 @@ internal fun MobileNativePlayer(
                 endFlow.hideAll()
                 settingsMenuPage = MobilePlayerSettingsPage.Sources
                 settingsMenuOpen = true
-                overlay.visible = true
                 overlay.visible = true
                 overlay.cancelHide()
             },
@@ -952,13 +1017,13 @@ internal fun MobileNativePlayer(
             onTimeCodeClick = { showRemainingTime = !showRemainingTime },
             dubbingLabel = ui.activeDubbingLabel.dubbingDisplayName().removePrefix("Озвучка ").removePrefix("озвучка "),
             balancerLabel = ui.activeBalancerLabel,
-            qualityLabel = playerQualityButtonLabel(
+            qualityLabel = if (state.isOfflinePlayback) "" else playerQualityButtonLabel(
                 activeQuality = selectedQuality,
                 adaptiveQuality = ui.adaptiveQuality,
                 adaptiveLimitQuality = ui.adaptiveLimitLabel,
                 adaptiveLimitBest = ui.adaptiveLimitBest,
             ),
-            selectedSpeed = selectedSpeed,
+            selectedSpeed = effectiveSpeed,
             onQualityClick = {
                 endFlow.hideAll()
                 settingsMenuPage = MobilePlayerSettingsPage.Quality
@@ -1213,6 +1278,7 @@ internal fun MobileNativePlayer(
                 onStopCasting = { stopCasting(context) },
                 modifier = Modifier.align(Alignment.Center),
             )
+        }
         }
     }
 }

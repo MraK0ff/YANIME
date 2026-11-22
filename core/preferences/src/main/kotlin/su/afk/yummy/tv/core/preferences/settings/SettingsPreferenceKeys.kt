@@ -151,6 +151,8 @@ internal object SettingsPreferenceKeys {
     val episodePushRecentPushesKey = stringSetPreferencesKey("episode_push_recent_pushes")
     val episodePushKnownNotificationIdsKey =
         stringSetPreferencesKey("episode_push_known_notification_ids")
+    val episodePushKnownSubscribedEpisodesKey =
+        stringSetPreferencesKey("episode_push_known_subscribed_episodes")
     val torrentEnabledKey = booleanPreferencesKey("torrent_enabled")
     val torrServerUrlKey = stringPreferencesKey("torrserver_url")
     val torrServerUserKey = stringPreferencesKey("torrserver_user")

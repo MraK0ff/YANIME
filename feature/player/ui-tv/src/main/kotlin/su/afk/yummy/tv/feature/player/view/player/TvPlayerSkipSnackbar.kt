@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -29,8 +30,9 @@ internal fun TvPlayerSkipSnackbar(
             style = MaterialTheme.typography.titleSmall,
             color = Color.White,
             modifier = Modifier
-                .background(Color.Black.copy(alpha = 0.82f), RoundedCornerShape(6.dp))
-                .padding(horizontal = 20.dp, vertical = 12.dp),
+                .background(Color(0xFF101318).copy(alpha = 0.76f), RoundedCornerShape(12.dp))
+                .border(1.dp, Color.White.copy(alpha = 0.14f), RoundedCornerShape(12.dp))
+                .padding(horizontal = 22.dp, vertical = 13.dp),
         )
     }
 }

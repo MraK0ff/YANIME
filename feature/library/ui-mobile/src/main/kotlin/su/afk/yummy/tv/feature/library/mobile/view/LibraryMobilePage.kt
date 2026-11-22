@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import su.afk.yummy.tv.core.designsystem.components.ErrorBanner
 import su.afk.yummy.tv.core.designsystem.error.asString
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.designsystem.mobile.bar.MobileBottomBarDefaults
 import su.afk.yummy.tv.core.designsystem.mobile.cards.MobileTitleListCard
 import su.afk.yummy.tv.core.designsystem.mobile.layout.mobileContentMaxWidth
@@ -98,28 +99,32 @@ internal fun LibraryMobilePage(
             .mobileContentMaxWidth()
             .fillMaxSize(),
         contentPadding = PaddingValues(
-            start = 16.dp,
-            top = 12.dp,
-            end = 16.dp,
+            start = YummySpacing.Large,
+            top = YummySpacing.Medium,
+            end = YummySpacing.Large,
             bottom = MobileBottomBarDefaults.contentBottomPadding,
         ),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
     ) {
         if (showRemoteLoader) {
-            item(key = "remote_loader") {
+            item(key = "remote_loader", contentType = "library_loading_state") {
                 LibraryMobileLoadingIndicator()
             }
         }
 
         if (isEmpty && !showRemoteLoader) {
-            item(key = "empty") {
+            item(key = "empty", contentType = "library_empty_state") {
                 LibraryMobileEmptyList(
                     onOpenCatalog = { onEvent(LibraryState.Event.OpenCatalogSelected) },
                 )
             }
         }
 
-        items(libraryItems, key = { lazyKey("library", it.animeId) }) { item ->
+        items(
+            items = libraryItems,
+            key = { lazyKey("library", it.animeId) },
+            contentType = { "library_title" },
+        ) { item ->
             val posterUrls = item.poster.posterUrls()
             val card = remember(item, tab, posterUrls) { item.toTitleListCardUi(tab, posterUrls) }
             MobileTitleListCard(
@@ -151,7 +156,7 @@ internal fun LibraryMobilePage(
         }
 
         if (tab == state.selectedTab && state.remoteError != null) {
-            item(key = "remote_error") {
+            item(key = "remote_error", contentType = "error_banner") {
                 ErrorBanner(
                     message = state.remoteError?.asString().orEmpty(),
                     enabled = !state.isRemoteLoading,

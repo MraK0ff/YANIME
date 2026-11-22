@@ -225,12 +225,12 @@ fun HomeMobileScreen(
                         top = 12.dp,
                         bottom = MobileBottomBarDefaults.contentBottomPadding,
                     ),
-                    verticalArrangement = Arrangement.spacedBy(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
                     val feed = state.feed
 
                     // Плашки и поиск в одном item: иначе spacedBy(24) растягивает зазор между ними
-                    item(key = "search") {
+                    item(key = "search", contentType = "home_search") {
                         Column(modifier = Modifier.mobileContentMaxWidth()) {
                             OfflineBanner(isOffline = isOffline)
                             InfoBanner(message = state.statusMessage)
@@ -247,7 +247,7 @@ fun HomeMobileScreen(
                         when (kind) {
                             HomeBlockKind.HERO -> {
                                 if (feed != null && feed.heroItems.isNotEmpty()) {
-                                    item(key = "hero") {
+                                    item(key = "hero", contentType = "home_hero") {
                                         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                                             MobileSectionHeader(
                                                 title = stringResource(R.string.home_season_title),
@@ -264,7 +264,7 @@ fun HomeMobileScreen(
 
                             HomeBlockKind.CONTINUE_WATCHING -> {
                                 if (state.continueWatching.isNotEmpty()) {
-                                    item(key = "continue_watching") {
+                                    item(key = "continue_watching", contentType = "home_continue_watching") {
                                         ContinueWatchingSection(
                                             entries = state.continueWatching,
                                             launchingAnimeId = state.launchingContinueWatchingAnimeId,
@@ -279,7 +279,7 @@ fun HomeMobileScreen(
 
                             HomeBlockKind.BLOGGER_VIDEOS -> {
                                 if (state.bloggerVideos.isNotEmpty()) {
-                                    item(key = "blogger_videos") {
+                                    item(key = "blogger_videos", contentType = "home_blogger_videos") {
                                         MobileHomeBloggerVideosSection(
                                             title = stringResource(R.string.home_mobile_blogger_videos),
                                             allLabel = stringResource(R.string.home_mobile_all),
@@ -291,7 +291,7 @@ fun HomeMobileScreen(
                                 }
 
                                 state.bloggerVideosError?.let { message ->
-                                    item(key = "blogger_videos_error") {
+                                    item(key = "blogger_videos_error", contentType = "home_inline_error") {
                                         MobileMessage(
                                             title = message.asString(),
                                             actionLabel = stringResource(CoreR.string.common_retry),
@@ -302,7 +302,7 @@ fun HomeMobileScreen(
                             }
 
                             HomeBlockKind.QUICK_ACTIONS -> {
-                                item(key = "quick_actions") {
+                                item(key = "quick_actions", contentType = "home_quick_actions") {
                                     HomeQuickActionsSection(
                                         title = stringResource(R.string.home_mobile_more),
                                         scheduleTitle = stringResource(R.string.home_mobile_schedule),
@@ -319,7 +319,7 @@ fun HomeMobileScreen(
                                     ?.let { type -> feed?.sections.orEmpty().firstOrNull { it.type == type } }
                                     ?.takeIf { it.items.isNotEmpty() }
                                 if (section != null) {
-                                    item(key = "section_${section.type.name}") {
+                                    item(key = "section_${section.type.name}", contentType = "home_feed_section") {
                                         val isCollections = section.type == HomeFeedSectionType.COLLECTIONS
                                         val isRecommendations =
                                             section.type == HomeFeedSectionType.RECOMMENDATIONS

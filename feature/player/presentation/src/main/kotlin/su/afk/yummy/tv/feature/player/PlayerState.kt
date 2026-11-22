@@ -8,6 +8,7 @@ import su.afk.yummy.tv.core.model.anime.EpisodeFlags
 import su.afk.yummy.tv.core.model.settings.PlayerOrientationMode
 import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleStyleSettings
+import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.core.model.settings.PlayerZoomLevel
 import su.afk.yummy.tv.core.mvi.UiEffect
 import su.afk.yummy.tv.core.mvi.UiEvent
@@ -63,6 +64,7 @@ class PlayerState {
         val resizeMode: PlayerResizeMode = PlayerResizeMode.FIT,
         val zoomLevel: PlayerZoomLevel = PlayerZoomLevel.PERCENT_10,
         val subtitleStyle: PlayerSubtitleStyleSettings = PlayerSubtitleStyleSettings(),
+        val timeDisplaySettings: PlayerTimeDisplaySettings = PlayerTimeDisplaySettings(),
         val playerError: String? = null,
         /**
          * Текст [playerError], если он вызван ошибкой декодера устройства (подсказываем сменить качество).
@@ -205,6 +207,9 @@ class PlayerState {
 
         /** Пользователь изменил стиль субтитров в боковой панели плеера. */
         data class SubtitleStyleChanged(val settings: PlayerSubtitleStyleSettings) : Event
+
+        /** Пользователь изменил способ отображения времени в плеере. */
+        data class TimeDisplaySettingsChanged(val settings: PlayerTimeDisplaySettings) : Event
 
         /**
          * Пользователь включил или выключил адаптивное качество в боковой панели плеера; настройка

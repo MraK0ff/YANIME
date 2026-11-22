@@ -86,7 +86,7 @@ fun FaqMobileScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             questions.forEachIndexed { index, (titleRes, answerRes) ->
-                item(key = titleRes) {
+                item(key = titleRes, contentType = "faq_question") {
                     FaqExpandableItem(
                         title = stringResource(titleRes),
                         answer = stringResource(answerRes),
@@ -101,14 +101,14 @@ fun FaqMobileScreen(
                     )
                 }
             }
-            item(key = "feedback") {
+            item(key = "feedback", contentType = "faq_feedback") {
                 FaqFeedbackButton(
                     text = stringResource(R.string.faq_feedback_button),
                     iconDescription = stringResource(R.string.faq_open_repository),
                     onClick = { context.openExternalUri(repositoryUrl) },
                 )
             }
-            item(key = "community_telegram") {
+            item(key = "community_telegram", contentType = "faq_feedback") {
                 FaqFeedbackButton(
                     text = stringResource(R.string.faq_community_telegram_button),
                     iconDescription = stringResource(R.string.faq_open_telegram),

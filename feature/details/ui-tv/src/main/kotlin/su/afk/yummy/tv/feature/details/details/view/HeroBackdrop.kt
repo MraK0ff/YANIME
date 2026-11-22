@@ -38,7 +38,7 @@ private fun HeroBackdropImage(backdropUrls: List<String>, surface: Color) {
         models = backdropUrls,
         contentDescription = null,
         contentScale = ContentScale.Crop,
-        alpha = 0.38f,
+        alpha = 0.30f,
         modifier = Modifier
             .fillMaxSize()
             .blur(HERO_BACKDROP_BLUR),
@@ -49,8 +49,8 @@ private fun HeroBackdropImage(backdropUrls: List<String>, surface: Color) {
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        surface.copy(alpha = 0.55f),
-                        surface.copy(alpha = 0.85f),
+                        surface.copy(alpha = 0.64f),
+                        surface.copy(alpha = 0.90f),
                     ),
                 ),
             ),
@@ -79,4 +79,4 @@ private fun HeroBottomFade() {
     }
 }
 
-private val HERO_FADE_HEIGHT = 220.dp
+private val HERO_FADE_HEIGHT = 190.dp

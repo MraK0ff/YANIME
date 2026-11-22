@@ -45,6 +45,7 @@ internal fun CommentsList(
         itemsIndexed(
             items = state.prependedComments,
             key = { _, item -> "prepended_${item.comment.id}" },
+            contentType = { _, _ -> "comment_thread" },
         ) { _, item ->
             item.resolve(state)?.let { resolved ->
                 CommentCard(
@@ -64,6 +65,7 @@ internal fun CommentsList(
         items(
             count = comments.itemCount,
             key = comments.safeItemKey("comment") { lazyKey("comment", it.comment.id) },
+            contentType = { "comment_thread" },
         ) { index ->
             val item = comments.getOrNull(index)?.resolve(state) ?: return@items
             if (state.prependedComments.any { it.comment.id == item.comment.id }) return@items
@@ -81,11 +83,11 @@ internal fun CommentsList(
             )
         }
         when (val append = comments.loadState.append) {
-            is LoadState.Loading -> item(key = "append_loading") {
+            is LoadState.Loading -> item(key = "append_loading", contentType = "loading_indicator") {
                 TvLoadingFooter()
             }
 
-            is LoadState.Error -> item(key = "append_error") {
+            is LoadState.Error -> item(key = "append_error", contentType = "error_banner") {
                 ErrorBanner(
                     tv = true,
                     message = append.error.uiMessage(),

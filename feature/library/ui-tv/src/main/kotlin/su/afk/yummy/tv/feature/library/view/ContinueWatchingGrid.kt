@@ -206,7 +206,8 @@ internal fun ContinueWatchingGrid(
             ) {
                 itemsIndexed(
                     entries,
-                    key = { _, entry -> entry.continueWatchingFocusKey() }) { index, entry ->
+                    key = { _, entry -> entry.continueWatchingFocusKey() },
+                    contentType = { _, _ -> "continue_watching_card" }) { index, entry ->
                     val episodeLabel = if (entry.episode.isNotBlank()) {
                         stringResource(R.string.library_episode_number, entry.episode)
                     } else {

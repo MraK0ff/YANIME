@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
@@ -22,6 +21,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.mobile.cards.MobileProgressMediaCard
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.model.anime.posterUrls
 import su.afk.yummy.tv.core.utils.episode.episodeThumbnailModels
 import su.afk.yummy.tv.core.utils.episode.episodeThumbnailOf
@@ -64,13 +65,13 @@ internal fun LibraryMobileContinueWatchingCard(
                 size = 36.dp,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(5.dp),
+                    .padding(YummySpacing.XSmall),
             ) {
                 Icon(
                     imageVector = Icons.Filled.Close,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(YummySpacing.XLarge),
                 )
             }
             ContinueWatchingOverlayButton(
@@ -113,7 +114,7 @@ internal fun ContinueWatchingOverlayButton(
     Box(
         modifier = modifier
             .size(size)
-            .clip(CircleShape)
+            .clip(YummyShapeTokens.Pill)
             .background(containerColor)
             .clickable(onClick = onClick)
             .semantics { this.contentDescription = contentDescription },

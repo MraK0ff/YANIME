@@ -21,6 +21,7 @@ import su.afk.yummy.tv.feature.player.common.PlayerBrightnessController
 import su.afk.yummy.tv.feature.player.common.rememberPlayerBrightnessController
 import su.afk.yummy.tv.feature.player.mobile.utils.MOBILE_PLAYER_MIN_BRIGHTNESS
 import su.afk.yummy.tv.feature.player.mobile.utils.calculateMobileVideoTransform
+import su.afk.yummy.tv.feature.player.mobile.utils.clampedForPlayerSize
 import su.afk.yummy.tv.feature.player.mobile.utils.readSystemBrightnessFraction
 import kotlin.math.roundToInt
 
@@ -45,6 +46,15 @@ internal class MobilePlayerGestureController(
     var liveVideoTransform: MobileVideoTransform by mutableStateOf(initialTransform)
     var transformGestureActive: Boolean by mutableStateOf(false)
     var playerSize: IntSize by mutableStateOf(IntSize.Zero)
+
+    fun updatePlayerSize(size: IntSize) {
+        playerSize = size
+        val safeTransform = liveVideoTransform.clampedForPlayerSize(size)
+        if (safeTransform != liveVideoTransform) {
+            liveVideoTransform = safeTransform
+            onVideoTransformChanged(safeTransform)
+        }
+    }
 
     var isSpeedBoosted: Boolean by mutableStateOf(false)
         private set

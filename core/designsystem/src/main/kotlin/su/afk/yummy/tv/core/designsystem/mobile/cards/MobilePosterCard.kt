@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -37,6 +38,8 @@ import su.afk.yummy.tv.core.designsystem.locals.LocalLibraryListStatuses
 import su.afk.yummy.tv.core.designsystem.mobile.input.clickablePointer
 import su.afk.yummy.tv.core.designsystem.mobile.input.onSecondaryClick
 import su.afk.yummy.tv.core.designsystem.seasonal.seasonalCardDecor
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -63,8 +66,8 @@ fun MobilePosterCard(
 ) {
     Card(
         modifier = modifier,
-        shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+        shape = YummyShapeTokens.Card,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
     ) {
         Column(
             Modifier
@@ -73,6 +76,7 @@ fun MobilePosterCard(
                 .combinedClickable(
                     onClick = onClick,
                     onLongClick = onLongClick,
+                    role = Role.Button,
                 ),
         ) {
             Box(
@@ -97,9 +101,9 @@ fun MobilePosterCard(
                         color = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier
                             .align(Alignment.TopStart)
-                            .padding(8.dp)
-                            .background(MaterialTheme.colorScheme.primary, MaterialTheme.shapes.extraSmall)
-                            .padding(horizontal = 8.dp, vertical = 3.dp),
+                            .padding(YummySpacing.Small)
+                            .background(MaterialTheme.colorScheme.primary, YummyShapeTokens.Control)
+                            .padding(horizontal = YummySpacing.Small, vertical = YummySpacing.XSmall),
                     )
                 }
                 rating?.takeIf { it > 0.0 }?.let { value ->
@@ -127,7 +131,7 @@ fun MobilePosterCard(
                     )
                 }
             }
-            Column(Modifier.padding(horizontal = currentMobilePosterTextPadding(), vertical = 8.dp)) {
+            Column(Modifier.padding(horizontal = currentMobilePosterTextPadding(), vertical = YummySpacing.Small)) {
                 Text(
                     text = title,
                     minLines = titleMinLines,
@@ -137,7 +141,7 @@ fun MobilePosterCard(
                     fontWeight = currentMobilePosterTitleWeight(),
                 )
                 if (!subtitle.isNullOrBlank()) {
-                    Spacer(Modifier.height(4.dp))
+                    Spacer(Modifier.height(YummySpacing.XSmall))
                     Text(
                         text = subtitle,
                         maxLines = 1,
@@ -147,7 +151,7 @@ fun MobilePosterCard(
                     )
                 }
                 if (!caption.isNullOrBlank() || captionMinLines > 1) {
-                    Spacer(Modifier.height(4.dp))
+                    Spacer(Modifier.height(YummySpacing.XSmall))
                     Text(
                         text = caption.orEmpty(),
                         minLines = captionMinLines,

@@ -250,7 +250,9 @@
     <string name="player_time_display_system_clock">System clock</string>
     <string name="player_time_display_duration">Video duration</string>
     <string name="player_time_display_elapsed">Watched time</string>
+    <string name="player_time_display_combined">Viewing time and video duration</string>
     <string name="player_time_display_separate">Separate viewing time and video duration</string>
+    <string name="player_time_display_combine_clock_finish">Combine system time and episode end time</string>
     <string name="player_time_display_remaining">Show remaining time instead of duration</string>
     <string name="player_time_display_finish_at">Episode end time</string>
     <string name="player_time_display_always">Always</string>
@@ -260,4 +262,5 @@
     <string name="player_time_display_elapsed_value">Watched · %1$s</string>
     <string name="player_time_display_remaining_value">Remaining · %1$s</string>
     <string name="player_time_display_finish_value">Ends · %1$s</string>
+    <string name="player_menu_brightness_volume">Brightness and volume</string>
 </resources>

@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -29,10 +28,10 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import kotlin.math.roundToInt
-import su.afk.yummy.tv.feature.settings.common.utils.color
 import su.afk.yummy.tv.feature.settings.common.utils.highlightNumbers
-import su.afk.yummy.tv.feature.settings.common.utils.label
 
 /**
  * Строка настройки с непрерывным числовым значением: фокус + стрелки влево/вправо меняют value.
@@ -51,7 +50,7 @@ internal fun SettingsSliderRow(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
-    val shape = RoundedCornerShape(10.dp)
+    val shape = YummyShapeTokens.Control
 
     val bgColor =
         if (focused) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f) else Color.Transparent
@@ -83,7 +82,7 @@ internal fun SettingsSliderRow(
                     else -> false
                 }
             }
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+            .padding(horizontal = YummySpacing.Large, vertical = YummySpacing.Medium),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -91,8 +90,7 @@ internal fun SettingsSliderRow(
         ) {
             Text(
                 text = label,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = if (enabled) FontWeight.SemiBold else FontWeight.Normal,
+                style = if (enabled) MaterialTheme.typography.bodyLargeEmphasized else MaterialTheme.typography.bodyLarge,
                 color = if (enabled) {
                     MaterialTheme.colorScheme.primary
                 } else {
@@ -116,7 +114,7 @@ internal fun SettingsSliderRow(
                 thumbColor = MaterialTheme.colorScheme.primary,
                 activeTrackColor = MaterialTheme.colorScheme.primary,
             ),
-            modifier = Modifier.height(32.dp),
+            modifier = Modifier.height(YummySpacing.XXLarge + YummySpacing.Small),
         )
     }
 }

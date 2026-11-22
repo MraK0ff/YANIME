@@ -219,7 +219,7 @@ fun ChatMobileScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             if (state.isLoadingOlder) {
-                                item(key = "older_loading") {
+                                item(key = "older_loading", contentType = "loading_indicator") {
                                     Box(
                                         Modifier.fillParentMaxWidth(),
                                         contentAlignment = Alignment.Center,
@@ -228,7 +228,11 @@ fun ChatMobileScreen(
                                     }
                                 }
                             }
-                            items(state.messages, key = { lazyKey("message", it.id) }) { message ->
+                            items(
+                                items = state.messages,
+                                key = { lazyKey("message", it.id) },
+                                contentType = { "chat_message" },
+                            ) { message ->
                                 ChatMessageMobileBubble(
                                     message = message,
                                     isOwn = message.fromUserId == state.currentUserId,

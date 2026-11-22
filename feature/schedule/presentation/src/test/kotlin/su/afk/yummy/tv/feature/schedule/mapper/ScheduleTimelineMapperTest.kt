@@ -53,7 +53,7 @@ class ScheduleTimelineMapperTest {
     }
 
     @Test
-    fun `multiple actually published episodes remain separate calendar entries`() {
+    fun `calendar shows only the latest published episode per anime and day`() {
         val first = nowSeconds - 2 * 3_600L
         val second = nowSeconds - 3_600L
         val timeline = listOf(
@@ -67,8 +67,89 @@ class ScheduleTimelineMapperTest {
             ),
         ).toTimelineUi(zone, now)
 
-        assertEquals(listOf(3, 4), timeline.dayGroups.flatMap { it.items }.map { it.episode })
-        assertEquals(listOf(first, second), timeline.dayGroups.flatMap { it.items }.map { it.epochSeconds })
+        val release = timeline.dayGroups.single().items.single()
+        assertEquals(4, release.episode)
+        assertEquals(second, release.epochSeconds)
+    }
+
+    @Test
+    fun `episodes for one anime with the same timestamp collapse to the latest episode`() {
+        val publishedAt = nowSeconds - 3_600L
+        val timeline = listOf(
+            day(
+                item(
+                    releases = listOf(
+                        release(episode = 3, publishedAt = publishedAt),
+                        release(episode = 4, publishedAt = publishedAt),
+                    ),
+                ),
+            ),
+        ).toTimelineUi(zone, now)
+
+        val releases = timeline.dayGroups.single().items
+        assertEquals(1, releases.size)
+        assertEquals(4, releases.single().episode)
+    }
+
+
+    @Test
+    fun `duplicate anime rows collapse to one entry per day`() {
+        val publishedAt = nowSeconds - 3_600L
+        val duplicate = item(
+            releases = listOf(
+                release(episode = 3, publishedAt = publishedAt),
+                release(episode = 4, publishedAt = publishedAt),
+            ),
+        )
+        val timeline = listOf(
+            day(duplicate),
+            day(duplicate),
+        ).toTimelineUi(zone, now)
+
+        val releases = timeline.dayGroups.flatMap { it.items }
+        assertEquals(1, releases.size)
+        assertEquals(4, releases.single().episode)
+    }
+
+    @Test
+    fun `future scheduled episode wins over same-day historical releases`() {
+        val publishedAt = nowSeconds - 3_600L
+        val futureAt = nowSeconds + 3_600L
+        val timeline = listOf(
+            day(
+                item(
+                    airedEpisodes = 4,
+                    nextDate = futureAt,
+                    releases = listOf(release(episode = 4, publishedAt = publishedAt)),
+                ),
+            ),
+        ).toTimelineUi(zone, now)
+
+        val release = timeline.dayGroups.single().items.single()
+        assertEquals(5, release.episode)
+        assertEquals(futureAt, release.epochSeconds)
+        assertFalse(release.aired)
+    }
+
+    @Test
+    fun `duplicate episode records keep the earliest publication timestamp`() {
+        val firstPublishedAt = nowSeconds - 7_200L
+        val laterDuplicateAt = nowSeconds - 3_600L
+        val timeline = listOf(
+            day(
+                item(
+                    releases = listOf(
+                        release(episode = 3, publishedAt = laterDuplicateAt),
+                        release(episode = 3, publishedAt = firstPublishedAt),
+                    ),
+                ),
+            ),
+        ).toTimelineUi(zone, now)
+
+        val release = timeline.dayGroups.single().items.single()
+        assertEquals(3, release.episode)
+        assertEquals(firstPublishedAt, release.epochSeconds)
+        assertEquals("1:3:true", release.focusKey)
     }
 
     private fun day(item: AnimeScheduleItem) = AnimeScheduleDay("day", listOf(item))

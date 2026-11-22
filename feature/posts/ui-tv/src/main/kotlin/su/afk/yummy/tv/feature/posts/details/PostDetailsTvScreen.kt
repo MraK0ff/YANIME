@@ -252,7 +252,11 @@ fun PostDetailsTvScreen(
                         )
                     }
                 }
-                itemsIndexed(contentBlocks, key = { index, _ -> lazyKey("postblock", index) }) { _, block ->
+                itemsIndexed(
+                    items = contentBlocks,
+                    key = { index, _ -> lazyKey("postblock", index) },
+                    contentType = { _, _ -> "post_content_block" },
+                ) { _, block ->
                     when (block) {
                         is PostContentBlock.Text -> {
                             val interactionSource = remember { MutableInteractionSource() }
@@ -346,6 +350,7 @@ fun PostDetailsTvScreen(
                             itemsIndexed(
                                 details.relatedAnime,
                                 key = { index, anime -> lazyKey("postanime", anime.id, index) },
+                                contentType = { _, _ -> "related_anime" },
                             ) { index, anime ->
                                 val cardShape = RoundedCornerShape(12.dp)
                                 Card(

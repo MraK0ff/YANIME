@@ -85,9 +85,9 @@ internal fun mobileNavPopTransitionSpec(style: NavTransitionStyle): NavTransitio
 }
 
 private const val MOBILE_NAV_TRANSITION_MILLIS = 300
-private const val MOBILE_NAV_SLIDE_MILLIS = 320
-private const val MOBILE_NAV_PARALLAX_DIVIDER = 5
+private const val MOBILE_NAV_SLIDE_MILLIS = 260
+private const val MOBILE_NAV_PARALLAX_DIVIDER = 8
 private const val MOBILE_NAV_FADE_IN_MILLIS = 220
 private const val MOBILE_NAV_FADE_IN_DELAY_MILLIS = 60
-private const val MOBILE_NAV_FADE_OUT_MILLIS = 120
+private const val MOBILE_NAV_FADE_OUT_MILLIS = 160
 private const val MOBILE_NAV_TRANSITION_SCALE = 0.94f

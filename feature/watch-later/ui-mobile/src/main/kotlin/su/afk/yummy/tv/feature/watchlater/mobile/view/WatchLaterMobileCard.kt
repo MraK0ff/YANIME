@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BookmarkRemove
 import androidx.compose.material3.Card
@@ -28,6 +27,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.components.FallbackAsyncImage
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.utils.episode.episodeThumbnailModels
 import su.afk.yummy.tv.core.utils.episode.episodeThumbnailOf
 import su.afk.yummy.tv.domain.watchlater.model.WatchLaterItem
@@ -45,11 +46,10 @@ internal fun WatchLaterMobileCard(
         posterUrls = listOfNotNull(item.posterUrl.takeIf { it.isNotBlank() }),
     )
     Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
+        shape = YummyShapeTokens.ProminentCard,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -59,7 +59,7 @@ internal fun WatchLaterMobileCard(
                 modifier = Modifier
                     .weight(0.42f)
                     .aspectRatio(1.45f)
-                    .background(MaterialTheme.colorScheme.surface),
+                    .background(MaterialTheme.colorScheme.surfaceContainerHighest),
             ) {
                 FallbackAsyncImage(
                     models = imageModels,
@@ -73,25 +73,25 @@ internal fun WatchLaterMobileCard(
                     color = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier
                         .align(Alignment.TopStart)
-                        .padding(8.dp)
-                        .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(4.dp))
-                        .padding(horizontal = 7.dp, vertical = 3.dp),
+                        .padding(YummySpacing.Small)
+                        .background(MaterialTheme.colorScheme.primary, YummyShapeTokens.Pill)
+                        .padding(horizontal = YummySpacing.Small, vertical = YummySpacing.XSmall),
                 )
             }
 
             Row(
                 modifier = Modifier
                     .weight(0.58f)
-                    .padding(start = 12.dp, end = 4.dp, top = 10.dp, bottom = 10.dp),
+                    .padding(start = YummySpacing.Medium, end = YummySpacing.XSmall, top = YummySpacing.Small + YummySpacing.XSmall, bottom = YummySpacing.Small + YummySpacing.XSmall),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(
                     modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                    verticalArrangement = Arrangement.spacedBy(YummySpacing.XSmall),
                 ) {
                     Text(
                         text = item.animeTitle,
-                        style = MaterialTheme.typography.titleSmall,
+                        style = MaterialTheme.typography.titleMediumEmphasized,
                         fontWeight = FontWeight.SemiBold,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,

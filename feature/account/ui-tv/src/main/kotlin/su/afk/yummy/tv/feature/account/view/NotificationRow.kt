@@ -70,7 +70,7 @@ internal fun NotificationRow(
             onClick = if (isActionable) onClick else ({ }),
             interactionSource = interactionSource,
             shape = shape,
-            focusedScale = 1.01f,
+            focusedScale = 1.015f,
         )
 
     Surface(
@@ -83,9 +83,9 @@ internal fun NotificationRow(
         },
     ) {
         Row(
-            modifier = Modifier.padding(18.dp),
+            modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.Top,
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Box(
                 modifier = Modifier

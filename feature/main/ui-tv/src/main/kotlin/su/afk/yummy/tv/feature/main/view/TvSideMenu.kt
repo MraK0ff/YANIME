@@ -6,7 +6,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
 import su.afk.yummy.tv.core.designsystem.seasonal.seasonalSideMenuDecor
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.snap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
@@ -40,6 +40,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.R as CoreR
 import su.afk.yummy.tv.core.designsystem.focus.requestFocusUntilTimeout
+import su.afk.yummy.tv.core.designsystem.skeleton.rememberAnimationsEnabled
+import su.afk.yummy.tv.core.designsystem.theme.YummyMotion
 import su.afk.yummy.tv.core.navigation.root.RootTab
 import su.afk.yummy.tv.feature.main.MainState
 import su.afk.yummy.tv.feature.main.model.TvMenuItem
@@ -90,9 +92,10 @@ internal fun TvSideMenu(
         onMoveToContent(root)
     }
 
+    val animationsEnabled = rememberAnimationsEnabled()
     val menuWidth by animateDpAsState(
         targetValue = if (expanded) TvSideMenuExpandedWidth else TvSideMenuCollapsedWidth,
-        animationSpec = tween(durationMillis = TvSideMenuAnimationDurationMillis),
+        animationSpec = if (animationsEnabled) YummyMotion.TvSideMenuWidth else snap(),
         label = "TvSideMenuWidth",
     )
     val backgroundColor = MaterialTheme.colorScheme.background

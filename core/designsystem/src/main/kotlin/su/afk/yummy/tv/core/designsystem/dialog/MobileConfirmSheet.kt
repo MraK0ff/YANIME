@@ -1,23 +1,21 @@
 package su.afk.yummy.tv.core.designsystem.dialog
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Button
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.baseScreen.BaseBottomSheet
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 /** Мобильный вид запроса подтверждения: шторка поверх текущего экрана, строки как в пикерах деталки. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,7 +28,7 @@ internal fun MobileConfirmSheet(
     BaseBottomSheet(
         onDismissRequest = { onAnswer(false) },
         title = request.title,
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
     ) {
         Text(
             text = request.message,
@@ -40,13 +38,13 @@ internal fun MobileConfirmSheet(
         )
         ConfirmRow(
             text = request.confirmText,
-            titleColor = colorScheme.primary,
+            filled = true,
             testTag = "confirm_dialog_accept",
             onClick = { onAnswer(true) },
         )
         ConfirmRow(
             text = request.dismissText,
-            titleColor = colorScheme.onSurface,
+            filled = false,
             testTag = "confirm_dialog_dismiss",
             onClick = { onAnswer(false) },
         )
@@ -56,25 +54,25 @@ internal fun MobileConfirmSheet(
 @Composable
 private fun ConfirmRow(
     text: String,
-    titleColor: Color,
+    filled: Boolean,
     testTag: String,
     onClick: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .testTag(testTag)
-            .clip(RoundedCornerShape(14.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.72f))
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-    ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.bodyLarge,
-            color = titleColor,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth(),
-        )
+    if (filled) {
+        Button(
+            onClick = onClick,
+            modifier = Modifier.fillMaxWidth().heightIn(min = YummySpacing.TouchTarget).testTag(testTag),
+            shape = YummyShapeTokens.Control,
+        ) {
+            Text(text = text, style = MaterialTheme.typography.labelLarge)
+        }
+    } else {
+        TextButton(
+            onClick = onClick,
+            modifier = Modifier.fillMaxWidth().heightIn(min = YummySpacing.TouchTarget).testTag(testTag),
+            shape = YummyShapeTokens.Control,
+        ) {
+            Text(text = text, style = MaterialTheme.typography.labelLarge)
+        }
     }
 }

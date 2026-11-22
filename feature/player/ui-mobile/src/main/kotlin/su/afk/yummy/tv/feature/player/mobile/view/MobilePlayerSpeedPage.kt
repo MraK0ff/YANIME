@@ -1,23 +1,21 @@
 package su.afk.yummy.tv.feature.player.mobile.view
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.ButtonGroup
+import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.semantics.Role
 import su.afk.yummy.tv.feature.player.mobile.utils.MOBILE_PLAYER_SPEED_MAX
 import su.afk.yummy.tv.feature.player.mobile.utils.MOBILE_PLAYER_SPEED_MIN
 import su.afk.yummy.tv.feature.player.mobile.utils.MOBILE_PLAYER_SPEED_SLIDER_STEPS
@@ -97,52 +94,33 @@ internal fun MobilePlayerSpeedPage(
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             MobilePlayerSpeedChips.chunked(SPEED_CHIPS_PER_ROW).forEach { rowChips ->
-                Row(
+                ButtonGroup(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    overflowIndicator = { menuState ->
+                        ButtonGroupDefaults.OverflowIndicator(menuState = menuState)
+                    },
                 ) {
                     rowChips.forEach { chip ->
-                        MobilePlayerSpeedChip(
-                            value = chip,
-                            selected = chip == speed.toMobilePlayerSpeed(),
-                            onClick = { onSpeedSelected(chip) },
-                            modifier = Modifier.weight(1f),
+                        toggleableItem(
+                            checked = chip == speed.toMobilePlayerSpeed(),
+                            label = chip.toSpeedChipLabel(),
+                            onCheckedChange = { checked ->
+                                if (checked) onSpeedSelected(chip)
+                            },
+                            weight = 1f,
                         )
                     }
+                }
+                if (1f in rowChips) {
+                    Text(
+                        text = stringResource(R.string.player_speed_normal),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                    )
                 }
             }
         }
     }
 }
 
-@Composable
-private fun MobilePlayerSpeedChip(
-    value: Float,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Surface(
-            shape = CircleShape,
-            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = MobilePlayerUnselectedContainerAlpha),
-            contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(MobilePlayerMinimumTouchTarget)
-                .clickable(role = Role.RadioButton, onClickLabel = value.toSpeedChipLabel(), onClick = onClick),
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Text(text = value.toSpeedChipLabel(), style = MaterialTheme.typography.bodyLarge)
-            }
-        }
-        if (value == 1f) {
-            Text(
-                text = stringResource(R.string.player_speed_normal),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 2.dp),
-            )
-        }
-    }
-}

@@ -145,7 +145,11 @@ fun EpisodesMobileScreen(
                     ),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
-                    items(state.visibleEpisodeGroups, key = { it.episode }) { group ->
+                    items(
+                        items = state.visibleEpisodeGroups,
+                        key = { it.episode },
+                        contentType = { "episode_group" },
+                    ) { group ->
                         val video = group.videos.representativeVideo(state.bestDubbing)
                         val thumbnail = EpisodeThumbnail(
                             iframeUrl = group.videos.kodikThumbnailIframeUrl(state.bestDubbing).orEmpty(),

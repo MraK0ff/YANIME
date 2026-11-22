@@ -37,6 +37,8 @@ import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.components.FallbackAsyncImage
 import su.afk.yummy.tv.core.designsystem.components.YummyLoadingIndicator
 import su.afk.yummy.tv.core.designsystem.focus.tvFocusableClick
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 @Composable
 fun TvProgressMediaCard(
@@ -61,7 +63,7 @@ fun TvProgressMediaCard(
 ) {
     var isFocused by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
-    val shape = MaterialTheme.shapes.medium
+    val shape = YummyShapeTokens.Card
 
     Card(
         modifier = modifier
@@ -85,7 +87,7 @@ fun TvProgressMediaCard(
             ),
         shape = shape,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
         ),
     ) {
         Column {
@@ -93,7 +95,7 @@ fun TvProgressMediaCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(thumbnailHeight)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                    .background(MaterialTheme.colorScheme.surfaceContainer),
                 contentAlignment = Alignment.Center,
             ) {
                 FallbackAsyncImage(
@@ -141,13 +143,12 @@ fun TvProgressMediaCard(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                    .padding(YummySpacing.Large),
+                verticalArrangement = Arrangement.spacedBy(YummySpacing.XSmall),
             ) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.bodyMediumEmphasized,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     minLines = 2,
                     maxLines = 2,
@@ -167,7 +168,7 @@ fun TvProgressMediaCard(
                         modifier = Modifier.weight(1f),
                     )
                     if (!trailingSubtitle.isNullOrBlank()) {
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(YummySpacing.Small))
                         Text(
                             text = trailingSubtitle,
                             style = MaterialTheme.typography.bodySmall,

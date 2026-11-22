@@ -115,16 +115,17 @@ private fun ReviewsListContent(
                 .mobileContentMaxWidth()
                 .fillMaxSize(),
             contentPadding = PaddingValues(
-                start = 16.dp,
-                top = 12.dp,
-                end = 16.dp,
+                start = 14.dp,
+                top = 10.dp,
+                end = 14.dp,
                 bottom = 104.dp,
             ),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             items(
                 items.itemCount,
                 key = items.safeItemKey("review") { it.id },
+                contentType = { "review" },
             ) { index ->
                 items.getOrNull(index)?.let { review ->
                     ReviewMobileCard(

@@ -127,12 +127,12 @@ internal fun DetailsHero(
         Box(modifier = Modifier.matchParentSize()) { HeroBackdrop(details) }
 
         val isCompactHeight = minHeight < 560.dp
-        val horizontalPadding = 20.dp
+        val horizontalPadding = 16.dp
         val verticalPadding = when {
-            isCompactHeight -> 20.dp
-            else -> 32.dp
+            isCompactHeight -> 16.dp
+            else -> 28.dp
         }
-        val rowSpacing = if (isCompactHeight) 28.dp else 48.dp
+        val rowSpacing = if (isCompactHeight) 24.dp else 40.dp
         val columnSpacing = if (isCompactHeight) 8.dp else 12.dp
         val titleMaxLines = 3
         val posterWidth = if (isCompactHeight) 260.dp else 300.dp

@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.feature.settings.view
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,7 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -37,8 +37,10 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.feature.settings.common.utils.color
-import su.afk.yummy.tv.feature.settings.common.utils.label
+import su.afk.yummy.tv.core.designsystem.skeleton.rememberAnimationsEnabled
+import su.afk.yummy.tv.core.designsystem.theme.YummyMotion
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 /** Пункт левого списка категорий настроек. Активирование (вправо/Enter) уводит фокус в панель справа. */
 @Composable
@@ -57,6 +59,7 @@ internal fun SettingsCategoryItem(
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
     val colors = MaterialTheme.colorScheme
+    val animationsEnabled = rememberAnimationsEnabled()
 
     val background by animateColorAsState(
         targetValue = when {
@@ -64,7 +67,7 @@ internal fun SettingsCategoryItem(
             selected -> colors.primary.copy(alpha = 0.15f)
             else -> Color.Transparent
         },
-        animationSpec = tween(150),
+        animationSpec = if (animationsEnabled) tween(YummyMotion.FastEffectsMillis) else snap(),
         label = "settingsCategoryItemBackground",
     )
     val contentColor by animateColorAsState(
@@ -110,25 +113,25 @@ internal fun SettingsCategoryItem(
                 }
             }
             .onFocusChanged { if (it.isFocused) onSelected() }
-            .clip(RoundedCornerShape(10.dp))
+            .clip(YummyShapeTokens.Control)
             .background(background)
             .clickable(interactionSource = interactionSource, indication = null) { onActivated() }
-            .padding(horizontal = 12.dp, vertical = 12.dp),
+            .padding(horizontal = YummySpacing.Medium, vertical = YummySpacing.Medium),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
     ) {
         Box(
             modifier = Modifier
-                .width(3.dp)
-                .height(20.dp)
-                .clip(RoundedCornerShape(2.dp))
+                .width(YummySpacing.XSmall - 1.dp)
+                .height(YummySpacing.XXLarge - YummySpacing.XSmall)
+                .clip(YummyShapeTokens.Pill)
                 .background(accentColor),
         )
         Icon(
             imageVector = icon,
             contentDescription = null,
             tint = contentColor,
-            modifier = Modifier.size(22.dp),
+            modifier = Modifier.size(YummySpacing.XXLarge),
         )
         Text(
             text = label,

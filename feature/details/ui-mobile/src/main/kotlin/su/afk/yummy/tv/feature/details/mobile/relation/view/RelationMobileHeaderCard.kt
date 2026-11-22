@@ -32,14 +32,14 @@ internal fun RelationMobileHeaderCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge,
+        shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         ),
     ) {
         Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(
                 text = stringResource(relationType.labelRes()),
@@ -74,12 +74,12 @@ internal fun RelationMobileHeaderCard(
                             onClick = { onSubGenreSelected(genre.id) },
                             label = { Text(genre.title) },
                             colors = AssistChipDefaults.assistChipColors(
-                                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.18f),
+                                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
                                 labelColor = MaterialTheme.colorScheme.primary,
                             ),
                             border = BorderStroke(
                                 1.dp,
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.28f)
                             ),
                         )
                     }

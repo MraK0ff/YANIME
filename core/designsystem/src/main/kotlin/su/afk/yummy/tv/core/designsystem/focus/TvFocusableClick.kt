@@ -1,10 +1,10 @@
 package su.afk.yummy.tv.core.designsystem.focus
 
 import su.afk.yummy.tv.core.designsystem.seasonal.seasonalFocusLights
+import su.afk.yummy.tv.core.designsystem.skeleton.rememberAnimationsEnabled
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -12,7 +12,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,36 +20,46 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-
-private const val TV_FOCUS_BORDER_ANIMATION_MILLIS = 180
+import su.afk.yummy.tv.core.designsystem.theme.YummyMotion
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Modifier.tvFocusableClick(
     onClick: () -> Unit,
-    shape: Shape = RoundedCornerShape(8.dp),
+    shape: Shape = YummyShapeTokens.Compact,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     onLongClick: (() -> Unit)? = null,
     focusedScale: Float = 1.04f,
     focusedBorderColor: Color = MaterialTheme.colorScheme.primary,
+    role: Role = Role.Button,
+    selectedState: Boolean? = null,
 ): Modifier {
     val focused by interactionSource.collectIsFocusedAsState()
+    val animationsEnabled = rememberAnimationsEnabled()
     val scale by animateFloatAsState(
-        targetValue = if (focused) focusedScale else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioNoBouncy,
-            stiffness = Spring.StiffnessMediumLow,
-        ),
+        targetValue = if (animationsEnabled && focused) focusedScale else 1f,
+        animationSpec = if (animationsEnabled) YummyMotion.TvFocusScale else snap(),
         label = "tvFocusScale",
     )
     val borderColor by animateColorAsState(
         targetValue = if (focused) focusedBorderColor else Color.Transparent,
-        animationSpec = tween(durationMillis = TV_FOCUS_BORDER_ANIMATION_MILLIS),
+        animationSpec = if (animationsEnabled) {
+            tween(durationMillis = YummyMotion.StandardEffectsMillis)
+        } else {
+            snap()
+        },
         label = "tvFocusBorder",
     )
 
     return this
+        .semantics {
+            selectedState?.let { this.selected = it }
+        }
         .graphicsLayer {
             scaleX = scale
             scaleY = scale
@@ -65,5 +74,6 @@ fun Modifier.tvFocusableClick(
             indication = null,
             onClick = onClick,
             onLongClick = onLongClick,
+            role = role,
         )
 }

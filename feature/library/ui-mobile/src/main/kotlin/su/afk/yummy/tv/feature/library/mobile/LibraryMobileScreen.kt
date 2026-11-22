@@ -184,7 +184,7 @@ fun LibraryMobileScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 16.dp, top = 12.dp, end = 16.dp),
+                    .padding(start = 16.dp, top = 10.dp, end = 16.dp),
             )
 
             if (pagerState.currentPage.toLibraryMobileTab(tabs).hasSort) {
@@ -201,7 +201,7 @@ fun LibraryMobileScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 16.dp, top = 8.dp, end = 16.dp),
+                        .padding(start = 16.dp, top = 6.dp, end = 16.dp),
                 )
             }
 

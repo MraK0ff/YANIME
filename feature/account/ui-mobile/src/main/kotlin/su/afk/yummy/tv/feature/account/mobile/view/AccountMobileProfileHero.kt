@@ -83,8 +83,8 @@ internal fun AccountMobileProfileHero(
                 .background(
                     Brush.linearGradient(
                         listOf(
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.55f),
-                            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.25f),
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.40f),
+                            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.16f),
                         ),
                     ),
                 ),
@@ -139,14 +139,14 @@ internal fun AccountMobileProfileHero(
                     .statusBarsPadding()
                     .padding(top = topExtra)
                     .padding(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 content = topActions,
             )
         }
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 20.dp, end = 20.dp, top = bannerHeight - (AvatarSize + AvatarRing * 2) / 3, bottom = 20.dp),
+                .padding(start = 20.dp, end = 20.dp, top = bannerHeight - (AvatarSize + AvatarRing * 2) / 3, bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             SeasonalAvatarFrame(avatarSize = AvatarSize + AvatarRing * 2) {
@@ -174,7 +174,7 @@ internal fun AccountMobileProfileHero(
     }
 }
 
-private val BannerHeight = 96.dp
-private val HeroCorner = 28.dp
-private val AvatarSize = 90.dp
-private val AvatarRing = 4.dp
+private val BannerHeight = 88.dp
+private val HeroCorner = 24.dp
+private val AvatarSize = 84.dp
+private val AvatarRing = 3.dp

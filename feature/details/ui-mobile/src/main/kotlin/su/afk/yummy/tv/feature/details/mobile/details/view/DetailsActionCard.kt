@@ -16,10 +16,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.feature.details.mobile.details.model.MobileDetailsAction
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 /** Плоская плитка раздела (серии, подписки): тональная заливка без обводки и тени, иконка, название и пояснение. */
 @Composable
@@ -30,29 +31,28 @@ internal fun DetailsActionCard(
     Surface(
         onClick = action.onClick,
         modifier = modifier
-            .heightIn(min = 64.dp)
+            .heightIn(min = YummySpacing.TouchTarget + YummySpacing.Large)
             .onboardingTarget(mobileDetailsActionTargetId(action.action)),
-        shape = MaterialTheme.shapes.large,
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        shape = YummyShapeTokens.Control,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(horizontal = YummySpacing.Large, vertical = YummySpacing.Medium),
+            horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
                 imageVector = action.icon,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(26.dp),
+                modifier = Modifier.size(22.dp),
             )
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(YummySpacing.XSmall)) {
                 Text(
                     text = action.label,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.titleSmallEmphasized,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,

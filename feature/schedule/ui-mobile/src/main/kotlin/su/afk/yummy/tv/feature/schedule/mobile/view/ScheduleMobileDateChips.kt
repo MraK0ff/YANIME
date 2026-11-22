@@ -6,7 +6,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.feature.schedule.model.ScheduleDayUi
 
 @Composable
@@ -18,8 +18,8 @@ internal fun ScheduleMobileDateChips(
 ) {
     LazyRow(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
+        contentPadding = PaddingValues(horizontal = YummySpacing.Large, vertical = YummySpacing.XSmall),
     ) {
         items(groups, key = { it.date.toEpochDay() }) { group ->
             val epochDay = group.date.toEpochDay()

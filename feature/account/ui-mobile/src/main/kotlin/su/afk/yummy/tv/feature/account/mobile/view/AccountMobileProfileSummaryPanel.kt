@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.domain.account.model.UserProfileSummary
 import su.afk.yummy.tv.domain.account.model.UserStats
 
@@ -15,7 +16,7 @@ internal fun AccountMobileProfileSummaryPanel(
     stats: UserStats?,
     isStatsLoading: Boolean = false,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(YummySpacing.Medium - 2.dp)) {
         AccountMobileSurfacePanel {
             AccountMobileProfileHeatmap(
                 history = summary.watchHistory,

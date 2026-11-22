@@ -6,40 +6,50 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.flow.collect
 
 /**
- * Держит [PagerState] и синхронизирует его с внешним выбором вкладки.
+ * Состояние вкладок, основанных на [PagerState].
  *
- * Позволяет переключать вкладки и тапом (через [selectPage]), и горизонтальным свайпом
- * по [MobileSwipeableTabsPager]. Двусторонняя синхронизация настраивается в
- * [rememberMobileSwipeableTabsState].
+ * [settledPage] — последняя полностью показанная страница. [PagerState.currentPage] может
+ * меняться во время жеста и поэтому не используется как подтверждённый выбор.
  */
 @Stable
 class MobileSwipeableTabsState internal constructor(
     val pagerState: PagerState,
-    private val scope: CoroutineScope,
+    private val selectedPage: () -> Int,
+    private val onPageSelected: (Int) -> Unit,
 ) {
-    /** Текущая (осевшая/докрученная) страница pager'а. */
-    val currentPage: Int get() = pagerState.currentPage
+    val settledPage: Int get() = pagerState.settledPage
 
-    /** Анимированно докрутить pager к вкладке [index] (для onClick по табам). */
+    /** Совместимый псевдоним для ранее опубликованного API. */
+    val currentPage: Int get() = settledPage
+
+    /**
+     * Запрашивает выбор страницы через внешний state holder.
+     *
+     * Сам pager не прокручивается здесь: единственный владелец программной прокрутки —
+     * эффект, наблюдающий за selectedPage. Это исключает конкурирующие animateScrollToPage.
+     */
     fun selectPage(index: Int) {
-        if (pagerState.currentPage != index) {
-            scope.launch { pagerState.animateScrollToPage(index) }
-        }
+        if (index !in 0 until pagerState.pageCount) return
+        if (index == selectedPage() && index == pagerState.targetPage) return
+        onPageSelected(index)
     }
 }
 
 /**
- * Создаёт [MobileSwipeableTabsState] для свайпаемых вкладок.
+ * Создаёт pager state и обеспечивает однонаправленную синхронизацию:
  *
- * @param selectedPage индекс выбранной вкладки во внешнем состоянии.
- * @param pageCount количество вкладок/страниц.
- * @param onPageSelected вызывается, когда свайп/докрутка сменили страницу — тут обычно
- *   диспатчится событие смены выбранной вкладки в состояние.
+ * - внешний selectedPage управляет программной прокруткой;
+ * - завершённый свайп сообщает новый выбор наружу;
+ * - промежуточные currentPage/targetPage не меняют внешний state.
+ *
+ * [pageCount] может изменяться во время жизни composable. Индекс выбора ограничивается
+ * актуальным диапазоном. При пустом наборе страниц pager остаётся без контента и не запускает
+ * прокрутку.
  */
 @Composable
 fun rememberMobileSwipeableTabsState(
@@ -47,25 +57,46 @@ fun rememberMobileSwipeableTabsState(
     pageCount: Int,
     onPageSelected: (Int) -> Unit,
 ): MobileSwipeableTabsState {
+    val safePageCount = pageCount.coerceAtLeast(0)
+    val safeSelectedPage = selectedPage.coerceIn(0, (safePageCount - 1).coerceAtLeast(0))
     val pagerState = rememberPagerState(
-        initialPage = selectedPage,
-        pageCount = { pageCount },
+        initialPage = safeSelectedPage,
+        pageCount = { safePageCount },
     )
-    val scope = rememberCoroutineScope()
-    val state = remember(pagerState, scope) { MobileSwipeableTabsState(pagerState, scope) }
 
-    // Внешний выбор вкладки -> двигаем pager.
-    LaunchedEffect(selectedPage) {
-        if (pagerState.currentPage != selectedPage) {
-            pagerState.animateScrollToPage(selectedPage)
+    val currentOnPageSelected = rememberUpdatedState(onPageSelected)
+    val currentSelectedPage = rememberUpdatedState(safeSelectedPage)
+    val state = remember(pagerState) {
+        MobileSwipeableTabsState(
+            pagerState = pagerState,
+            selectedPage = { currentSelectedPage.value },
+            onPageSelected = { page -> currentOnPageSelected.value(page) },
+        )
+    }
+
+    // Внешний state — единственный источник программных переходов.
+    // Изменение selectedPage отменяет устаревшую анимацию предыдущего выбора.
+    LaunchedEffect(pagerState, safeSelectedPage, safePageCount) {
+        if (
+            safePageCount > 0 &&
+            safeSelectedPage in 0 until pagerState.pageCount &&
+            pagerState.settledPage != safeSelectedPage
+        ) {
+            pagerState.animateScrollToPage(safeSelectedPage)
         }
     }
 
-    // Свайп/докрутка pager'а -> сообщаем наружу.
-    LaunchedEffect(pagerState.currentPage) {
-        if (pagerState.currentPage != selectedPage) {
-            onPageSelected(pagerState.currentPage)
-        }
+    // Обратная синхронизация выполняется только после фактического завершения свайпа.
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.settledPage }
+            .collect { page ->
+                if (
+                    page in 0 until pagerState.pageCount &&
+                    page != currentSelectedPage.value
+                ) {
+                    currentOnPageSelected.value(page)
+                }
+            }
     }
 
     return state

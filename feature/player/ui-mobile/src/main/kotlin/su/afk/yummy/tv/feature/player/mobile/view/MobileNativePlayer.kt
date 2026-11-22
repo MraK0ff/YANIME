@@ -552,7 +552,7 @@ internal fun MobileNativePlayer(
             .fillMaxSize()
             .testTag("player_view")
             .background(Color.Black)
-            .onSizeChanged { gestures.playerSize = it }
+            .onSizeChanged { gestures.updatePlayerSize(it) }
             .focusRequester(keyboardFocusRequester)
             .focusable()
             .onKeyEvent { event ->
@@ -664,7 +664,7 @@ internal fun MobileNativePlayer(
         val videoBottomInsetDp = with(density) { ((rootSize.height - videoHeightPx) / 2).toDp() }
         val videoLeftInsetDp = with(density) { ((rootSize.width - videoWidthPx) / 2).toDp() }
         val videoWidthFraction = if (rootSize.width > 0) videoWidthPx.toFloat() / rootSize.width else 1f
-        val controlSize = mobilePlayerControlButtonSize()
+        val controlSize = mobilePlayerControlButtonSize(with(density) { rootSize.width.toDp() })
         val hasSideLetterboxing = videoLeftInsetDp >= 28.dp
         // Замок расположен справа сверху за границей видеокадра.
         val unlockRightOffset = if (hasSideLetterboxing) {
@@ -684,6 +684,15 @@ internal fun MobileNativePlayer(
                 adaptiveLimitBest = ui.adaptiveLimitBest,
             ),
             qualityOptions = ui.qualityLabels,
+            dubbingLabel = ui.activeDubbingLabel.dubbingDisplayName().removePrefix("Озвучка ").removePrefix("озвучка "),
+            balancerLabel = ui.activeBalancerLabel,
+            onTrackSettings = {
+                endFlow.hideAll()
+                settingsMenuPage = MobilePlayerSettingsPage.Sources
+                settingsMenuOpen = true
+                overlay.visible = true
+                overlay.cancelHide()
+            },
             onEpisodeClick = {
                 onEpisodesExpandedChange(!episodesExpanded)
                 if (!episodesExpanded) overlay.cancelHide() else overlay.show()
@@ -723,8 +732,8 @@ internal fun MobileNativePlayer(
                     onEvent(PlayerState.Event.Back)
                 }
             },
-            buttonSize = 48.dp,
-            modifier = Modifier.align(Alignment.TopStart).offset(x = videoLeftDp, y = videoTopDp),
+            buttonSize = controlSize,
+            modifier = Modifier.align(Alignment.TopStart).offset(x = unlockRightOffset, y = videoTopDp + 8.dp),
         )
 
         if (settingsMenuOpen && !isInPictureInPictureMode && !tutorialBlocksPlayback) {
@@ -910,6 +919,27 @@ internal fun MobileNativePlayer(
             onTimeCodeClick = { showRemainingTime = !showRemainingTime },
             dubbingLabel = ui.activeDubbingLabel.dubbingDisplayName().removePrefix("Озвучка ").removePrefix("озвучка "),
             balancerLabel = ui.activeBalancerLabel,
+            qualityLabel = playerQualityButtonLabel(
+                activeQuality = selectedQuality,
+                adaptiveQuality = ui.adaptiveQuality,
+                adaptiveLimitQuality = ui.adaptiveLimitLabel,
+                adaptiveLimitBest = ui.adaptiveLimitBest,
+            ),
+            selectedSpeed = selectedSpeed,
+            onQualityClick = {
+                endFlow.hideAll()
+                settingsMenuPage = MobilePlayerSettingsPage.Quality
+                settingsMenuOpen = true
+                overlay.visible = true
+                overlay.cancelHide()
+            },
+            onSpeedClick = {
+                endFlow.hideAll()
+                settingsMenuPage = MobilePlayerSettingsPage.Speed
+                settingsMenuOpen = true
+                overlay.visible = true
+                overlay.cancelHide()
+            },
         )
 
         MobilePlayerTimeOverlay(

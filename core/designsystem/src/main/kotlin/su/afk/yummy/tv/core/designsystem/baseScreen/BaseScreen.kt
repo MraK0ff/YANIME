@@ -3,7 +3,9 @@ package su.afk.yummy.tv.core.designsystem.baseScreen
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
 import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummyMotion
 import su.afk.yummy.tv.core.model.ErrorItem
 
 internal enum class BaseScreenContentState {
@@ -136,7 +139,9 @@ fun BaseScreen(
                 .padding(innerPadding)
                 .padding(contentPadding)
 
-            val bodyModifier = if (isScroll) base.verticalScroll(rememberScrollState()) else base
+            // Keep the scroll state slot stable when callers toggle isScroll.
+            val scrollState = rememberScrollState()
+            val bodyModifier = if (isScroll) base.verticalScroll(scrollState) else base
 
             val screenState = when {
                 error != null -> BaseScreenContentState.Error
@@ -148,7 +153,9 @@ fun BaseScreen(
             AnimatedContent(
                 targetState = screenState,
                 transitionSpec = {
-                    fadeIn() togetherWith fadeOut()
+                    (fadeIn(tween(YummyMotion.FastEffectsMillis)) +
+                        scaleIn(initialScale = 0.985f, animationSpec = YummyMotion.ScreenState)) togetherWith
+                        fadeOut(tween(YummyMotion.FastEffectsMillis))
                 },
                 label = "baseScreenContent",
             ) { targetState ->

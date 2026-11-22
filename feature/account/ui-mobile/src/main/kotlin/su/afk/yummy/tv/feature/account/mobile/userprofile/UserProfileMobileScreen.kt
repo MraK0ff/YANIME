@@ -214,14 +214,14 @@ private fun UserProfileTabContent(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             when (tab) {
-                UserProfileState.Tab.OVERVIEW -> item(key = "overview") {
+                UserProfileState.Tab.OVERVIEW -> item(key = "overview", contentType = "profile_overview") {
                     UserProfileOverview(state = state, onEvent = onEvent)
                 }
 
                 UserProfileState.Tab.LISTS -> if (state.listsHidden) {
-                    item(key = "lists_hidden") { UserProfileListsHidden() }
+                    item(key = "lists_hidden", contentType = "profile_lists_hidden") { UserProfileListsHidden() }
                 } else {
-                    item(key = "list_filters") {
+                    item(key = "list_filters", contentType = "profile_list_filters") {
                         UserProfileListFilters(
                             selected = state.selectedList,
                             counts = state.profile?.counts,

@@ -21,12 +21,13 @@ fun Modifier.bufferedTrackOverlay(
     openingColor: Color,
     playedColor: Color? = null,
     gap: Dp = 6.dp,
+    trackHeight: Dp = 4.dp,
 ): Modifier =
     drawWithContent {
         drawContent()
 
         val trackY = size.height / 2f
-        val strokeWidth = 4.dp.toPx()
+        val strokeWidth = trackHeight.toPx()
 
         // Рисуем просмотренную часть с плоским внутренним краем: скругление
         // на стыке двух участков создаёт заметные выступы сверху и снизу.

@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.core.designsystem.mobile.cards
 
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -14,9 +15,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.components.PostersCollage
 import su.afk.yummy.tv.core.designsystem.mobile.input.clickablePointer
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 private const val COLLAGE_ASPECT_RATIO = 2.4f
 
@@ -31,13 +33,13 @@ fun MobileCollectionCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
+        shape = YummyShapeTokens.Card,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
         Column(
             Modifier
                 .clickablePointer()
-                .combinedClickable(onClick = onClick),
+                .combinedClickable(onClick = onClick, role = Role.Button),
         ) {
             PostersCollage(
                 posterUrls = posterUrls,
@@ -48,10 +50,10 @@ fun MobileCollectionCard(
             )
             Text(
                 text = title,
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                modifier = Modifier.padding(horizontal = YummySpacing.Medium, vertical = YummySpacing.Small),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.titleMediumEmphasized,
                 fontWeight = FontWeight.SemiBold,
             )
         }

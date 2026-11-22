@@ -28,7 +28,7 @@ import su.afk.yummy.tv.feature.player.presentation.R
 
 private val FillerColor = Color(0xFFFFC107)
 private val RecapColor = Color(0xFF90CAF9)
-private val BadgeBackground = Color(0xFF30343B).copy(alpha = 0.92f)
+private val BadgeBackground = Color(0xFF30343B).copy(alpha = 0.84f)
 
 /**
  * Значки серии в правом верхнем углу превью, как в списке серий тайтла: филлер/рекап, тайминг просмотра,
@@ -64,13 +64,13 @@ internal fun MobilePlayerEpisodeBadges(
                 PlayerEpisodeProgress.None -> Unit
                 is PlayerEpisodeProgress.InProgress -> Box(
                     modifier = Modifier
-                        .size(8.dp)
+                        .size(7.dp)
                         .background(YummySemanticColors.InProgress, CircleShape),
                 )
 
                 is PlayerEpisodeProgress.Watched -> Box(
                     modifier = Modifier
-                        .size(22.dp)
+                        .size(20.dp)
                         .background(BadgeBackground, CircleShape),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -78,7 +78,7 @@ internal fun MobilePlayerEpisodeBadges(
                         imageVector = Icons.Filled.VisibilityOff,
                         contentDescription = null,
                         tint = Color.White,
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.size(14.dp),
                     )
                 }
             }
@@ -103,8 +103,8 @@ private fun BadgeText(text: String, color: Color, modifier: Modifier = Modifier)
         color = color,
         maxLines = 1,
         modifier = modifier
-            .background(BadgeBackground, RoundedCornerShape(10.dp))
-            .border(1.dp, Color.White.copy(alpha = 0.28f), RoundedCornerShape(10.dp))
-            .padding(horizontal = 7.dp, vertical = 3.dp),
+            .background(BadgeBackground, RoundedCornerShape(8.dp))
+            .border(1.dp, Color.White.copy(alpha = 0.16f), RoundedCornerShape(10.dp))
+            .padding(horizontal = 6.dp, vertical = 2.dp),
     )
 }

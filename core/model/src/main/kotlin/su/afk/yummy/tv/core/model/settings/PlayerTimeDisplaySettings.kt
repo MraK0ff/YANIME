@@ -16,8 +16,10 @@ data class PlayerTimeDisplaySettings(
     val duration: PlayerTimeDisplayMode = PlayerTimeDisplayMode.CONTROLS,
     val finishAt: PlayerTimeDisplayMode = PlayerTimeDisplayMode.NEVER,
     val separateTimecodes: Boolean = false,
+    /** Показывать системные часы и расчётное время окончания в одном чипе. */
+    val combineClockAndFinishAt: Boolean = false,
 ) {
-    fun encode(): String = listOf(systemClock, elapsed, duration, finishAt, separateTimecodes).joinToString("|")
+    fun encode(): String = listOf(systemClock, elapsed, duration, finishAt, separateTimecodes, combineClockAndFinishAt).joinToString("|")
 
     companion object {
         fun decode(value: String?): PlayerTimeDisplaySettings {
@@ -39,6 +41,7 @@ data class PlayerTimeDisplaySettings(
                     ?: (!legacy &&
                         mode(1, PlayerTimeDisplayMode.CONTROLS) == PlayerTimeDisplayMode.ALWAYS &&
                         mode(2, PlayerTimeDisplayMode.CONTROLS) == PlayerTimeDisplayMode.ALWAYS),
+                combineClockAndFinishAt = parts.getOrNull(5)?.toBooleanStrictOrNull() ?: false,
             )
         }
     }

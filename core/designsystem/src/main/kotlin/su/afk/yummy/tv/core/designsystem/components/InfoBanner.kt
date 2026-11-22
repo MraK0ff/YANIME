@@ -1,6 +1,8 @@
 package su.afk.yummy.tv.core.designsystem.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -10,7 +12,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
@@ -23,6 +24,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.skeleton.rememberAnimationsEnabled
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 /**
  * Информационная строка-сообщение с сервера. Встраивается в вёрстку так же, как [OfflineBanner]
@@ -33,27 +37,29 @@ fun InfoBanner(
     message: String?,
     modifier: Modifier = Modifier,
 ) {
-    // Текст запоминается, чтобы строка не схлопывалась пустой на анимации скрытия.
+    // Сохраняем последний текст до конца exit-transition, чтобы баннер не исчезал пустым.
     val lastMessage = remember { arrayOf("") }
     if (message != null) lastMessage[0] = message
+    val animationsEnabled = rememberAnimationsEnabled()
+
     AnimatedVisibility(
         visible = message != null,
         modifier = modifier,
-        enter = expandVertically() + fadeIn(),
-        exit = shrinkVertically() + fadeOut(),
+        enter = if (animationsEnabled) expandVertically() + fadeIn() else EnterTransition.None,
+        exit = if (animationsEnabled) shrinkVertically() + fadeOut() else ExitTransition.None,
     ) {
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            shape = RoundedCornerShape(percent = 50),
+                .padding(horizontal = YummySpacing.Large, vertical = YummySpacing.Small),
+            shape = YummyShapeTokens.Pill,
             color = MaterialTheme.colorScheme.secondaryContainer,
             contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
             shadowElevation = 6.dp,
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                modifier = Modifier.padding(horizontal = YummySpacing.Large, vertical = YummySpacing.Small),
+                horizontalArrangement = Arrangement.spacedBy(YummySpacing.Small, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(

@@ -47,7 +47,11 @@ internal fun DetailsCollectionsSection(
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            items(collections, key = { lazyKey("details_collection", it.id) }) { item ->
+            items(
+                items = collections,
+                key = { lazyKey("details_collection", it.id) },
+                contentType = { "details_collection" },
+            ) { item ->
                 MobileCollectionCard(
                     title = item.title,
                     posterUrls = item.posterUrls.ifEmpty { listOfNotNull(item.posterUrl) },

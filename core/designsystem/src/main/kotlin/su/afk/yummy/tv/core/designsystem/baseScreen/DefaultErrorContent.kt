@@ -4,6 +4,11 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -17,10 +22,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
@@ -43,6 +48,10 @@ import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.R
 import su.afk.yummy.tv.core.designsystem.components.StateMessage
 import su.afk.yummy.tv.core.model.ErrorItem
+import su.afk.yummy.tv.core.designsystem.skeleton.rememberAnimationsEnabled
+import su.afk.yummy.tv.core.designsystem.theme.YummyMotion
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 @Composable
 fun DefaultErrorContent(
@@ -50,7 +59,9 @@ fun DefaultErrorContent(
     onRetry: () -> Unit,
 ) {
     val context = LocalContext.current
-    var showDetails by remember { mutableStateOf(false) }
+    val animationsEnabled = rememberAnimationsEnabled()
+    // A new error must not inherit the expanded diagnostic panel from the previous one.
+    var showDetails by remember(errorItem) { mutableStateOf(false) }
 
     val copyText = remember(errorItem) { errorItem.toClipboardText() }
 
@@ -67,7 +78,7 @@ fun DefaultErrorContent(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = 16.dp, vertical = 24.dp),
+            .padding(horizontal = YummySpacing.Large, vertical = YummySpacing.XXLarge),
         contentAlignment = Alignment.Center,
     ) {
         Column(
@@ -84,16 +95,18 @@ fun DefaultErrorContent(
                 fillMaxSize = false,
             )
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(YummySpacing.Large))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(YummySpacing.Small),
             ) {
                 if (hasDetails) {
                     OutlinedButton(
                         onClick = { showDetails = !showDetails },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .heightIn(min = YummySpacing.TouchTarget),
                     ) {
                         Text(
                             if (showDetails) {
@@ -112,20 +125,20 @@ fun DefaultErrorContent(
                 )
             }
 
-            // ДЕТАЛИ
-            AnimatedVisibility(visible = showDetails && hasDetails) {
+            AnimatedVisibility(
+                visible = showDetails && hasDetails,
+                enter = if (animationsEnabled) fadeIn(tween(YummyMotion.StandardEffectsMillis)) else EnterTransition.None,
+                exit = if (animationsEnabled) fadeOut(tween(YummyMotion.FastEffectsMillis)) else ExitTransition.None,
+            ) {
                 Column(
                     modifier = Modifier
-                        .padding(top = 16.dp)
+                        .padding(top = YummySpacing.Large)
                         .fillMaxWidth(),
                     horizontalAlignment = Alignment.Start,
                 ) {
                     errorItem.code?.let {
                         Text(
-                            text = stringResource(
-                                R.string.error_http_code,
-                                it.toString(),
-                            ),
+                            text = stringResource(R.string.error_http_code, it.toString()),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
@@ -149,7 +162,7 @@ fun DefaultErrorContent(
                     }
 
                     errorItem.cause?.takeIf { it.isNotBlank() }?.let {
-                        Spacer(Modifier.height(8.dp))
+                        Spacer(Modifier.height(YummySpacing.Small))
                         Text(
                             text = it,
                             style = MaterialTheme.typography.bodySmall,
@@ -158,7 +171,7 @@ fun DefaultErrorContent(
                     }
 
                     errorItem.body?.takeIf { it.isNotBlank() }?.let { body ->
-                        Spacer(Modifier.height(12.dp))
+                        Spacer(Modifier.height(YummySpacing.Medium))
                         Text(
                             text = stringResource(R.string.error_body, body),
                             style = MaterialTheme.typography.bodySmall,
@@ -166,11 +179,12 @@ fun DefaultErrorContent(
                         )
                     }
 
-                    // Copy показываем ТОЛЬКО когда раскрыты детали
-                    Spacer(Modifier.height(12.dp))
+                    Spacer(Modifier.height(YummySpacing.Medium))
                     OutlinedButton(
                         onClick = { context.copyToClipboard(copyText) },
-                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .heightIn(min = YummySpacing.TouchTarget),
                     ) {
                         Text(stringResource(R.string.copy))
                     }
@@ -188,14 +202,14 @@ private fun DefaultErrorRetryButton(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
-    val shape = RoundedCornerShape(8.dp)
+    val shape = YummyShapeTokens.Control
     val colorScheme = MaterialTheme.colorScheme
     val containerColor = if (focused) colorScheme.primary else Color.Transparent
     val contentColor = if (focused) colorScheme.onPrimary else colorScheme.onSurface
     val borderColor = if (focused) colorScheme.primary else colorScheme.outline.copy(alpha = 0.72f)
 
     Button(
-        modifier = modifier,
+        modifier = modifier.heightIn(min = YummySpacing.TouchTarget),
         onClick = onClick,
         shape = shape,
         interactionSource = interactionSource,
@@ -209,7 +223,7 @@ private fun DefaultErrorRetryButton(
         ),
         contentPadding = PaddingValues(horizontal = 18.dp, vertical = 10.dp),
     ) {
-        Text(text = text)
+        Text(text = text, style = MaterialTheme.typography.labelLargeEmphasized)
     }
 }
 

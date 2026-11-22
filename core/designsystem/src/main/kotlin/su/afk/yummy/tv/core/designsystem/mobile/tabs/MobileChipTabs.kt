@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.core.designsystem.mobile.tabs
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,7 +11,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlin.math.ceil
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 /**
  * Компактные вкладки ровной сеткой: все видны сразу, ячейки одинаковой ширины
@@ -41,11 +42,13 @@ fun <K> MobileChipTabs(
     val columns = chipTabColumns(tabs.size)
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(8.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.34f),
+        shape = MaterialTheme.shapes.extraLarge,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
     ) {
         Column(
-            modifier = Modifier.padding(4.dp),
+            modifier = Modifier
+                .padding(4.dp)
+                .selectableGroup(),
             verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
             tabs.chunked(columns).forEach { row ->
@@ -58,7 +61,6 @@ fun <K> MobileChipTabs(
                             modifier = Modifier.weight(1f),
                         )
                     }
-                    // Неполная строка: держим ширину колонок как в остальных.
                     repeat(columns - row.size) { Spacer(Modifier.weight(1f)) }
                 }
             }
@@ -82,11 +84,17 @@ private fun <K> MobileChipTabItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val contentColor = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
+    val contentColor = if (selected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
     Surface(
-        modifier = modifier.clickable(role = Role.Tab, onClick = onClick),
-        shape = RoundedCornerShape(6.dp),
-        color = if (selected) tab.color.copy(alpha = 0.18f) else Color.Transparent,
+        modifier = modifier
+            .heightIn(min = YummySpacing.TouchTarget)
+            .selectable(
+                selected = selected,
+                onClick = onClick,
+                role = Role.Tab,
+            ),
+        shape = MaterialTheme.shapes.large,
+        color = if (selected) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
         contentColor = contentColor,
     ) {
         Column(
@@ -108,7 +116,7 @@ private fun <K> MobileChipTabItem(
                 }
                 tab.count?.let { count ->
                     Surface(
-                        shape = RoundedCornerShape(percent = 50),
+                        shape = MaterialTheme.shapes.extraLarge,
                         color = tab.color.copy(alpha = if (selected) 0.28f else 0.18f),
                         contentColor = contentColor,
                     ) {

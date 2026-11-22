@@ -14,4 +14,6 @@ internal data class SettingsMobilePickerOption<T>(
     /** Значок варианта в цветной плашке; без него строка остаётся только с подписью. */
     val icon: ImageVector? = null,
     val iconColor: Color? = null,
+    /** Palette preview swatches for appearance choices. */
+    val previewColors: List<Color> = emptyList(),
 )

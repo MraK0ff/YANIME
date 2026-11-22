@@ -9,8 +9,8 @@ import androidx.compose.ui.unit.dp
 
 object MobileBottomBarDefaults {
 
-    /** Высота самого бара без системного инсета: иконки без подписей, 80.dp из M3 избыточны. */
-    val BarHeight: Dp = 64.dp
+    /** Высота бара с постоянно видимыми подписями, согласованная с нижней навигацией Material 3. */
+    val BarHeight: Dp = 80.dp
 
     val ExtraContentBottomPadding: Dp = 16.dp
 

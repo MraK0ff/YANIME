@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.core.designsystem.mobile.cards
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -16,7 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.designsystem.components.CachedAsyncImage
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 
 /**
  * Карточка новости: превью 16:9, рубрика, заголовок, анонс и подпись (автор · дата).
@@ -33,11 +34,11 @@ fun MobileNewsCard(
     modifier: Modifier = Modifier,
 ) {
     ElevatedCard(
-        shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
+        onClick = onClick,
+        shape = YummyShapeTokens.ProminentCard,
+        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        modifier = modifier.fillMaxWidth(),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 0.dp),
     ) {
         imageUrl?.takeIf(String::isNotBlank)?.let {
             CachedAsyncImage(
@@ -49,13 +50,13 @@ fun MobileNewsCard(
                     .aspectRatio(16f / 9f),
             )
         }
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(Modifier.padding(YummySpacing.Large), verticalArrangement = Arrangement.spacedBy(YummySpacing.Small)) {
             if (category.isNotBlank()) {
                 SuggestionChip(onClick = onClick, label = { Text(category) })
             }
             Text(
                 title,
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleLargeEmphasized,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )

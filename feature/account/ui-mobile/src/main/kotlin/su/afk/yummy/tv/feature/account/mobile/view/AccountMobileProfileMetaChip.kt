@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -16,6 +15,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 @Composable
 internal fun AccountMobileProfileMetaChip(
@@ -26,17 +27,17 @@ internal fun AccountMobileProfileMetaChip(
     if (value.isBlank()) return
     Row(
         modifier = modifier
-            .clip(CircleShape)
+            .clip(YummyShapeTokens.Pill)
             .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.07f))
-            .padding(horizontal = 10.dp, vertical = 5.dp),
+            .padding(horizontal = YummySpacing.Medium, vertical = YummySpacing.XSmall),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(5.dp),
+        horizontalArrangement = Arrangement.spacedBy(YummySpacing.XSmall),
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(14.dp),
+            modifier = Modifier.size(YummySpacing.Large - 2.dp),
         )
         Text(
             text = value,

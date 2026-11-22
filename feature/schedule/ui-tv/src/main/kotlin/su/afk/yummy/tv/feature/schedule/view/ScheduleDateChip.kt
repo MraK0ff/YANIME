@@ -34,6 +34,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.focus.tvFocusableClick
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.feature.schedule.model.ScheduleDayUi
 
 @Composable
@@ -50,7 +51,7 @@ internal fun ScheduleDateChip(
     val focused by interactionSource.collectIsFocusedAsState()
     val selectedFocused = selected && focused
     val selectedIdle = selected && !focused
-    val shape = RoundedCornerShape(10.dp)
+    val shape = YummyShapeTokens.Control
     val background = when {
         selectedFocused -> MaterialTheme.colorScheme.primary
         focused -> MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
@@ -115,7 +116,7 @@ internal fun ScheduleDateChip(
                 .align(Alignment.TopEnd)
                 .padding(4.dp)
                 .size(20.dp)
-                .clip(RoundedCornerShape(10.dp))
+                .clip(CircleShape)
                 .background(
                     color = if (selectedFocused) MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.18f)
                     else MaterialTheme.colorScheme.primary.copy(alpha = 0.22f),

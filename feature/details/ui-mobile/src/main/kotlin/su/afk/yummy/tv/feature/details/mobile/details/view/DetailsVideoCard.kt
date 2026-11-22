@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -24,9 +23,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.designsystem.components.FallbackAsyncImage
 
 /** Большая карточка блока «Видео»: превью (или градиент), иконка в углу и подпись внизу. */
@@ -47,7 +47,7 @@ internal fun DetailsVideoCard(
     Card(
         onClick = onClick,
         modifier = modifier.height(118.dp),
-        shape = RoundedCornerShape(14.dp),
+        shape = YummyShapeTokens.Control,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -90,8 +90,8 @@ internal fun DetailsVideoCard(
             Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(10.dp)
-                    .size(34.dp)
+                    .padding(YummySpacing.Medium - 2.dp)
+                    .size(YummySpacing.Large + YummySpacing.Medium)
                     .background(Color.Black.copy(alpha = 0.5f), CircleShape),
                 contentAlignment = Alignment.Center,
             ) {
@@ -99,25 +99,25 @@ internal fun DetailsVideoCard(
                     imageVector = icon,
                     contentDescription = null,
                     tint = Color.White,
-                    modifier = Modifier.size(19.dp),
+                    modifier = Modifier.size(YummySpacing.Large + 3.dp),
                 )
             }
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 10.dp),
-                verticalArrangement = Arrangement.spacedBy(2.dp),
+                    .padding(horizontal = YummySpacing.Medium, vertical = YummySpacing.Medium - 2.dp),
+                verticalArrangement = Arrangement.spacedBy(YummySpacing.XSmall / 2),
             ) {
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(YummySpacing.Small),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
                         text = title,
                         modifier = Modifier.weight(1f, fill = false),
                         style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.SemiBold,
+                        
                         color = Color.White,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -128,8 +128,8 @@ internal fun DetailsVideoCard(
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier
-                                .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(6.dp))
-                                .padding(horizontal = 7.dp, vertical = 2.dp),
+                                .background(MaterialTheme.colorScheme.primary, YummyShapeTokens.Compact)
+                                .padding(horizontal = YummySpacing.Small, vertical = YummySpacing.XSmall / 2),
                         )
                     }
                 }

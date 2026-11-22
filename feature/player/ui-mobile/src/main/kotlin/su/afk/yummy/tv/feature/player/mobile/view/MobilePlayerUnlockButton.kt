@@ -9,7 +9,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
@@ -83,7 +82,6 @@ internal fun MobilePlayerUnlockButton(
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .size(buttonSize)
-                    .mobilePlayerGlassSurface(shape = CircleShape, elevation = 0.dp)
                     .semantics {
                         role = Role.Button
                         contentDescription = unlockLabel
@@ -168,7 +166,6 @@ internal fun MobilePlayerLockButton(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .size(buttonSize)
-                .mobilePlayerGlassSurface(shape = CircleShape, elevation = 0.dp)
                 .clickable(role = Role.Button, onClickLabel = lockLabel, onClick = onLock)
                 .semantics {
                     role = Role.Button

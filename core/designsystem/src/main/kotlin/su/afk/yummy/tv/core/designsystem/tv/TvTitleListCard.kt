@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.designsystem.components.FavoriteMarker
 import su.afk.yummy.tv.core.designsystem.components.ListStatusBadge
 import su.afk.yummy.tv.core.designsystem.components.RatingBadge
@@ -55,7 +55,7 @@ fun TvTitleListCard(
             Column(
                 modifier = Modifier
                     .align(Alignment.TopStart)
-                    .padding(6.dp),
+                    .padding(YummySpacing.Small),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 // «Вышел» — состояние большинства тайтлов, на постере это шум.
@@ -101,7 +101,7 @@ fun TvTitleListCard(
                             modifier = Modifier
                                 .background(
                                     MaterialTheme.colorScheme.surface.copy(alpha = 0.88f),
-                                    RoundedCornerShape(4.dp),
+                                    MaterialTheme.shapes.extraSmall,
                                 )
                                 .padding(horizontal = 6.dp, vertical = 3.dp),
                         )

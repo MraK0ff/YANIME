@@ -26,12 +26,12 @@ import su.afk.yummy.tv.feature.settings.mobile.utils.hint
 import su.afk.yummy.tv.feature.settings.mobile.utils.icon
 import su.afk.yummy.tv.feature.settings.mobile.utils.label
 import su.afk.yummy.tv.feature.settings.presentation.R
-import su.afk.yummy.tv.core.designsystem.theme.previewColor
 import su.afk.yummy.tv.feature.settings.common.utils.availableAppThemes
 import su.afk.yummy.tv.feature.settings.common.utils.color
 import su.afk.yummy.tv.feature.settings.common.utils.hint
 import su.afk.yummy.tv.feature.settings.common.utils.icon
 import su.afk.yummy.tv.feature.settings.common.utils.label
+import su.afk.yummy.tv.core.designsystem.theme.previewColors
 
 /** Состояние шторок и диалогов, общее для всех категорий мобильных настроек. */
 @Stable
@@ -87,7 +87,7 @@ internal fun SettingsMobileDialogsHost(
                     it,
                     it.label(),
                     it.hint(),
-                    labelColor = it.previewColor(),
+                    previewColors = it.previewColors(),
                 )
             },
             onDismiss = { dialogs.activePicker = null },

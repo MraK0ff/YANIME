@@ -83,14 +83,14 @@ fun GlossaryMobileScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            item(key = "search") {
+            item(key = "search", contentType = "glossary_search") {
                 GlossarySearchField(
                     query = state.query,
                     onQueryChange = { onEvent(GlossaryState.Event.QueryChanged(it)) },
                 )
             }
             if (groups.isEmpty()) {
-                item(key = "empty") {
+                item(key = "empty", contentType = "empty_state") {
                     Text(
                         text = stringResource(R.string.glossary_empty),
                         style = MaterialTheme.typography.bodyLarge,
@@ -101,7 +101,7 @@ fun GlossaryMobileScreen(
             groups.forEach { (category, entries) ->
                 // Во время поиска разделы всегда раскрыты, иначе совпадения в свёрнутом разделе не видно.
                 val collapsed = !isSearching && category in state.collapsedCategories
-                item(key = "category_${category.name}") {
+                item(key = "category_${category.name}", contentType = "glossary_category") {
                     GlossaryCategoryHeader(
                         title = stringResource(category.title),
                         count = entries.size,
@@ -110,12 +110,16 @@ fun GlossaryMobileScreen(
                     )
                 }
                 if (!collapsed) {
-                    items(entries, key = { "entry_${it.key}" }) { entry ->
+                    items(
+                        items = entries,
+                        key = { "entry_${it.key}" },
+                        contentType = { "glossary_entry" },
+                    ) { entry ->
                         GlossaryEntryCard(entry = entry)
                     }
                 }
             }
-            item(key = "suggest") {
+            item(key = "suggest", contentType = "glossary_suggest") {
                 GlossarySuggestButton(onClick = { context.openExternalUri(COMMUNITY_TELEGRAM_URL) })
             }
         }

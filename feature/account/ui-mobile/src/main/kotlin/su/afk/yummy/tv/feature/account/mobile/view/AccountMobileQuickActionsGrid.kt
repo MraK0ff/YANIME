@@ -11,7 +11,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.feature.account.mobile.account.model.AccountMobileQuickAction
 
 private const val ColumnsPerRow = 4
@@ -24,10 +25,10 @@ internal fun AccountMobileQuickActionsGrid(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clip(MaterialTheme.shapes.extraLarge)
-            .background(MaterialTheme.colorScheme.surfaceContainer)
-            .padding(horizontal = 8.dp, vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+            .clip(YummyShapeTokens.Card)
+            .background(MaterialTheme.colorScheme.surfaceContainerLow)
+            .padding(horizontal = YummySpacing.XSmall, vertical = YummySpacing.Small),
+        verticalArrangement = Arrangement.spacedBy(YummySpacing.Small),
     ) {
         actions.chunked(ColumnsPerRow).forEach { row ->
             Row(modifier = Modifier.fillMaxWidth()) {

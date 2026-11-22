@@ -1,11 +1,9 @@
 package su.afk.yummy.tv.core.designsystem.components
 
 import su.afk.yummy.tv.core.model.seasonal.SeasonalTheme
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.CircularWavyProgressIndicator
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.ProgressIndicatorDefaults
-import androidx.compose.material3.WavyProgressIndicatorDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,28 +14,22 @@ import su.afk.yummy.tv.core.designsystem.seasonal.rememberSeasonalTheme
 /**
  * Indeterminate circular loader used across the app; change the look of every spinner here.
  *
- * Renders the Material 3 Expressive wavy ring. Compact inline spinners (button, card badge) pass an
- * explicit [strokeWidth] and get the plain thin ring instead, because the wave collapses at small sizes.
+ * Renders the shape-morphing Material 3 Expressive indicator. [strokeWidth] remains accepted for
+ * source compatibility with compact call sites; the expressive indicator owns its geometry.
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun YummyLoadingIndicator(
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
-    strokeWidth: Dp = Dp.Unspecified,
+    @Suppress("UNUSED_PARAMETER") strokeWidth: Dp = Dp.Unspecified,
 ) {
     if (strokeWidth == Dp.Unspecified && rememberSeasonalTheme() == SeasonalTheme.HALLOWEEN) {
         PumpkinLoader(modifier)
-    } else if (strokeWidth == Dp.Unspecified) {
-        CircularWavyProgressIndicator(
-            modifier = modifier,
-            color = color.takeOrElse { WavyProgressIndicatorDefaults.indicatorColor },
-        )
     } else {
-        CircularProgressIndicator(
+        LoadingIndicator(
             modifier = modifier,
-            color = color.takeOrElse { ProgressIndicatorDefaults.circularColor },
-            strokeWidth = strokeWidth,
+            color = color.takeOrElse { MaterialTheme.colorScheme.primary },
         )
     }
 }

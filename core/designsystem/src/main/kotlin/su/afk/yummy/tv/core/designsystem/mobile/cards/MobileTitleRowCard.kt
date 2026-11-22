@@ -4,6 +4,7 @@ import su.afk.yummy.tv.core.designsystem.seasonal.seasonalCardDecor
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +32,8 @@ import su.afk.yummy.tv.core.designsystem.dimensions.TITLE_POSTER_ASPECT_RATIO
 import su.afk.yummy.tv.core.designsystem.locals.LocalLibraryListStatuses
 import su.afk.yummy.tv.core.designsystem.mobile.input.clickablePointer
 import su.afk.yummy.tv.core.designsystem.mobile.input.onSecondaryClick
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 private val PosterWidth = 96.dp
 private const val DESCRIPTION_MAX_LINES = 4
@@ -55,7 +58,7 @@ fun MobileTitleRowCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
+        shape = YummyShapeTokens.Card,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
         Row(
@@ -64,7 +67,7 @@ fun MobileTitleRowCard(
                 .height(PosterWidth / TITLE_POSTER_ASPECT_RATIO)
                 .clickablePointer()
                 .onSecondaryClick(onLongClick)
-                .combinedClickable(onClick = onClick, onLongClick = onLongClick),
+                .combinedClickable(onClick = onClick, onLongClick = onLongClick, role = Role.Button),
         ) {
             Box(Modifier.width(PosterWidth).fillMaxHeight().seasonalCardDecor(animeId ?: posterUrls.firstOrNull().hashCode())) {
                 FallbackAsyncImage(
@@ -84,8 +87,8 @@ fun MobileTitleRowCard(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                    .padding(horizontal = YummySpacing.Large, vertical = YummySpacing.Small),
+                verticalArrangement = Arrangement.spacedBy(YummySpacing.XSmall),
             ) {
                 Text(
                     text = title,
@@ -97,7 +100,7 @@ fun MobileTitleRowCard(
                 if (year != null || rating != null) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(YummySpacing.Small),
                     ) {
                         rating?.takeIf { it > 0.0 }?.let { MobileRatingBadge(rating = it) }
                         year?.let {

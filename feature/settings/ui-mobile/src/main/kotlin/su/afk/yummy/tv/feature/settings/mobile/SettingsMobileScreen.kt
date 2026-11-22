@@ -102,10 +102,10 @@ fun SettingsMobileScreen(
     ) {
         LazyColumn(
             modifier = Modifier.mobileContentMaxWidth(),
-            contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(18.dp),
+            contentPadding = PaddingValues(start = 16.dp, top = 12.dp, end = 16.dp, bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            item(key = "categories") {
+            item(key = "categories", contentType = "settings_categories") {
                 SettingsMobileSection {
                     SettingsCategory.entries.forEachIndexed { index, category ->
                         SettingsMobileNavigationRow(
@@ -123,7 +123,7 @@ fun SettingsMobileScreen(
                 }
             }
 
-            item(key = "about") {
+            item(key = "about", contentType = "settings_about") {
                 SettingsMobileSection(title = stringResource(R.string.settings_section_about)) {
                     SettingsMobileAboutRow(
                         label = stringResource(R.string.settings_release_notes_label),
@@ -160,7 +160,7 @@ fun SettingsMobileScreen(
                     }
                 }
             }
-            item(key = "original-project-links") {
+            item(key = "original-project-links", contentType = "settings_project_links") {
                 SettingsMobileSection(title = originalSectionTitle) {
                     SettingsMobileAboutRow(
                         label = feedbackLabel,
@@ -179,7 +179,7 @@ fun SettingsMobileScreen(
                     )
                 }
             }
-            item(key = "yanime-project-links") {
+            item(key = "yanime-project-links", contentType = "settings_project_links") {
                 SettingsMobileSection(title = forkSectionTitle) {
                     SettingsMobileAboutRow(
                         label = forkRepositoryLabel,

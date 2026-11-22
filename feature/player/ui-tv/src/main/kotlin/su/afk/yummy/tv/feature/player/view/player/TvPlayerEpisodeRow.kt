@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.RecordVoiceOver
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.ClosedCaption
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.Settings
@@ -34,6 +36,7 @@ import su.afk.yummy.tv.core.designsystem.focus.tvFocusRestorer
 import su.afk.yummy.tv.core.designsystem.utils.dubbingDisplayName
 import su.afk.yummy.tv.feature.player.model.PlayerFinalEpisodeAction
 import su.afk.yummy.tv.feature.player.presentation.R
+import su.afk.yummy.tv.feature.player.utils.speedLabel
 import su.afk.yummy.tv.feature.player.utils.withoutDubbingTitlePrefix
 
 @Composable
@@ -50,6 +53,11 @@ internal fun TvPlayerEpisodeRow(
     playerName: String,
     dubbing: String,
     currentQualityLabel: String,
+    speeds: List<Float>,
+    activeSpeed: Float,
+    onCycleSpeed: () -> Unit,
+    onOpenSpeedPanel: () -> Unit,
+    speedFocusRequester: FocusRequester? = null,
     adaptiveQuality: Boolean,
     qualityFocusRequester: FocusRequester? = null,
     dubbingFocusRequester: FocusRequester? = null,
@@ -59,6 +67,8 @@ internal fun TvPlayerEpisodeRow(
     allohaFocusRequester: FocusRequester? = null,
     nextEpisodeFocusRequester: FocusRequester? = null,
     showAllohaButton: Boolean = false,
+    showSubtitleButton: Boolean = false,
+    subtitlesFocusRequester: FocusRequester? = null,
     upFocusRequester: FocusRequester,
     onInteraction: () -> Unit,
     onPrevEpisode: () -> Unit,
@@ -70,6 +80,7 @@ internal fun TvPlayerEpisodeRow(
     onToggleEpisodes: () -> Unit = {},
     onTogglePlayerSettings: () -> Unit = {},
     onToggleAlloha: () -> Unit = {},
+    onToggleSubtitles: () -> Unit = {},
 ) {
     // Серии отдельной кнопки не имеют: «вниз» с ряда кнопок раскрывает ленту серий. Фокус-группа с
     // restorer'ом нужна, чтобы после закрытия ленты фокус вернулся на кнопку, с которой её открыли.
@@ -94,59 +105,31 @@ internal fun TvPlayerEpisodeRow(
                 onFocused = onInteraction,
                 modifier = Modifier
                     .focusProperties { up = upFocusRequester }
-                    .width(48.dp),
+                    .width(44.dp),
                 contentPadding = PaddingValues(horizontal = 0.dp, vertical = 9.dp),
             ) { color ->
                 Icon(
                     imageVector = Icons.Filled.SkipPrevious,
                     contentDescription = stringResource(R.string.player_previous_episode),
                     tint = color,
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(18.dp),
                 )
             }
         }
         Spacer(Modifier.weight(1f))
-        if (allDubbingNames.size > 1) {
-            val label = allDubbingNames
-                .getOrElse(currentDubbingIndex) { dubbing }
-                .dubbingDisplayName()
-                .withoutDubbingTitlePrefix(stringResource(R.string.player_dubbing_title))
+        if (speeds.isNotEmpty()) {
             TvControlButton(
-                onClick = onToggleDubbing,
+                onClick = onCycleSpeed,
+                onLongClick = onOpenSpeedPanel,
                 onFocused = onInteraction,
-                focusRequester = dubbingFocusRequester,
-                modifier = Modifier
-                    .focusProperties { up = upFocusRequester }
-                    .widthIn(min = 164.dp, max = 220.dp),
+                focusRequester = speedFocusRequester,
+                modifier = Modifier.focusProperties { up = upFocusRequester },
             ) { color ->
                 Text(
-                    text = label,
+                    text = activeSpeed.speedLabel(),
                     style = MaterialTheme.typography.labelLarge,
                     color = color,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-            Spacer(Modifier.width(8.dp))
-        }
-        if (allBalancerNames.size > 1) {
-            val label = allBalancerNames.getOrElse(currentBalancerIndex) {
-                playerName.removePrefix(stringResource(R.string.player_name_prefix))
-            }
-            TvControlButton(
-                onClick = onToggleBalancer,
-                onFocused = onInteraction,
-                focusRequester = balancerFocusRequester,
-                modifier = Modifier
-                    .focusProperties { up = upFocusRequester }
-                    .widthIn(min = 128.dp, max = 156.dp),
-            ) { color ->
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.labelLarge,
-                    color = color,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Spacer(Modifier.width(8.dp))
@@ -179,6 +162,69 @@ internal fun TvPlayerEpisodeRow(
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
+            }
+            Spacer(Modifier.width(8.dp))
+        }
+        if (allDubbingNames.size > 1 || allBalancerNames.size > 1) {
+            val dubbingLabel = allDubbingNames
+                .getOrElse(currentDubbingIndex) { dubbing }
+                .dubbingDisplayName()
+                .withoutDubbingTitlePrefix(stringResource(R.string.player_dubbing_title))
+            val balancerLabel = allBalancerNames.getOrElse(currentBalancerIndex) {
+                playerName.removePrefix(stringResource(R.string.player_name_prefix))
+            }
+            TvControlButton(
+                onClick = onToggleDubbing,
+                onFocused = onInteraction,
+                focusRequester = dubbingFocusRequester,
+                modifier = Modifier
+                    .focusProperties { up = upFocusRequester }
+                    .widthIn(min = 220.dp, max = 300.dp),
+            ) { color ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(7.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.RecordVoiceOver,
+                        contentDescription = null,
+                        tint = color,
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Text(
+                        text = listOf(dubbingLabel, balancerLabel).filter { it.isNotBlank() }.joinToString("  ·  "),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = color,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false),
+                    )
+                    Icon(
+                        imageVector = Icons.Filled.KeyboardArrowDown,
+                        contentDescription = null,
+                        tint = color.copy(alpha = 0.85f),
+                        modifier = Modifier.size(18.dp),
+                    )
+                }
+            }
+            Spacer(Modifier.width(8.dp))
+        }
+        if (showSubtitleButton) {
+            TvControlButton(
+                onClick = onToggleSubtitles,
+                onFocused = onInteraction,
+                focusRequester = subtitlesFocusRequester,
+                modifier = Modifier
+                    .focusProperties { up = upFocusRequester }
+                    .width(48.dp),
+                contentPadding = PaddingValues(horizontal = 0.dp, vertical = 9.dp),
+            ) { color ->
+                Icon(
+                    imageVector = Icons.Filled.ClosedCaption,
+                    contentDescription = stringResource(R.string.player_subtitle_track_title),
+                    tint = color,
+                    modifier = Modifier.size(20.dp),
+                )
             }
             Spacer(Modifier.width(8.dp))
         }

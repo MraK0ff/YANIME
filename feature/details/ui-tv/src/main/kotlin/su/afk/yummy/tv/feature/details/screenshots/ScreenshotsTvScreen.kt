@@ -181,7 +181,7 @@ fun ScreenshotsTvScreen(
                                 }
                             },
                     ) {
-                        item(span = { GridItemSpan(maxLineSpan) }) {
+                        item(span = { GridItemSpan(maxLineSpan) }, contentType = "screenshots_header") {
                             Text(
                                 text = state.title.ifBlank { stringResource(R.string.details_screenshots_title) },
                                 style = MaterialTheme.typography.headlineSmall,
@@ -192,6 +192,7 @@ fun ScreenshotsTvScreen(
                         itemsIndexed(
                             items = state.screenshots,
                             key = { index, item -> item.screenshotLazyKey(index) },
+                            contentType = { _, _ -> "screenshot" },
                         ) { index, screenshot ->
                             ScreenshotCard(
                                 screenshot = screenshot,

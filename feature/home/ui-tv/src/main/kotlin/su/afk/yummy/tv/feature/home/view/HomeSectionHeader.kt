@@ -8,16 +8,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.designsystem.dimensions.TvScreenPadding
 
 @Composable
@@ -26,8 +26,8 @@ internal fun HomeSectionHeader(
     active: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val markerWidth = if (active) 6.dp else 4.dp
-    val markerHeight = if (active) 28.dp else 22.dp
+    val markerWidth = if (active) 5.dp else 3.dp
+    val markerHeight = if (active) 24.dp else 20.dp
     val markerColor = if (active) {
         MaterialTheme.colorScheme.primary
     } else {
@@ -43,19 +43,19 @@ internal fun HomeSectionHeader(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = TvScreenPadding.Horizontal),
-        horizontalArrangement = Arrangement.spacedBy(14.dp),
+        horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
             modifier = Modifier
                 .width(markerWidth)
                 .height(markerHeight)
-                .clip(RoundedCornerShape(3.dp))
+                .clip(YummyShapeTokens.Pill)
                 .background(markerColor),
         )
         Text(
             text = title,
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.titleLargeEmphasized,
             color = titleColor,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

@@ -163,9 +163,9 @@ fun DetailsMobileScreen(
                 .fillMaxSize()
                 .testTag("details_root"),
             contentPadding = PaddingValues(bottom = 0.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
-            item(key = "hero") {
+            item(key = "hero", contentType = "details_hero") {
                 // Фон шапки остаётся под статус-баром, плашка лежит поверх него, а контент шапки сдвинут вниз.
                 var bannerHeightPx by remember { mutableIntStateOf(0) }
                 Box {
@@ -192,7 +192,7 @@ fun DetailsMobileScreen(
                     }
                 }
             }
-            item(key = "actions") {
+            item(key = "actions", contentType = "details_actions") {
                 DetailsSecondaryActions(
                     state = state,
                     onSubscriptionsSelected = { onEvent(DetailsState.Event.SubscriptionsRouteSelected) },
@@ -203,7 +203,7 @@ fun DetailsMobileScreen(
                     modifier = Modifier.padding(horizontal = 16.dp),
                 )
             }
-            item(key = "description") {
+            item(key = "description", contentType = "details_description") {
                 DetailsInfoBlock(
                     details = details,
                     onGenreSelected = { onEvent(DetailsState.Event.GenreSelected(it)) },
@@ -213,14 +213,14 @@ fun DetailsMobileScreen(
                 )
             }
             if (state.screenshots.isNotEmpty()) {
-                item(key = "screenshots") {
+                item(key = "screenshots", contentType = "details_screenshots") {
                     DetailsScreenshotsRow(
                         screenshots = state.screenshots,
                         onScreenshotClick = { onEvent(DetailsState.Event.ScreenshotSelected(it)) },
                     )
                 }
             }
-            item(key = "video") {
+            item(key = "video", contentType = "details_video") {
                 DetailsVideoSection(
                     trailers = state.trailers,
                     bloggerVideosImageModels = details.poster.posterUrls(),
@@ -233,7 +233,7 @@ fun DetailsMobileScreen(
             }
             val ratingOverview = state.ratingOverview
             if (ratingOverview != null) {
-                item(key = "rating") {
+                item(key = "rating", contentType = "details_rating") {
                     DetailsRatingOverviewCard(
                         overview = ratingOverview,
                         userRating = state.userRating,
@@ -242,12 +242,12 @@ fun DetailsMobileScreen(
                     )
                 }
             } else if (state.isExtrasLoading) {
-                item(key = "rating") {
+                item(key = "rating", contentType = "details_rating") {
                     DetailsRatingOverviewSkeleton(modifier = Modifier.padding(horizontal = 16.dp))
                 }
             }
             state.details?.takeIf { it.viewingOrder.size > 1 }?.let { details ->
-                item(key = "universe") {
+                item(key = "universe", contentType = "details_universe") {
                     DetailsUniverseSection(
                         items = details.viewingOrder,
                         currentAnimeId = details.id,
@@ -256,7 +256,7 @@ fun DetailsMobileScreen(
                     )
                 }
             }
-            item(key = "similar") {
+            item(key = "similar", contentType = "details_similar") {
                 // Ближе к «Вселенной» выше и к коллекциям ниже, чем общий шаг ленты.
                 DetailsLinkRow(
                     link = similarDetailsLink { onEvent(DetailsState.Event.SimilarSelected) },
@@ -264,7 +264,7 @@ fun DetailsMobileScreen(
                 )
             }
             if (state.collections.isNotEmpty()) {
-                item(key = "collections") {
+                item(key = "collections", contentType = "details_collections") {
                     DetailsCollectionsSection(
                         collections = state.collections,
                         onCollectionClick = { onEvent(DetailsState.Event.CollectionSelected(it)) },
@@ -273,7 +273,7 @@ fun DetailsMobileScreen(
                 }
             }
             if (details.reviewsCount > 0) {
-                item(key = "links") {
+                item(key = "links", contentType = "details_links") {
                     DetailsLinksCard(
                         links = buildDetailsLinks(
                             reviewsCount = details.reviewsCount,
@@ -284,7 +284,7 @@ fun DetailsMobileScreen(
                 }
             }
             state.error?.let { error ->
-                item(key = "soft_error") {
+                item(key = "soft_error", contentType = "error_banner") {
                     MobileMessage(
                         title = error.asString(),
                         actionLabel = stringResource(CoreR.string.common_retry),
@@ -292,7 +292,7 @@ fun DetailsMobileScreen(
                     )
                 }
             }
-            item(key = "comments") {
+            item(key = "comments", contentType = "details_comments") {
                 DetailsCommentsBar(
                     commentsDetailsLink(
                         commentsBadge = details.commentsCount.takeIf { it > 0 }?.toCompactCount(),

@@ -3,9 +3,12 @@ package su.afk.yummy.tv.core.designsystem.tv
 import su.afk.yummy.tv.core.designsystem.seasonal.seasonalPanelDecor
 import androidx.compose.foundation.layout.Box
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
+import su.afk.yummy.tv.core.designsystem.skeleton.rememberAnimationsEnabled
+import su.afk.yummy.tv.core.designsystem.theme.YummyMotion
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.runtime.Composable
@@ -18,16 +21,21 @@ fun TvOverlayAppear(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
+    val animationsEnabled = rememberAnimationsEnabled()
     val visibleState = remember {
         MutableTransitionState(initialState = false).apply { targetState = true }
     }
     AnimatedVisibility(
         visibleState = visibleState,
-        enter = fadeIn(tween(TV_OVERLAY_APPEAR_MILLIS)) +
+        enter = if (animationsEnabled) {
+            fadeIn(tween(YummyMotion.EmphasizedEffectsMillis)) +
                 scaleIn(
                     initialScale = TV_OVERLAY_APPEAR_INITIAL_SCALE,
-                    animationSpec = tween(TV_OVERLAY_APPEAR_MILLIS),
-                ),
+                    animationSpec = YummyMotion.Selection,
+                )
+        } else {
+            EnterTransition.None
+        },
         exit = ExitTransition.None,
         modifier = modifier,
     ) {
@@ -35,5 +43,4 @@ fun TvOverlayAppear(
     }
 }
 
-private const val TV_OVERLAY_APPEAR_MILLIS = 200
 private const val TV_OVERLAY_APPEAR_INITIAL_SCALE = 0.92f

@@ -104,6 +104,9 @@ internal fun LibraryMobileHistoryPage(
                         lazyKey("history", "${it.animeId}_${it.episode}_${it.watchedAtSeconds}")
                     } ?: lazyKey("history", null, index)
                 },
+                contentType = { index ->
+                    if (items.getOrNull(index) == null) "history_placeholder" else "history_entry"
+                },
             ) { index ->
                 items.getOrNull(index)?.let { entry ->
                     Surface(

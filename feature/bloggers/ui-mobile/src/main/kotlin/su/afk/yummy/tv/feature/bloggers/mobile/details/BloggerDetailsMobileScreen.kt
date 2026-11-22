@@ -87,7 +87,7 @@ fun BloggerDetailsMobileScreen(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
-                item {
+                item(key = "blogger_header", contentType = "blogger_header") {
                     Row(
                         Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -111,7 +111,7 @@ fun BloggerDetailsMobileScreen(
                         }
                     }
                 }
-                item {
+                item(key = "subscribe_action", contentType = "blogger_action") {
                     if (blogger.isSubscribed) {
                         OutlinedButton(
                             onClick = { onEvent(BloggerDetailsState.Event.SubscribeSelected) },
@@ -126,14 +126,18 @@ fun BloggerDetailsMobileScreen(
                         ) { Text(stringResource(R.string.blogger_subscribe)) }
                     }
                 }
-                item {
+                item(key = "videos_section", contentType = "section_header") {
                     Text(
                         stringResource(R.string.blogger_videos_section),
                         style = MaterialTheme.typography.titleLarge,
                     )
                 }
-                if (state.videos.isEmpty()) item { Text(stringResource(R.string.blogger_videos_empty)) }
-                items(state.videos, key = { lazyKey("bloggervideo", it.id) }) { video ->
+                if (state.videos.isEmpty()) item(key = "videos_empty", contentType = "empty_state") { Text(stringResource(R.string.blogger_videos_empty)) }
+                items(
+                    items = state.videos,
+                    key = { lazyKey("bloggervideo", it.id) },
+                    contentType = { "blogger_video" },
+                ) { video ->
                     BloggerVideoMobileCard(
                         video,
                         { onEvent(BloggerDetailsState.Event.VideoSelected(video.id)) },

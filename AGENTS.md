@@ -1,110 +1,167 @@
-# Project Guidelines
+# Инструкции для AI-агентов и разработчиков
 
-These guidelines describe the conventions used in YANIME. Follow the existing
-codebase and the original YummyTV project when making changes.
+Эти правила обязательны для любых изменений в YANIME. Цель — сохранять архитектурную целостность, предотвращать регрессии и получать воспроизводимую сборку до публикации изменений.
 
-## General
+## 1. Обязательный рабочий процесс
 
-- Read the relevant code and nearby implementations before changing a feature.
-- Prefer small, focused changes. Avoid unrelated refactoring and unnecessary
-  abstractions.
-- Preserve existing behavior and compatibility unless the task explicitly
-  requires a change.
-- Follow the architecture and naming conventions already used in the affected
-  module. Do not introduce a parallel pattern without a clear reason.
-- Keep business logic out of UI components.
-- Do not add dependencies when the existing project tools are sufficient.
+1. **Проверь контекст до редактирования.** Прочитай этот файл, ближайшие `AGENTS.md` (если появятся), исходный файл, его вызовы, связанные модели/контракты и аналогичные реализации. Не делай выводов по одному фрагменту.
+2. **Установи реальную причину.** Для ошибки изучи полный лог и цепочку вызовов. Исправляй первопричину, а не маскируй симптом.
+3. **Сохраняй границы модулей.** Проверь Gradle-зависимости и доступность API из изменяемого модуля. Не добавляй зависимость только ради обхода неверного архитектурного решения.
+4. **Вноси минимально достаточные законченные изменения.** Не делай массовых замен, если они могут затронуть разные контексты. Не оставляй временные обходы, TODO без согласования и неиспользуемый код.
+5. **Проверяй после каждого логического этапа.** Не накапливай десятки несобираемых изменений. Сначала проверь изменённый модуль, затем приложение.
+6. **Проверь результат по diff.** Убедись, что нет пропущенных импортов, неверных package, дублированных деклараций, случайных удалений, несовместимых вызовов и лишних файлов.
+7. **Сообщай только подтверждённое.** Разделяй выполненные изменения, локально проверенные команды и результат GitHub Actions. Запущенная сборка не считается успешной.
 
-## Domain Layer
+Если среда не позволяет выполнить проверку, прямо укажи это и не утверждай, что код собирается.
 
-- Keep domain code separate from Android, Compose, networking, and storage
-  implementation details.
-- Organize feature domain packages by responsibility:
-  - `.domain.model` — domain models, enums, and sealed contracts.
-  - `.domain.repository` — repository interfaces.
-  - `.domain.usecase` — use cases.
-- Do not leave domain types directly in the feature's `.domain` package.
-- Keep each public domain type in its own same-named Kotlin file.
-- Add KDoc to use cases explaining the domain operation they perform.
-- Avoid creating empty or unnecessary packages.
+## 2. Kotlin и компиляция — критические правила
 
-## Data Layer
+- После изменения Kotlin-кода проверяй точное имя, package, видимость и сигнатуру каждого нового API. Не угадывай package по имени класса или похожему импорту.
+- Перед импортом символа найди его фактическое объявление и проверь, что модуль имеет доступ к содержащему его API.
+- Не удаляй и не добавляй импорты механически. После изменения проверь все новые ссылки, extension-функции и вызовы.
+- Сверяй сигнатуры функций и composable с каждым call site: параметры, типы, nullable-контракты, значения по умолчанию, receiver и порядок аргументов.
+- Для переименования/перемещения символа обновляй все usages, тесты и публичные контракты. Не оставляй старые дублирующие реализации.
+- Не подавляй ошибки через `@Suppress`, `!!`, небезопасные casts или фиктивные значения, если можно исправить контракт или обработать состояние корректно.
+- Не используй reflection или строковые имена вместо типобезопасных ссылок без веской причины.
+- Для новых зависимостей обновляй Version Catalog и используй согласованный alias. Не дублируй версии в build-файлах.
+- Не меняй версии Gradle/AGP/Kotlin/Compose и не добавляй плагины без проверки совместимости всего toolchain.
 
-- Keep API DTOs in the feature data module's `.dto` package.
-- Keep DTO-to-domain and domain-to-DTO mapping in `.mapper` packages.
-- Keep cache/entity-to-domain mapping in `.storage.mapper`.
-- Repositories should coordinate network, cache, and storage operations and
-  delegate mapping to mapper functions or classes.
-- Do not place shared mapping logic inline in repositories.
-- Keep serialization and cache-envelope implementation details outside
-  repository classes.
+### Проверки
 
-## Compose UI
+Для изменений конкретного модуля сначала запусти его реальную compile-задачу, например:
 
-- Keep screen entry points in clearly named files such as
-  `XxxMobileScreen.kt` and `XxxTvScreen.kt`.
-- Screen entry points should assemble the screen and connect state, effects,
-  and events. Avoid adding wrapper layers that only forward parameters.
-- Place reusable UI components in the feature UI module's `.view` package.
-- Prefer one significant reusable composable per file. Small private
-  composables and lambdas may stay next to the component that uses them.
-- Keep handlers next to the ViewModel in the feature's `.handler` package.
-- Keep UI state, events, and effects in the corresponding state file.
-  Move independently reusable UI models and other top-level types into
-  appropriately named files in `.model`.
-- Put domain/data-to-UI mapping in the feature's `.mapper` package. ViewModels
-  should call mappers rather than own reusable mapping implementations.
-- Put formatting and reusable extension helpers in `.utils`.
-- Keep user-facing strings in Android string resources and access them through
-  the appropriate resource APIs.
-- Do not introduce generic screen-content wrappers unless they represent a
-  genuinely reusable UI component.
+```bash
+./gradlew :feature:settings:ui-mobile:compileDebugKotlin
+```
 
-## Changes and Verification
+Имя варианта и задачу всегда сверяй с конфигурацией соответствующего модуля. Для изменений, затрагивающих несколько модулей, API или приложение, обязательна проверка приложения:
 
-- Make the smallest change that fully addresses the task.
-- Update related documentation when behavior, architecture, configuration,
-  or developer workflows change.
-- Run the most relevant build, tests, and checks available for the change.
-- If a check cannot be run, state that clearly; do not imply that it passed.
-- Review the final diff for unrelated changes, accidental removals, and
-  formatting issues before committing.
-- Never commit credentials, signing keys, access tokens, or other secrets.
+```bash
+./gradlew :app:compileReleaseDebugKotlin
+./gradlew :app:assembleReleaseDebug
+```
 
-## Commit Messages
+Если затронуты тестируемые бизнес-правила, mapper, repository, use case или сериализация — добавь/обнови релевантные тесты и запусти их. Не добавляй бессмысленные тесты ради количества; но и не пропускай тесты там, где они защищают реальную логику.
 
-Use `[INTERNAL]` for repository-maintenance changes that must never appear
-in the user-facing release history. This includes commits whose primary
-purpose is any of the following:
+## 3. Compose и Material 3 Expressive
 
-- Automatically generating or updating the release changelog.
-- Switching automatic update delivery to YANIME GitHub Releases.
-- Separating links to the original YummyTV project from links to YANIME.
-- Renaming/rebranding YANIME, including its application name, icon, and theme.
+- Используй Material 3 и существующую дизайн-систему YANIME как единый источник UI-токенов.
+- Не вводи локальные цвета, формы, размеры, типографику и анимации, если для этого уже есть semantic role или token в `core:designsystem`.
+- Не подменяй роли Material 3 случайными цветами. Проверяй светлую/тёмную темы, dynamic colors, контраст и состояния компонентов.
+- Соблюдай разделение state/events/effects. Не переноси бизнес-логику в composable.
+- Не запускай побочные эффекты непосредственно во время композиции. Используй подходящий Compose effect API и корректные ключи.
+- Не создавай нестабильные объекты и лямбды без необходимости; учитывай recomposition, lazy-list keys и стабильность UI state.
+- Все кастомные анимации должны уважать rememberAnimationsEnabled(): при отключённых системных анимациях используй snap/мгновенное состояние и не запускай бесконечные переходы. Не полагайся только на то, что стандартная анимация Material автоматически обработает системную настройку.
 
-These exact tasks must use `[INTERNAL]`, not `[FEATURE]`, `[UI]`, or
-`[CORE]`. The generated "What's new" history excludes `[INTERNAL]`,
-`[CORE]`, `[CHORE]`, and `[DOCS]` commits. Use user-visible categories
-only for changes that users should see.
+### Lazy layouts: keys, Paging и content types
+- Каждый элемент одного LazyColumn/LazyRow/LazyGrid должен иметь уникальный saveable key, стабильный для одной и той же сущности при сортировке, обновлении и вставке элементов.
+- Для сущностей используй стабильный domain ID. Не включай текущий index в ключ сущности без доказанной необходимости: иначе перемещение элемента сбрасывает его локальное состояние и мешает восстановлению прокрутки/фокуса.
+- Для объединённых секций используй namespace/prefix в ключах, чтобы одинаковые ID разных типов не конфликтовали.
+- Для Paging-placeholder используй отдельное пространство ключей и уникальный fallback по индексу. Не используй один общий ключ для всех null-placeholder; не обращайся к Paging snapshot по устаревшему индексу без проверки актуального itemCount.
+- Для TV focus restoration используй один и тот же ключ в lazy item, focus state и restore helper. Проверяй сценарии reorder, refresh, удаления целевого элемента и отсутствия сохранённого элемента.
+- Указывай contentType, когда в одном lazy-layout встречаются разные структуры элементов или отдельные состояния (loading/error/empty/header/footer). Однотипные элементы должны разделять один content type; не делай content type уникальным по индексу или ID.
+- Не добавляй contentType механически, если весь список гарантированно состоит из одной структуры: он должен отражать реальный тип композиции, а не дублировать key.
+- Проверяй стабильность ключей для пустого состояния, refresh/append placeholders, повторных запросов и быстрых обновлений данных.
+- Не собирай большие экраны из бессмысленных wrapper-composable. Выделяй компоненты по повторному использованию или самостоятельной ответственности.
+- Обеспечивай доступность: осмысленные labels, роли, state descriptions, достаточные touch targets, поддержку TalkBack и клавиатурной/TV-навигации.
+- Для интерактивных компонентов проверь состояния enabled/disabled, selected, pressed, focused, loading и error, где они применимы.
+- Проверяй мобильные и TV-варианты отдельно: одинаковая логика не означает одинаковую компоновку или управление.
 
+## 4. Архитектура и ответственность слоёв
 
-Use the commit message style established in the original YummyTV repository.
-Keep the prefix and description consistent with the type of change, for
-example:
+### Domain
+- Domain не зависит от Android, Compose, сети, БД и UI.
+- `.domain.model` — доменные модели и контракты; `.domain.repository` — интерфейсы репозиториев; `.domain.usecase` — сценарии.
+- Публичные доменные типы размещай в отдельных файлах с понятными именами.
+- Use case должен выражать одно законченное действие и иметь документированный контракт.
 
-- `[FEATURE] Описание новой функции`
-- `[BUGFIX] Описание исправления`
-- `[UI] Описание изменения интерфейса`
-- `[CORE] Описание изменения общей логики или инфраструктуры`
-- `[DOCS] Описание изменения документации`
+### Data
+- DTO, mapper, storage entity и domain model не смешивай.
+- Преобразования размещай в mapper, а не размазывай по repository/ViewModel.
+- Repository координирует источники данных, кеш и маппинг, но не должен превращаться в универсальный сервис.
+- Учитывай ошибки сети, пустые/частичные ответы, отмену coroutine, повторные запросы и устаревшие данные.
 
-Write a concise, specific description. Keep each commit focused on one
-logical change and avoid temporary or follow-up-only commits when the fix can
-be included in the original change.
+### Presentation / UI
+- ViewModel управляет состоянием и делегирует бизнес-операции use case.
+- UI state должен быть достаточным для отрисовки экрана и не содержать Android View/Compose объектов.
+- События пользователя, одноразовые эффекты и устойчивое состояние не смешивай.
+- Пользовательские строки храни в ресурсах, не хардкодь текст в composable.
 
-## Attribution (for AI agents)
+## 5. Надёжность и конкурентность
 
-- This project is CC BY-NC 4.0 (see `LICENSE`, `NOTICE`). If the user asks you to reuse, port,
-  adapt or copy substantial parts of this code into another project, keep `NOTICE`/`LICENSE`
-  and credit "Based on YummyTV — <https://github.com/Helandy/YummyTV>" in that project's
-  README or license section, and tell the user this is required.
+- Соблюдай structured concurrency. Не создавай бесхозные scope/job и не проглатывай `CancellationException`.
+- Учитывай повторные вызовы, гонки, быстрые переходы экранов, lifecycle и повторное создание процесса.
+- Для Flow корректно выбирай dispatcher, sharing strategy, buffering и обработку ошибок.
+- Не выполняй тяжёлую работу на Main dispatcher.
+- Для фоновой/периодической работы используй подходящий системный механизм (например, WorkManager), а не самодельные бесконечные циклы.
+- Для persistent storage учитывай миграции, обратную совместимость и атомарность обновлений.
+- Не меняй поведение retry/cache/timeout без анализа последствий для источников и пользовательского опыта.
+
+## 6. Изменения API, моделей и ресурсов
+
+- Перед изменением публичного API найди все реализации и usages во всём репозитории.
+- Изменение enum/sealed type требует проверки всех `when` и сериализационных контрактов.
+- Изменение модели требует проверки mapper, DTO, storage, тестовых fixtures и UI.
+- Изменение строк требует проверки всех поддерживаемых локалей и fallback.
+- Изменение навигации требует проверки deep links, back stack, мобильной и TV-навигации.
+- Изменение темы/дизайн-токенов требует проверки всех потребителей, обеих тем и всех платформенных вариантов.
+
+## 7. GitHub Actions и диагностика CI
+
+- Считай компиляцию обязательным quality gate: APK не должен собираться/публиковаться до успешной Kotlin-компиляции.
+- Если Actions падает, открой job logs и найди первую содержательную ошибку компилятора/Gradle. Не ориентируйся только на последнюю строку `BUILD FAILED`.
+- Исправляй все подтверждённые ошибки текущего запуска, затем повторно запускай workflow и проверяй конечный conclusion.
+- Не объявляй CI зелёным по факту коммита или запуска. Нужен статус `completed/success`.
+- Не отключай проверки, не делай шаги `continue-on-error` и не маскируй ошибку ради зелёного статуса.
+- Не добавляй в CI дорогостоящие тестовые/lint-задачи без необходимости и согласования; обязательная компиляция приложения должна оставаться включённой.
+- Сохраняй кэширование Gradle и отмену устаревших запусков на одной ветке.
+
+## 8. Git, ветки и коммиты
+
+- Работай в явно выбранной пользователем ветке. Не переключайся на `main`, не вливай PR и не переписывай историю без прямого разрешения.
+- Перед записью обнови актуальный SHA ветки; не используй устаревший parent/tree SHA.
+- Не перезаписывай параллельные изменения. Используй безопасное обновление ref с проверкой ожидаемого SHA.
+- Один коммит — одна логическая законченная задача. Следуй стилю коммитов оригинального YummyTV:
+  - `[BUGFIX] Краткое описание исправления`
+  - `[UI] Краткое описание интерфейса`
+  - `[CORE] Краткое описание общей логики`
+  - `[DOCS] Краткое описание документации`
+  - `[INTERNAL] Краткое описание внутренних изменений`
+- Не добавляй секреты, signing keys, токены, локальные конфиги и generated build output.
+
+## 9. Документация и финальный отчёт
+
+- Обновляй документацию, если меняются архитектура, публичные контракты, настройки сборки или рабочий процесс.
+- Финальный отчёт должен содержать: что изменено, почему, какие проверки выполнены, их фактический результат и SHA коммита.
+- Если CI ещё выполняется или завершился ошибкой, явно укажи это.
+- Не обещай отсутствие всех будущих ошибок: цель — максимально раннее обнаружение и предотвращение регрессий.
+
+## 10. Лицензия и атрибуция
+
+- Проект распространяется по CC BY-NC 4.0 (см. `LICENSE`, `NOTICE`).
+- При переносе существенных частей кода в другой проект сохраняй `NOTICE`/`LICENSE` и указывай: «Based on YummyTV — https://github.com/Helandy/YummyTV».
+
+## 11. Material 3 Expressive и управление версиями
+
+- `core:designsystem` — единственный источник Material-темы, typography, shapes, motion и семантических UI-токенов. Не создавай параллельную тему внутри feature-модуля.
+- Перед обновлением Compose/Material 3 проверяй не только номер версии, но и доступность используемых публичных API: `MaterialExpressiveTheme`, `MotionScheme.expressive()`, expressive typography/shapes и используемые компоненты.
+- Не понижай библиотеку до stable-версии, если это удаляет API, используемые проектом. Не заменяй API фиктивными локальными реализациями ради прохождения компиляции.
+- Если нужный Expressive API пока доступен только в RC, зафиксируй это исключение в `docs/material3-expressive.md`, используй один согласованный артефакт/версию и проверь release notes. После выхода stable-версии выполни отдельную миграцию с проверкой API и полной сборкой.
+- Не обновляй AGP, Gradle, Kotlin, Compose BOM и Compose Compiler независимо друг от друга. Проверяй официальную матрицу совместимости и plugin DSL проекта.
+
+## 12. Glass UI и backdrop blur
+
+- Прозрачность, tint, граница и скругление — это translucent surface, но не backdrop blur. Не называй такую реализацию frosted glass.
+- `Modifier.blur()` и `RenderEffect` размывают собственный render layer; они не являются универсальным способом размыть пиксели позади composable.
+- Android Window Blur API размывает содержимое за отдельным окном. Применяй её только к реальным отдельным окнам (`Dialog` / `Popup` с соответствующей window-конфигурацией), проверив API level, `WindowManager.isCrossWindowBlurEnabled`, callbacks при изменении доступности blur и поведение при отключённом blur.
+- Не обещай backdrop blur для элементов внутри того же окна. В частности, не предполагай, что обычный Compose overlay сможет размыть видео под `SurfaceView`: сначала проверь тип поверхности, composition order и реальное поведение на устройстве.
+- Для in-window player controls используй контрастную полупрозрачную тональную поверхность как предсказуемый fallback. Это осознанный дизайн, а не неудачная имитация blur.
+- Не создавай отдельный blur layer для каждого элемента списка. Ограничивай blur небольшим количеством крупных поверхностей; учитывай overdraw, offscreen passes, GPU и средний класс устройств.
+- Учитывай системные настройки прозрачности/анимации, контраст текста и доступность. Визуальный смысл и читаемость должны сохраняться без blur.
+
+## 13. Изменения видеоплеера
+
+- Перед изменением player UI прочитай `PlayerMobileScreen`, `MobileNativePlayer`, overlay/gesture controllers, playback UI state и все связанные sheet-компоненты.
+- Не меняй lifecycle ExoPlayer, `PlayerView` / `SurfaceView`, service, PiP, audio focus, track selection или episode navigation в рамках чисто визуального изменения.
+- Не связывай Compose UI с внутренним экземпляром Player напрямую, если для этого уже есть presentation/controller contract.
+- При изменении player state проверяй быстрые переключения серии, повторное создание Activity, смену ориентации, PiP, фон/возврат и ошибки resolver. Не теряй последний рабочий поток во время загрузки следующего.

@@ -80,6 +80,7 @@ fun MySubscriptionsMobileScreen(
                 items(
                     state.subscriptions,
                     key = { SubscriptionKeys.animePlayerKey(it.animeId, it.playerId, it.player) },
+                    contentType = { "subscription" },
                 ) { subscription ->
                     MySubscriptionMobileRow(
                         subscription = subscription,

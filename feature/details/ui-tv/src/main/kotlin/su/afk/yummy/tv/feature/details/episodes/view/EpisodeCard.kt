@@ -57,14 +57,14 @@ internal fun EpisodeCard(
     episodeNumber: String = video.episode,
 ) {
     val durationLabel = watchStatus.durationLabel(video.durationSeconds)
-    val shape = RoundedCornerShape(8.dp)
+    val shape = RoundedCornerShape(12.dp)
     Card(
         modifier = modifier
             .width(CardWidth)
             .tvFocusableClick(onClick = onClick, shape = shape, onLongClick = onLongClick),
         shape = shape,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         ),
     ) {
         Column {

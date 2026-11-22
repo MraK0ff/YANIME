@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
@@ -30,6 +31,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
 import su.afk.yummy.tv.core.model.anime.AnimeDetails
 import su.afk.yummy.tv.feature.details.details.DetailsState
@@ -53,7 +55,7 @@ internal fun DetailsPrimaryActions(
     val watchLabel = state.watchLabel(details)
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(YummySpacing.Small),
     ) {
         Button(
             onClick = onWatchSelected,
@@ -66,7 +68,7 @@ internal fun DetailsPrimaryActions(
                 .onboardingTarget(MOBILE_DETAILS_WATCH_TARGET),
         ) {
             Icon(Icons.Filled.PlayArrow, contentDescription = null)
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(YummySpacing.Small))
             Text(
                 text = watchLabel,
                 maxLines = 1,
@@ -96,7 +98,7 @@ internal fun DetailsPrimaryActions(
                         modifier = Modifier
                             .weight(1f)
                             .animateWidth(interactionSource)
-                            .height(46.dp),
+                            .heightIn(min = YummySpacing.TouchTarget),
                     ) {
                         Icon(
                             imageVector = if (state.isInLibrary) {
@@ -133,7 +135,7 @@ internal fun DetailsPrimaryActions(
                         modifier = Modifier
                             .weight(1f)
                             .animateWidth(interactionSource)
-                            .height(46.dp),
+                            .heightIn(min = YummySpacing.TouchTarget),
                     ) {
                         Icon(
                             imageVector = if (state.isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,

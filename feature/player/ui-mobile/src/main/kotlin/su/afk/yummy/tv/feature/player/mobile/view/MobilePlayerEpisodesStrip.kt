@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.feature.player.mobile.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,8 +37,8 @@ import su.afk.yummy.tv.feature.player.model.PlayerEpisodeItem
 import su.afk.yummy.tv.feature.player.model.PlayerEpisodeProgress
 import su.afk.yummy.tv.feature.player.presentation.R
 
-private val STRIP_CARD_WIDTH = 150.dp
-private val STRIP_CARD_SHAPE = MobilePlayerInteractiveShape
+private val STRIP_CARD_WIDTH = 140.dp
+private val STRIP_CARD_SHAPE = androidx.compose.foundation.shape.RoundedCornerShape(14.dp)
 private const val UNAVAILABLE_ALPHA = 0.6f
 
 /** Горизонтальная лента серий внизу полноэкранного плеера (ландшафт): листается вместе с панелью управления. */
@@ -58,7 +59,7 @@ fun MobilePlayerEpisodesStrip(
     LazyRow(
         state = listState,
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         itemsIndexed(episodes, key = { _, item -> lazyKey("player_episode_strip", item.index) }) { _, item ->
             StripCard(
@@ -93,7 +94,8 @@ private fun StripCard(
                 .fillMaxWidth()
                 .aspectRatio(16f / 9f)
                 .clip(STRIP_CARD_SHAPE)
-                .background(Color.White.copy(alpha = 0.12f)),
+                .background(Color.White.copy(alpha = 0.12f))
+                .border(if (selected) 1.5.dp else 0.5.dp, if (selected) primary else Color.White.copy(alpha = 0.10f), STRIP_CARD_SHAPE),
         ) {
             val thumbnailModels = remember(item, animeId, posterUrl) { item.thumbnailModels(animeId, posterUrl) }
             if (thumbnailModels.isNotEmpty()) {

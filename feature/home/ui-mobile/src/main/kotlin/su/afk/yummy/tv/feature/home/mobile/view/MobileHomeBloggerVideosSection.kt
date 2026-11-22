@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.home.mobile.view
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -10,7 +9,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,13 +41,16 @@ internal fun MobileHomeBloggerVideosSection(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 16.dp),
         ) {
-            items(videos, key = { lazyKey("bloggervideo", it.id) }) { video ->
-                ElevatedCard(
+            items(
+                items = videos,
+                key = { lazyKey("bloggervideo", it.id) },
+                contentType = { "blogger_video" },
+            ) { video ->
+                Card(
+                    onClick = { onVideoSelected(video) },
                     shape = MaterialTheme.shapes.medium,
-                    colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-                    modifier = Modifier
-                        .width(260.dp)
-                        .clickable { onVideoSelected(video) },
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+                    modifier = Modifier.width(260.dp),
                 ) {
                     AsyncImage(
                         video.previewUrl,

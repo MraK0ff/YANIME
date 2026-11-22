@@ -566,6 +566,9 @@ class PlayerViewModel @AssistedInject internal constructor(
             is PlayerState.Event.SubtitleStyleChanged ->
                 preferences.saveSubtitleStyle(host, event.settings)
 
+            is PlayerState.Event.TimeDisplaySettingsChanged ->
+                preferences.saveTimeDisplaySettings(host, event.settings)
+
             is PlayerState.Event.AdaptiveQualityLimitSelected -> {
                 val limit = preferredQualityForLabel(event.quality) ?: return
                 preferences.setAdaptiveLimit(host, limit)

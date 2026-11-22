@@ -105,6 +105,7 @@ class PlayerMediaSessionService : MediaSessionService() {
                     stopState = stopState,
                     analyticsTracker = analyticsTracker,
                     onStopRequested = { stopService(reason = "command") },
+                    onScrubbingModeChanged = { enabled -> exoPlayer?.setScrubbingModeEnabled(enabled) },
                 ),
             )
             .build()

@@ -14,6 +14,7 @@ import su.afk.yummy.tv.core.designsystem.baseScreen.ScreenNavigator
 import su.afk.yummy.tv.core.designsystem.components.rememberGlobalToastState
 import su.afk.yummy.tv.core.designsystem.locals.LocalIsOffline
 import su.afk.yummy.tv.core.designsystem.locals.LocalLibraryListStatuses
+import su.afk.yummy.tv.core.designsystem.locals.LocalLibraryFavoriteAnimeIds
 import su.afk.yummy.tv.core.designsystem.locals.LocalNowMillis
 import su.afk.yummy.tv.core.designsystem.locals.LocalPosterCardSize
 import su.afk.yummy.tv.core.designsystem.dialog.ChoiceDialogHost
@@ -83,6 +84,7 @@ class TvMainGraph @Inject constructor(
                     LocalSeasonalDecorationsEnabled provides state.seasonalDecorationsEnabled,
                     LocalNowMillis provides appClock::nowMillis,
                     LocalLibraryListStatuses provides state.libraryListStatuses,
+                    LocalLibraryFavoriteAnimeIds provides state.libraryFavoriteAnimeIds,
                 ) {
                     TvMainScaffold(
                         selectedRoot = navManager.currentRoot,

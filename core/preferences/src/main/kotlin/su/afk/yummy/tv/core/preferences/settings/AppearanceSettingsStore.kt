@@ -22,6 +22,7 @@ interface AppearanceSettingsStore {
     val showCatalogTitleYear: Flow<Boolean>
 
     /** Показывать у серий пометки «филлер» и «рекап». */
+    val scheduleLibraryFilter: Flow<String>
     val episodeWatchFilter: Flow<String>
     val showEpisodeFlags: Flow<Boolean>
     val showLibraryTitleYear: Flow<Boolean>
@@ -31,6 +32,11 @@ interface AppearanceSettingsStore {
     val appTheme: Flow<AppTheme>
     val backgroundStyle: Flow<BackgroundStyle>
     val navTransitionStyle: Flow<NavTransitionStyle>
+    val mobileHeaderEnabled: Flow<Boolean>
+    val mobileSearchFabEnabled: Flow<Boolean>
+    val mobileClassicBottomBar: Flow<Boolean>
+    val mobileMainTabsOrder: Flow<List<String>>
+    val mobileMainTabsEnabled: Flow<Set<String>>
 
     /** Порядок вкладок на экране библиотеки. */
     val libraryTabOrder: Flow<List<LibraryTabKind>>
@@ -56,6 +62,7 @@ interface AppearanceSettingsStore {
     suspend fun setPosterCardSize(size: PosterCardSize)
     suspend fun setTitleCardLayout(layout: TitleCardLayout)
     suspend fun setShowCatalogTitleYear(enabled: Boolean)
+    suspend fun setScheduleLibraryFilter(filter: String)
     suspend fun setEpisodeWatchFilter(filter: String)
     suspend fun setShowEpisodeFlags(enabled: Boolean)
     suspend fun setShowLibraryTitleYear(enabled: Boolean)
@@ -65,6 +72,11 @@ interface AppearanceSettingsStore {
     suspend fun setAppTheme(theme: AppTheme)
     suspend fun setBackgroundStyle(style: BackgroundStyle)
     suspend fun setNavTransitionStyle(style: NavTransitionStyle)
+    suspend fun setMobileHeaderEnabled(enabled: Boolean)
+    suspend fun setMobileSearchFabEnabled(enabled: Boolean)
+    suspend fun setMobileClassicBottomBar(enabled: Boolean)
+    suspend fun setMobileMainTabsOrder(order: List<String>)
+    suspend fun setMobileMainTabsEnabled(enabled: Set<String>)
     suspend fun setLibraryTabOrder(order: List<LibraryTabKind>)
     suspend fun setHomeBlocks(blocks: List<HomeBlockConfig>)
     suspend fun setDetailsSections(sections: List<DetailsSectionConfig>)
@@ -78,5 +90,7 @@ interface AppearanceSettingsStore {
 
     companion object {
         val defaultLibraryTabOrder: List<LibraryTabKind> = LibraryTabKind.entries
+        val defaultMobileMainTabsOrder: List<String> = listOf("SCHEDULE", "HOME", "LIBRARY", "DOWNLOADS", "POSTS", "COLLECTIONS")
+        val defaultMobileMainTabsEnabled: Set<String> = setOf("SCHEDULE", "HOME", "LIBRARY", "DOWNLOADS")
     }
 }

@@ -32,6 +32,7 @@ import su.afk.yummy.tv.core.mvi.UiEffect
 import su.afk.yummy.tv.core.mvi.UiEvent
 import su.afk.yummy.tv.core.mvi.UiState
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.preferences.settings.AppearanceSettingsStore
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.core.utils.system.CacheStorageEntry
 import su.afk.yummy.tv.core.utils.system.PlatformInfo
@@ -47,6 +48,11 @@ class SettingsState {
         val appTheme: AppTheme = AppTheme.GRAPHITE,
         val backgroundStyle: BackgroundStyle = BackgroundStyle.AMOLED,
         val navTransitionStyle: NavTransitionStyle = NavTransitionStyle.FADE_SCALE,
+        val mobileHeaderEnabled: Boolean = true,
+        val mobileSearchFabEnabled: Boolean = false,
+        val mobileClassicBottomBar: Boolean = false,
+        val mobileMainTabsOrder: List<String> = AppearanceSettingsStore.defaultMobileMainTabsOrder,
+        val mobileMainTabsEnabled: Set<String> = AppearanceSettingsStore.defaultMobileMainTabsEnabled,
         val posterCardSize: PosterCardSize = PosterCardSize.STANDARD,
         val titleCardLayout: TitleCardLayout = TitleCardLayout.TILE,
         val showCatalogTitleYear: Boolean = false,
@@ -165,6 +171,11 @@ class SettingsState {
         /** Пользователь включил или выключил праздничное оформление. */
         data object SeasonalDecorationsToggled : Event
         data object AccountShortcutsToggled : Event
+        data object MobileHeaderToggled : Event
+        data object MobileSearchFabToggled : Event
+        data object MobileClassicBottomBarToggled : Event
+        data class MobileMainTabsOrderChanged(val order: List<String>) : Event
+        data class MobileMainTabsEnabledChanged(val enabled: Set<String>) : Event
 
         /** Пользователь включил или выключил блок новых серий на главной. */
         data object NewEpisodesSectionToggled : Event

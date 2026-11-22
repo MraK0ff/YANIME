@@ -10,6 +10,7 @@ import su.afk.yummy.tv.core.mvi.UiEffect
 import su.afk.yummy.tv.core.mvi.UiEvent
 import su.afk.yummy.tv.core.mvi.UiState
 import su.afk.yummy.tv.core.navigation.root.RootTab
+import su.afk.yummy.tv.core.preferences.settings.AppearanceSettingsStore
 
 class MainState {
 
@@ -19,6 +20,9 @@ class MainState {
         val appTheme: AppTheme = AppTheme.GRAPHITE,
         val backgroundStyle: BackgroundStyle = BackgroundStyle.AMOLED,
         val navTransitionStyle: NavTransitionStyle = NavTransitionStyle.FADE_SCALE,
+        val mobileHeaderEnabled: Boolean = true,
+        val mobileSearchFabEnabled: Boolean = false,
+        val mobileClassicBottomBar: Boolean = false,
         val seasonalDecorationsEnabled: Boolean = true,
         /** Праздничная тема, включившаяся автоматически, о которой пользователю ещё не сообщили. */
         val seasonalPrompt: SeasonalTheme? = null,
@@ -31,8 +35,14 @@ class MainState {
         val isYaniAuthResolved: Boolean = false,
         val unreadNotificationsCount: Int = 0,
         val isOnline: Boolean = true,
+        /** Есть ли локальные/активные загрузки для отдельной вкладки. */
+        val hasVideoDownloads: Boolean = false,
+        val mobileMainTabsOrder: List<String> = AppearanceSettingsStore.defaultMobileMainTabsOrder,
+        val mobileMainTabsEnabled: Set<String> = AppearanceSettingsStore.defaultMobileMainTabsEnabled,
         /** Списки пользователя по animeId — для подписи карточек тайтлов. */
         val libraryListStatuses: Map<Int, CardListStatus> = emptyMap(),
+        /** Избранные тайтлы; не зависит от статуса пользовательского списка. */
+        val libraryFavoriteAnimeIds: Set<Int> = emptySet(),
         /** Оценки пользователя по animeId — чтобы в чужих списках показывать и свою. */
         val libraryUserRatings: Map<Int, Int> = emptyMap(),
     ) : UiState

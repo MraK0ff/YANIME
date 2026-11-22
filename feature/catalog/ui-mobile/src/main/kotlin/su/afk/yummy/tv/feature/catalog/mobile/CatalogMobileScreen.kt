@@ -1,5 +1,7 @@
 package su.afk.yummy.tv.feature.catalog.mobile
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -14,13 +16,13 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SearchOff
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -41,10 +43,10 @@ import kotlinx.coroutines.flow.emptyFlow
 import su.afk.yummy.tv.core.designsystem.baseScreen.BaseScreen
 import su.afk.yummy.tv.core.designsystem.components.ErrorBanner
 import su.afk.yummy.tv.core.designsystem.components.OfflineBanner
-import su.afk.yummy.tv.core.designsystem.locals.LocalYaniMirrorActive
 import su.afk.yummy.tv.core.designsystem.components.YummyLoadingIndicator
 import su.afk.yummy.tv.core.designsystem.error.uiMessage
 import su.afk.yummy.tv.core.designsystem.locals.LocalIsOffline
+import su.afk.yummy.tv.core.designsystem.locals.LocalYaniMirrorActive
 import su.afk.yummy.tv.core.designsystem.mobile.bar.MobileBottomBarDefaults
 import su.afk.yummy.tv.core.designsystem.mobile.cards.MobilePosterCard
 import su.afk.yummy.tv.core.designsystem.mobile.cards.MobilePosterGrid
@@ -66,7 +68,6 @@ import su.afk.yummy.tv.feature.catalog.mobile.view.CatalogMobileClearButton
 import su.afk.yummy.tv.feature.catalog.mobile.view.CatalogMobileFilterButton
 import su.afk.yummy.tv.feature.catalog.mobile.view.CatalogMobileFilterPanel
 import su.afk.yummy.tv.feature.catalog.mobile.view.CatalogMobileSearchHistory
-import su.afk.yummy.tv.core.designsystem.components.RandomAnimeFloatingButton
 import su.afk.yummy.tv.feature.catalog.navigator.CatalogDestination
 import su.afk.yummy.tv.feature.catalog.presentation.R
 import su.afk.yummy.tv.core.designsystem.R as CoreR
@@ -108,27 +109,17 @@ fun CatalogMobileScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val queryFocusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(state.isSearchFocusRequested) {
-        if (!state.isSearchFocusRequested) return@LaunchedEffect
-        gridState.scrollToItem(0)
-        // Поле — первый элемент ленивой сетки: ждём кадр, пока оно встанет в композицию.
-        withFrameNanos { }
-        runCatching { queryFocusRequester.requestFocus() }
-        keyboardController?.show()
-        onEvent(CatalogState.Event.SearchFocusHandled)
+    LaunchedEffect(state.isSearchFocusRequested, state.isHeaderSearchEnabled) {
+        if (state.isSearchFocusRequested && !state.isHeaderSearchEnabled) {
+            gridState.scrollToItem(0)
+            withFrameNanos { }
+            runCatching { queryFocusRequester.requestFocus() }
+            keyboardController?.show()
+            onEvent(CatalogState.Event.SearchFocusHandled)
+        }
     }
 
-    BaseScreen(
-        isScroll = false,
-        floatingActionButtonEnd = {
-            RandomAnimeFloatingButton(
-                description = stringResource(R.string.search_random_anime),
-                isLoading = state.isRandomAnimeLoading,
-                onClick = { onEvent(CatalogState.Event.RandomAnimeSelected) },
-            )
-        },
-        floatingActionButtonBottomPadding = 8.dp,
-    ) {
+    BaseScreen(isScroll = false) {
         MobilePosterGrid(
             contentPadding = PaddingValues(bottom = MobileBottomBarDefaults.contentBottomPadding),
             modifier = Modifier.imePadding(),
@@ -140,59 +131,55 @@ fun CatalogMobileScreen(
                     OfflineBanner(isOffline = isOffline, horizontalPadding = 0.dp)
                 }
             }
-            item(span = { GridItemSpan(maxLineSpan) }, contentType = "query_field") {
-                OutlinedTextField(
-                    shape = MaterialTheme.shapes.extraLarge,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                        disabledContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                        focusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
-                        unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
-                        disabledBorderColor = androidx.compose.ui.graphics.Color.Transparent,
-                    ),
-                    value = state.query,
-                    onValueChange = { onEvent(CatalogState.Event.QueryChanged(it)) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(queryFocusRequester),
-                    placeholder = { Text(stringResource(R.string.search_placeholder)) },
-                    leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                    keyboardActions = KeyboardActions(onSearch = {
-                        keyboardController?.hide()
-                        onEvent(CatalogState.Event.SearchSubmitted)
-                    }),
-                    trailingIcon = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            if (state.query.isNotEmpty()) {
-                                CatalogMobileClearButton(
-                                    onClick = { onEvent(CatalogState.Event.QueryChanged("")) },
+            if (!state.isHeaderSearchEnabled) {
+                item(span = { GridItemSpan(maxLineSpan) }, contentType = "query_field") {
+                    OutlinedTextField(
+                        shape = MaterialTheme.shapes.extraLarge,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                            disabledContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                            focusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
+                            unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
+                            disabledBorderColor = androidx.compose.ui.graphics.Color.Transparent,
+                        ),
+                        value = state.query,
+                        onValueChange = { onEvent(CatalogState.Event.QueryChanged(it)) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surfaceContainerLow, MaterialTheme.shapes.extraLarge)
+                            .focusRequester(queryFocusRequester),
+                        placeholder = { Text(stringResource(R.string.search_placeholder)) },
+                        leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                        keyboardActions = KeyboardActions(onSearch = {
+                            keyboardController?.hide()
+                            onEvent(CatalogState.Event.SearchSubmitted)
+                        }),
+                        trailingIcon = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                if (state.query.isNotEmpty()) {
+                                    CatalogMobileClearButton(onClick = { onEvent(CatalogState.Event.QueryChanged("")) })
+                                }
+                                CatalogMobileFilterButton(
+                                    activeCount = state.filters.activeCount,
+                                    modifier = Modifier.padding(end = 2.dp),
+                                    onClick = {
+                                        keyboardController?.hide()
+                                        onEvent(CatalogState.Event.OpenFilters)
+                                    },
                                 )
-                            }
-                            CatalogMobileFilterButton(
-                                activeCount = state.filters.activeCount,
-                                modifier = Modifier.padding(end = 2.dp),
-                                onClick = {
-                                    keyboardController?.hide()
-                                    onEvent(CatalogState.Event.OpenFilters)
-                                },
-                            )
-                            IconButton(
-                                onClick = {
+                                IconButton(onClick = {
                                     keyboardController?.hide()
                                     onEvent(CatalogState.Event.SearchSubmitted)
-                                },
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Search,
-                                    contentDescription = stringResource(R.string.search_mobile_submit),
-                                )
+                                }) {
+                                    Icon(Icons.Filled.Search, contentDescription = stringResource(R.string.search_mobile_submit))
+                                }
                             }
-                        }
-                    },
-                )
+                        },
+                    )
+                }
             }
             if (state.query.isEmpty() && state.searchHistory.isNotEmpty()) {
                 item(span = { GridItemSpan(maxLineSpan) }, contentType = "search_history") {

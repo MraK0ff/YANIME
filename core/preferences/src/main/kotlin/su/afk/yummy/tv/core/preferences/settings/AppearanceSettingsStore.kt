@@ -20,12 +20,13 @@ interface AppearanceSettingsStore {
     val posterCardSize: Flow<PosterCardSize>
     val titleCardLayout: Flow<TitleCardLayout>
     val showCatalogTitleYear: Flow<Boolean>
+    /** Фильтр расписания по тайтлам из библиотеки пользователя. */
+    val scheduleLibraryFilter: Flow<String>
 
     /** Показывать у серий пометки «филлер» и «рекап». */
+    val scheduleLibraryFilter: Flow<String>
+    val episodeWatchFilter: Flow<String>
     val showEpisodeFlags: Flow<Boolean>
-
-    /** Минималистичный вид деталки на ТВ: hero и одна строка вкладок вместо ленты секций. */
-    val minimalDetails: Flow<Boolean>
     val showLibraryTitleYear: Flow<Boolean>
     val libraryContinueWatchingCardSize: Flow<LibraryContinueWatchingCardSize>
     val librarySort: Flow<LibrarySort>
@@ -33,6 +34,11 @@ interface AppearanceSettingsStore {
     val appTheme: Flow<AppTheme>
     val backgroundStyle: Flow<BackgroundStyle>
     val navTransitionStyle: Flow<NavTransitionStyle>
+    val mobileHeaderEnabled: Flow<Boolean>
+    val mobileSearchFabEnabled: Flow<Boolean>
+    val mobileClassicBottomBar: Flow<Boolean>
+    val mobileMainTabsOrder: Flow<List<String>>
+    val mobileMainTabsEnabled: Flow<Set<String>>
 
     /** Порядок вкладок на экране библиотеки. */
     val libraryTabOrder: Flow<List<LibraryTabKind>>
@@ -46,6 +52,9 @@ interface AppearanceSettingsStore {
     /** Показывать ли праздничное оформление (гирлянда, тыквы) в сезон. */
     val seasonalDecorationsEnabled: Flow<Boolean>
 
+    /** Показывать ли пункты аккаунта (FAQ, глоссарий, поиск, сообщения, «Смотреть позже») отдельными кнопками. */
+    val accountShortcutsExpanded: Flow<Boolean>
+
     /** Показывать ли на главной блок новых серий из списков пользователя. */
     val newEpisodesSectionEnabled: Flow<Boolean>
 
@@ -55,8 +64,10 @@ interface AppearanceSettingsStore {
     suspend fun setPosterCardSize(size: PosterCardSize)
     suspend fun setTitleCardLayout(layout: TitleCardLayout)
     suspend fun setShowCatalogTitleYear(enabled: Boolean)
+    suspend fun setScheduleLibraryFilter(filter: String)
+    suspend fun setScheduleLibraryFilter(filter: String)
+    suspend fun setEpisodeWatchFilter(filter: String)
     suspend fun setShowEpisodeFlags(enabled: Boolean)
-    suspend fun setMinimalDetails(enabled: Boolean)
     suspend fun setShowLibraryTitleYear(enabled: Boolean)
     suspend fun setLibraryContinueWatchingCardSize(size: LibraryContinueWatchingCardSize)
     suspend fun setLibrarySort(sort: LibrarySort)
@@ -64,11 +75,17 @@ interface AppearanceSettingsStore {
     suspend fun setAppTheme(theme: AppTheme)
     suspend fun setBackgroundStyle(style: BackgroundStyle)
     suspend fun setNavTransitionStyle(style: NavTransitionStyle)
+    suspend fun setMobileHeaderEnabled(enabled: Boolean)
+    suspend fun setMobileSearchFabEnabled(enabled: Boolean)
+    suspend fun setMobileClassicBottomBar(enabled: Boolean)
+    suspend fun setMobileMainTabsOrder(order: List<String>)
+    suspend fun setMobileMainTabsEnabled(enabled: Set<String>)
     suspend fun setLibraryTabOrder(order: List<LibraryTabKind>)
     suspend fun setHomeBlocks(blocks: List<HomeBlockConfig>)
     suspend fun setDetailsSections(sections: List<DetailsSectionConfig>)
     suspend fun setNewEpisodesSectionEnabled(enabled: Boolean)
     suspend fun setSeasonalDecorationsEnabled(enabled: Boolean)
+    suspend fun setAccountShortcutsExpanded(expanded: Boolean)
 
     /** Запоминает праздничный период, о котором пользователю уже показали диалог. */
     suspend fun setSeasonalAnnouncedKey(key: String)
@@ -76,5 +93,7 @@ interface AppearanceSettingsStore {
 
     companion object {
         val defaultLibraryTabOrder: List<LibraryTabKind> = LibraryTabKind.entries
+        val defaultMobileMainTabsOrder: List<String> = listOf("SCHEDULE", "HOME", "LIBRARY", "DOWNLOADS", "POSTS", "COLLECTIONS")
+        val defaultMobileMainTabsEnabled: Set<String> = setOf("SCHEDULE", "HOME", "LIBRARY", "DOWNLOADS")
     }
 }

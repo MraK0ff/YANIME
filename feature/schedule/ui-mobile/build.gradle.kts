@@ -20,9 +20,10 @@ dependencies {
     implementation(project(":feature:schedule:presentation"))
 
     implementation(libs.bundles.compose.screen)
-    implementation(libs.androidx.material.icons.core)
     implementation(libs.bundles.navigation.serialization)
 
+    implementation(libs.androidx.material.icons.core)
+    implementation(libs.androidx.material.icons.extended)
     implementation(libs.coil.compose)
 
     debugImplementation(libs.compose.uiTest.manifest)

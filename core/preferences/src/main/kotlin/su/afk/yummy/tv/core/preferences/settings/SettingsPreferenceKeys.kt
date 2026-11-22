@@ -12,9 +12,12 @@ internal object SettingsPreferenceKeys {
     val titleCardLayoutKey = stringPreferencesKey("title_card_layout")
     val showCatalogTitleYearKey = booleanPreferencesKey("show_top_title_year")
     val showEpisodeFlagsKey = booleanPreferencesKey("show_episode_flags")
-    val minimalDetailsKey = booleanPreferencesKey("minimal_details")
+    val scheduleLibraryFilterKey = stringPreferencesKey("schedule_library_filter")
+    val episodeWatchFilterKey = stringPreferencesKey("episode_watch_filter")
+    val scheduleLibraryFilterKey = stringPreferencesKey("schedule_library_filter")
     val newEpisodesSectionEnabledKey = booleanPreferencesKey("new_episodes_section_enabled")
     val seasonalDecorationsEnabledKey = booleanPreferencesKey("seasonal_decorations_enabled")
+    val accountShortcutsExpandedKey = booleanPreferencesKey("account_shortcuts_expanded")
     val seasonalAnnouncedKey = stringPreferencesKey("seasonal_announced_key")
     val newEpisodesSourcesKey = stringSetPreferencesKey("new_episodes_sources")
     val showLibraryTitleYearKey = booleanPreferencesKey("show_library_title_year")
@@ -25,13 +28,10 @@ internal object SettingsPreferenceKeys {
     val preferredVideoQualityKey = stringPreferencesKey("preferred_video_quality")
     val adaptiveVideoQualityEnabledKey =
         booleanPreferencesKey("adaptive_video_quality_enabled")
-
-    /** Улучшение видео не отключается автоматически из-за дропа кадров. */
-    val keepVideoEnhancementOnFrameDropsKey =
-        booleanPreferencesKey("keep_video_enhancement_on_frame_drops")
     val watchNextEnabledKey = booleanPreferencesKey("watch_next_enabled")
     val betaUpdatesEnabledKey = booleanPreferencesKey("beta_updates_enabled")
     val appLogRecordingEnabledKey = booleanPreferencesKey("app_log_recording_enabled")
+    val previewCacheSizeKey = intPreferencesKey("preview_cache_size")
     val autoSkipOpeningsEndingsKey = booleanPreferencesKey("auto_skip_openings_endings")
     val autoSkipDelaySecondsKey = intPreferencesKey("auto_skip_delay_seconds")
     val showOpeningOnTimelineKey = booleanPreferencesKey("show_opening_on_timeline_enabled")
@@ -64,8 +64,11 @@ internal object SettingsPreferenceKeys {
         intPreferencesKey("advanced_player_volume_percent")
     val mobilePlayerBrightnessPercentKey =
         intPreferencesKey("mobile_player_brightness_percent")
+    val mobilePlayerAutoBrightnessEnabledKey =
+        booleanPreferencesKey("mobile_player_auto_brightness_enabled")
     val playerPlaybackSpeedKey =
         floatPreferencesKey("player_playback_speed")
+    val playerTimeDisplaySettingsKey = stringPreferencesKey("player_time_display_settings")
     val volumeStabilizationEnabledKey =
         booleanPreferencesKey("volume_stabilization_enabled")
 
@@ -91,6 +94,11 @@ internal object SettingsPreferenceKeys {
     val appThemeKey = stringPreferencesKey("app_theme")
     val backgroundStyleKey = stringPreferencesKey("background_style")
     val navTransitionStyleKey = stringPreferencesKey("nav_transition_style")
+    val mobileHeaderEnabledKey = booleanPreferencesKey("mobile_header_enabled")
+    val mobileSearchFabEnabledKey = booleanPreferencesKey("mobile_search_fab_enabled")
+    val mobileClassicBottomBarKey = booleanPreferencesKey("mobile_classic_bottom_bar")
+    val mobileMainTabsOrderKey = stringPreferencesKey("mobile_main_tabs_order")
+    val mobileMainTabsEnabledKey = stringPreferencesKey("mobile_main_tabs_enabled")
     val yaniApplicationTokenKey = stringPreferencesKey("yani_application_token")
     val yaniAccessTokenKey = stringPreferencesKey("yani_access_token")
     val yaniUserIdKey = intPreferencesKey("yani_user_id")
@@ -122,14 +130,6 @@ internal object SettingsPreferenceKeys {
     val videoExportDirectoryNameKey = stringPreferencesKey("video_export_directory_name")
     val videoExportAutoEnabledKey = booleanPreferencesKey("video_export_auto_enabled")
     val videoDownloadWifiOnlyKey = booleanPreferencesKey("video_download_wifi_only")
-
-    /** Пресет скачивания привязан к тайтлу: озвучки и плееры у каждого свои. */
-    fun videoDownloadPresetDubbingKey(animeId: Int) =
-        stringPreferencesKey("video_download_preset_dubbing|anime_id:$animeId")
-
-    fun videoDownloadPresetPlayerKey(animeId: Int) =
-        stringPreferencesKey("video_download_preset_player|anime_id:$animeId")
-
     val saveLastSearchEnabledKey = booleanPreferencesKey("save_last_search_enabled")
     val lastSearchQueryKey = stringPreferencesKey("last_search_query")
     val starredDubbingsKey = stringSetPreferencesKey("starred_dubbings")
@@ -150,6 +150,9 @@ internal object SettingsPreferenceKeys {
     val episodePushRecentPushesKey = stringSetPreferencesKey("episode_push_recent_pushes")
     val episodePushKnownNotificationIdsKey =
         stringSetPreferencesKey("episode_push_known_notification_ids")
+    val episodePushKnownSubscribedEpisodesKey =
+        stringSetPreferencesKey("episode_push_known_subscribed_episodes")
+
     val torrentEnabledKey = booleanPreferencesKey("torrent_enabled")
     val torrServerUrlKey = stringPreferencesKey("torrserver_url")
     val torrServerUserKey = stringPreferencesKey("torrserver_user")

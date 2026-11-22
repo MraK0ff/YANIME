@@ -19,11 +19,6 @@ import su.afk.yummy.tv.core.preferences.settings.AppearanceSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.appThemeKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.backgroundStyleKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.navTransitionStyleKey
-import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.mobileHeaderEnabledKey
-import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.mobileSearchFabEnabledKey
-import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.mobileClassicBottomBarKey
-import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.mobileMainTabsOrderKey
-import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.mobileMainTabsEnabledKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.libraryContinueWatchingCardSizeKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.librarySortDirectionKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.librarySortKey
@@ -33,15 +28,13 @@ import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.libraryT
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.newEpisodesSectionEnabledKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.seasonalAnnouncedKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.seasonalDecorationsEnabledKey
-import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.accountShortcutsExpandedKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.newEpisodesSourcesKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.posterCardSizeKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.titleCardLayoutKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.showLibraryTitleYearKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.showCatalogTitleYearKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.minimalDetailsKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.showEpisodeFlagsKey
-import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.scheduleLibraryFilterKey
-import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.episodeWatchFilterKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.scheduleLibraryFilterKey
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -59,14 +52,10 @@ internal class DataStoreAppearanceSettingsStore @Inject constructor(
     override val showCatalogTitleYear: Flow<Boolean> = store.boolean(showCatalogTitleYearKey, false)
     override val showEpisodeFlags: Flow<Boolean> = store.boolean(showEpisodeFlagsKey, true)
     override val scheduleLibraryFilter: Flow<String> = store.string(scheduleLibraryFilterKey)
-    override val episodeWatchFilter: Flow<String> = store.string(episodeWatchFilterKey)
-    override val scheduleLibraryFilter: Flow<String> = store.string(scheduleLibraryFilterKey)
+    override val minimalDetails: Flow<Boolean> = store.boolean(minimalDetailsKey, false)
 
     override val seasonalDecorationsEnabled: Flow<Boolean> =
         store.boolean(seasonalDecorationsEnabledKey, true)
-
-    override val accountShortcutsExpanded: Flow<Boolean> =
-        store.boolean(accountShortcutsExpandedKey, false)
 
     override val newEpisodesSectionEnabled: Flow<Boolean> =
         store.boolean(newEpisodesSectionEnabledKey, true)
@@ -86,26 +75,13 @@ internal class DataStoreAppearanceSettingsStore @Inject constructor(
     override val librarySortDirection: Flow<LibrarySortDirection> =
         store.enumFlow(librarySortDirectionKey, LibrarySortDirection.DESC)
 
-    override val appTheme: Flow<AppTheme> = store.enumFlow(appThemeKey, AppTheme.GRAPHITE)
+    override val appTheme: Flow<AppTheme> = store.enumFlow(appThemeKey, AppTheme.WARM_AMBER)
 
     override val backgroundStyle: Flow<BackgroundStyle> =
-        store.enumFlow(backgroundStyleKey, BackgroundStyle.AMOLED)
+        store.enumFlow(backgroundStyleKey, BackgroundStyle.DARK)
 
     override val navTransitionStyle: Flow<NavTransitionStyle> =
         store.enumFlow(navTransitionStyleKey, NavTransitionStyle.FADE_SCALE)
-
-    override val mobileHeaderEnabled: Flow<Boolean> = store.boolean(mobileHeaderEnabledKey, true)
-    override val mobileSearchFabEnabled: Flow<Boolean> = store.boolean(mobileSearchFabEnabledKey, false)
-    override val mobileClassicBottomBar: Flow<Boolean> = store.boolean(mobileClassicBottomBarKey, false)
-    override val mobileMainTabsOrder: Flow<List<String>> = store.data.map { prefs ->
-        val stored = prefs[mobileMainTabsOrderKey].orEmpty().split(',').filter(String::isNotBlank)
-        (stored + AppearanceSettingsStore.defaultMobileMainTabsOrder).distinct()
-            .filter { it in AppearanceSettingsStore.defaultMobileMainTabsOrder }
-    }
-    override val mobileMainTabsEnabled: Flow<Set<String>> = store.data.map { prefs ->
-        prefs[mobileMainTabsEnabledKey]?.split(',')?.filter(String::isNotBlank)?.toSet()
-            ?: AppearanceSettingsStore.defaultMobileMainTabsEnabled
-    }
 
     override val libraryTabOrder: Flow<List<LibraryTabKind>> =
         store.data.map { prefs -> prefs[libraryTabOrderKey].toLibraryTabOrder() }
@@ -118,9 +94,6 @@ internal class DataStoreAppearanceSettingsStore @Inject constructor(
 
     override suspend fun setSeasonalDecorationsEnabled(enabled: Boolean) =
         store.setBoolean(seasonalDecorationsEnabledKey, enabled)
-
-    override suspend fun setAccountShortcutsExpanded(expanded: Boolean) =
-        store.setBoolean(accountShortcutsExpandedKey, expanded)
 
     override suspend fun setSeasonalAnnouncedKey(key: String) {
         store.edit { prefs -> prefs[seasonalAnnouncedKey] = key }
@@ -139,14 +112,11 @@ internal class DataStoreAppearanceSettingsStore @Inject constructor(
     override suspend fun setScheduleLibraryFilter(filter: String) =
         store.edit { prefs -> prefs[scheduleLibraryFilterKey] = filter }
 
-    override suspend fun setScheduleLibraryFilter(filter: String) =
-        store.edit { prefs -> prefs[scheduleLibraryFilterKey] = filter }
-
-    override suspend fun setEpisodeWatchFilter(filter: String) =
-        store.edit { prefs -> prefs[episodeWatchFilterKey] = filter }
-
     override suspend fun setShowEpisodeFlags(enabled: Boolean) =
         store.setBoolean(showEpisodeFlagsKey, enabled)
+
+    override suspend fun setMinimalDetails(enabled: Boolean) =
+        store.setBoolean(minimalDetailsKey, enabled)
 
     override suspend fun setShowLibraryTitleYear(enabled: Boolean) =
         store.setBoolean(showLibraryTitleYearKey, enabled)
@@ -167,26 +137,6 @@ internal class DataStoreAppearanceSettingsStore @Inject constructor(
 
     override suspend fun setNavTransitionStyle(style: NavTransitionStyle) =
         store.setEnum(navTransitionStyleKey, style)
-
-    override suspend fun setMobileHeaderEnabled(enabled: Boolean) =
-        store.setBoolean(mobileHeaderEnabledKey, enabled)
-
-    override suspend fun setMobileSearchFabEnabled(enabled: Boolean) =
-        store.setBoolean(mobileSearchFabEnabledKey, enabled)
-
-    override suspend fun setMobileClassicBottomBar(enabled: Boolean) =
-        store.setBoolean(mobileClassicBottomBarKey, enabled)
-
-    override suspend fun setMobileMainTabsOrder(order: List<String>) {
-        val normalized = (order + AppearanceSettingsStore.defaultMobileMainTabsOrder).distinct()
-            .filter { it in AppearanceSettingsStore.defaultMobileMainTabsOrder }
-        store.edit { prefs -> prefs[mobileMainTabsOrderKey] = normalized.joinToString(",") }
-    }
-
-    override suspend fun setMobileMainTabsEnabled(enabled: Set<String>) {
-        val normalized = enabled.filter { it in AppearanceSettingsStore.defaultMobileMainTabsOrder }.toSet()
-        store.edit { prefs -> prefs[mobileMainTabsEnabledKey] = normalized.joinToString(",") }
-    }
 
     override val homeBlocks: Flow<List<HomeBlockConfig>> = store.data.map { prefs ->
         prefs[homeBlocksKey].toHomeBlocks(prefs[newEpisodesSectionEnabledKey] ?: true)

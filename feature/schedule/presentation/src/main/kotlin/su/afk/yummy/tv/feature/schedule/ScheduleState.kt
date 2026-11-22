@@ -12,6 +12,7 @@ import su.afk.yummy.tv.feature.schedule.model.ScheduleTimelineUi
 
 class ScheduleState {
     enum class LibraryFilter { ALL, LIBRARY }
+
     @Immutable
     data class State(
         val isLoading: Boolean = true,
@@ -20,33 +21,22 @@ class ScheduleState {
         val days: ImmutableList<AnimeScheduleDay> = persistentListOf(),
         val tvSchedule: ScheduleTimelineUi = ScheduleTimelineUi(),
         val libraryFilter: LibraryFilter = LibraryFilter.ALL,
-        val onlyInLibrary: Boolean get() = libraryFilter == LibraryFilter.LIBRARY,
         val hideWatched: Boolean = false,
         val error: UiText? = null,
-    ) : UiState
+    ) : UiState {
+        /** Совместимость с актуальным upstream UI, где фильтр пока представлен переключателем. */
+        val onlyInLibrary: Boolean get() = libraryFilter == LibraryFilter.LIBRARY
+    }
 
     /** Пользовательские действия на экране расписания. */
     sealed interface Event : UiEvent {
-        /** Пользователь вернулся на предыдущий экран. */
         data object BackSelected : Event
-
-        /** Пользователь запросил повторную загрузку расписания. */
         data object RetrySelected : Event
-
-        /** Пользователь потянул список вниз, чтобы обновить расписание. */
         data object RefreshRequested : Event
-
-        /** Пользователь выбрал дату по значению epoch day. */
-        data class DateSelected(val epochDay: Long) : Event
-
-        data class LibraryFilterSelected(val filter: LibraryFilter) : Event
-
-        /** Совместимость с upstream UI, пока его фильтр остаётся переключателем. */
         data object InLibraryFilterToggled : Event
-
+        data class DateSelected(val epochDay: Long) : Event
+        data class LibraryFilterSelected(val filter: LibraryFilter) : Event
         data class HideWatchedToggled(val enabled: Boolean) : Event
-
-        /** Пользователь выбрал аниме с указанным идентификатором. */
         data class AnimeSelected(val animeId: Int) : Event
     }
 

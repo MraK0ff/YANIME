@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.SolidColor
 import coil3.compose.AsyncImage
 import su.afk.yummy.tv.core.designsystem.components.AppBrandIcon
-import su.afk.yummy.tv.core.designsystem.seasonal.seasonalAvatarHat
+import su.afk.yummy.tv.core.designsystem.seasonal.SeasonalAvatarFrame
 import su.afk.yummy.tv.feature.main.presentation.R
 
 @Composable
@@ -194,16 +194,17 @@ internal fun MobileMainHeader(
             }
             IconButton(onClick = onProfileSelected, modifier = Modifier.size(40.dp)) {
                 if (avatarUrl.isNotBlank()) {
-                    AsyncImage(
-                        model = avatarUrl,
-                        contentDescription = stringResource(R.string.main_header_profile),
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .size(32.dp)
-                            .clip(CircleShape)
-                            .border(1.5.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
-                            .seasonalAvatarHat(),
-                    )
+                    SeasonalAvatarFrame(avatarSize = 32.dp) {
+                        AsyncImage(
+                            model = avatarUrl,
+                            contentDescription = stringResource(R.string.main_header_profile),
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(CircleShape)
+                                .border(1.5.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape),
+                        )
+                    }
                 } else {
                     Icon(Icons.Default.AccountCircle, contentDescription = stringResource(R.string.main_header_profile), modifier = Modifier.size(30.dp))
                 }

@@ -392,4 +392,10 @@
     <string name="settings_list_transfer_hint">Перенос файлов списков Shikimori и MyAnimeList</string>
     <string name="settings_interface_auto">Автоматически</string>
     <string name="settings_interface_auto_hint">Определять интерфейс по типу устройства</string>
+    <string name="settings_about_original_section">Оригинальный проект · YummyTV</string>
+    <string name="settings_about_original_hint">Исходный проект и оригинальная разработка</string>
+    <string name="settings_about_fork_section">Форк YANIME</string>
+    <string name="settings_about_fork_hint">Независимая разработка и дополнительные возможности</string>
+    <string name="settings_fork_repository_label">Репозиторий YANIME</string>
+    <string name="settings_fork_repository_url">https://github.com/MraK0ff/YANIME</string>
 </resources>

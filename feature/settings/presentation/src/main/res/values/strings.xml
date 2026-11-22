@@ -395,4 +395,10 @@ Search indexer: https://jac-red.ru or Jackett: https://github.com/jackett/jacket
     <string name="settings_list_transfer_hint">Transfer list files for Shikimori and MyAnimeList</string>
     <string name="settings_interface_auto">Automatic</string>
     <string name="settings_interface_auto_hint">Choose the interface based on the device type</string>
+    <string name="settings_about_original_section">Original project · YummyTV</string>
+    <string name="settings_about_original_hint">Upstream project and original development</string>
+    <string name="settings_about_fork_section">YANIME fork</string>
+    <string name="settings_about_fork_hint">Independent development and additional features</string>
+    <string name="settings_fork_repository_label">YANIME repository</string>
+    <string name="settings_fork_repository_url">https://github.com/MraK0ff/YANIME</string>
 </resources>

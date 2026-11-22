@@ -125,6 +125,9 @@ class MobileMainGraph @Inject internal constructor(
                         onDestinationSelected = { root ->
                             onEvent(MainState.Event.RootSelected(root, popToRootOnReselect = true))
                         },
+                        onSearchSelected = {
+                            onEvent(MainState.Event.RootSelected(RootTab.CATALOG, popToRootOnReselect = true))
+                        },
                         toastMessage = toast.message,
                         // Как на ТВ: снег везде, кроме плеера (детали тоже украшены).
                         showSeasonalOverlay = currentDestination !is PlayerDestination,

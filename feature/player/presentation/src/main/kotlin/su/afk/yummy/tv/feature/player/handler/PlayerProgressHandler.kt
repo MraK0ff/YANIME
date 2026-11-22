@@ -17,7 +17,12 @@ import su.afk.yummy.tv.feature.player.model.PlayerProgressSnapshot
 import su.afk.yummy.tv.feature.player.utils.withFullTimingIfWatched
 import javax.inject.Inject
 
-private const val REMOTE_PROGRESS_SYNC_INTERVAL_MS = 10_000L
+/**
+ * Плановая отправка прогресса на сервер. Частые PUT не дают радиомодулю уснуть между загрузками
+ * сегментов видео, поэтому плановые идут раз в минуту, а пауза, уход в фон, выход, досмотр и
+ * смена видео отправляются сразу.
+ */
+private const val REMOTE_PROGRESS_SYNC_INTERVAL_MS = 60_000L
 
 /** Хвост эпизода, который на сервер не отправляем как позицию/секунду (как в веб-клиенте). */
 private const val WATCH_END_TOLERANCE_SECONDS = 10
@@ -59,6 +64,12 @@ internal class PlayerProgressHandler @Inject constructor(
      */
     private val syncedSecondsByVideoId = mutableMapOf<Int, MutableSet<Int>>()
 
+    /** Позиция (сек), последней успешно отправленная по videoId: пустой повтор не шлём. */
+    private val lastSentTimeSecondsByVideoId = mutableMapOf<Int, Int>()
+
+    /** Последний снимок, ушедший в синхронизацию: при смене видео по нему досылаем его хвост. */
+    private var lastRemoteSnapshot: Pair<Int, PlayerProgressSnapshot>? = null
+
     /** Копит реально проигранную секунду (вызывается по тику ~1с из плеера). */
     fun recordWatchedSecond(videoId: Int, positionMs: Long, durationMs: Long) {
         if (videoId <= 0 || durationMs <= 0) return
@@ -75,6 +86,7 @@ internal class PlayerProgressHandler @Inject constructor(
         snapshot: PlayerProgressSnapshot,
         remoteVideoId: Int,
         forceRemoteSync: Boolean = false,
+        leaving: Boolean = false,
     ) {
         if (snapshot.durationMs <= 0) return
         val savedSnapshot = snapshot.withFullTimingIfWatched()
@@ -95,7 +107,21 @@ internal class PlayerProgressHandler @Inject constructor(
             )
         }
 
-        syncRemoteProgress(savedSnapshot, remoteVideoId, force = forceRemoteSync)
+        flushPreviousVideoIfSwitched(remoteVideoId)
+        syncRemoteProgress(savedSnapshot, remoteVideoId, force = forceRemoteSync || leaving, durable = leaving)
+    }
+
+    /**
+     * Смена серии или источника внутри плеера: секунды прошлого видео, накопленные с последней
+     * плановой отправки, иначе остались бы неотправленными (плановые тики идут уже по новому id).
+     */
+    private suspend fun flushPreviousVideoIfSwitched(remoteVideoId: Int) {
+        if (remoteVideoId <= 0) return
+        val previous = synchronized(watchedLock) {
+            lastRemoteSnapshot?.takeIf { (videoId, _) -> videoId != remoteVideoId }
+        } ?: return
+        val (videoId, snapshot) = previous
+        syncRemoteProgress(snapshot, videoId, force = true)
     }
 
     suspend fun saveContinueTarget(
@@ -122,12 +148,18 @@ internal class PlayerProgressHandler @Inject constructor(
     suspend fun shouldSuggestNextEpisodeOnWatched(): Boolean =
         settingsStore.suggestNextEpisodeOnWatched.first()
 
+    /**
+     * [durable] — уход с плеера или из приложения: прогресс кладём в очередь мутаций (Room + WorkManager),
+     * а не шлём сами. Процесс после ухода могут заморозить или убить, а очередь дошлёт и без него.
+     */
     private suspend fun syncRemoteProgress(
         snapshot: PlayerProgressSnapshot,
         videoId: Int,
         force: Boolean,
+        durable: Boolean = false,
     ) {
         if (videoId <= 0) return
+        synchronized(watchedLock) { lastRemoteSnapshot = videoId to snapshot }
         if (!isMeaningfulProgress(snapshot.positionMs, snapshot.durationMs)) {
             return
         }
@@ -141,7 +173,7 @@ internal class PlayerProgressHandler @Inject constructor(
             return
         }
         try {
-            syncRemoteProgressLocked(snapshot, videoId, force)
+            syncRemoteProgressLocked(snapshot, videoId, force, durable)
         } finally {
             syncMutex.unlock()
         }
@@ -151,6 +183,7 @@ internal class PlayerProgressHandler @Inject constructor(
         snapshot: PlayerProgressSnapshot,
         videoId: Int,
         force: Boolean,
+        durable: Boolean,
     ) {
         val watchedEnough = isWatchedProgress(
             positionMs = snapshot.positionMs,
@@ -163,8 +196,6 @@ internal class PlayerProgressHandler @Inject constructor(
             watchedEnough && videoId !in completionAttemptedVideoIds
         if (!force && !shouldForceCompletionSync && !isRemoteSyncDue(videoId, now)) return
 
-        lastRemoteSyncAttemptAt[videoId] = now
-        if (watchedEnough) completionAttemptedVideoIds += videoId
         val durationSeconds = (snapshot.durationMs / 1000L).toInt()
         val maxSecond = (durationSeconds - WATCH_END_TOLERANCE_SECONDS).coerceAtLeast(0)
         val timeSeconds = (snapshot.positionMs / 1000L).toInt().coerceIn(0, maxSecond)
@@ -173,6 +204,15 @@ internal class PlayerProgressHandler @Inject constructor(
         val delta = synchronized(watchedLock) {
             watchedSecondsByVideoId[videoId].orEmpty() - synced
         }.sorted()
+        // Ни новых секунд, ни новой позиции (выход сразу после паузы, повторный финал): серверу
+        // нечего сообщить. Досмотр так не отсекаем — он отмечает серию просмотренной.
+        if (!shouldForceCompletionSync && delta.isEmpty() && lastSentTimeSecondsByVideoId[videoId] == timeSeconds) {
+            return
+        }
+
+        lastRemoteSyncAttemptAt[videoId] = now
+        if (watchedEnough) completionAttemptedVideoIds += videoId
+        if (durable && enqueueDurably(videoId, timeSeconds, durationSeconds, delta, synced, watchedEnough)) return
         val result = runSuspendCatching {
             saveVideoWatchProgress(
                 videoId = videoId,
@@ -183,6 +223,7 @@ internal class PlayerProgressHandler @Inject constructor(
         }
         if (result.getOrDefault(false)) {
             synced.addAll(delta)
+            lastSentTimeSecondsByVideoId[videoId] = timeSeconds
             if (watchedEnough) completedRemoteVideoIds += videoId
         } else if (force || watchedEnough) {
             // Выход с экрана или досмотр без сети: позицию не теряем и досылаем, когда сеть вернётся.
@@ -202,6 +243,29 @@ internal class PlayerProgressHandler @Inject constructor(
                 if (queued) synced.addAll(delta)
             }
         }
+    }
+
+    /** Кладёт отправку в очередь мутаций; `false` — запись не удалась, шлём как обычно. */
+    private suspend fun enqueueDurably(
+        videoId: Int,
+        timeSeconds: Int,
+        durationSeconds: Int,
+        delta: List<Int>,
+        synced: MutableSet<Int>,
+        watchedEnough: Boolean,
+    ): Boolean {
+        val mutation = PendingMutation.MarkWatched(
+            videoId = videoId,
+            timeSeconds = timeSeconds,
+            durationSeconds = durationSeconds,
+            times = delta,
+        )
+        if (runSuspendCatching { pendingMutationQueue.enqueue(mutation) }.isFailure) return false
+        // Секунды уже в очереди: плановые тики не должны слать их повторно и задваивать время.
+        synced.addAll(delta)
+        lastSentTimeSecondsByVideoId[videoId] = timeSeconds
+        if (watchedEnough) completedRemoteVideoIds += videoId
+        return true
     }
 
     private fun isRemoteSyncDue(videoId: Int, now: Long): Boolean {

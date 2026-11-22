@@ -18,6 +18,7 @@ import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
 import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplayMode
 import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.core.model.settings.PlayerZoomLevel
+import su.afk.yummy.tv.core.model.settings.VideoEnhancementMode
 import su.afk.yummy.tv.feature.player.model.TvPlayerSettingsPage
 import su.afk.yummy.tv.feature.player.presentation.R
 import su.afk.yummy.tv.feature.player.utils.isSelected
@@ -35,6 +36,8 @@ internal fun TvPlayerSettingsOptionsPage(
     onResizeModeSelected: (PlayerResizeMode) -> Unit,
     onZoomLevelSelected: (PlayerZoomLevel) -> Unit,
     timeDisplaySettings: PlayerTimeDisplaySettings,
+    videoEnhancementMode: VideoEnhancementMode,
+    onVideoEnhancementModeChange: (VideoEnhancementMode) -> Unit,
     onTimeDisplaySettingsChange: (PlayerTimeDisplaySettings) -> Unit,
     onDone: () -> Unit,
 ) {
@@ -52,6 +55,7 @@ internal fun TvPlayerSettingsOptionsPage(
             when (page) {
                 TvPlayerSettingsPage.Scale -> stringResource(R.string.player_resize_title)
                 TvPlayerSettingsPage.TimeDisplay -> stringResource(R.string.player_time_display_title)
+                TvPlayerSettingsPage.VideoEnhancement -> stringResource(R.string.player_video_enhancement_title)
             },
         )
     }
@@ -71,6 +75,29 @@ internal fun TvPlayerSettingsOptionsPage(
                     onClick = {
                         val level = option.zoomLevel
                         if (level != null) onZoomLevelSelected(level) else onResizeModeSelected(option.mode)
+                        onDone()
+                    },
+                )
+            }
+        }
+
+        TvPlayerSettingsPage.VideoEnhancement -> {
+            TvPlayerSettingsHeader(stringResource(R.string.player_settings_section_playback))
+            val options = listOf(
+                VideoEnhancementMode.OFF to R.string.player_toggle_off,
+                VideoEnhancementMode.SHARPEN to R.string.player_video_enhancement_sharpen,
+                VideoEnhancementMode.QUALITY to R.string.player_video_enhancement_quality,
+            )
+            options.forEach { (mode, labelRes) ->
+                PlayerSelectionItem(
+                    label = stringResource(labelRes),
+                    metaContent = {},
+                    selected = videoEnhancementMode == mode,
+                    enabled = true,
+                    modifier = if (videoEnhancementMode == mode) Modifier.focusRequester(optionFocus) else Modifier,
+                    onExitDown = null,
+                    onClick = {
+                        onVideoEnhancementModeChange(mode)
                         onDone()
                     },
                 )

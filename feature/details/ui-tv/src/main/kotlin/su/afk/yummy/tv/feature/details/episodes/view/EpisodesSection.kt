@@ -1,5 +1,7 @@
 package su.afk.yummy.tv.feature.details.episodes.view
 
+import su.afk.yummy.tv.core.designsystem.motion.rememberStateChangeFade
+import su.afk.yummy.tv.core.designsystem.motion.stateChangeFade
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
@@ -14,6 +16,7 @@ import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.model.anime.EpisodeFlags
 import su.afk.yummy.tv.feature.details.details.model.VideosUiState
 import su.afk.yummy.tv.feature.details.episodes.EpisodesState
+import su.afk.yummy.tv.feature.details.episodes.model.EpisodeWatchFilter
 import su.afk.yummy.tv.feature.details.model.DetailsWatchProgressIndex
 import su.afk.yummy.tv.feature.details.presentation.R
 
@@ -29,10 +32,13 @@ internal fun EpisodesSection(
     onAnchorEpisodeChanged: (String) -> Unit,
     onVideoSelected: (AnimeVideo) -> Unit,
     onVideoLongPressed: (List<AnimeVideo>) -> Unit,
+    watchFilter: EpisodeWatchFilter,
+    onWatchFilterSelected: (EpisodeWatchFilter) -> Unit,
     episodeInfo: Map<String, AnimeEpisodeInfo> = emptyMap(),
     episodeFlags: Map<String, EpisodeFlags> = emptyMap(),
     onRetry: (() -> Unit)? = null,
 ) {
+    val contentFade = rememberStateChangeFade(state is VideosUiState.Content)
     when (state) {
         VideosUiState.Loading, VideosUiState.NotLoaded -> EpisodesTvSkeleton()
 
@@ -59,7 +65,9 @@ internal fun EpisodesSection(
             episodeFlags = episodeFlags,
             onVideoSelected = onVideoSelected,
             onVideoLongPressed = onVideoLongPressed,
-            modifier = Modifier.fillMaxSize(),
+            watchFilter = watchFilter,
+            onWatchFilterSelected = onWatchFilterSelected,
+            modifier = Modifier.fillMaxSize().stateChangeFade(contentFade),
         )
     }
 }

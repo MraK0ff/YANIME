@@ -24,6 +24,8 @@ class CommentsState {
     data class State(
         val error: UiText? = null,
         val comments: Flow<PagingData<CommentUi>> = flowOf(PagingData.empty()),
+        /** Потоки всех сортировок: соседняя вкладка подгружается заранее, а не после остановки свайпа. */
+        val commentsBySort: PersistentMap<CommentSort, Flow<PagingData<CommentUi>>> = persistentMapOf(),
         val prependedComments: ImmutableList<CommentUi> = persistentListOf(),
         val commentOverlays: PersistentMap<Int, CommentUi> = persistentMapOf(),
         val deletedCommentIds: PersistentSet<Int> = persistentSetOf(),
@@ -37,6 +39,8 @@ class CommentsState {
         val isMutating: Boolean = false,
         /** Число комментариев с ответами; `null`, если экран открыт без известного числа. */
         val totalCount: Int? = null,
+        /** Показывать кнопку «Детали»: переход к тайтлу или посту, чьи комментарии открыты. */
+        val hasDetailsAction: Boolean = false,
     ) : UiState {
         val isSignedIn: Boolean get() = currentUserId > 0
     }
@@ -85,6 +89,7 @@ class CommentsState {
         data class LoadMoreChildrenSelected(val commentId: Int) : Event
         data class AuthorSelected(val userId: Int) : Event
         data class AnimeSelected(val animeId: Int) : Event
+        data object DetailsSelected : Event
     }
 
     sealed interface Effect : UiEffect {

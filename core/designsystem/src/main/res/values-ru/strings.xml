@@ -18,10 +18,11 @@
     <string name="error_request_id">Request ID: %1$s</string>
     <string name="error_body">Тело:\n%1$s</string>
     <string name="offline_banner_message">Нет сети — показаны сохранённые данные</string>
+    <string name="yani_mirror_banner_message">Yani недоступен — данные из резервной копии</string>
     <string name="error_msg_no_connection">Проверь интернет и попробуй снова.</string>
     <string name="error_msg_timeout">Похоже, сервер тормозит. Попробуй ещё раз.</string>
     <string name="error_msg_generic">Что-то пошло не так. Попробуй ещё раз.</string>
-    <string name="error_msg_http">Ошибка сервера (%1$d). Повторите попытку позже.</string>
+    <string name="error_msg_http">Ошибка сервера (%1$d, %2$s). Повторите попытку позже.</string>
     <string name="common_back">Назад</string>
     <string name="common_retry">Повторить</string>
     <string name="common_loading">Загрузка…</string>
@@ -74,14 +75,5 @@
     <string name="onboarding_skip">Пропустить</string>
     <string name="onboarding_next">Далее</string>
     <string name="onboarding_done">Понятно</string>
-    <string name="onboarding_start">Поехали</string>
     <string name="onboarding_step_counter">%1$d / %2$d</string>
-    <string name="onboarding_welcome_catalog_title">Добро пожаловать в YummyTV</string>
-    <string name="onboarding_welcome_catalog_text">Огромный каталог аниме с поиском по жанрам, сезонам и годам и расписанием выхода серий.</string>
-    <string name="onboarding_welcome_lists_title">Ваши списки и прогресс</string>
-    <string name="onboarding_welcome_lists_text">Добавляйте тайтлы в списки, ставьте оценки и продолжайте с того же места — прогресс сохраняется и синхронизируется с аккаунтом.</string>
-    <string name="onboarding_welcome_dubbing_title">Озвучки и источники</string>
-    <string name="onboarding_welcome_dubbing_text">Выбирайте озвучку и источник видео на странице тайтла. Отмечайте любимые — они будут первыми в списке.</string>
-    <string name="onboarding_welcome_player_title">Удобный плеер</string>
-    <string name="onboarding_welcome_player_text">Свайпами по экрану меняйте яркость и громкость. При первом открытии плеера появится короткая подсказка.</string>
 </resources>

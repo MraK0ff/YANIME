@@ -33,6 +33,7 @@ import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
 import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
 import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.core.model.settings.PlayerZoomLevel
+import su.afk.yummy.tv.core.model.settings.VideoEnhancementMode
 import su.afk.yummy.tv.feature.player.model.TvPlayerSettingsPage
 
 /**
@@ -45,6 +46,8 @@ internal fun TvPlayerSettingsPanel(
     entryFocusRequester: FocusRequester,
     resizeMode: PlayerResizeMode,
     zoomLevel: PlayerZoomLevel,
+    videoEnhancementMode: VideoEnhancementMode,
+    onVideoEnhancementModeChange: (VideoEnhancementMode) -> Unit,
     onResizeModeSelected: (PlayerResizeMode) -> Unit,
     onZoomLevelSelected: (PlayerZoomLevel) -> Unit,
     timeDisplaySettings: PlayerTimeDisplaySettings,
@@ -123,6 +126,7 @@ internal fun TvPlayerSettingsPanel(
                     rowFocus = rowFocus,
                     resizeMode = resizeMode,
                     zoomLevel = zoomLevel,
+                    videoEnhancementMode = videoEnhancementMode,
                     showVolume = showVolume,
                     volumePercent = volumePercent,
                     onVolumeChange = onVolumeChange,
@@ -139,6 +143,8 @@ internal fun TvPlayerSettingsPanel(
                     onResizeModeSelected = onResizeModeSelected,
                     onZoomLevelSelected = onZoomLevelSelected,
                     timeDisplaySettings = timeDisplaySettings,
+                    videoEnhancementMode = videoEnhancementMode,
+                    onVideoEnhancementModeChange = onVideoEnhancementModeChange,
                     onTimeDisplaySettingsChange = onTimeDisplaySettingsChange,
                     onDone = { page = null },
                 )

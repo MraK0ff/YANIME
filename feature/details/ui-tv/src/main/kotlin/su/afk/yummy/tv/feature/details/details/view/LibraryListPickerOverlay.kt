@@ -1,5 +1,6 @@
 package su.afk.yummy.tv.feature.details.details.view
 
+import su.afk.yummy.tv.core.designsystem.motion.YummyMotion
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -57,6 +58,7 @@ import su.afk.yummy.tv.feature.details.details.utils.label
 import su.afk.yummy.tv.feature.details.presentation.R
 import su.afk.yummy.tv.feature.details.utils.statusColor
 import su.afk.yummy.tv.feature.details.utils.statusIcon
+import su.afk.yummy.tv.core.designsystem.focus.tvBackKeyForwarding
 
 @Composable
 internal fun LibraryListPickerOverlay(
@@ -86,7 +88,7 @@ internal fun LibraryListPickerOverlay(
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
         Box(
-            modifier = Modifier
+            modifier = Modifier.tvBackKeyForwarding()
                 .fillMaxSize()
                 .background(Color.Black.copy(alpha = 0.82f))
                 .clickable(
@@ -108,7 +110,8 @@ internal fun LibraryListPickerOverlay(
                         .onPreviewKeyEvent { event ->
                             if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
                             when (event.key) {
-                                Key.Back, Key.Escape -> {
+                                // Back закрывает Dialog через onDismissRequest; поймав его и здесь, получим двойной onDismiss.
+                                Key.Escape -> {
                                     onDismiss()
                                     true
                                 }
@@ -157,7 +160,7 @@ private fun LibraryListOptionItem(
     val shape = RoundedCornerShape(12.dp)
     val bgColor by animateColorAsState(
         targetValue = if (focused) Color.White else Color.White.copy(alpha = 0.10f),
-        animationSpec = tween(durationMillis = 150),
+        animationSpec = tween(durationMillis = YummyMotion.Short),
         label = "libraryListItemBg",
     )
     val textColor = if (focused) Color.Black else Color.White

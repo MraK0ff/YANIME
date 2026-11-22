@@ -103,6 +103,7 @@ internal fun MobilePlayerOverlay(
                 duration = progress.duration,
                 seekProgress = progress.progressFraction,
                 bufferedProgress = progress.bufferedProgress,
+                isPlaying = wantsPlay,
                 onSeekChange = onSeekChange,
                 onSeekFinished = onSeekFinished,
                 videoWidthFraction = videoWidthFraction,

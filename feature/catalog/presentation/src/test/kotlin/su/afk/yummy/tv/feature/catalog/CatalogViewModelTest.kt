@@ -63,6 +63,7 @@ class CatalogViewModelTest : BaseUnitTest() {
         every { searchSettings.lastSearchSnapshot } returns lastSnapshot
         coEvery { searchSettings.setLastSearchSnapshot(any()) } returns Unit
         every { detailsNavigator.getDetailsDest(any()) } returns detailsKey
+        every { detailsNavigator.getRandomDetailsDest(any()) } returns detailsKey
         coEvery { repository.getFilterOptions() } returns SearchFilterOptions()
         every { historyRepository.observe() } returns history
         coEvery { historyRepository.update(any()) } answers {
@@ -336,6 +337,30 @@ class CatalogViewModelTest : BaseUnitTest() {
     }
 
     @Test
+    fun `apply drops a year the server rejects`() {
+        val vm = createViewModel()
+        vm.setEvent(Event.OpenFilters)
+        vm.setEvent(Event.FromYearChanged(2026))
+        vm.setEvent(Event.ToYearChanged(2926))
+
+        vm.setEvent(Event.ApplyFilters)
+
+        assertEquals(2026, vm.currentState.filters.fromYear)
+        assertEquals(null, vm.currentState.filters.toYear)
+    }
+
+    @Test
+    fun `restored last search drops a year the server rejects`() {
+        saveLastSearch.value = true
+        lastSnapshot.value = LastSearchSnapshot(fromYear = 2026, toYear = 2926)
+
+        val state = createViewModel().currentState
+
+        assertEquals(2026, state.filters.fromYear)
+        assertEquals(null, state.filters.toYear)
+    }
+
+    @Test
     fun `reset draft clears only the draft`() {
         val vm = createViewModel()
         vm.setEvent(Event.GenreToggled("action"))
@@ -379,7 +404,7 @@ class CatalogViewModelTest : BaseUnitTest() {
 
         vm.setEvent(Event.RandomAnimeSelected)
 
-        verify(exactly = 1) { detailsNavigator.getDetailsDest(9) }
+        verify(exactly = 1) { detailsNavigator.getRandomDetailsDest(9) }
         verify(exactly = 1) { nav.navigate(detailsKey) }
         assertFalse(vm.currentState.isRandomAnimeLoading)
     }

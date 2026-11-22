@@ -10,6 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -52,6 +54,29 @@ private fun HeroBackdropImage(backdropUrls: List<String>, surface: Color) {
                         surface.copy(alpha = 0.64f),
                         surface.copy(alpha = 0.90f),
                     ),
+                ),
+            ),
+    )
+    // Виньетка: арт «светит» из-за постера справа сверху и уходит в тень к краям.
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .drawWithCache {
+                val brush = Brush.radialGradient(
+                    colors = listOf(Color.Transparent, surface.copy(alpha = 0.7f)),
+                    center = Offset(size.width * 0.85f, size.height * 0.2f),
+                    radius = size.maxDimension * 0.75f,
+                )
+                onDrawBehind { drawRect(brush) }
+            },
+    )
+    // Слева текст — гасим фон сильнее, справа арт остаётся ярким (как в карусели на главной).
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.horizontalGradient(
+                    colors = listOf(surface.copy(alpha = 0.9f), Color.Transparent),
                 ),
             ),
     )

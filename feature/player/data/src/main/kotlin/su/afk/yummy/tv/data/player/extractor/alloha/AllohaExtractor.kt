@@ -3,6 +3,7 @@ package su.afk.yummy.tv.data.player.extractor.alloha
 
 import android.content.Context
 import android.webkit.WebSettings
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -52,7 +53,8 @@ internal class AllohaExtractor @Inject constructor(
         allohaClientProfile(requireNotNull(appContext), sessionUserAgent)
     }
 
-    // One playback at a time: opening a session replaces the previous socket.
+    // One playback at a time: opening a session replaces the previous socket, leaving the player closes it.
+    private val sessionLock = Any()
     private var activeSocket: AllohaPlaybackSocket? = null
     private var activeReporter: AllohaViewReporter? = null
 
@@ -66,6 +68,26 @@ internal class AllohaExtractor @Inject constructor(
     }
 
     override fun supports(url: String): Boolean = url.isAllohaPlayerUrl()
+
+    /**
+     * Closes the socket and the view reporter of the last session. Without this they outlive the player:
+     * the WebSocket pings every 20 s and the reporter posts `/events` every 30 s until the next Alloha
+     * playback, keeping the radio awake in the background.
+     */
+    override fun releaseSession(): Boolean {
+        val (socket, reporter) = synchronized(sessionLock) {
+            val current = activeSocket to activeReporter
+            activeSocket = null
+            activeReporter = null
+            current
+        }
+        if (socket == null && reporter == null) return false
+        socket?.close()
+        reporter?.close()
+        AllohaEdgeHash.current = null
+        AllohaEdgeHash.bytesLoaded.set(0L)
+        return true
+    }
 
     override val reportsOwnProgress: Boolean = true
 
@@ -85,7 +107,8 @@ internal class AllohaExtractor @Inject constructor(
             return PlayerStreamResolveResult.Unavailable(message = null)
         } catch (error: IOException) {
             analyticsTracker.logExtractorFailure("Alloha", iframeUrl, error.message ?: "invalid response")
-            return PlayerStreamResolveResult.Failed("Alloha: session was not opened")
+            // Причина в тексте нужна для отчётов: без неё не отличить таймаут от HTTP 403 у bnsi.
+            return PlayerStreamResolveResult.Failed("Alloha: session was not opened (${error.sessionFailureReason()})")
         }
         request.onStatus(PlayerStreamResolveStatus.RequestingStream)
         // A WebView adds the app package as X-Requested-With to its requests, media ones included.
@@ -105,11 +128,7 @@ internal class AllohaExtractor @Inject constructor(
         durationMs: () -> Long,
     ): AllohaOpenedSession {
         val ticket = opened.socketTicket ?: return opened
-        activeSocket?.close()
-        activeReporter?.close()
-        activeReporter = null
-        AllohaEdgeHash.current = null
-        AllohaEdgeHash.bytesLoaded.set(0L)
+        releaseSession()
         val track = opened.sources.audioTracks.let { tracks -> tracks.firstOrNull { it.isDefault } ?: tracks.first() }
         val resolution = track.qualities.keys.maxByOrNull { it.filter(Char::isDigit).toIntOrNull() ?: 0 }
             ?.filter(Char::isDigit).orEmpty().ifEmpty { "1080" }
@@ -120,10 +139,9 @@ internal class AllohaExtractor @Inject constructor(
             analytics = analyticsTracker,
             positionMs = positionMs,
         )
-        activeSocket = socket
-        opened.viewTicket?.let { view ->
+        val reporter = opened.viewTicket?.let { view ->
             val origin = opened.headers["origin"] ?: iframeUrl
-            activeReporter = AllohaViewReporter(
+            AllohaViewReporter(
                 client = httpClient,
                 ticket = view,
                 stream = AllohaPlayedStream(
@@ -142,7 +160,17 @@ internal class AllohaExtractor @Inject constructor(
                 analytics = analyticsTracker,
             ).also { it.start() }
         }
-        val hash = socket.open(ticket, resolution = resolution, audioId = track.id)
+        synchronized(sessionLock) {
+            activeSocket = socket
+            activeReporter = reporter
+        }
+        val hash = try {
+            socket.open(ticket, resolution = resolution, audioId = track.id)
+        } catch (cancelled: CancellationException) {
+            // The player went away while the socket was opening: nobody will release it later.
+            releaseSession()
+            throw cancelled
+        }
         analyticsTracker.log(LOG_TAG) { "ws first edge_hash=${hash != null}" }
         return if (hash == null) opened else opened.copy(headers = opened.headers + (AllohaEdgeHash.HEADER to hash))
     }
@@ -178,5 +206,21 @@ internal class AllohaExtractor @Inject constructor(
         const val FALLBACK_USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:159.0) Gecko/20100101 Firefox/159.0"
         const val MAX_ATTEMPTS = 2
         const val RETRY_DELAY_MS = 500L
+        const val MAX_REASON_LENGTH = 80
+
+        /**
+         * Наши ошибки открытия уже несут текст вида «Alloha: bnsi HTTP 403» — префикс снимаем;
+         * у сетевых (OkHttp) добавляем имя класса: оно из java.io/java.net и R8 его не переименует.
+         */
+        fun IOException.sessionFailureReason(): String {
+            val text = message.orEmpty().removePrefix("Alloha: ").trim()
+            val ownError = message.orEmpty().startsWith("Alloha: ")
+            val reason = when {
+                ownError -> text
+                text.isEmpty() -> javaClass.simpleName
+                else -> "${javaClass.simpleName}: $text"
+            }
+            return reason.take(MAX_REASON_LENGTH)
+        }
     }
 }

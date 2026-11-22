@@ -19,6 +19,7 @@ import su.afk.yummy.tv.core.designsystem.utils.balancerFallbackIcon
 import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
 import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.core.model.settings.PlayerZoomLevel
+import su.afk.yummy.tv.core.model.settings.VideoEnhancementMode
 import su.afk.yummy.tv.feature.player.common.utils.formatCompactCount
 import su.afk.yummy.tv.feature.player.model.PanelReturnFocusTarget
 import su.afk.yummy.tv.feature.player.model.PlayerPlaybackUiState
@@ -59,6 +60,8 @@ internal fun BoxScope.TvPlayerPanelsHost(
     onTimeDisplaySettingsChange: (PlayerTimeDisplaySettings) -> Unit,
     onVolumeChange: (Int) -> Unit,
     onStabilizationChange: (Boolean) -> Unit,
+    videoEnhancementMode: VideoEnhancementMode,
+    onVideoEnhancementModeChange: (VideoEnhancementMode) -> Unit,
     onAdaptiveQualityChange: (Boolean) -> Unit,
     onAudioTrackSelected: (index: Int) -> Unit,
     onSubtitleTrackSelected: (index: Int) -> Unit,
@@ -193,6 +196,8 @@ internal fun BoxScope.TvPlayerPanelsHost(
         onResizeModeSelected = onResizeModeSelected,
         onZoomLevelSelected = onZoomLevelSelected,
         timeDisplaySettings = timeDisplaySettings,
+        videoEnhancementMode = videoEnhancementMode,
+        onVideoEnhancementModeChange = onVideoEnhancementModeChange,
         onTimeDisplaySettingsChange = onTimeDisplaySettingsChange,
         showVolume = showVolume,
         volumePercent = volumePercent,

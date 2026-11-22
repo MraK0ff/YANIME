@@ -49,6 +49,7 @@ fun TvProgressMediaCard(
     progress: Float,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
     width: Dp = 220.dp,
     thumbnailHeight: Dp = 124.dp,
     leftFocusRequester: FocusRequester? = null,
@@ -81,6 +82,7 @@ fun TvProgressMediaCard(
             }
             .tvFocusableClick(
                 onClick = onClick,
+                onLongClick = onLongClick,
                 shape = shape,
                 interactionSource = interactionSource,
                 focusedScale = focusedScale,

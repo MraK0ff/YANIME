@@ -3,8 +3,8 @@ package su.afk.yummy.tv.feature.player.handler
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
@@ -16,6 +16,7 @@ import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
 import su.afk.yummy.tv.core.model.settings.PlayerResizeSettings
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleStyleSettings
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleTextColor
+import su.afk.yummy.tv.core.model.settings.VideoEnhancementMode
 import su.afk.yummy.tv.core.preferences.settings.PlayerSettingsStore
 import su.afk.yummy.tv.core.testing.BaseUnitTest
 import su.afk.yummy.tv.feature.player.model.PlayerResizeSettingsScope
@@ -62,5 +63,14 @@ class PlayerSettingsHandlerTest : BaseUnitTest() {
 
         coVerify { store.setPlayerSubtitleStyle(style) }
         coVerify { store.setVolumeStabilizationEnabled(true) }
+    }
+
+    @Test
+    fun `video enhancement mode is written to the shared store`() = runTest {
+        val handler = PlayerSettingsHandler(store)
+
+        handler.saveVideoEnhancementMode(VideoEnhancementMode.QUALITY)
+
+        coVerify { store.setVideoEnhancementMode(VideoEnhancementMode.QUALITY) }
     }
 }

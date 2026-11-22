@@ -80,6 +80,29 @@ fun PlayerState.State.toPlayerPlaybackUiState(
     val balancerNames = availableBalancerIndices.map { index ->
         sourceGraph.balancers.getOrNull(index)?.name.orEmpty().removePrefix(playerNamePrefix).withoutPlayerPrefix()
     }
+    // Сначала известные предпочтительные балансеры. Порядок остальных сохраняем:
+    // без измерений реальной скорости/ошибок нельзя честно ранжировать неизвестные источники.
+    val dubbingBalancerIndices = displayedDubbingNames.map { dubbingName ->
+        sourceGraph.balancers.mapIndexedNotNull { index, balancer ->
+            val dubbing = balancer.dubbings.firstOrNull { it.name == dubbingName }
+            val hasEpisode = dubbing?.episodes?.any { it.number.episodeGroupKey() == activeEpisode.episodeGroupKey() } == true
+            index.takeIf { hasEpisode }
+        }.sortedWith(
+            compareBy<Int> { index ->
+                balancerPreferenceRank(sourceGraph.balancers[index].name) ?: Int.MAX_VALUE
+            }.thenBy { it },
+        )
+    }
+    val dubbingBalancerNames = dubbingBalancerIndices.map { indices ->
+        indices.map { index ->
+            sourceGraph.balancers[index].name.removePrefix(playerNamePrefix).withoutPlayerPrefix()
+        }
+    }
+    val recommendedDubbingBalancerIndices = dubbingBalancerIndices.map { indices ->
+        indices.firstOrNull { index ->
+            balancerPreferenceRank(sourceGraph.balancers[index].name) != null
+        }
+    }
     val balancerExternal = availableBalancerIndices.map { index ->
         sourceGraph.balancers.getOrNull(index)?.isExtraSourceBalancer() == true
     }
@@ -143,6 +166,10 @@ fun PlayerState.State.toPlayerPlaybackUiState(
         currentDubbingIndex = displayedDubbingNames.indexOf(activeDubbingName)
             .takeIf { it >= 0 }
             ?: selection.dubbingIndex,
+        dubbingBalancerNames = dubbingBalancerNames,
+        dubbingBalancerIndices = dubbingBalancerIndices,
+        recommendedDubbingBalancerIndices = recommendedDubbingBalancerIndices,
+        selectedBalancerGraphIndex = selection.balancerIndex,
         balancerNames = balancerNames.toImmutableList(),
         balancerAvailability = balancerAvailability.toImmutableList(),
         balancerExternal = balancerExternal.toImmutableList(),
@@ -168,4 +195,17 @@ fun PlayerState.State.toPlayerPlaybackUiState(
             ?: resumeFromMs.takeIf { it > 0L }
             ?: 0L,
     )
+}
+
+
+/** Preference-based fallback order, not a claim about measured stream quality or uptime. */
+private fun balancerPreferenceRank(name: String): Int? {
+    val normalized = name.lowercase().replace(" ", "").replace("-", "")
+    return when {
+        "anilibria" in normalized -> 0
+        "cvh" in normalized -> 1
+        "kodik" in normalized -> 2
+        "aniboom" in normalized -> 3
+        else -> null
+    }
 }

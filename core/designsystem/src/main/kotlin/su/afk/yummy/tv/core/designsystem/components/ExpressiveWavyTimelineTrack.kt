@@ -63,11 +63,13 @@ fun DrawScope.drawExpressiveWavyTimelineTrack(
 
     if (playedX <= 0.5f) return
 
-    val wavelength = 38.dp.toPx()
-    val amplitude = min(5.dp.toPx(), size.height * 0.24f)
-    val fadeDistance = wavelength * 0.72f
+    // Shorter wavelength creates more, finer waves across the watched section.
+    val wavelength = 24.dp.toPx()
+    val amplitude = min(3.dp.toPx(), size.height * 0.15f)
+    val fadeDistance = wavelength * 0.55f
     val phase = wavePhase * (2f * PI.toFloat())
-    val phaseOrigin = sin(phase)
+    // Keep the animated head visually active across the final three wave cycles.
+    val activeHeadLength = wavelength * 3f
     val wave = Path().apply {
         moveTo(0f, centerY)
         var x = 0f
@@ -77,8 +79,12 @@ fun DrawScope.drawExpressiveWavyTimelineTrack(
                 1f,
                 min(x / fadeDistance, (playedX - x) / fadeDistance).coerceAtLeast(0f),
             )
-            val oscillation = sin((x / wavelength) * (2f * PI.toFloat()) + phase) - phaseOrigin
-            val y = centerY + oscillation * amplitude * edgeFade
+            val headProgress = ((x - (playedX - activeHeadLength)) / activeHeadLength).coerceIn(0f, 1f)
+            val headBlend = headProgress * headProgress * (3f - 2f * headProgress)
+            val headPhase = phase * (1f + headBlend * 0.9f)
+            val oscillation = sin((x / wavelength) * (2f * PI.toFloat()) - headPhase)
+            val headIntensity = 1f + headBlend * 0.65f
+            val y = centerY + oscillation * amplitude * headIntensity * edgeFade
             lineTo(x, y)
         }
         lineTo(playedX, centerY)

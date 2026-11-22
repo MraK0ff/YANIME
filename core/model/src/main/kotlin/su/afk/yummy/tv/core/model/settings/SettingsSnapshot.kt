@@ -31,6 +31,7 @@ data class SettingsSnapshot(
     val tvPlayerVolumeKeysEnabled: Boolean,
     val advancedPlayerVolumeEnabled: Boolean,
     val volumeStabilizationEnabled: Boolean,
+    val videoEnhancementMode: VideoEnhancementMode = VideoEnhancementMode.OFF,
     val audioFocusDisabled: Boolean = false,
     val playerBufferProfile: PlayerBufferProfile,
     val browserUserAgentProfile: BrowserUserAgentProfile = BrowserUserAgentProfile.DEFAULT,
@@ -42,5 +43,6 @@ data class SettingsSnapshot(
     val accountShortcutsExpanded: Boolean = false,
     val libraryTabOrder: List<LibraryTabKind> = LibraryTabKind.entries,
     val homeBlocks: List<HomeBlockConfig> = HomeBlockConfig.default,
+    val detailsSections: List<DetailsSectionConfig> = DetailsSectionConfig.default,
     val mobilePlayerAutoBrightnessEnabled: Boolean = true,
 )

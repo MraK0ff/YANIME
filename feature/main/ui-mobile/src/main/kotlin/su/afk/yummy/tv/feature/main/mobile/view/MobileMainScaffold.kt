@@ -38,6 +38,7 @@ internal fun <T> MobileMainScaffold(
     showBottomBar: Boolean,
     showRail: Boolean,
     onDestinationSelected: (T) -> Unit,
+    onSearchSelected: () -> Unit,
     toastMessage: String?,
     showSeasonalOverlay: Boolean = true,
     content: @Composable () -> Unit,
@@ -84,6 +85,7 @@ internal fun <T> MobileMainScaffold(
                     menuItems = menuItems,
                     containerColor = surface,
                     upFocusRequester = bottomBarUpFocusRequester,
+                    onSearchSelected = onSearchSelected,
                     onDestinationSelected = onDestinationSelected,
                 )
             }

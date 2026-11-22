@@ -393,4 +393,6 @@ Search indexer: https://jac-red.ru or Jackett: https://github.com/jackett/jacket
     <string name="settings_section_anime_list">Anime list</string>
     <string name="settings_list_transfer_title">Import &amp; export list</string>
     <string name="settings_list_transfer_hint">Transfer list files for Shikimori and MyAnimeList</string>
+    <string name="settings_interface_auto">Automatic</string>
+    <string name="settings_interface_auto_hint">Choose the interface based on the device type</string>
 </resources>

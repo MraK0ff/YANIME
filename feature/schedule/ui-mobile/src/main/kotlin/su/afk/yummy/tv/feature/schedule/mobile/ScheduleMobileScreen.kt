@@ -31,7 +31,8 @@ import su.afk.yummy.tv.core.model.text.UiText
 import su.afk.yummy.tv.feature.schedule.ScheduleState
 import su.afk.yummy.tv.feature.schedule.mobile.view.ScheduleDayReleases
 import su.afk.yummy.tv.feature.schedule.mobile.view.ScheduleMobileDateChips
-import su.afk.yummy.tv.feature.schedule.mobile.view.ScheduleMobileLibraryFilterChip
+import su.afk.yummy.tv.feature.schedule.mobile.view.ScheduleLibraryFilterAction
+import su.afk.yummy.tv.feature.schedule.mobile.view.ScheduleHideWatchedAction
 import su.afk.yummy.tv.feature.schedule.presentation.R
 
 @Preview(name = "Default", device = "spec:width=412dp,height=915dp,dpi=420", showBackground = true)
@@ -103,9 +104,13 @@ fun ScheduleMobileScreen(
                         state.error == null &&
                         (dayGroups.isNotEmpty() || state.onlyInLibrary)
                     if (showFilterChip) {
-                        ScheduleMobileLibraryFilterChip(
-                            selected = state.onlyInLibrary,
-                            onToggle = { onEvent(ScheduleState.Event.InLibraryFilterToggled) },
+                        ScheduleLibraryFilterAction(
+                            selected = state.libraryFilter,
+                            onSelected = { onEvent(ScheduleState.Event.LibraryFilterSelected(it)) },
+                        )
+                        ScheduleHideWatchedAction(
+                            checked = state.hideWatched,
+                            onCheckedChange = { onEvent(ScheduleState.Event.HideWatchedToggled(it)) },
                         )
                     }
                 },

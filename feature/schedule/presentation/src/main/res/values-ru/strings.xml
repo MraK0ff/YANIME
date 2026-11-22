@@ -17,4 +17,7 @@
     <string name="schedule_filter_in_library">В библиотеке</string>
     <string name="schedule_filter_in_library_empty">В расписании пока нет тайтлов из вашей библиотеки</string>
     <string name="schedule_filter_show_all">Показать все</string>
+    <string name="schedule_filter_all">Все</string>
+    <string name="schedule_hide_watched">Скрывать просмотренные</string>
+    <string name="schedule_favorite">Любимое</string>
 </resources>

@@ -30,7 +30,7 @@ internal fun ScheduleLibraryFilterAction(
         Icon(
             imageVector = if (inLibrary) Icons.Filled.VideoLibrary else Icons.Filled.Apps,
             contentDescription = stringResource(
-                if (inLibrary) R.string.schedule_filter_library else R.string.schedule_filter_all,
+                if (inLibrary) R.string.schedule_filter_in_library else R.string.schedule_filter_all,
             ),
             tint = if (inLibrary) MaterialTheme.colorScheme.primary
             else MaterialTheme.colorScheme.onSurfaceVariant,

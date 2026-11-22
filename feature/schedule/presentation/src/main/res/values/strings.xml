@@ -17,4 +17,7 @@
     <string name="schedule_filter_in_library">In library</string>
     <string name="schedule_filter_in_library_empty">No upcoming episodes for titles in your library</string>
     <string name="schedule_filter_show_all">Show all</string>
+    <string name="schedule_filter_all">All</string>
+    <string name="schedule_hide_watched">Hide watched</string>
+    <string name="schedule_favorite">Favorite</string>
 </resources>

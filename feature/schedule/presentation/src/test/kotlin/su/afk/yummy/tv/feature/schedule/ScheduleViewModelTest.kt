@@ -10,6 +10,7 @@ import io.mockk.verify
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -20,6 +21,7 @@ import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.model.ErrorItem
+import su.afk.yummy.tv.core.model.settings.NewEpisodesSource
 import su.afk.yummy.tv.core.model.settings.YaniContentLanguage
 import su.afk.yummy.tv.core.model.text.UiText
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
@@ -29,6 +31,10 @@ import su.afk.yummy.tv.domain.schedule.model.AnimeEpisodeRelease
 import su.afk.yummy.tv.domain.schedule.model.AnimeScheduleDay
 import su.afk.yummy.tv.domain.schedule.model.AnimeScheduleItem
 import su.afk.yummy.tv.domain.schedule.repository.AnimeScheduleRepository
+import su.afk.yummy.tv.domain.home.usecase.ObserveLibraryNewEpisodeAnimeIdsUseCase
+import su.afk.yummy.tv.domain.home.usecase.ObserveWatchedEpisodesUseCase
+import su.afk.yummy.tv.domain.library.usecase.ObserveLibraryFavoriteAnimeIdsUseCase
+import su.afk.yummy.tv.domain.library.usecase.ObserveLibraryItemsUseCase
 import su.afk.yummy.tv.domain.schedule.usecase.GetAnimeScheduleUseCase
 import su.afk.yummy.tv.feature.details.IDetailsNavigator
 
@@ -67,6 +73,22 @@ class ScheduleViewModelTest : BaseUnitTest() {
         analytics = ScheduleAnalytics(tracker),
         accountSettingsStore = accountSettingsStore,
         appClock = appClock,
+        settingsStore = mockk {
+            every { newEpisodesSources } returns flowOf(NewEpisodesSource.DEFAULT)
+            every { scheduleLibraryFilter } returns flowOf("ALL")
+        },
+        observeLibraryNewEpisodeAnimeIds = mockk {
+            every { invoke(any()) } returns emptyFlow()
+        },
+        observeLibraryFavoriteAnimeIds = mockk {
+            every { invoke() } returns flowOf(emptySet())
+        },
+        observeLibraryItems = mockk {
+            every { invoke() } returns flowOf(emptyList())
+        },
+        observeWatchedEpisodes = mockk {
+            every { invoke() } returns flowOf(emptyMap())
+        },
     )
 
     private fun givenSchedule(vararg days: AnimeScheduleDay) {

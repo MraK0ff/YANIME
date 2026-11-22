@@ -51,22 +51,23 @@ internal fun ScheduleDateChip(
     val focused by interactionSource.collectIsFocusedAsState()
     val selectedFocused = selected && focused
     val selectedIdle = selected && !focused
-    val shape = YummyShapeTokens.Control
+    val shape = RoundedCornerShape(22.dp)
     val background = when {
         selectedFocused -> MaterialTheme.colorScheme.primary
-        focused -> MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
-        else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)
+        selected -> MaterialTheme.colorScheme.secondaryContainer
+        focused -> MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+        else -> MaterialTheme.colorScheme.surfaceContainerLow
     }
     val contentColor = when {
         selectedFocused -> MaterialTheme.colorScheme.onPrimary
-        selected -> MaterialTheme.colorScheme.primary
+        selected -> MaterialTheme.colorScheme.onSecondaryContainer
         else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
 
     Box(
         modifier = Modifier
-            .width(84.dp)
-            .height(72.dp)
+            .width(88.dp)
+            .height(84.dp)
             .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
             .focusProperties {
                 down = downFocusRequester
@@ -119,7 +120,8 @@ internal fun ScheduleDateChip(
                 .clip(CircleShape)
                 .background(
                     color = if (selectedFocused) MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.18f)
-                    else MaterialTheme.colorScheme.primary.copy(alpha = 0.22f),
+                    else if (selected) MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.12f)
+                    else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f),
                 ),
             contentAlignment = Alignment.Center,
         ) {

@@ -23,6 +23,7 @@ import su.afk.yummy.tv.core.model.settings.HomeBlockKind
 import su.afk.yummy.tv.core.model.text.UiText
 import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
+import su.afk.yummy.tv.core.navigation.root.RootTab
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.preferences.settings.contentLanguageChanges
 import su.afk.yummy.tv.core.tv.api.ITvIntegration
@@ -207,6 +208,10 @@ class HomeViewModel @Inject internal constructor(
 
             HomeState.Event.RecommendationsCatalogSelected -> {
                 nav.navigate(HomeRecommendationsDestination)
+            }
+
+            HomeState.Event.NewsSelected -> {
+                nav.switchRoot(RootTab.POSTS, reselectPopToRoot = true)
             }
 
             HomeState.Event.ScheduleSelected -> {

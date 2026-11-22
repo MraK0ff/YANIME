@@ -2,6 +2,7 @@ package su.afk.yummy.tv.data.schedule.repository
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.Serializable
@@ -12,6 +13,7 @@ import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.preferences.api.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.currentLanguageCode
 import su.afk.yummy.tv.core.storage.document.DocumentCacheStorage
+import su.afk.yummy.tv.core.storage.anime.AnimeStorage
 import su.afk.yummy.tv.core.storage.offlinefirst.offlineFirstCache
 import su.afk.yummy.tv.core.storage.schedule.AnimeScheduleStorage
 import su.afk.yummy.tv.core.storage.schedule.isFresh
@@ -71,6 +73,7 @@ class YaniScheduleRepository(
     private val settingsStore: YaniAccountSettingsStore,
     private val documentCache: DocumentCacheStorage,
     private val homeApi: YaniHomeApi,
+    private val animeStorage: AnimeStorage,
 ) : AnimeScheduleRepository {
 
     private val releaseHistoryMutex = Mutex()
@@ -93,7 +96,17 @@ class YaniScheduleRepository(
                 cache
             },
         )
-        schedule.withVideoReleaseHistory(readEpisodeReleaseHistory())
+        val releases = readEpisodeReleaseHistory()
+        val availableEpisodeCounts = try {
+            animeStorage.observeAvailableEpisodeCounts(languageCode).first()
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            emptyMap()
+        }
+        schedule
+            .withVideoReleaseHistory(releases)
+            .withAvailableEpisodeCounts(availableEpisodeCounts)
     }
 
     override suspend fun saveEpisodeReleases(releases: List<AnimeEpisodeRelease>) {
@@ -159,6 +172,19 @@ class YaniScheduleRepository(
             fetch = { releases },
         )
     }
+
+    private fun List<AnimeScheduleDay>.withAvailableEpisodeCounts(
+        counts: Map<Int, Int>,
+    ): List<AnimeScheduleDay> =
+        map { day ->
+            day.copy(
+                items = day.items.map { item ->
+                    item.copy(
+                        availableEpisodeCount = counts[item.animeId]?.takeIf { it > 0 },
+                    )
+                },
+            )
+        }
 
     private fun List<AnimeScheduleDay>.withVideoReleaseHistory(
         releases: List<AnimeEpisodeRelease>,

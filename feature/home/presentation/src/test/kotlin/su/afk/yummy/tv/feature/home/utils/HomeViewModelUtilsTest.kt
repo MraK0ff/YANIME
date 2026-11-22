@@ -13,6 +13,72 @@ import su.afk.yummy.tv.domain.home.model.HomeFeedSectionType
 class HomeViewModelUtilsTest : BaseUnitTest() {
 
     @Test
+    fun `new releases inherit episode number and publication time`() {
+        val original = feed()
+        val aired = airedItem(50, episodeNumber = 7).copy(airedAtSeconds = 1_800_000_000L)
+
+        val result = original.withRecentReleaseMetadata(listOf(aired))
+
+        val item = result.sections.first().items.single()
+        assertEquals(7, item.episodeNumber)
+        assertEquals(1_800_000_000L, item.airedAtSeconds)
+    }
+
+    @Test
+    fun `watched episodes are hidden from ordinary new releases`() {
+        val original = feed()
+        val result = original.withRecentReleaseMetadata(
+            recentlyAired = emptyList(),
+            watchedEpisodes = mapOf(50 to setOf(1)),
+        )
+
+        assertEquals(emptyList<Int>(), result.sections.first().items.map { it.id })
+    }
+
+    @Test
+    fun `unwatched ordinary new releases keep their original order`() {
+        val original = HomeFeed(
+            heroItems = emptyList(),
+            sections = listOf(
+                HomeFeedSection(
+                    HomeFeedSectionType.NEW_RELEASES,
+                    "New",
+                    listOf(airedItem(1, 2), airedItem(2, 3), airedItem(3, 1)),
+                ),
+            ),
+        )
+        val result = original.withRecentReleaseMetadata(
+            recentlyAired = emptyList(),
+            watchedEpisodes = mapOf(1 to setOf(2), 3 to setOf(1)),
+        )
+
+        assertEquals(listOf(2), result.sections.first().items.map { it.id })
+    }
+
+    @Test
+    fun `selected library titles are highlighted without changing ordinary new release order`() {
+        val original = HomeFeed(
+            heroItems = emptyList(),
+            sections = listOf(
+                HomeFeedSection(
+                    HomeFeedSectionType.NEW_RELEASES,
+                    "New",
+                    listOf(airedItem(1), airedItem(2), airedItem(3)),
+                ),
+            ),
+        )
+
+        val result = original.withRecentReleaseMetadata(
+            recentlyAired = emptyList(),
+            prioritizedAnimeIds = setOf(2, 3),
+        )
+
+        val items = result.sections.single().items
+        assertEquals(listOf(1, 2, 3), items.map { it.id })
+        assertEquals(listOf(false, true, true), items.map { it.isFromSelectedList })
+    }
+
+    @Test
     fun `only titles from the library reach the section`() {
         val feed = feed().withMyNewEpisodes(
             recentlyAired = listOf(airedItem(1), airedItem(2)),
@@ -22,6 +88,7 @@ class HomeViewModelUtilsTest : BaseUnitTest() {
         )
 
         assertEquals(listOf(2), feed.sections.first().items.map { it.id })
+        assertEquals(true, feed.sections.first().items.single().isFromSelectedList)
     }
 
     @Test
@@ -53,7 +120,7 @@ class HomeViewModelUtilsTest : BaseUnitTest() {
     }
 
     @Test
-    fun `a watched episode leaves the section`() {
+    fun `a watched episode is hidden from personalized new releases`() {
         val original = feed()
         val result = original.withMyNewEpisodes(
             recentlyAired = listOf(airedItem(1, episodeNumber = 3)),
@@ -62,7 +129,7 @@ class HomeViewModelUtilsTest : BaseUnitTest() {
             title = TITLE,
         )
 
-        assertEquals(original, result)
+        assertEquals(HomeFeedSectionType.NEW_RELEASES, result.sections.first().type)
     }
 
     @Test
@@ -90,7 +157,7 @@ class HomeViewModelUtilsTest : BaseUnitTest() {
     }
 
     @Test
-    fun `a watched title is dropped`() {
+    fun `only unwatched releases remain visible in personalized section`() {
         val feed = feed().withMyNewEpisodes(
             recentlyAired = listOf(airedItem(1, episodeNumber = 3), airedItem(2, episodeNumber = 1)),
             libraryAnimeIds = setOf(1, 2),
@@ -102,7 +169,7 @@ class HomeViewModelUtilsTest : BaseUnitTest() {
     }
 
     @Test
-    fun `the section disappears when every title is watched`() {
+    fun `the personalized section is omitted when every new release was watched`() {
         val original = feed()
 
         val result = original.withMyNewEpisodes(
@@ -112,7 +179,7 @@ class HomeViewModelUtilsTest : BaseUnitTest() {
             title = TITLE,
         )
 
-        assertEquals(original, result)
+        assertEquals(HomeFeedSectionType.NEW_RELEASES, result.sections.first().type)
     }
 
     @Test

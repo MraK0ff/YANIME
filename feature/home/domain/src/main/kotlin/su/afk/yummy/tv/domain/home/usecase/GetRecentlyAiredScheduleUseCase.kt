@@ -7,8 +7,8 @@ import javax.inject.Inject
 
 /**
  * Возвращает тайтлы, для серий которых на YummyAnime действительно появилось видео за последние
- * 14 дней. Источник времени — первая публикация видео, а не японское расписание.
- * Повторные озвучки схлопываются в одну запись серии на уровне истории публикаций.
+ * 14 дней. Время публикации видео используется только для серии, не старше известного количества
+ * доступных/вышедших эпизодов. Старые серии, поздние озвучки и переиздания отсекаются.
  */
 class GetRecentlyAiredScheduleUseCase @Inject constructor(
     private val getSchedule: GetAnimeScheduleUseCase,
@@ -18,7 +18,24 @@ class GetRecentlyAiredScheduleUseCase @Inject constructor(
         return getSchedule()
             .flatMap { it.items }
             .flatMap { item ->
-                item.videoReleases.map { release ->
+                val airedCount = item.airedEpisodes?.takeIf { it > 0 }
+                if (airedCount == null) return@flatMap emptyList()
+                // airedEpisodes is the number of episodes released, so the current episode
+                // has the same number. Only older episode numbers are stale. A local page cache
+                // is deliberately not used here: it can contain a just-released episode already.
+                val release = item.videoReleases
+                    .asSequence()
+                    .filter { release ->
+                        release.episodeNumber >= airedCount
+                    }
+                    .filter { it.firstVideoAtSeconds in 1..nowSeconds }
+                    .sortedWith(
+                        compareByDescending<su.afk.yummy.tv.domain.schedule.model.AnimeEpisodeRelease> { it.episodeNumber }
+                            .thenBy { it.firstVideoAtSeconds },
+                    )
+                    .firstOrNull()
+                    ?: return@flatMap emptyList()
+                listOf(
                     release.firstVideoAtSeconds to HomeFeedItem(
                         id = item.animeId,
                         title = item.title.ifBlank { release.title },
@@ -29,8 +46,8 @@ class GetRecentlyAiredScheduleUseCase @Inject constructor(
                         action = HomeFeedItemAction.OpenSeries(item.animeId),
                         episodeNumber = release.episodeNumber,
                         airedAtSeconds = release.firstVideoAtSeconds,
-                    )
-                }
+                    ),
+                )
             }
             .filter { (publishedAt, _) -> publishedAt in threshold..nowSeconds }
             .sortedByDescending { (publishedAt, _) -> publishedAt }

@@ -35,6 +35,10 @@ class PendingMutationFlushRunnerTest : BaseUnitTest() {
     private val outbox: PendingMutationOutbox = mockk(relaxed = true)
     private val saveVideoWatchProgress: SaveVideoWatchProgressUseCase = mockk()
     private val removeAnimeList: RemoveAnimeListUseCase = mockk()
+    private val markNotificationRead: MarkNotificationReadUseCase = mockk()
+    private val markAllNotificationsRead: MarkAllNotificationsReadUseCase = mockk()
+    private val deleteNotification: DeleteNotificationUseCase = mockk()
+    private val deleteAllNotifications: DeleteAllNotificationsUseCase = mockk()
 
     private fun runner() = PendingMutationFlushRunner(
         outbox = outbox,
@@ -46,10 +50,10 @@ class PendingMutationFlushRunnerTest : BaseUnitTest() {
         setAnimeRating = mockk<SetAnimeRatingUseCase>(),
         deleteAnimeRating = mockk<DeleteAnimeRatingUseCase>(),
         voteReview = mockk<VoteReviewUseCase>(),
-        markNotificationRead = mockk<MarkNotificationReadUseCase>(),
-        markAllNotificationsRead = mockk<MarkAllNotificationsReadUseCase>(),
-        deleteNotification = mockk<DeleteNotificationUseCase>(),
-        deleteAllNotifications = mockk<DeleteAllNotificationsUseCase>(),
+        markNotificationRead = markNotificationRead,
+        markAllNotificationsRead = markAllNotificationsRead,
+        deleteNotification = deleteNotification,
+        deleteAllNotifications = deleteAllNotifications,
     )
 
     private fun removeList(id: Long, attempts: Int = 0) =
@@ -114,6 +118,30 @@ class PendingMutationFlushRunnerTest : BaseUnitTest() {
         coVerify { outbox.remove(1) }
     }
 
+    @Test
+    fun `все операции уведомлений восстанавливаются из outbox`() = runTest {
+        coEvery { outbox.pending() } returns listOf(
+            PendingMutationEntry(1, PendingMutationTypes.MARK_NOTIFICATION_READ, "17"),
+            PendingMutationEntry(2, PendingMutationTypes.MARK_ALL_NOTIFICATIONS_READ, ""),
+            PendingMutationEntry(3, PendingMutationTypes.DELETE_NOTIFICATION, "29"),
+            PendingMutationEntry(4, PendingMutationTypes.DELETE_ALL_NOTIFICATIONS, ""),
+        )
+        coEvery { markNotificationRead(17) } returns true
+        coEvery { markAllNotificationsRead() } returns true
+        coEvery { deleteNotification(29) } returns true
+        coEvery { deleteAllNotifications() } returns true
+
+        assertTrue(runner().flush())
+
+        coVerify { markNotificationRead(17) }
+        coVerify { markAllNotificationsRead() }
+        coVerify { deleteNotification(29) }
+        coVerify { deleteAllNotifications() }
+        coVerify { outbox.remove(1) }
+        coVerify { outbox.remove(2) }
+        coVerify { outbox.remove(3) }
+        coVerify { outbox.remove(4) }
+    }
     @Test
     fun `секунды просмотра уходят вместе с позицией`() = runTest {
         val payload = MarkWatchedPayload(videoId = 9, timeSeconds = 120, durationSeconds = 1_400, times = listOf(1, 2, 3, 50))

@@ -250,4 +250,17 @@
     <string name="player_diag_buffer">Buffer: %1$ss ahead, total %2$ss, %3$s, play=%4$s</string>
     <string name="player_diag_video">Video: %1$dx%2$d, %3$s Mbps %4$s, dropped %5$d, net %6$s Mbps</string>
     <string name="player_diag_system">Device: %1$s, Android %2$s (API %3$d), RAM %4$d/%5$d MB, %6$s</string>
+    <string name="player_balancer_name_prefix">Choose a video source</string>
+    <string name="player_balancer_recommended">Recommended: %1$s</string>
+    <string name="player_time_display_title">Time display</string>
+    <string name="player_time_display_system_clock">System clock</string>
+    <string name="player_time_display_combine_clock_finish">Combine clock and finish time</string>
+    <string name="player_time_display_separate">Show elapsed time and duration separately</string>
+    <string name="player_time_display_elapsed">Elapsed time</string>
+    <string name="player_time_display_duration">Duration</string>
+    <string name="player_time_display_combined">Elapsed time and duration</string>
+    <string name="player_time_display_finish_at">Finish time</string>
+    <string name="player_time_display_always">Always</string>
+    <string name="player_time_display_controls">When controls are visible</string>
+    <string name="player_time_display_never">Never</string>
 </resources>

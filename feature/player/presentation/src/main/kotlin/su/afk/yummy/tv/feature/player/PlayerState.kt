@@ -28,6 +28,10 @@ import su.afk.yummy.tv.feature.player.utils.QualityAdaptationPolicy
 class PlayerState {
     data class State(
         val animeTitle: String = "",
+        /** Название выбранного эпизода, если источник передал его отдельно от номера. */
+        val episodeTitle: String = "",
+        /** Локализованные/альтернативные названия эпизодов по номеру. */
+        val episodeTitles: Map<String, String> = emptyMap(),
         val animeId: Int = 0,
         val posterUrl: String = "",
         /** Обложка медиа-уведомления/медиа-сессии; считает VM через PlayerArtworkHandler. */

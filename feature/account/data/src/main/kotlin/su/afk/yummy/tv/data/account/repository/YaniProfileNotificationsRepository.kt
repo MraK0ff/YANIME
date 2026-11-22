@@ -74,7 +74,6 @@ class YaniProfileNotificationsRepository(
     override suspend fun markNotificationRead(id: Int): Boolean =
         withContext(Dispatchers.IO) {
             val userId = settingsStore.currentUserId()
-            if (userId > 0) accountStorage.markNotificationViewedLocally(userId, id)
             api.markNotificationRead(id).also {
                 invalidateNotifications(userId)
             }
@@ -83,7 +82,6 @@ class YaniProfileNotificationsRepository(
     override suspend fun markAllNotificationsRead(): Boolean =
         withContext(Dispatchers.IO) {
             val userId = settingsStore.currentUserId()
-            if (userId > 0) accountStorage.markAllNotificationsViewedLocally(userId)
             api.markAllNotificationsRead().also {
                 invalidateNotifications(userId)
             }
@@ -92,7 +90,6 @@ class YaniProfileNotificationsRepository(
     override suspend fun deleteNotification(id: Int): Boolean =
         withContext(Dispatchers.IO) {
             val userId = settingsStore.currentUserId()
-            if (userId > 0) accountStorage.deleteNotificationLocally(userId, id)
             api.deleteNotification(id).also {
                 invalidateNotifications(userId)
             }
@@ -101,7 +98,6 @@ class YaniProfileNotificationsRepository(
     override suspend fun deleteAllNotifications(): Boolean =
         withContext(Dispatchers.IO) {
             val userId = settingsStore.currentUserId()
-            if (userId > 0) accountStorage.deleteAllNotificationsLocally(userId)
             api.deleteAllNotifications().also {
                 invalidateNotifications(userId)
             }

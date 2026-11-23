@@ -169,7 +169,16 @@ it supports bottom navigation, player gestures, and Picture-in-Picture.
 - 📰 Site news and publications, plus blogger videos with subscriptions.
 - 👤 User profiles, search, friends, and direct messages (on mobile).
 
-### Downloads and offline
+### YANIME-specific improvements
+
+- **Expressive player UI:** refined glass-style mobile controls, configurable on-screen clock and episode end time, a wavy timeline, and frame previews while seeking.
+- **Smarter episode tracking:** new episodes are matched against selected library lists; late uploads of already available episodes do not create false new-release entries.
+- **Schedule controls:** filter releases by library membership, hide watched episodes, and see favorite status.
+- **Background notifications:** new-episode notifications are scheduled locally, while notification actions can be queued offline and synchronized later.
+- **Custom mobile navigation:** reorder or hide tabs, use the floating navigation capsule, and switch destinations with a swipe gesture.
+- **Material 3 Expressive:** shared mobile and TV components follow the updated design system.
+
+## Downloads and offline
 
 - ⬇️ Download episodes for offline viewing, a download manager, and MP4 export (on mobile).
 

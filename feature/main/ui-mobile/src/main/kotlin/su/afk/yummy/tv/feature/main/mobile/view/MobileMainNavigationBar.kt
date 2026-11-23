@@ -73,7 +73,7 @@ internal fun <T> MobileMainNavigationBar(
     val isClassic = classicStyle
     val selectedItemIndex = orderedItems.indexOfFirst { it.destination == selectedDestination }
         .takeIf { it >= 0 } ?: 0
-    val dragState = remember {
+    val dragState = remember(selectedDestination, orderedItems) {
         AnchoredDraggableState(initialValue = selectedItemIndex)
     }
 
@@ -101,9 +101,6 @@ internal fun <T> MobileMainNavigationBar(
 
     // External navigation (deep links/back handling) and swipe navigation share
     // the same state. A destination is emitted only after the gesture settles.
-    LaunchedEffect(selectedDestination, orderedItems) {
-        dragState.animateTo(selectedItemIndex)
-    }
     LaunchedEffect(dragState.settledValue) {
         if (orderedItems.isNotEmpty()) {
             val settledIndex = dragState.settledValue.coerceIn(0, orderedItems.lastIndex)

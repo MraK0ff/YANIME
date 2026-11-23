@@ -52,8 +52,8 @@ fun OfflineBanner(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = horizontalPadding, vertical = YummySpacing.ExtraSmall),
-            shape = YummyShapeTokens.Medium,
+                .padding(horizontal = horizontalPadding, vertical = YummySpacing.XSmall),
+            shape = YummyShapeTokens.Control,
             color = MaterialTheme.colorScheme.surfaceContainerHigh,
             contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f)),

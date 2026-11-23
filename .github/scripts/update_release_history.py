@@ -22,7 +22,7 @@ TOKEN = os.environ.get("GH_TOKEN", "").strip()
 
 GENERATED_START = "<!-- YANIME-AUTO-CHANGELOG:START -->"
 GENERATED_END = "<!-- YANIME-AUTO-CHANGELOG:END -->"
-HIDDEN_TAGS = {"INTERNAL", "CORE", "CHORE", "DOCS"}
+HIDDEN_TAGS = {"INTERNAL", "CHORE", "DOCS"}
 HIDDEN_COMMIT_SUBJECTS = {
     "автоматически обновлять историю изменений",
     "переключить автообновление на релизы yanime",

@@ -165,13 +165,13 @@ fun LibraryMobileScreen(
 
     LaunchedEffect(state.selectedTab) {
         val targetPage = state.selectedTab.toLibraryMobilePage(tabs)
-        if (pagerState.currentPage != targetPage) {
-            pagerState.animateScrollToPage(targetPage)
+        if (tabsState.currentPage != targetPage) {
+            tabsState.animateScrollToPage(targetPage)
         }
     }
 
-    LaunchedEffect(pagerState.currentPage) {
-        val selectedTab = pagerState.currentPage.toLibraryMobileTab(tabs)
+    LaunchedEffect(tabsState.currentPage) {
+        val selectedTab = tabsState.currentPage.toLibraryMobileTab(tabs)
         if (selectedTab != state.selectedTab) {
             onEvent(LibraryState.Event.TabSelected(selectedTab))
         }
@@ -199,7 +199,7 @@ fun LibraryMobileScreen(
                     .padding(start = 16.dp, top = 10.dp, end = 16.dp),
             )
 
-            if (pagerState.currentPage.toLibraryMobileTab(tabs).hasSort) {
+            if (tabsState.currentPage.toLibraryMobileTab(tabs).hasSort) {
                 LibraryMobileSortRow(
                     sort = state.sort,
                     direction = state.sortDirection,

@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.core.designsystem.mobile.cards
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,8 +10,10 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SuggestionChip
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
@@ -40,18 +43,33 @@ fun MobileNewsCard(
         modifier = modifier.fillMaxWidth(),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 0.dp),
     ) {
-        imageUrl?.takeIf(String::isNotBlank)?.let {
-            CachedAsyncImage(
-                url = it,
-                contentDescription = title,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(16f / 9f),
-            )
+        val posterUrl = imageUrl?.takeIf(String::isNotBlank)
+        if (posterUrl != null) {
+            Box {
+                CachedAsyncImage(
+                    url = posterUrl,
+                    contentDescription = title,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(16f / 9f),
+                )
+                if (category.isNotBlank()) {
+                    Surface(
+                        modifier = Modifier.align(Alignment.BottomStart).padding(YummySpacing.Small),
+                        shape = MaterialTheme.shapes.small,
+                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.88f),
+                        contentColor = MaterialTheme.colorScheme.primary,
+                    ) {
+                        Text(category, style = MaterialTheme.typography.labelMedium,
+                            maxLines = 1, overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.padding(horizontal = YummySpacing.Medium, vertical = YummySpacing.XSmall))
+                    }
+                }
+            }
         }
         Column(Modifier.padding(YummySpacing.Large), verticalArrangement = Arrangement.spacedBy(YummySpacing.Small)) {
-            if (category.isNotBlank()) {
+            if (posterUrl == null && category.isNotBlank()) {
                 SuggestionChip(onClick = onClick, label = { Text(category) })
             }
             Text(

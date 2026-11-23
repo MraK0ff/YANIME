@@ -6,6 +6,9 @@ enum class RootTab {
     DOWNLOADS,
     HOME,
     POSTS,
+
+    /** Хаб «Сообщество» вместо новостей в нижней панели; есть только на мобилке. */
+    COMMUNITY,
     COLLECTIONS,
     SCHEDULE,
     LIBRARY,

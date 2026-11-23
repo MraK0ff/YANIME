@@ -28,7 +28,7 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.tooling.preview.Preview
-import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
@@ -40,6 +40,7 @@ import su.afk.yummy.tv.core.designsystem.permissions.rememberLocalNetworkPermiss
 import su.afk.yummy.tv.core.designsystem.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.core.designsystem.tv.TvLoadingScreen
 import su.afk.yummy.tv.domain.account.model.LocalAuthServerState
+import su.afk.yummy.tv.feature.account.notifications.NotificationsState
 import su.afk.yummy.tv.feature.account.utils.LocalAccountTvActiveDestination
 import su.afk.yummy.tv.feature.account.view.AccountHubPanel
 import su.afk.yummy.tv.feature.account.view.LocalAuthPanel
@@ -54,14 +55,16 @@ import su.afk.yummy.tv.feature.account.view.LoginPanel
 )
 @Composable
 private fun AccountTvScreenDefaultPreview() = ScreenPreviewTheme {
-    AccountTvScreen(AccountState.State(isSessionResolved = true), emptyFlow()) {}
+    AccountTvScreen(AccountState.State(isSessionResolved = true), NotificationsState.State(), emptyFlow(), {}, {})
 }
 
 @Composable
 fun AccountTvScreen(
     state: AccountState.State,
+    notificationsState: NotificationsState.State,
     effect: Flow<AccountState.Effect>,
     onEvent: (AccountState.Event) -> Unit,
+    onNotificationsEvent: (NotificationsState.Event) -> Unit,
 ) {
     val isLocalAuthShown = !state.isSignedIn && state.localAuthServerState != LocalAuthServerState.Idle
     // Пульт «Назад» на панели QR закрывает её, как и кнопка «Назад» на самой панели.
@@ -74,7 +77,7 @@ fun AccountTvScreen(
             },
         )
     }
-    val horizontalPadding = if (state.isSignedIn) YummySpacing.XXXLarge else TvScreenPadding.Horizontal
+    val horizontalPadding = if (state.isSignedIn) 32.dp else TvScreenPadding.Horizontal
     val preferredFocusRequester = remember { FocusRequester() }
     val registerPreferredContentFocusRequester = LocalPreferredContentFocusRequester.current
     val mainMenuFocusRequester = LocalMainMenuFocusRequester.current
@@ -82,7 +85,10 @@ fun AccountTvScreen(
 
     // Экран снова активен (вернулись из подэкрана) — перечитываем уведомления по TTL.
     LaunchedEffect(isActiveDestination) {
-        if (isActiveDestination) onEvent(AccountState.Event.ScreenShown)
+        if (isActiveDestination) {
+            onEvent(AccountState.Event.ScreenShown)
+            onNotificationsEvent(NotificationsState.Event.ScreenShown)
+        }
     }
     val scope = rememberCoroutineScope()
     var isStatsContentFocused by remember { mutableStateOf(false) }
@@ -180,7 +186,9 @@ fun AccountTvScreen(
         } else {
             AccountHubPanel(
                 state = state,
+                notificationsState = notificationsState,
                 onEvent = onEvent,
+                onNotificationsEvent = onNotificationsEvent,
                 initialFocusRequester = preferredFocusRequester,
                 isActiveDestination = isActiveDestination,
                 onStatsContentFocusChanged = { isStatsContentFocused = it },

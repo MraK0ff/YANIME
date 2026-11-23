@@ -1,10 +1,9 @@
 package su.afk.yummy.tv.feature.catalog.mobile
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -14,18 +13,20 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SearchOff
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,14 +40,17 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeoutOrNull
 import su.afk.yummy.tv.core.designsystem.baseScreen.BaseScreen
 import su.afk.yummy.tv.core.designsystem.components.ErrorBanner
 import su.afk.yummy.tv.core.designsystem.components.OfflineBanner
+import su.afk.yummy.tv.core.designsystem.locals.LocalYaniMirrorActive
 import su.afk.yummy.tv.core.designsystem.components.YummyLoadingIndicator
 import su.afk.yummy.tv.core.designsystem.error.uiMessage
 import su.afk.yummy.tv.core.designsystem.locals.LocalIsOffline
-import su.afk.yummy.tv.core.designsystem.locals.LocalYaniMirrorActive
 import su.afk.yummy.tv.core.designsystem.mobile.bar.MobileBottomBarDefaults
 import su.afk.yummy.tv.core.designsystem.mobile.cards.MobilePosterCard
 import su.afk.yummy.tv.core.designsystem.mobile.cards.MobilePosterGrid
@@ -68,9 +72,13 @@ import su.afk.yummy.tv.feature.catalog.mobile.view.CatalogMobileClearButton
 import su.afk.yummy.tv.feature.catalog.mobile.view.CatalogMobileFilterButton
 import su.afk.yummy.tv.feature.catalog.mobile.view.CatalogMobileFilterPanel
 import su.afk.yummy.tv.feature.catalog.mobile.view.CatalogMobileSearchHistory
+import su.afk.yummy.tv.core.designsystem.components.RandomAnimeFloatingButton
 import su.afk.yummy.tv.feature.catalog.navigator.CatalogDestination
 import su.afk.yummy.tv.feature.catalog.presentation.R
 import su.afk.yummy.tv.core.designsystem.R as CoreR
+
+/** Предел ожидания конца pull-to-refresh: индикатор не должен зависнуть при потерянной смене состояния. */
+private const val PULL_REFRESH_TIMEOUT_MS = 15_000L
 
 @Preview(name = "Default", device = "spec:width=412dp,height=915dp,dpi=420", showBackground = true)
 @Composable
@@ -106,51 +114,71 @@ fun CatalogMobileScreen(
         ?.error
         ?.uiMessage()
     val gridState = rememberLazyGridState()
+    // Индикатор тянем только за свайп пользователя: фоновая загрузка первой страницы (поиск, фильтры) его не показывает.
+    // Гасим на первом не-Loading после старта обновления; таймаут страхует от зависшего индикатора.
+    var isPullRefreshing by remember { mutableStateOf(false) }
+    LaunchedEffect(isPullRefreshing) {
+        if (!isPullRefreshing) return@LaunchedEffect
+        withTimeoutOrNull(PULL_REFRESH_TIMEOUT_MS) {
+            snapshotFlow { results.loadState.refresh is LoadState.Loading }
+                .dropWhile { !it }
+                .first { !it }
+        }
+        isPullRefreshing = false
+    }
     val keyboardController = LocalSoftwareKeyboardController.current
     val queryFocusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(state.isSearchFocusRequested, state.isHeaderSearchEnabled) {
-        if (state.isSearchFocusRequested && !state.isHeaderSearchEnabled) {
-            gridState.scrollToItem(0)
-            withFrameNanos { }
-            runCatching { queryFocusRequester.requestFocus() }
-            keyboardController?.show()
-            onEvent(CatalogState.Event.SearchFocusHandled)
-        }
+    LaunchedEffect(state.isSearchFocusRequested) {
+        if (!state.isSearchFocusRequested) return@LaunchedEffect
+        gridState.scrollToItem(0)
+        // Поле — первый элемент ленивой сетки: ждём кадр, пока оно встанет в композицию.
+        withFrameNanos { }
+        runCatching { queryFocusRequester.requestFocus() }
+        keyboardController?.show()
+        onEvent(CatalogState.Event.SearchFocusHandled)
     }
 
-    BaseScreen(isScroll = false) {
-        MobilePosterGrid(
-            contentPadding = PaddingValues(bottom = MobileBottomBarDefaults.contentBottomPadding),
-            modifier = Modifier.imePadding(),
-            state = gridState,
-            singleColumn = isRowLayout,
+    BaseScreen(
+        isScroll = false,
+        floatingActionButtonEnd = {
+            RandomAnimeFloatingButton(
+                description = stringResource(R.string.search_random_anime),
+                isLoading = state.isRandomAnimeLoading,
+                onClick = { onEvent(CatalogState.Event.RandomAnimeSelected) },
+            )
+        },
+        floatingActionButtonBottomPadding = 8.dp,
+    ) {
+        PullToRefreshBox(
+            isRefreshing = isPullRefreshing,
+            onRefresh = {
+                isPullRefreshing = true
+                onEvent(CatalogState.Event.PullRefreshed)
+                results.refresh()
+            },
+            modifier = Modifier.fillMaxSize(),
         ) {
-            if (isOffline || isYaniMirrorActive) {
-                item(span = { GridItemSpan(maxLineSpan) }, contentType = "offline_banner") {
-                    OfflineBanner(isOffline = isOffline, horizontalPadding = 0.dp)
+            MobilePosterGrid(
+                contentPadding = PaddingValues(bottom = MobileBottomBarDefaults.contentBottomPadding),
+                modifier = Modifier.imePadding(),
+                state = gridState,
+                singleColumn = isRowLayout,
+            ) {
+                if (isOffline || isYaniMirrorActive) {
+                    item(span = { GridItemSpan(maxLineSpan) }, contentType = "offline_banner") {
+                        OfflineBanner(isOffline = isOffline, horizontalPadding = 0.dp)
+                    }
                 }
-            }
-            if (!state.isHeaderSearchEnabled) {
                 item(span = { GridItemSpan(maxLineSpan) }, contentType = "query_field") {
                     OutlinedTextField(
-                        shape = MaterialTheme.shapes.extraLarge,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                            disabledContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                            focusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
-                            unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
-                            disabledBorderColor = androidx.compose.ui.graphics.Color.Transparent,
-                        ),
+                        shape = MaterialTheme.shapes.large,
                         value = state.query,
                         onValueChange = { onEvent(CatalogState.Event.QueryChanged(it)) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.surfaceContainerLow, MaterialTheme.shapes.extraLarge)
                             .focusRequester(queryFocusRequester),
                         placeholder = { Text(stringResource(R.string.search_placeholder)) },
-                        leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                         keyboardActions = KeyboardActions(onSearch = {
@@ -160,129 +188,145 @@ fun CatalogMobileScreen(
                         trailingIcon = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 if (state.query.isNotEmpty()) {
-                                    CatalogMobileClearButton(onClick = { onEvent(CatalogState.Event.QueryChanged("")) })
+                                    CatalogMobileClearButton(
+                                        onClick = { onEvent(CatalogState.Event.QueryChanged("")) },
+                                    )
                                 }
                                 CatalogMobileFilterButton(
                                     activeCount = state.filters.activeCount,
-                                    modifier = Modifier.padding(end = 2.dp),
+                                    modifier = Modifier.padding(end = 6.dp),
                                     onClick = {
                                         keyboardController?.hide()
                                         onEvent(CatalogState.Event.OpenFilters)
                                     },
                                 )
-                                IconButton(onClick = {
-                                    keyboardController?.hide()
-                                    onEvent(CatalogState.Event.SearchSubmitted)
-                                }) {
-                                    Icon(Icons.Filled.Search, contentDescription = stringResource(R.string.search_mobile_submit))
-                                }
                             }
                         },
                     )
                 }
-            }
-            if (state.query.isEmpty() && state.searchHistory.isNotEmpty()) {
-                item(span = { GridItemSpan(maxLineSpan) }, contentType = "search_history") {
-                    CatalogMobileSearchHistory(
-                        queries = state.searchHistory,
-                        onQuerySelected = {
+                item(span = { GridItemSpan(maxLineSpan) }, contentType = "submit_button") {
+                    Button(
+                        onClick = {
                             keyboardController?.hide()
-                            onEvent(CatalogState.Event.SearchHistorySelected(it))
+                            onEvent(CatalogState.Event.SearchSubmitted)
                         },
-                        onClear = { onEvent(CatalogState.Event.SearchHistoryCleared) },
-                    )
-                }
-            }
-            val isFirstPageLoading = state.isSearchPending ||
-                (hasActiveSearch && refreshState is LoadState.Loading && results.itemCount == 0)
-            // Лоадер внутри сетки: полноэкранный увёл бы поле поиска из-под пальца при наборе
-            if (isFirstPageLoading && results.itemCount == 0) {
-                items(count = CATALOG_SKELETON_ITEMS, contentType = { "poster_skeleton" }) {
-                    if (isRowLayout) {
-                        MobileTitleRowSkeleton(shimmer = rememberSkeletonShimmer())
-                    } else {
-                        MobilePosterCardSkeleton(
-                            shimmer = rememberSkeletonShimmer(),
-                            modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(
+                            if (state.filters.activeCount > 0) {
+                                stringResource(
+                                    R.string.search_mobile_submit_with_filters,
+                                    state.filters.activeCount,
+                                )
+                            } else {
+                                stringResource(R.string.search_mobile_submit)
+                            },
                         )
                     }
                 }
-            } else if (isFirstPageLoading) {
-                item(span = { GridItemSpan(maxLineSpan) }, contentType = "loading") {
-                    MobileSectionLoading()
+                if (state.query.isEmpty() && state.searchHistory.isNotEmpty()) {
+                    item(span = { GridItemSpan(maxLineSpan) }, contentType = "search_history") {
+                        CatalogMobileSearchHistory(
+                            queries = state.searchHistory,
+                            onQuerySelected = {
+                                keyboardController?.hide()
+                                onEvent(CatalogState.Event.SearchHistorySelected(it))
+                            },
+                            onClear = { onEvent(CatalogState.Event.SearchHistoryCleared) },
+                        )
+                    }
                 }
-            }
-            if (hasActiveSearch && refreshState is LoadState.NotLoading && results.itemCount == 0) {
-                item(span = { GridItemSpan(maxLineSpan) }, contentType = "empty_state") {
-                    val hasFilters = state.filters.activeCount > 0
-                    MobileMessage(
-                        title = stringResource(R.string.search_empty),
-                        icon = Icons.Filled.SearchOff,
-                        actionLabel = stringResource(R.string.search_mobile_reset_filters)
-                            .takeIf { hasFilters },
-                        onAction = { onEvent(CatalogState.Event.ResetFilters) }.takeIf { hasFilters },
-                        fillMaxSize = false,
-                    )
+                val isFirstPageLoading = state.isSearchPending ||
+                    (hasActiveSearch && refreshState is LoadState.Loading && results.itemCount == 0)
+                // Лоадер внутри сетки: полноэкранный увёл бы поле поиска из-под пальца при наборе
+                if (isFirstPageLoading && results.itemCount == 0) {
+                    items(count = CATALOG_SKELETON_ITEMS, contentType = { "poster_skeleton" }) {
+                        if (isRowLayout) {
+                            MobileTitleRowSkeleton(shimmer = rememberSkeletonShimmer())
+                        } else {
+                            MobilePosterCardSkeleton(
+                                shimmer = rememberSkeletonShimmer(),
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+                    }
+                } else if (isFirstPageLoading) {
+                    item(span = { GridItemSpan(maxLineSpan) }, contentType = "loading") {
+                        MobileSectionLoading()
+                    }
                 }
-            }
-            // Ошибка внутри сетки: экран корневой, строка поиска не должна пропадать
-            if (initialError != null) {
-                item(span = { GridItemSpan(maxLineSpan) }, contentType = "refresh_error") {
-                    MobileMessage(
-                        title = initialError,
-                        actionLabel = stringResource(CoreR.string.common_retry),
-                        onAction = {
-                            onEvent(CatalogState.Event.RetrySelected)
-                            results.retry()
-                        },
-                        fillMaxSize = false,
-                    )
+                if (hasActiveSearch && refreshState is LoadState.NotLoading && results.itemCount == 0) {
+                    item(span = { GridItemSpan(maxLineSpan) }, contentType = "empty_state") {
+                        val hasFilters = state.filters.activeCount > 0
+                        MobileMessage(
+                            title = stringResource(R.string.search_empty),
+                            icon = Icons.Filled.SearchOff,
+                            actionLabel = stringResource(R.string.search_mobile_reset_filters)
+                                .takeIf { hasFilters },
+                            onAction = { onEvent(CatalogState.Event.ResetFilters) }.takeIf { hasFilters },
+                            fillMaxSize = false,
+                        )
+                    }
                 }
-            }
-            val error = (appendState as? LoadState.Error)?.error
-            if (error != null && results.itemCount > 0) {
-                item(span = { GridItemSpan(maxLineSpan) }, contentType = "append_error") {
-                    ErrorBanner(
-                        message = error.uiMessage(),
-                        onRetry = { results.retry() },
-                    )
+                // Ошибка внутри сетки: экран корневой, строка поиска не должна пропадать
+                if (initialError != null) {
+                    item(span = { GridItemSpan(maxLineSpan) }, contentType = "refresh_error") {
+                        MobileMessage(
+                            title = initialError,
+                            actionLabel = stringResource(CoreR.string.common_retry),
+                            onAction = {
+                                onEvent(CatalogState.Event.RetrySelected)
+                                results.retry()
+                            },
+                            fillMaxSize = false,
+                        )
+                    }
                 }
-            }
-            items(
-                count = results.itemCount,
-                key = results.safeItemKey("search") { it.id },
-                contentType = { if (isRowLayout) "title_row" else "poster" },
-            ) { index ->
-                results.getOrNull(index)?.let { item ->
-                    if (isRowLayout) {
-                        MobileTitleRowCard(
+                val error = (appendState as? LoadState.Error)?.error
+                if (error != null && results.itemCount > 0) {
+                    item(span = { GridItemSpan(maxLineSpan) }, contentType = "append_error") {
+                        ErrorBanner(
+                            message = error.uiMessage(),
+                            onRetry = { results.retry() },
+                        )
+                    }
+                }
+                items(
+                    count = results.itemCount,
+                    key = results.safeItemKey("search") { it.id },
+                    contentType = { if (isRowLayout) "title_row" else "poster" },
+                ) { index ->
+                    results.getOrNull(index)?.let { item ->
+                        if (isRowLayout) {
+                            MobileTitleRowCard(
+                                title = item.title,
+                                posterUrls = item.poster.posterUrls(),
+                                description = item.description,
+                                year = item.year,
+                                rating = item.rating,
+                                animeId = item.id,
+                                onClick = { onEvent(CatalogState.Event.ItemSelected(item.id)) },
+                            )
+                        } else MobilePosterCard(
                             title = item.title,
                             posterUrls = item.poster.posterUrls(),
-                            description = item.description,
-                            year = item.year,
-                            rating = item.rating,
                             animeId = item.id,
+                            rating = item.rating,
+                            posterOverlay = {
+                                item.year?.takeIf { state.showTitleYear }?.let { MobilePosterYear(it) }
+                            },
                             onClick = { onEvent(CatalogState.Event.ItemSelected(item.id)) },
                         )
-                    } else MobilePosterCard(
-                        title = item.title,
-                        posterUrls = item.poster.posterUrls(),
-                        animeId = item.id,
-                        rating = item.rating,
-                        posterOverlay = {
-                            item.year?.takeIf { state.showTitleYear }?.let { MobilePosterYear(it) }
-                        },
-                        onClick = { onEvent(CatalogState.Event.ItemSelected(item.id)) },
-                    )
+                    }
                 }
-            }
-            if (appendState is LoadState.Loading && results.itemCount > 0) {
-                item(span = { GridItemSpan(maxLineSpan) }, contentType = "append_loader") {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        YummyLoadingIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                if (appendState is LoadState.Loading && results.itemCount > 0) {
+                    item(span = { GridItemSpan(maxLineSpan) }, contentType = "append_loader") {
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            YummyLoadingIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                        }
                     }
                 }
             }

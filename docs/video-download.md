@@ -16,7 +16,7 @@ VideoDownloadWorker (foreground, до 2 одновременно)
   (при перезапуске) VideoDownloadStreamRefresher → новый iframe и поток
   VideoDownloadExecutor.download()
       live-сессия (только Alloha HLS) + таймер обновления
-      upstream: OkHttp / DefaultHttpDataSource  →  RateLimitedDataSource (3 МБ/с)
+      upstream: OkHttp / DefaultHttpDataSource  →  RateLimitedDataSource (10 МБ/с)
       CacheDataSource на VideoDownloadCacheProvider (SimpleCache, NoOpCacheEvictor)
       HlsDownloader / DashDownloader / ProgressiveDownloader
   Downloaded → (по настройке) VideoExportWorker → mp4 в выбранную папку (SAF)
@@ -39,7 +39,7 @@ VideoDownloadWorker (foreground, до 2 одновременно)
 | `api`          | `IVideoDownloadNavigator`, `VideoDownloadPlaybackCache` (контракт для плеера)         |
 | `domain`       | Модели, `VideoDownloadCacheKeyScheme`, use case'ы постановки, паузы, отмены, экспорта |
 | `data`         | Воркеры, `VideoDownloadExecutor`, стратегии, кэш, уведомления, экспорт                |
-| `presentation` | `VideoDownloadViewModel`, навигатор, резолвер диплинка `yanime://downloads`          |
+| `presentation` | `VideoDownloadViewModel`, навигатор, резолвер диплинка `yummytv://downloads`          |
 
 `VideoDownloadPlaybackCache` (`feature:video-download:api`) отдаёт `Cache` и фабрику ключей для
 записи загрузки; `feature:player:ui-common` зависит от этого `api`-модуля.
@@ -106,9 +106,10 @@ iframe, остальное `DefaultDownloadStrategy`.
 | Только числовые качества                           | нет                                                 | нет                               | да                                                     |
 | Перезапуск использует заголовки сохранённой записи | нет                                                 | нет                               | да (`reusesHeadersOnRefresh`)                          |
 
-Лимит скорости по умолчанию — 3 МБ/с на любую загрузку (`DEFAULT_DOWNLOAD_BYTES_PER_SECOND`).
-`RateLimitedDataSource` держит общий бюджет на все параллельные сегменты, а не на каждое соединение
-отдельно. Причина — CDN Alloha блокирует сессию (`403 session_blocked`), когда выкачивание обгоняет
+Лимит скорости по умолчанию — 10 МБ/с на любую загрузку (`DEFAULT_DOWNLOAD_BYTES_PER_SECOND`).
+`RateLimitedDataSource` держит общий бюджет на все параллельные сегменты одной серии, а не на каждое
+соединение отдельно. Между сериями бюджет не делится: лимитер создаётся на каждую загрузку, поэтому две
+серии, идущие параллельно (`MAX_PARALLEL_DOWNLOADS = 2`), дают суммарно до 2× лимита. Причина — CDN Alloha блокирует сессию (`403 session_blocked`), когда выкачивание обгоняет
 реальное время просмотра; быстрый загрузчик упирается в этот порог за секунды.
 
 ### Alloha

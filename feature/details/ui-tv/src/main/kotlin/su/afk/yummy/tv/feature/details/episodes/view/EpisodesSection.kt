@@ -16,6 +16,7 @@ import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.model.anime.EpisodeFlags
 import su.afk.yummy.tv.feature.details.details.model.VideosUiState
 import su.afk.yummy.tv.feature.details.episodes.EpisodesState
+import su.afk.yummy.tv.feature.details.episodes.model.EpisodeRange
 import su.afk.yummy.tv.feature.details.episodes.model.EpisodeWatchFilter
 import su.afk.yummy.tv.feature.details.model.DetailsWatchProgressIndex
 import su.afk.yummy.tv.feature.details.presentation.R
@@ -25,11 +26,10 @@ internal fun EpisodesSection(
     state: VideosUiState,
     animeId: Int,
     episodeGroups: List<EpisodesState.EpisodeGroup>,
+    episodeRanges: List<EpisodeRange>,
     bestDubbing: String,
     watchProgress: DetailsWatchProgressIndex,
     restoreFocusRequest: Int,
-    scrollAnchorEpisode: String?,
-    onAnchorEpisodeChanged: (String) -> Unit,
     onVideoSelected: (AnimeVideo) -> Unit,
     onVideoLongPressed: (List<AnimeVideo>) -> Unit,
     watchFilter: EpisodeWatchFilter,
@@ -56,11 +56,10 @@ internal fun EpisodesSection(
         is VideosUiState.Content -> EpisodesGrid(
             animeId = animeId,
             episodeGroups = episodeGroups,
+            episodeRanges = episodeRanges,
             bestDubbing = bestDubbing,
             watchProgress = watchProgress,
             restoreFocusRequest = restoreFocusRequest,
-            scrollAnchorEpisode = scrollAnchorEpisode,
-            onAnchorEpisodeChanged = onAnchorEpisodeChanged,
             episodeInfo = episodeInfo,
             episodeFlags = episodeFlags,
             onVideoSelected = onVideoSelected,

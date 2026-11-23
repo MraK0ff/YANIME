@@ -47,6 +47,7 @@
     <string name="details_episodes_filter_unwatched">Непереглянуті</string>
     <string name="details_episodes_filter_watched">Переглянуті</string>
     <string name="details_episodes_filter_empty">Немає серій під обраний фільтр</string>
+    <string name="details_episodes_range_label">%1$s–%2$s</string>
     <string name="details_sections_hint">Ви можете натискати вниз, щоб побачити більше секцій: опис, рейтинг, всесвіт тайтлу та схожі тайтли. Спробуйте — це легко</string>
     <string name="details_sections_hint_dismiss">Добре, запам’ятав</string>
     <string name="details_subscriptions">Підписки</string>
@@ -63,11 +64,13 @@
     <string name="details_mobile_show_collections">Показати колекції</string>
     <string name="details_mobile_show_comments">Показати коментарі</string>
     <string name="details_mobile_universe_show_all">Показати всі</string>
+    <string name="details_random_anime">Випадкове аніме</string>
     <string name="details_screenshots_title">Скриншоти</string>
     <string name="details_new_search">Пошук</string>
     <string name="details_back_to_search">Повернутися до пошуку</string>
     <string name="details_kinopoisk_rating">КП %1$s</string>
     <string name="details_shikimori_rating">Shikimori %1$s</string>
+    <string name="details_shikimori_rating_short">Shiki %1$s</string>
     <string name="details_mal_rating">MAL %1$s</string>
     <string name="details_library_picker_title">Додати до списку</string>
     <string name="details_library_list_watching">Дивлюся</string>
@@ -80,7 +83,7 @@
     <string name="details_mobile_subscription_meta">%1$s · серій: %2$d</string>
     <string name="details_subscription_subscribe">Підписатися</string>
     <string name="details_subscription_unsubscribe">Відписатися</string>
-    <string name="details_balancer_title">Серія %1$s · Балансер</string>
+    <string name="details_balancer_title">Серія %1$s · Плеєр</string>
     <string name="details_mobile_unsupported_player">%1$s · не підтримується</string>
     <string name="details_balancer_external">Зовнішній</string>
     <string name="details_mobile_aired">Вийшло: %1$d із %2$s</string>
@@ -151,10 +154,14 @@
     <string name="details_mobile_episode_download_error_unknown">Помилка завантаження</string>
     <string name="details_episode_dubbings_title">Серія %1$s · Озвучення</string>
     <string name="details_mobile_download_dubbing_empty">Озвучення недоступні</string>
-        <string name="details_mobile_download_balancer_empty">Балансери недоступні</string>
+        <string name="details_mobile_download_balancer_empty">Плеєри недоступні</string>
     <string name="details_mobile_download_quality_title">Якість завантаження</string>
     <string name="details_mobile_download_quality_prompt">Виберіть якість</string>
     <string name="details_mobile_download_quality_empty">Немає доступних якостей</string>
+    <string name="details_mobile_download_preset_remember">Запам\'ятати озвучення та плеєр</string>
+    <string name="details_mobile_download_preset_remember_hint">Наступного разу запитаємо лише якість</string>
+    <string name="details_mobile_download_preset_label">Пресет: %1$s</string>
+    <string name="details_mobile_download_preset_change">Змінити</string>
             <string name="details_episodes_count_short">%1$d сер.</string>
     <string name="details_count_thousands">%1$sтис.</string>
     <string name="details_count_millions">%1$sмлн</string>
@@ -215,7 +222,7 @@
     <string name="details_in_library">У списку</string>
     <string name="details_add_library">До списку</string>
         <string name="details_subscription_dubbing">Озвучення: %1$s</string>
-    <string name="details_subscription_player">Балансер: %1$s</string>
+    <string name="details_subscription_player">Плеєр: %1$s</string>
     <string name="details_subscription_episodes">Серій: %1$d</string>
     <string name="details_subscribe_updates">Підписатися на нові серії</string>
     <string name="details_unsubscribe_updates">Відписатися від нових серій</string>
@@ -259,6 +266,4 @@
     <string name="details_onboarding_episodes_text">Усі серії з позначками перегляду. Тут же можна обрати озвучення для конкретної серії.</string>
     <string name="details_onboarding_subscriptions_title">Сповіщення про серії</string>
     <string name="details_onboarding_subscriptions_text">Підпишіться на озвучення, щоб дізнаватися про вихід нової серії.</string>
-    <string name="details_random_anime">Випадкове аніме</string>
-    <string name="details_shikimori_rating_short">Shiki %1$s</string>
 </resources>

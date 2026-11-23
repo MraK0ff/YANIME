@@ -57,6 +57,8 @@ import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.showLibr
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.showOpeningOnTimelineKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.showCatalogTitleYearKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.showEpisodeFlagsKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.minimalDetailsKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.keepVideoEnhancementOnFrameDropsKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.autoManageLibraryListsKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.suggestNextEpisodeOnWatchedKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.tvPlayerVolumeKeysEnabledKey
@@ -112,6 +114,7 @@ internal class DataStoreSettingsStore @Inject constructor(
             titleCardLayout = prefs.enum(titleCardLayoutKey, TitleCardLayout.TILE),
             showCatalogTitleYear = prefs[showCatalogTitleYearKey] ?: false,
             showEpisodeFlags = prefs[showEpisodeFlagsKey] ?: true,
+            minimalDetails = prefs[minimalDetailsKey] ?: false,
             newEpisodesSectionEnabled = prefs[newEpisodesSectionEnabledKey] ?: true,
             newEpisodesSources = prefs[newEpisodesSourcesKey].toNewEpisodesSources(),
             showLibraryTitleYear = prefs[showLibraryTitleYearKey] ?: false,
@@ -148,6 +151,7 @@ internal class DataStoreSettingsStore @Inject constructor(
             advancedPlayerVolumeEnabled = prefs[advancedPlayerVolumeEnabledKey] ?: false,
             volumeStabilizationEnabled = prefs[volumeStabilizationEnabledKey] ?: false,
             videoEnhancementMode = prefs.videoEnhancementMode(),
+            keepVideoEnhancementOnFrameDrops = prefs[keepVideoEnhancementOnFrameDropsKey] ?: false,
             audioFocusDisabled = prefs[audioFocusDisabledKey] ?: false,
             playerBufferProfile = prefs.enum(playerBufferProfileKey, PlayerBufferProfile.SMALL),
             browserUserAgentProfile = prefs.enum(

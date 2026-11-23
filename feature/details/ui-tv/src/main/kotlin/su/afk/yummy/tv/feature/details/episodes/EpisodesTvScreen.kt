@@ -4,17 +4,13 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -26,7 +22,6 @@ import kotlinx.coroutines.flow.emptyFlow
 import su.afk.yummy.tv.core.designsystem.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.feature.details.episodes.view.EpisodeActionsTvDialog
 import su.afk.yummy.tv.feature.details.episodes.view.EpisodeDubbingPickerOverlay
-import su.afk.yummy.tv.feature.details.episodes.view.EpisodeWatchFilterTvAction
 import su.afk.yummy.tv.feature.details.episodes.view.EpisodesSection
 import su.afk.yummy.tv.feature.details.view.common.BalancerPickerOverlay
 
@@ -45,10 +40,11 @@ private fun EpisodesTvScreenDefaultPreview() = ScreenPreviewTheme {
 fun EpisodesTvScreen(
     state: EpisodesState.State,
     effect: Flow<EpisodesState.Effect>,
+    /** Встроен вкладкой в упрощённую деталку: без своего «Назад», фона и заголовка. */
+    embedded: Boolean = false,
     onEvent: (EpisodesState.Event) -> Unit,
 ) {
     var restoreEpisodesFocusRequest by remember { mutableIntStateOf(0) }
-    var anchorEpisode by remember { mutableStateOf<String?>(null) }
     fun dismissBalancerPicker() {
         onEvent(EpisodesState.Event.BalancerPickerDismissed)
         restoreEpisodesFocusRequest += 1
@@ -74,38 +70,39 @@ fun EpisodesTvScreen(
             dismissDubbingPicker()
         } else if (balancerPicker != null) {
             dismissBalancerPicker()
-        } else {
+        } else if (!embedded) {
             onEvent(EpisodesState.Event.BackSelected)
         }
     }
+    val hasOverlay = episodeAction != null || dubbingPicker != null || balancerPicker != null
 
     // «Назад» — только через BackHandler. Ловить Key.Back в onPreviewKeyEvent нельзя: при
     // predictive back система отдаёт KeyUp в OnBackInvokedCallback мимо view-дерева, и одно
     // нажатие срабатывает дважды — закрывается и экран серий, и деталка под ним.
     // Escape системой как «назад» не обрабатывается, его ловим сами.
-    BackHandler { handleBack() }
+    // Встроенный экран закрывает «Назад» только свои оверлеи — сам экран живёт внутри деталки.
+    BackHandler(enabled = !embedded || hasOverlay) { handleBack() }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .onPreviewKeyEvent { event ->
-                if (event.key != Key.Escape) return@onPreviewKeyEvent false
+                if (event.key != Key.Escape || (embedded && !hasOverlay)) return@onPreviewKeyEvent false
                 if (event.type == KeyEventType.KeyDown) handleBack()
                 true
             }
-            .background(MaterialTheme.colorScheme.background),
+            .then(if (embedded) Modifier else Modifier.background(MaterialTheme.colorScheme.background)),
     ) {
         EpisodesSection(
             state = state.videosState,
             animeId = state.animeId,
             episodeGroups = state.visibleEpisodeGroups,
+            episodeRanges = state.episodeRanges,
             watchFilter = state.watchFilter,
-            onWatchFilterSelected = { onEvent(EpisodesState.Event.WatchFilterSelected(it, anchorEpisode)) },
+            onWatchFilterSelected = { onEvent(EpisodesState.Event.WatchFilterSelected(it)) },
             bestDubbing = state.bestDubbing,
             watchProgress = state.watchProgress,
             restoreFocusRequest = restoreEpisodesFocusRequest,
-            scrollAnchorEpisode = state.scrollAnchorEpisode,
-            onAnchorEpisodeChanged = { anchorEpisode = it },
             episodeInfo = state.episodeInfo,
             episodeFlags = state.episodeFlags,
             onVideoSelected = { video -> onEvent(EpisodesState.Event.EpisodeSelected(video)) },
@@ -115,17 +112,6 @@ fun EpisodesTvScreen(
             onRetry = { onEvent(EpisodesState.Event.RetryVideosSelected) },
         )
 
-        if (state.videosState is su.afk.yummy.tv.feature.details.details.model.VideosUiState.Content) {
-            Box(modifier = Modifier.align(Alignment.TopEnd).padding(24.dp)) {
-                EpisodeWatchFilterTvAction(selected = state.watchFilter) { filter ->
-                    onEvent(EpisodesState.Event.WatchFilterSelected(filter, anchorEpisode))
-                }
-            }
-        }
-
-        BackHandler(enabled = balancerPicker != null) {
-            handleBack()
-        }
         if (balancerPicker != null) {
             BalancerPickerOverlay(
                 picker = balancerPicker,

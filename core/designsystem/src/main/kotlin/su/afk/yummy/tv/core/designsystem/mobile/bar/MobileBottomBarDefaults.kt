@@ -19,6 +19,20 @@ object MobileBottomBarDefaults {
             (if (LocalMobileNavigationLayout.current == MobileNavigationLayout.BottomBar) BarHeight else 0.dp) +
             ExtraContentBottomPadding
 
+    /**
+     * То же, но для корня таба, который остаётся в композиции под экраном поверх него (рецензии
+     * с главной). Бар скрывается и возвращается вместе с экраном, и вьюпорт списка меняется на
+     * высоту бара и системного инсета. Если отступ при этом меняется меньше, LazyList зажимает
+     * сохранённую прокрутку, и после возврата нижние кнопки уходят под бар. Поэтому при скрытом
+     * баре добавляем отступ той же высоты: предел прокрутки не меняется.
+     */
+    val rootContentBottomPadding: Dp
+        @Composable get() = when (LocalMobileNavigationLayout.current) {
+            MobileNavigationLayout.BottomBar -> ExtraContentBottomPadding
+            MobileNavigationLayout.Rail -> navigationBarsInset() + ExtraContentBottomPadding
+            MobileNavigationLayout.Hidden -> navigationBarsInset() + BarHeight + ExtraContentBottomPadding
+        }
+
     @Composable
     private fun navigationBarsInset(): Dp =
         WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()

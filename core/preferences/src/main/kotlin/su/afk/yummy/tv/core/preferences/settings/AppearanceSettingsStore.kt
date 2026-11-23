@@ -25,6 +25,9 @@ interface AppearanceSettingsStore {
     val scheduleLibraryFilter: Flow<String>
     val episodeWatchFilter: Flow<String>
     val showEpisodeFlags: Flow<Boolean>
+
+    /** Минималистичный вид деталки на ТВ: hero и одна строка вкладок вместо ленты секций. */
+    val minimalDetails: Flow<Boolean>
     val showLibraryTitleYear: Flow<Boolean>
     val libraryContinueWatchingCardSize: Flow<LibraryContinueWatchingCardSize>
     val librarySort: Flow<LibrarySort>
@@ -50,9 +53,6 @@ interface AppearanceSettingsStore {
     /** Показывать ли праздничное оформление (гирлянда, тыквы) в сезон. */
     val seasonalDecorationsEnabled: Flow<Boolean>
 
-    /** Показывать ли пункты аккаунта (FAQ, глоссарий, поиск, сообщения, «Смотреть позже») отдельными кнопками. */
-    val accountShortcutsExpanded: Flow<Boolean>
-
     /** Показывать ли на главной блок новых серий из списков пользователя. */
     val newEpisodesSectionEnabled: Flow<Boolean>
 
@@ -65,6 +65,7 @@ interface AppearanceSettingsStore {
     suspend fun setScheduleLibraryFilter(filter: String)
     suspend fun setEpisodeWatchFilter(filter: String)
     suspend fun setShowEpisodeFlags(enabled: Boolean)
+    suspend fun setMinimalDetails(enabled: Boolean)
     suspend fun setShowLibraryTitleYear(enabled: Boolean)
     suspend fun setLibraryContinueWatchingCardSize(size: LibraryContinueWatchingCardSize)
     suspend fun setLibrarySort(sort: LibrarySort)
@@ -82,7 +83,6 @@ interface AppearanceSettingsStore {
     suspend fun setDetailsSections(sections: List<DetailsSectionConfig>)
     suspend fun setNewEpisodesSectionEnabled(enabled: Boolean)
     suspend fun setSeasonalDecorationsEnabled(enabled: Boolean)
-    suspend fun setAccountShortcutsExpanded(expanded: Boolean)
 
     /** Запоминает праздничный период, о котором пользователю уже показали диалог. */
     suspend fun setSeasonalAnnouncedKey(key: String)

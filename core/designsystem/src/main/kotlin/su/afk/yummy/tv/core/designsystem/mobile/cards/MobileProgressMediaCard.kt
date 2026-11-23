@@ -103,6 +103,7 @@ fun MobileProgressMediaCard(
         ) {
             Text(
                 text = title,
+                minLines = minOf(2, titleMaxLines.coerceAtLeast(1)),
                 maxLines = titleMaxLines.coerceAtLeast(1),
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodyMediumEmphasized,

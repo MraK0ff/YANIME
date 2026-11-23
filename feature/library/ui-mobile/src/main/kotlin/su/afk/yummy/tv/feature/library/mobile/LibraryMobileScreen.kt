@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.feature.library.mobile
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.WindowInsets
@@ -10,8 +11,6 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -21,11 +20,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,13 +34,14 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.baseScreen.BaseScreen
+import su.afk.yummy.tv.core.designsystem.mobile.MobileSwipeableTabsPager
+import su.afk.yummy.tv.core.designsystem.mobile.rememberMobileHideOnScrollState
+import su.afk.yummy.tv.core.designsystem.mobile.rememberMobileSwipeableTabsState
 import su.afk.yummy.tv.core.designsystem.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.core.model.settings.LibrarySort
 import su.afk.yummy.tv.core.model.settings.LibrarySortDirection
 import su.afk.yummy.tv.feature.library.LibraryState
-import su.afk.yummy.tv.feature.library.model.LibraryTab
 import su.afk.yummy.tv.feature.library.mobile.model.PendingLibraryMobileRemoval
 import su.afk.yummy.tv.feature.library.mobile.utils.mobileTabItemCount
 import su.afk.yummy.tv.feature.library.mobile.utils.toLibraryMobilePage
@@ -50,6 +50,7 @@ import su.afk.yummy.tv.feature.library.mobile.view.LibraryMobilePage
 import su.afk.yummy.tv.feature.library.mobile.view.LibraryMobileRemoveConfirmDialog
 import su.afk.yummy.tv.feature.library.mobile.view.LibraryMobileSortRow
 import su.afk.yummy.tv.feature.library.mobile.view.LibraryMobileTabs
+import su.afk.yummy.tv.feature.library.model.LibraryTab
 import su.afk.yummy.tv.feature.library.presentation.R
 
 @Preview(name = "Default", device = "spec:width=412dp,height=915dp,dpi=420", showBackground = true)
@@ -73,13 +74,18 @@ fun LibraryMobileScreen(
     val itemRemovedText = stringResource(R.string.library_remove_success)
     val tabs = state.tabs
     // При смене порядка вкладок страницы пейджера меняют смысл, поэтому состояние создаётся заново.
-    val pagerState = key(tabs) {
-        rememberPagerState(
-            initialPage = state.selectedTab.toLibraryMobilePage(tabs),
-            pageCount = { tabs.size },
+    val tabsState = key(tabs) {
+        rememberMobileSwipeableTabsState(
+            selectedPage = state.selectedTab.toLibraryMobilePage(tabs),
+            pageCount = tabs.size,
+            onPageSelected = { page ->
+                val selectedTab = page.toLibraryMobileTab(tabs)
+                if (selectedTab != state.selectedTab) {
+                    onEvent(LibraryState.Event.TabSelected(selectedTab))
+                }
+            },
         )
     }
-    val coroutineScope = rememberCoroutineScope()
     // Состояние скролла держим на экране, а не внутри страницы пейджера: иначе позиция теряется,
     // когда страница выходит за пределы окна композиции, и её нельзя сбросить извне.
     val listStates = tabs.associateWith { tab ->
@@ -87,6 +93,9 @@ fun LibraryMobileScreen(
             LazyListState()
         }
     }
+    // Строка сортировки прячется при скролле списка вниз и возвращается при скролле вверх.
+    val headerScroll = rememberMobileHideOnScrollState()
+    LaunchedEffect(tabsState.currentPage) { headerScroll.show() }
     var pendingRemoval by remember { mutableStateOf<PendingLibraryMobileRemoval?>(null) }
     // Индикатор жеста — только для обновления, начатого пользователем, а не при возврате на экран.
     var isPullRefreshing by remember { mutableStateOf(false) }
@@ -149,7 +158,8 @@ fun LibraryMobileScreen(
         if (state.sort != target.first || state.sortDirection != target.second) {
             return@LaunchedEffect
         }
-        listStates[pagerState.currentPage.toLibraryMobileTab(tabs)]?.scrollToItem(0)
+        headerScroll.show()
+        listStates[tabsState.currentPage.toLibraryMobileTab(tabs)]?.scrollToItem(0)
         pendingSortScroll = null
     }
 
@@ -175,20 +185,15 @@ fun LibraryMobileScreen(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .nestedScroll(headerScroll.nestedScrollConnection),
         ) {
             LibraryMobileTabs(
                 tabs = tabs,
-                selectedTab = pagerState.currentPage.toLibraryMobileTab(tabs),
+                selectedTab = state.selectedTab,
                 tabCounts = tabCounts,
-                onSelected = { tab ->
-                    val targetPage = tab.toLibraryMobilePage(tabs)
-                    if (pagerState.currentPage != targetPage) {
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(targetPage)
-                        }
-                    }
-                },
+                onSelected = { tab -> tabsState.selectPage(tab.toLibraryMobilePage(tabs)) },
+                transition = tabsState::tabTransition,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 16.dp, top = 10.dp, end = 16.dp),
@@ -212,8 +217,8 @@ fun LibraryMobileScreen(
                 )
             }
 
-            HorizontalPager(
-                state = pagerState,
+            MobileSwipeableTabsPager(
+                state = tabsState,
                 key = { page -> page.toLibraryMobileTab(tabs) },
                 modifier = Modifier
                     .weight(1f)

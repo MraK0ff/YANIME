@@ -52,6 +52,32 @@ internal fun HomeFeed.withoutHiddenRecommendations(hiddenIds: Set<Int>): HomeFee
 internal fun HomeFeed.withShuffledHero(random: Random): HomeFeed =
     if (heroItems.size < 2) this else copy(heroItems = heroItems.shuffled(random))
 
+internal fun HomeFeed.withRecentReleaseMetadata(
+    recentlyAired: List<HomeFeedItem>,
+    prioritizedAnimeIds: Set<Int> = emptySet(),
+    watchedEpisodes: Map<Int, Set<Int>> = emptyMap(),
+): HomeFeed {
+    if (recentlyAired.isEmpty() && prioritizedAnimeIds.isEmpty() && watchedEpisodes.isEmpty()) return this
+    val latestById = recentlyAired.associateBy { it.id }
+    return copy(
+        sections = sections.map sectionMap@ { section ->
+            if (section.type != HomeFeedSectionType.NEW_RELEASES) return@sectionMap section
+            section.copy(
+                items = section.items
+                    .map itemMap@ { item ->
+                        val release = latestById[item.id]
+                        item.copy(
+                            episodeNumber = release?.episodeNumber ?: item.episodeNumber,
+                            airedAtSeconds = release?.airedAtSeconds ?: item.airedAtSeconds,
+                            isFromSelectedList = item.id in prioritizedAnimeIds,
+                        )
+                    }
+                    .filterNot { it.isEpisodeWatched(watchedEpisodes) },
+            )
+        },
+    )
+}
+
 /**
  * Добавляет в начало ленты секцию недавно вышедших серий тайтлов из [libraryAnimeIds]; без
  * совпадений секцию не добавляет. Серии из [watchedEpisodes] убираются из секции.

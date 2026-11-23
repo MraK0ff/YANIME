@@ -74,14 +74,29 @@ class HomeStorageMapperTest {
         val cache = YaniFeedDto(
             YaniFeedResponseDto(
                 newVideos = listOf(
-                    YaniVideoDto(animeId = 10, title = "Anime", episodeTitle = "6", videoId = 60),
-                    YaniVideoDto(animeId = 10, title = "Anime", episodeTitle = "8", videoId = 80),
+                    YaniVideoDto(animeId = 10, title = "Anime", description = "older", episodeTitle = "6", videoId = 60),
+                    YaniVideoDto(animeId = 10, title = "Anime", description = "newest", episodeTitle = "8", videoId = 80),
+                ),
+            ),
+        ).toHomeFeedCache(language = "ru", watchSignature = "", cachedAt = 0L)
+
+        val release = cache.items.single { it.container == HOME_FEED_CONTAINER_NEW_RELEASES }
+        assertEquals(10, release.itemId)
+        assertEquals("newest", release.description)
+    }
+
+    @Test
+    fun `fractional special episodes are not promoted as new releases`() {
+        val cache = YaniFeedDto(
+            YaniFeedResponseDto(
+                newVideos = listOf(
+                    YaniVideoDto(animeId = 10, title = "Anime", episodeTitle = "7.5", videoId = 75),
                 ),
             ),
         ).toHomeFeedCache(language = "ru", watchSignature = "", cachedAt = 0L)
 
         assertEquals(
-            listOf(10),
+            emptyList<Int>(),
             cache.items.filter { it.container == HOME_FEED_CONTAINER_NEW_RELEASES }.map { it.itemId },
         )
     }

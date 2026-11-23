@@ -100,14 +100,14 @@ fun ScheduleTvScreen(
                 retryFocusRequester = focusHandoff.placeholderFocusRequester,
             )
 
-            !state.onlyInLibrary && state.tvSchedule.dayGroups.isEmpty() -> TvStateMessage(
+            state.libraryFilter != ScheduleState.LibraryFilter.LIBRARY && state.tvSchedule.dayGroups.isEmpty() -> TvStateMessage(
                 title = stringResource(R.string.schedule_empty),
                 icon = Icons.Filled.DateRange,
             )
 
             else -> ScheduleTimeline(
                 schedule = state.tvSchedule,
-                onlyInLibrary = state.onlyInLibrary,
+                onlyInLibrary = state.libraryFilter == ScheduleState.LibraryFilter.LIBRARY,
                 requestInitialFocus = focusHandoff.shouldFocusContent,
                 onInitialFocusHandled = focusHandoff::onContentFocused,
                 onEvent = onEvent,

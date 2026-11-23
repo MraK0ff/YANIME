@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Cast
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PictureInPictureAlt
 import androidx.compose.material.icons.filled.ScreenRotation
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -48,6 +49,7 @@ internal fun PlayerMobileActionsSheet(
     orientationLabel: String,
     onDetails: () -> Unit,
     onOrientation: () -> Unit,
+    onPlayerSettings: () -> Unit,
     onPictureInPicture: () -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -64,6 +66,14 @@ internal fun PlayerMobileActionsSheet(
                 },
             )
         }
+        ActionRow(
+            icon = Icons.Filled.Tune,
+            label = stringResource(R.string.player_mobile_playback_settings_title),
+            onClick = {
+                onDismiss()
+                onPlayerSettings()
+            },
+        )
         ActionRow(
             icon = Icons.Filled.ScreenRotation,
             label = stringResource(R.string.player_mobile_orientation),

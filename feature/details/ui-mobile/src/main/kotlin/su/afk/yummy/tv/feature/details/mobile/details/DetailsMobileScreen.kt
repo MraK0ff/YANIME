@@ -1,5 +1,8 @@
 package su.afk.yummy.tv.feature.details.mobile.details
 
+import su.afk.yummy.tv.core.designsystem.onboarding.OnboardingTourEffect
+import su.afk.yummy.tv.feature.details.utils.DETAILS_ONBOARDING_TOUR_ID
+import su.afk.yummy.tv.feature.details.mobile.details.utils.mobileDetailsTourSteps
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -104,6 +107,12 @@ fun DetailsMobileScreen(
     onEvent: (DetailsState.Event) -> Unit,
 ) {
     val details = state.details
+    OnboardingTourEffect(
+        tourId = DETAILS_ONBOARDING_TOUR_ID,
+        steps = mobileDetailsTourSteps,
+        show = state.showOnboardingTour,
+        onFinished = { onEvent(DetailsState.Event.OnboardingTourFinished) },
+    )
     val emptyText = stringResource(R.string.details_mobile_empty)
     val error = state.error?.asString().takeIf { details == null }
     val listState = rememberLazyListState()
@@ -165,6 +174,7 @@ fun DetailsMobileScreen(
                         details = details,
                         onBack = { onEvent(DetailsState.Event.BackSelected) },
                         onShare = { onEvent(DetailsState.Event.ShareSelected) },
+                        onNewSearch = { onEvent(DetailsState.Event.NewSearchSelected) },
                         onPosterClick = { onEvent(DetailsState.Event.PosterClicked) },
                         onInfoClick = { onEvent(DetailsState.Event.InfoSelected) },
                         onWatchSelected = { onEvent(DetailsState.Event.WatchSelected) },

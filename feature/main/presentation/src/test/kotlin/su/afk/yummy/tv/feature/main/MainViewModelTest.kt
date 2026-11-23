@@ -44,6 +44,7 @@ import su.afk.yummy.tv.feature.main.MainState.Effect
 import su.afk.yummy.tv.feature.main.MainState.Event
 import su.afk.yummy.tv.feature.main.handler.MainSideEffectsHandler
 import su.afk.yummy.tv.feature.main.handler.MainUpdateCheckResult
+import su.afk.yummy.tv.feature.main.utils.MAIN_ONBOARDING_TOUR_ID
 import su.afk.yummy.tv.feature.update.navigator.UpdateDestination
 
 class MainViewModelTest : BaseUnitTest() {
@@ -65,6 +66,8 @@ class MainViewModelTest : BaseUnitTest() {
     private val tokenState = MutableStateFlow(YaniApplicationTokenState.DEFAULT)
     private val session = MutableStateFlow(AccountSession(isAuthorized = true, userId = 1))
     private val isOnline = MutableStateFlow(true)
+    private val welcomeSeen = MutableStateFlow(false)
+    private val toursSeen = MutableStateFlow(emptySet<String>())
     private val mutationErrors = MutableSharedFlow<AccountMutationErrorEvent>()
     private val toggleUpdates = MutableSharedFlow<Long>()
 
@@ -72,6 +75,10 @@ class MainViewModelTest : BaseUnitTest() {
     fun setUp() {
         every { settingsStore.mainSettingsSnapshot } returns snapshot
         every { settingsStore.yaniApplicationTokenState } returns tokenState
+        every { settingsStore.onboardingWelcomeSeen } returns welcomeSeen
+        every { settingsStore.onboardingToursSeen } returns toursSeen
+        coEvery { settingsStore.markOnboardingWelcomeSeen() } returns Unit
+        coEvery { settingsStore.markOnboardingTourSeen(any()) } returns Unit
         every { accountRepository.observeSession() } returns session
         every { networkConnectivityMonitor.isOnline } returns isOnline
         every { libraryRepository.observeAll() } returns flowOf(emptyList())
@@ -136,6 +143,31 @@ class MainViewModelTest : BaseUnitTest() {
         assertTrue(state.isYaniAuthResolved)
         verify(exactly = 1) { analytics.eventScreenOpened() }
         verify(exactly = 1) { analytics.eventAppSession(true, YaniApplicationTokenState.DEFAULT) }
+    }
+
+    @Test
+    fun `welcome slides go first and the main tour follows until it is passed`() {
+        val viewModel = createViewModel()
+        assertTrue(viewModel.currentState.onboardingWelcomePending)
+        assertFalse(viewModel.currentState.showMainOnboardingTour)
+
+        welcomeSeen.value = true
+        assertFalse(viewModel.currentState.onboardingWelcomePending)
+        assertTrue(viewModel.currentState.showMainOnboardingTour)
+
+        toursSeen.value = setOf(MAIN_ONBOARDING_TOUR_ID)
+        assertFalse(viewModel.currentState.showMainOnboardingTour)
+    }
+
+    @Test
+    fun `finished onboarding events are persisted`() {
+        val viewModel = createViewModel()
+
+        viewModel.setEvent(Event.OnboardingWelcomeFinished)
+        viewModel.setEvent(Event.OnboardingMainTourFinished)
+
+        coVerify(exactly = 1) { settingsStore.markOnboardingWelcomeSeen() }
+        coVerify(exactly = 1) { settingsStore.markOnboardingTourSeen(MAIN_ONBOARDING_TOUR_ID) }
     }
 
     @Test

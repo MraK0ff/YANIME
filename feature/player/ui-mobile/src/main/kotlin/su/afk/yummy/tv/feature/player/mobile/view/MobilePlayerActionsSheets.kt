@@ -19,6 +19,7 @@ internal fun MobilePlayerActionsSheets(
     onActionsDismiss: () -> Unit,
     orientationMode: PlayerOrientationMode,
     onOrientationSelected: (PlayerOrientationMode) -> Unit,
+    onPlayerSettings: () -> Unit,
     onDetails: () -> Unit,
     onPictureInPicture: () -> Unit,
     showDetails: Boolean,
@@ -35,6 +36,7 @@ internal fun MobilePlayerActionsSheets(
             orientationLabel = stringResource(orientationMode.labelRes),
             onDetails = onDetails,
             onOrientation = { showOrientationSheet = true },
+            onPlayerSettings = onPlayerSettings,
             onPictureInPicture = onPictureInPicture,
             onDismiss = onActionsDismiss,
         )

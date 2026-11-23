@@ -1,6 +1,6 @@
 # Project Guidelines
 
-These guidelines describe the conventions used in ReYani. Follow the existing
+These guidelines describe the conventions used in YANIME. Follow the existing
 codebase and the original YummyTV project when making changes.
 
 ## General
@@ -72,6 +72,21 @@ codebase and the original YummyTV project when making changes.
 - Never commit credentials, signing keys, access tokens, or other secrets.
 
 ## Commit Messages
+
+Use `[INTERNAL]` for repository-maintenance changes that must never appear
+in the user-facing release history. This includes commits whose primary
+purpose is any of the following:
+
+- Automatically generating or updating the release changelog.
+- Switching automatic update delivery to YANIME GitHub Releases.
+- Separating links to the original YummyTV project from links to YANIME.
+- Renaming/rebranding YANIME, including its application name, icon, and theme.
+
+These exact tasks must use `[INTERNAL]`, not `[FEATURE]`, `[UI]`, or
+`[CORE]`. The generated "What's new" history excludes `[INTERNAL]`,
+`[CORE]`, `[CHORE]`, and `[DOCS]` commits. Use user-visible categories
+only for changes that users should see.
+
 
 Use the commit message style established in the original YummyTV repository.
 Keep the prefix and description consistent with the type of change, for

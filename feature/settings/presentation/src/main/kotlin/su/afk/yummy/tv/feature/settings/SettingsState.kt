@@ -11,6 +11,8 @@ import su.afk.yummy.tv.core.model.settings.BackgroundStyle
 import su.afk.yummy.tv.core.model.settings.NavTransitionStyle
 import su.afk.yummy.tv.core.model.settings.BrowserUserAgentProfile
 import su.afk.yummy.tv.core.model.settings.LibraryContinueWatchingCardSize
+import su.afk.yummy.tv.core.model.settings.HomeBlockConfig
+import su.afk.yummy.tv.core.model.settings.HomeBlockKind
 import su.afk.yummy.tv.core.model.settings.LibraryTabKind
 import su.afk.yummy.tv.core.model.settings.NewEpisodesSource
 import su.afk.yummy.tv.core.model.settings.PlayerBufferProfile
@@ -20,6 +22,7 @@ import su.afk.yummy.tv.core.model.settings.PosterCardSize
 import su.afk.yummy.tv.core.model.settings.PreferredVideoQuality
 import su.afk.yummy.tv.core.model.settings.TitleCardLayout
 import su.afk.yummy.tv.core.model.settings.WatchedThresholds
+import su.afk.yummy.tv.core.model.settings.TorrentSettings
 import su.afk.yummy.tv.core.model.settings.YaniApplicationToken
 import su.afk.yummy.tv.core.model.settings.YaniContentLanguage
 import su.afk.yummy.tv.core.mvi.UiEffect
@@ -30,6 +33,7 @@ import su.afk.yummy.tv.core.utils.system.CacheStorageEntry
 import su.afk.yummy.tv.core.utils.system.PlatformInfo
 import su.afk.yummy.tv.feature.settings.model.DetailsButtonMoveDirection
 import su.afk.yummy.tv.feature.settings.model.ReleaseNotesStatus
+import su.afk.yummy.tv.feature.settings.model.TorrServerCheckStatus
 import su.afk.yummy.tv.feature.settings.navigator.SettingsCategory
 
 class SettingsState {
@@ -92,6 +96,7 @@ class SettingsState {
         val interfaceLanguage: AppInterfaceLanguage = AppInterfaceLanguage.DEFAULT,
         val libraryTabOrder: ImmutableList<LibraryTabKind> =
             SettingsStore.defaultLibraryTabOrder.toImmutableList(),
+        val homeBlocks: ImmutableList<HomeBlockConfig> = HomeBlockConfig.default.toImmutableList(),
         val videoExportDirectoryName: String? = null,
         val cacheStorageEntries: ImmutableList<CacheStorageEntry> = persistentListOf(),
         val cacheStorageTotalBytes: Long = 0L,
@@ -99,6 +104,11 @@ class SettingsState {
         val isCacheClearing: Boolean = false,
         val saveLastSearchEnabled: Boolean = false,
         val betaUpdatesEnabled: Boolean = false,
+        /** Настройки торрент-источника (TorrServer + индексатор). */
+        val torrent: TorrentSettings = TorrentSettings(),
+        /** Подключён модуль торрентов, способный проверить связь с TorrServer (иначе кнопки проверки нет). */
+        val torrServerCheckAvailable: Boolean = false,
+        val torrServerCheck: TorrServerCheckStatus = TorrServerCheckStatus.Idle,
         /** Запись логов приложения в файл включена; пока выключена — «Поделиться логами» скрыто. */
         val appLogRecordingEnabled: Boolean = false,
         /** Показан диалог: запись логов включится только после холодного перезапуска приложения. */
@@ -249,6 +259,12 @@ class SettingsState {
         /** Пользователь изменил пороги "просмотрено" (минуты до конца по длине серии). */
         data class WatchedThresholdsChanged(val thresholds: WatchedThresholds) : Event
 
+        /** Пользователь изменил настройки торрент-источника (тумблер, адреса, ключ, индексатор). */
+        data class TorrentSettingsChanged(val settings: TorrentSettings) : Event
+
+        /** Пользователь нажал «Проверить TorrServer». */
+        data object TorrServerCheckRequested : Event
+
         /** Пользователь изменил токен приложения Yani. */
         data class YaniApplicationTokenChanged(val token: String) : Event
 
@@ -272,6 +288,24 @@ class SettingsState {
 
         /** Пользователь сбросил порядок вкладок библиотеки к стандартному. */
         data object LibraryTabOrderReset : Event
+
+        /** Пользователь включил или выключил блок главной. */
+        data class HomeBlockToggled(val block: HomeBlockKind) : Event
+
+        /** Пользователь переместил блок главной в указанном направлении. */
+        data class HomeBlockMoved(
+            val block: HomeBlockKind,
+            val direction: DetailsButtonMoveDirection,
+        ) : Event
+
+        /** Пользователь открыл экран настройки блоков главной. */
+        data object HomeBlocksScreenOpened : Event
+
+        /** Пользователь перешёл к настройке блоков главной. */
+        data object HomeBlocksSelected : Event
+
+        /** Пользователь сбросил блоки главной к стандартным. */
+        data object HomeBlocksReset : Event
 
         /** Пользователь открыл категорию настроек (мобильный интерфейс). */
         data class CategorySelected(val category: SettingsCategory) : Event

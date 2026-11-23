@@ -173,6 +173,9 @@ internal fun BoxScope.MobilePlayerSidePanel(
                         onSpeedSelected = onSpeedSelected,
                         selectedResizeMode = selectedResizeMode,
                         onResizeModeSelected = onResizeModeSelected,
+                        showQuality = false,
+                        showSpeed = false,
+                        showResize = true,
                     )
                 }
                 if (showAudioTracks) {

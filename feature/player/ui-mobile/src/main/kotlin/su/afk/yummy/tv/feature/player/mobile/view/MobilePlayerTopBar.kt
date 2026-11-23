@@ -1,7 +1,8 @@
 package su.afk.yummy.tv.feature.player.mobile.view
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,13 +13,13 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,15 +27,40 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.core.designsystem.theme.overline
 import su.afk.yummy.tv.core.designsystem.utils.dubbingDisplayName
 import su.afk.yummy.tv.core.model.anime.EpisodeFlags
 import su.afk.yummy.tv.feature.player.presentation.R
 import su.afk.yummy.tv.core.designsystem.R as DesignSystemR
+
+@Composable
+internal fun MobilePlayerBackButton(
+    onBack: () -> Unit,
+    visible: Boolean,
+    buttonSize: Dp = 48.dp,
+    topInset: Dp = 0.dp,
+    modifier: Modifier = Modifier,
+) {
+    if (!visible) return
+    androidx.compose.foundation.layout.Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .padding(top = topInset + 8.dp)
+            .size(buttonSize)
+            .clickable(onClick = onBack),
+    ) {
+        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(DesignSystemR.string.common_back),
+            tint = Color.White, modifier = Modifier.size(24.dp))
+    }
+}
 
 @Composable
 internal fun MobilePlayerTopBar(
@@ -43,110 +69,162 @@ internal fun MobilePlayerTopBar(
     dubbing: String,
     playerName: String,
     episodeFlags: EpisodeFlags?,
-    onBack: () -> Unit,
-    onLockClick: () -> Unit,
+    qualityLabel: String,
+    titleStartPadding: Dp = 4.dp,
+    onEpisodeClick: () -> Unit,
+    onDubbingClick: () -> Unit,
+    onMoreActions: () -> Unit,
+    onQualityClick: () -> Unit,
+    selectedSpeed: Float,
+    onSpeedClick: () -> Unit,
+    onSpeedLongPress: () -> Unit,
     visible: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    if (visible) {
+    if (!visible) return
+    Row(
+        modifier = modifier.fillMaxWidth()
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
+            .padding(start = 8.dp, end = 12.dp, top = 6.dp, bottom = 8.dp),
+        verticalAlignment = Alignment.Top,
+    ) {
         Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .background(Color.Black.copy(alpha = 0.28f))
-                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
-                .padding(horizontal = 8.dp, vertical = 8.dp),
+            Modifier.weight(1f).padding(start = titleStartPadding, top = 2.dp, end = 6.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            Row(verticalAlignment = Alignment.Top) {
-                IconButton(onClick = onBack) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(DesignSystemR.string.common_back),
-                        tint = Color.White,
-                    )
-                }
-                Column(
-                    modifier = Modifier.weight(1f),
+            if (title.isNotBlank()) {
+                Text(
+                    title, color = Color.White, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(vertical = 2.dp),
+                )
+            }
+            if (episode.isNotBlank()) {
+                Row(
+                    modifier = Modifier.clickable(onClick = onEpisodeClick)
+                        .padding(start = 8.dp, end = 9.dp, top = 5.dp, bottom = 5.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(3.dp),
                 ) {
-                    Text(
-                        text = title,
-                        color = Color.White,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                    if (episode.isNotBlank()) {
-                        Text(
-                            text = stringResource(R.string.player_mobile_episode_number, episode),
-                            color = Color.White.copy(alpha = 0.76f),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
+                    Text(stringResource(R.string.player_mobile_episode_number, episode),
+                        color = Color.White.copy(alpha = 0.88f), maxLines = 1, style = MaterialTheme.typography.bodySmall)
+                    Icon(Icons.Filled.KeyboardArrowDown, stringResource(R.string.player_episodes_list_title),
+                        tint = Color.White.copy(alpha = 0.88f), modifier = Modifier.size(18.dp))
+                }
+            }
+            if (dubbing.isNotBlank() || playerName.isNotBlank()) {
+                Row(
+                    modifier = Modifier.clickable(onClick = onDubbingClick)
+                    .padding(horizontal = 9.dp, vertical = 6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(7.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                     if (dubbing.isNotBlank()) {
-                        Text(
-                            text = dubbing.dubbingDisplayName(),
-                            color = Color.White.copy(alpha = 0.86f),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            style = MaterialTheme.typography.labelSmall,
-                            modifier = Modifier
-                                .padding(top = 2.dp)
-                                .clip(CircleShape)
-                                .background(Color.White.copy(alpha = 0.12f))
-                                .padding(horizontal = 12.dp, vertical = 4.dp),
-                        )
-                    }
-                }
-                Column(
-                    horizontalAlignment = Alignment.End,
-                    modifier = Modifier.padding(start = 8.dp),
-                ) {
-                    if (playerName.isNotBlank()) {
-                        Text(
-                            text = playerName.uppercase(),
-                            color = Color.Black,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            style = MaterialTheme.typography.labelSmall.overline(),
-                            fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .background(Color.White.copy(alpha = 0.88f))
-                                .padding(horizontal = 12.dp, vertical = 5.dp),
-                        )
-                    }
-                    // Круглая подложка с обводкой, как у кнопок управления внизу: голые точки
-                    // терялись на светлом кадре.
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.padding(top = 6.dp),
-                    ) {
-                        IconButton(
-                            onClick = onLockClick,
-                            modifier = Modifier
-                                .size(44.dp)
-                                .clip(CircleShape)
-                                .background(Color.Black.copy(alpha = 0.36f))
-                                .border(1.dp, Color.White.copy(alpha = 0.28f), CircleShape),
+                        Row(
+                            modifier = Modifier,
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(2.dp),
                         ) {
-                            Icon(
-                                Icons.Filled.LockOpen,
-                                contentDescription = stringResource(R.string.player_mobile_lock),
-                                tint = Color.White,
-                                modifier = Modifier.size(24.dp),
+                            Text(
+                                dubbing.dubbingDisplayName().removePrefix("Озвучка ").removePrefix("озвучка "),
+                                color = Color.White, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                                style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium,
                             )
+                        }
+                    }
+                    if (dubbing.isNotBlank() && playerName.isNotBlank()) {
+                        Text("|", color = Color.White.copy(alpha = 0.72f), style = MaterialTheme.typography.labelSmall)
+                    }
+                    if (playerName.isNotBlank()) {
+                        Row(
+                            modifier = Modifier,
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(2.dp),
+                        ) {
+                            Text(
+                                playerName.uppercase(), color = Color.White, maxLines = 1,
+                                overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Medium,
+                            )
+                            Icon(Icons.Filled.KeyboardArrowDown, stringResource(R.string.player_balancer_name_prefix),
+                                tint = Color.White.copy(alpha = 0.82f), modifier = Modifier.size(16.dp))
                         }
                     }
                 }
             }
+            MobilePlayerEpisodeFlagLabel(episodeFlags, Modifier.padding(top = 3.dp))
+        }
+        Row(
+            Modifier.padding(start = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            TopBarQualityAction(qualityLabel, onQualityClick)
+            TopBarSpeedAction(selectedSpeed, onSpeedClick, onSpeedLongPress)
+            TopBarAction(Icons.Filled.MoreVert, stringResource(R.string.player_mobile_actions), onMoreActions)
         }
     }
 }
+
+@Composable
+private fun TopBarQualityAction(label: String, onClick: () -> Unit) {
+    androidx.compose.foundation.layout.Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.widthIn(min = 54.dp, max = 72.dp)
+            .size(height = mobilePlayerControlButtonSize(), width = 64.dp)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 5.dp),
+    ) {
+        BasicText(
+            text = label,
+            style = TextStyle(
+                color = Color.White,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                background = Color.Transparent,
+            ),
+            maxLines = 1,
+            softWrap = false,
+        )
+    }
+}
+
+@Composable
+private fun TopBarSpeedAction(speed: Float, onClick: () -> Unit, onLongPress: () -> Unit) {
+    val label = if (speed % 1f == 0f) "${speed.toInt()}x" else "${speed}x"
+    androidx.compose.foundation.layout.Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.size(width = 64.dp, height = mobilePlayerControlButtonSize())
+            .pointerInput(onClick, onLongPress) {
+                detectTapGestures(onTap = { onClick() }, onLongPress = { onLongPress() })
+            },
+    ) {
+        BasicText(
+            text = label,
+            style = TextStyle(
+                color = Color.White,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                background = Color.Transparent,
+            ),
+            maxLines = 1,
+        )
+    }
+}
+
+@Composable
+private fun TopBarAction(icon: ImageVector, description: String, onClick: () -> Unit) {
+    androidx.compose.foundation.layout.Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.size(mobilePlayerControlButtonSize()).clickable(onClick = onClick),
+    ) {
+        Icon(icon, description, tint = Color.White, modifier = Modifier.size(24.dp))
+    }
+}
+
 private val FlagFillerColor = Color(0xFFFFC107)
 private val FlagRecapColor = Color(0xFF90CAF9)
 
-/** Плашка «Филлер»/«Рекап» текущей серии под именем плеера. */
 @Composable
 private fun MobilePlayerEpisodeFlagLabel(flags: EpisodeFlags?, modifier: Modifier = Modifier) {
     val (text, color) = when {
@@ -155,15 +233,7 @@ private fun MobilePlayerEpisodeFlagLabel(flags: EpisodeFlags?, modifier: Modifie
         flags.recap -> stringResource(R.string.player_episode_flag_recap) to FlagRecapColor
         else -> return
     }
-    Text(
-        text = text,
-        color = color,
-        maxLines = 1,
-        style = MaterialTheme.typography.labelSmall,
+    Text(text, color = color, maxLines = 1, style = MaterialTheme.typography.labelSmall,
         fontWeight = FontWeight.SemiBold,
-        modifier = modifier
-            .clip(CircleShape)
-            .background(Color.Black.copy(alpha = 0.72f))
-            .padding(horizontal = 12.dp, vertical = 5.dp),
-    )
+        modifier = modifier.mobilePlayerGlassSurface().padding(horizontal = 8.dp, vertical = 3.dp))
 }

@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="docs/images/yanime-app-icon.svg" width="112" height="112" alt="YAnime logo" />
+  <img src="docs/images/yanime-app-icon.svg" width="112" height="112" alt="YANIME logo" />
 </p>
 
-<h1 align="center">YAnime</h1>
+<h1 align="center">YANIME</h1>
 
 <p align="center">
   Неофициальный клиент <a href="https://yummyani.me/">YummyAnime</a> для Android и Android TV,
@@ -10,19 +10,19 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/MraK0ff/ReYani/releases/latest">
+  <a href="https://github.com/MraK0ff/YANIME/releases/latest/download/YANIME.apk">
     <img alt="Скачать APK" src="https://img.shields.io/badge/Скачать-APK-2ea44f?style=for-the-badge&logo=android&logoColor=white" />
   </a>
-  <a href="https://github.com/MraK0ff/ReYani/releases/latest">
-    <img alt="Последний релиз" src="https://img.shields.io/github/v/release/MraK0ff/ReYani?style=for-the-badge" />
+  <a href="https://github.com/MraK0ff/YANIME/releases/latest/download/YANIME.apk">
+    <img alt="Последний релиз" src="https://img.shields.io/github/v/release/MraK0ff/YANIME?style=for-the-badge" />
   </a>
 </p>
 
 > [!IMPORTANT]
-> YAnime — независимый форк оригинального [YummyTV](https://github.com/Helandy/YummyTV), который разрабатывает Helandy.
-> Предложения по оригинальному приложению направляйте в [Helandy Issues](https://github.com/Helandy/YummyTV/issues), а вопросы и предложения по YAnime — в [YAnime Issues](https://github.com/MraK0ff/ReYani/issues).
+> YANIME — независимый форк оригинального [YummyTV](https://github.com/Helandy/YummyTV), который разрабатывает Helandy.
+> Предложения по оригинальному приложению направляйте в [Helandy Issues](https://github.com/Helandy/YummyTV/issues), а вопросы и предложения по YANIME — в [YANIME Issues](https://github.com/MraK0ff/YANIME/issues).
 >
-> Если предложение не планируется к реализации в оригинале, его можно отдельно предложить для YAnime. Каждая идея рассматривается отдельно и не принимается автоматически.
+> Если предложение не планируется к реализации в оригинале, его можно отдельно предложить для YANIME. Каждая идея рассматривается отдельно и не принимается автоматически.
 
 ---
 
@@ -33,8 +33,8 @@
 <details>
 <summary><strong>Плеер</strong></summary>
 
-- **Более понятная иконка пункта «Озвучка и плеер».**  
-  Вместо <img src="docs/images/VolumeUp.svg" alt="VolumeUp" width="24" height="24" align="middle" /> (VolumeUp), которая ассоциируется с регулировкой громкости, используется <img src="docs/images/RecordVoiceOver.svg" alt="RecordVoiceOver" width="24" height="24" align="middle" /> (RecordVoiceOver) — иконка, точнее отражающая назначение выбора озвучки и плеера.
+- **Более понятная иконка пункта «Озвучка и балансер».**  
+  Вместо <img src="docs/images/VolumeUp.svg" alt="VolumeUp" width="24" height="24" align="middle" /> (VolumeUp), которая ассоциируется с регулировкой громкости, используется <img src="docs/images/RecordVoiceOver.svg" alt="RecordVoiceOver" width="24" height="24" align="middle" /> (RecordVoiceOver) — иконка, точнее отражающая назначение выбора озвучки и балансера.
 
 </details>
 
@@ -82,7 +82,6 @@
   В MY_NEW_EPISODES и CALENDAR используется время фактической публикации видео на YummyAnime, а не время японского эфира. Это позволяет ориентироваться на момент, когда серию действительно можно посмотреть.
 
 
-
 </details>
 
 <details>
@@ -99,9 +98,6 @@
 
 - **Быстрое управление скоростью.**  
   Кнопка в плеере показывает текущую скорость и позволяет быстро переключать её. При удержании открывается расширенная панель с вариантами скорости.
-
-- **Управление яркостью в плеере.**  
-  По умолчанию при запуске каждой серии включается автоматическая яркость. Яркость, изменённая жестами, не переносится на следующее видео, если не включена соответствующая настройка сохранения. При включённой настройке возврата системной яркости достижение нулевого уровня ручной яркости возвращает управление яркостью Android.
 
 - **Улучшенная блокировка от случайных касаний.**  
   Возвращён стандартный размер кнопки блокировки вместо увеличенного варианта из оригинального приложения; обновлены её оформление и поведение. Кнопка выделена полупрозрачной подложкой и контрастной обводкой. Если включена защита удержанием, для разблокировки необходимо удерживать кнопку. Повторное нажатие на экран при активной блокировке скрывает элементы управления, а не продлевает их отображение.
@@ -131,8 +127,8 @@
 <details>
 <summary><strong>Настройки</strong></summary>
 
-- **Удаление Яндекс Метрики (AppMetrica).**  
-  Планируется удалить интеграцию AppMetrica из YAnime.
+- **Удалена Яндекс Метрика (AppMetrica).**  
+  Интеграция сбора аналитики оригинального приложения исключена из YANIME.
 
 </details>
 
@@ -140,9 +136,9 @@
 
 ## Скачать
 
-Готовые APK публикуются в разделе **[Releases](https://github.com/MraK0ff/ReYani/releases)**.
+Готовые APK публикуются в разделе **[Releases](https://github.com/MraK0ff/YANIME/releases)**.
 
-1. Откройте [последний релиз](https://github.com/MraK0ff/ReYani/releases/latest).
+1. Откройте [последний релиз](https://github.com/MraK0ff/YANIME/releases/latest/download/YANIME.apk).
 2. Скачайте APK-файл из списка Assets.
 3. Установите его на Android-устройство или передайте APK на Android TV.
 
@@ -163,7 +159,7 @@
 
 ## Отказ от ответственности
 
-- YAnime — неофициальный форк клиента YummyAnime; проект не связан с владельцами сервиса и не одобряется ими.
+- YANIME — неофициальный форк клиента YummyAnime; проект не связан с владельцами сервиса и не одобряется ими.
 - Приложение не предоставляет собственный каталог видео, не хранит и не распространяет видеоконтент.
 - Доступность каталога, API и воспроизведения зависит от YummyAnime и сторонних видеобалансеров.
 - Названия сервисов, товарные знаки и права на сторонний контент принадлежат их владельцам.

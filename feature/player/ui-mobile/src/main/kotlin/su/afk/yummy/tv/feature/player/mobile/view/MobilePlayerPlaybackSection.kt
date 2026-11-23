@@ -20,7 +20,7 @@ import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
 import su.afk.yummy.tv.feature.player.common.PlayerSpeedOptions
 import su.afk.yummy.tv.feature.player.presentation.R
 
-/** Качество, скорость и масштаб видео — верхние секции боковой панели настроек плеера. */
+/** Общие Compose-секции качества, скорости и масштаба для быстрых панелей и настроек плеера. */
 @Composable
 internal fun MobilePlayerPlaybackSection(
     qualities: List<String>,
@@ -36,9 +36,12 @@ internal fun MobilePlayerPlaybackSection(
     onSpeedSelected: (Float) -> Unit,
     selectedResizeMode: PlayerResizeMode,
     onResizeModeSelected: (PlayerResizeMode) -> Unit,
+    showQuality: Boolean = true,
+    showSpeed: Boolean = true,
+    showResize: Boolean = true,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-        if (qualities.isNotEmpty()) {
+        if (showQuality && qualities.isNotEmpty()) {
             val currentIndex = qualities.indexOf(selectedQuality).coerceAtLeast(0)
             // При адаптации ползунок показывает и двигает лимит, а не текущее качество.
             val limitIndex = qualities.indexOf(adaptiveLimitQuality).coerceAtLeast(0)
@@ -109,7 +112,7 @@ internal fun MobilePlayerPlaybackSection(
             }
         }
         val speeds = PlayerSpeedOptions.values
-        MobilePlayerSettingsSection(
+        if (showSpeed) MobilePlayerSettingsSection(
             title = stringResource(R.string.player_speed_title),
             icon = Icons.Filled.Speed,
         ) {
@@ -118,9 +121,11 @@ internal fun MobilePlayerPlaybackSection(
                 valueRange = speeds.indices,
                 valueLabel = { index -> speeds[index].toSpeedLabel() },
                 onValueCommitted = { index -> onSpeedSelected(speeds[index]) },
+                tickLabels = speeds.map { it.toSpeedLabel() },
+                showValueLabel = false,
             )
         }
-        MobilePlayerSettingsSection(
+        if (showResize) MobilePlayerSettingsSection(
             title = stringResource(R.string.player_resize_title),
             icon = Icons.Filled.AspectRatio,
         ) {

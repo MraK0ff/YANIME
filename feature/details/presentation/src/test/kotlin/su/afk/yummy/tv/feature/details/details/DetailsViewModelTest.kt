@@ -31,6 +31,7 @@ import su.afk.yummy.tv.core.model.text.UiText
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.navigation.root.RootTab
 import su.afk.yummy.tv.core.preferences.settings.AppLifecycleSettingsStore
+import su.afk.yummy.tv.feature.details.utils.DETAILS_ONBOARDING_TOUR_ID
 import su.afk.yummy.tv.core.preferences.settings.EpisodePushSettingsStore
 import su.afk.yummy.tv.core.testing.BaseUnitTest
 import su.afk.yummy.tv.core.testing.collectEmissions
@@ -38,6 +39,7 @@ import su.afk.yummy.tv.domain.account.model.AccountSession
 import su.afk.yummy.tv.domain.account.model.UserAnimeList
 import su.afk.yummy.tv.domain.library.model.AnimeLibraryState
 import su.afk.yummy.tv.feature.bloggers.IBloggerVideosNavigator
+import su.afk.yummy.tv.feature.catalog.ICatalogSearchOpener
 import su.afk.yummy.tv.feature.collection.ICollectionNavigator
 import su.afk.yummy.tv.feature.comments.ICommentsNavigator
 import su.afk.yummy.tv.feature.commonscreen.navigator.IImageViewNavigator
@@ -69,6 +71,8 @@ class DetailsViewModelTest : BaseUnitTest() {
     private val nav: INavigationManager = mockk(relaxed = true)
     private val permissionRequested = MutableStateFlow(false)
     private val sectionsHintDismissed = MutableStateFlow(false)
+    private val onboardingWelcomeSeen = MutableStateFlow(true)
+    private val onboardingToursSeen = MutableStateFlow(emptySet<String>())
     private val episodePushPromptShown = MutableStateFlow(false)
     private val episodePushEnabled = MutableStateFlow(true)
     private val episodePushSettingsStore: EpisodePushSettingsStore = mockk(relaxed = true) {
@@ -78,12 +82,15 @@ class DetailsViewModelTest : BaseUnitTest() {
         every { notificationPermissionRequested } returns permissionRequested
         every { episodePushPromptShown } returns this@DetailsViewModelTest.episodePushPromptShown
         every { detailsSectionsHintDismissed } returns sectionsHintDismissed
+        every { onboardingWelcomeSeen } returns this@DetailsViewModelTest.onboardingWelcomeSeen
+        every { onboardingToursSeen } returns this@DetailsViewModelTest.onboardingToursSeen
     }
     private val detailsNavigator: IDetailsNavigator = mockk()
     private val commentsNavigator: ICommentsNavigator = mockk()
     private val reviewsNavigator: IReviewsNavigator = mockk()
     private val collectionNavigator: ICollectionNavigator = mockk()
     private val bloggerVideosNavigator: IBloggerVideosNavigator = mockk()
+    private val catalogSearchOpener: ICatalogSearchOpener = mockk(relaxed = true)
     private val imageViewNavigator: IImageViewNavigator = mockk()
     private val stringProvider: StringProvider = mockk()
     private val screenDataHandler: DetailsScreenDataHandler = mockk()
@@ -156,6 +163,7 @@ class DetailsViewModelTest : BaseUnitTest() {
         reviewsNavigator = reviewsNavigator,
         collectionNavigator = collectionNavigator,
         bloggerVideosNavigator = bloggerVideosNavigator,
+        catalogSearchOpener = catalogSearchOpener,
         imageViewNavigator = imageViewNavigator,
         stringProvider = stringProvider,
         screenDataHandler = screenDataHandler,
@@ -196,6 +204,33 @@ class DetailsViewModelTest : BaseUnitTest() {
         assertEquals("Anime", state.details?.title)
         assertTrue(state.videosState is VideosUiState.Content)
         assertFalse(state.isWatchDataLoading)
+    }
+
+    @Test
+    fun `onboarding tour shows once the details have loaded`() {
+        assertTrue(createViewModel().currentState.showOnboardingTour)
+        assertFalse(DetailsState.State(onboardingTourPending = true, isLoading = true).showOnboardingTour)
+        assertFalse(DetailsState.State(onboardingTourPending = true, isLoading = false).showOnboardingTour)
+    }
+
+    @Test
+    fun `onboarding tour waits for the welcome slides and is not repeated`() {
+        onboardingWelcomeSeen.value = false
+        val viewModel = createViewModel()
+        assertFalse(viewModel.currentState.showOnboardingTour)
+
+        onboardingWelcomeSeen.value = true
+        assertTrue(viewModel.currentState.showOnboardingTour)
+
+        onboardingToursSeen.value = setOf(DETAILS_ONBOARDING_TOUR_ID)
+        assertFalse(viewModel.currentState.showOnboardingTour)
+    }
+
+    @Test
+    fun `finished onboarding tour is persisted`() {
+        createViewModel().setEvent(DetailsState.Event.OnboardingTourFinished)
+
+        coVerify(exactly = 1) { appLifecycleSettingsStore.markOnboardingTourSeen(DETAILS_ONBOARDING_TOUR_ID) }
     }
 
     @Test
@@ -554,6 +589,15 @@ class DetailsViewModelTest : BaseUnitTest() {
 
         verify(exactly = 1) { detailsNavigator.getRelationDest(DetailsRelationKind.STUDIO, 7, "url") }
         verify(exactly = 1) { detailsNavigator.getRelationDest(DetailsRelationKind.DIRECTOR, 8, null) }
+    }
+
+    @Test
+    fun `new search event opens catalog search`() {
+        val vm = createViewModel()
+
+        vm.setEvent(Event.NewSearchSelected)
+
+        verify(exactly = 1) { catalogSearchOpener.openSearch() }
     }
 
     @Test

@@ -11,6 +11,9 @@ import su.afk.yummy.tv.core.common.coroutines.runSuspendCatching
 import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.model.seasonal.seasonalThemeAt
+import su.afk.yummy.tv.core.model.settings.HomeBlockConfig
+import su.afk.yummy.tv.core.model.settings.HomeBlockKind
+import su.afk.yummy.tv.core.model.settings.TorrServerChecker
 import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.preferences.api.TokenStorageMode
@@ -19,9 +22,9 @@ import su.afk.yummy.tv.core.preferences.interface_language.AppInterfaceLanguageP
 import su.afk.yummy.tv.core.preferences.settings.AppLifecycleSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.EpisodePushSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.storage.maintenance.StorageCleanup
 import su.afk.yummy.tv.core.tv.api.ITvIntegration
 import su.afk.yummy.tv.core.utils.logging.AppLogExporter
-import su.afk.yummy.tv.core.storage.maintenance.StorageCleanup
 import su.afk.yummy.tv.core.utils.system.CacheStorageInspector
 import su.afk.yummy.tv.core.utils.system.ImageCacheCleaner
 import su.afk.yummy.tv.domain.update.usecase.GetAppReleaseHistoryUseCase
@@ -29,12 +32,17 @@ import su.afk.yummy.tv.domain.videodownload.usecase.ObserveVideoExportDestinatio
 import su.afk.yummy.tv.domain.videodownload.usecase.SelectVideoExportDestinationUseCase
 import su.afk.yummy.tv.domain.videodownload.usecase.SetVideoDownloadWifiOnlyUseCase
 import su.afk.yummy.tv.feature.account.IAccountNavigator
-import su.afk.yummy.tv.feature.settings.mapper.toReleaseNoteItem
+import su.afk.yummy.tv.feature.settings.mapper.buildReleaseNoteItems
 import su.afk.yummy.tv.feature.settings.model.ReleaseNotesStatus
+import su.afk.yummy.tv.feature.settings.model.TorrServerCheckStatus
 import su.afk.yummy.tv.feature.settings.navigator.SettingsCategoryDestination
+import su.afk.yummy.tv.feature.settings.navigator.SettingsHomeBlocksDestination
 import su.afk.yummy.tv.feature.settings.navigator.SettingsLibraryTabOrderDestination
 import su.afk.yummy.tv.feature.settings.utils.groupedByThree
+import su.afk.yummy.tv.feature.settings.utils.movedHomeBlock
 import su.afk.yummy.tv.feature.settings.utils.movedLibraryTab
+import su.afk.yummy.tv.feature.settings.utils.toggledHomeBlock
+import java.util.Optional
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -60,11 +68,13 @@ class SettingsViewModel @Inject internal constructor(
     private val appLogExporter: AppLogExporter,
     private val getAppReleaseHistory: GetAppReleaseHistoryUseCase,
     private val analyticsDeviceIdProvider: AnalyticsDeviceIdProvider,
+    private val torrServerChecker: Optional<TorrServerChecker>,
     @param:Named("appVersionName") private val versionName: String,
 ) : BaseViewModel<SettingsState.State, SettingsState.Event, SettingsState.Effect>() {
 
     override fun createInitialState() = SettingsState.State(
         interfaceLanguage = interfaceLanguagePreferences.selectedLanguage,
+        torrServerCheckAvailable = torrServerChecker.isPresent,
     )
 
     init {
@@ -80,7 +90,10 @@ class SettingsViewModel @Inject internal constructor(
                         titleCardLayout = snapshot.titleCardLayout,
                         showCatalogTitleYear = snapshot.showCatalogTitleYear,
                         showEpisodeFlags = snapshot.showEpisodeFlags,
-                        newEpisodesSectionEnabled = snapshot.newEpisodesSectionEnabled,
+                        newEpisodesSectionEnabled = snapshot.homeBlocks.any {
+                            it.kind == HomeBlockKind.MY_NEW_EPISODES && it.enabled
+                        },
+                        homeBlocks = snapshot.homeBlocks.toImmutableList(),
                         seasonalDecorationsEnabled = snapshot.seasonalDecorationsEnabled,
                         accountShortcutsExpanded = snapshot.accountShortcutsExpanded,
                         seasonalTheme = seasonalThemeAt(System.currentTimeMillis()),
@@ -153,6 +166,12 @@ class SettingsViewModel @Inject internal constructor(
         settingsStore.betaUpdatesEnabled
             .onEach { enabled -> setState { copy(betaUpdatesEnabled = enabled) } }
             .launchIn(viewModelScope)
+        // Только начальное значение: поля сохраняются на каждый символ, и повторное чтение потока
+        // возвращало бы в состояние устаревший текст (теряются символы, курсор прыгает).
+        viewModelScope.launch {
+            val torrent = settingsStore.torrentSettings.first()
+            setState { copy(torrent = torrent) }
+        }
         settingsStore.appLogRecordingEnabled
             .onEach { enabled -> setState { copy(appLogRecordingEnabled = enabled) } }
             .launchIn(viewModelScope)
@@ -245,7 +264,9 @@ class SettingsViewModel @Inject internal constructor(
             }
 
             SettingsState.Event.NewEpisodesSectionToggled -> viewModelScope.launch {
-                settingsStore.setNewEpisodesSectionEnabled(!currentState.newEpisodesSectionEnabled)
+                settingsStore.setHomeBlocks(
+                    currentState.homeBlocks.toggledHomeBlock(HomeBlockKind.MY_NEW_EPISODES),
+                )
             }
 
             is SettingsState.Event.NewEpisodesSourceToggled -> viewModelScope.launch {
@@ -425,6 +446,36 @@ class SettingsViewModel @Inject internal constructor(
                 appLifecycleSettingsStore.markNotificationPermissionRequested()
             }
 
+            is SettingsState.Event.TorrentSettingsChanged -> {
+                val previous = currentState.torrent
+                if (previous.enabled != event.settings.enabled) {
+                    analytics.eventTorrentToggled(event.settings.enabled)
+                }
+                // Старый итог относился к прежнему серверу: сбрасываем его только при правке адреса или учётных данных.
+                val serverChanged = previous.torrServerUrl != event.settings.torrServerUrl ||
+                    previous.torrServerUser != event.settings.torrServerUser ||
+                    previous.torrServerPassword != event.settings.torrServerPassword
+                setState {
+                    copy(
+                        torrent = event.settings,
+                        torrServerCheck = if (serverChanged) TorrServerCheckStatus.Idle else torrServerCheck,
+                    )
+                }
+                viewModelScope.launch {
+                    settingsStore.setTorrentSettings(event.settings)
+                }
+            }
+
+            SettingsState.Event.TorrServerCheckRequested -> {
+                val checker = torrServerChecker.orElse(null) ?: return
+                if (currentState.torrServerCheck == TorrServerCheckStatus.Checking) return
+                setState { copy(torrServerCheck = TorrServerCheckStatus.Checking) }
+                viewModelScope.launch {
+                    val result = checker.check(currentState.torrent)
+                    setState { copy(torrServerCheck = TorrServerCheckStatus.Done(result)) }
+                }
+            }
+
             is SettingsState.Event.YaniApplicationTokenChanged -> {
                 setState { copy(yaniApplicationToken = event.token) }
                 viewModelScope.launch {
@@ -453,6 +504,31 @@ class SettingsViewModel @Inject internal constructor(
 
             SettingsState.Event.LibraryTabOrderScreenOpened -> {
                 analytics.eventLibraryTabOrderScreenOpened()
+            }
+
+            is SettingsState.Event.HomeBlockToggled -> viewModelScope.launch {
+                analytics.eventHomeBlockToggled(event.block)
+                settingsStore.setHomeBlocks(currentState.homeBlocks.toggledHomeBlock(event.block))
+            }
+
+            is SettingsState.Event.HomeBlockMoved -> viewModelScope.launch {
+                analytics.eventHomeBlockMoved(event.block, event.direction)
+                settingsStore.setHomeBlocks(
+                    currentState.homeBlocks.movedHomeBlock(event.block, event.direction),
+                )
+            }
+
+            SettingsState.Event.HomeBlocksScreenOpened -> {
+                analytics.eventHomeBlocksScreenOpened()
+            }
+
+            SettingsState.Event.HomeBlocksSelected -> {
+                nav.navigate(SettingsHomeBlocksDestination)
+            }
+
+            SettingsState.Event.HomeBlocksReset -> viewModelScope.launch {
+                analytics.eventHomeBlocksReset()
+                settingsStore.setHomeBlocks(HomeBlockConfig.default)
             }
 
             SettingsState.Event.LibraryTabOrderSelected -> {
@@ -558,14 +634,24 @@ class SettingsViewModel @Inject internal constructor(
         }
         setState { copy(releaseNotes = ReleaseNotesStatus.Loading) }
         viewModelScope.launch {
-            val status = runSuspendCatching {
-                getAppReleaseHistory(versionName, includePrerelease = settingsStore.betaUpdatesEnabled.first())
-            }.fold(
-                onSuccess = { releases ->
-                    ReleaseNotesStatus.Loaded(releases.map { it.toReleaseNoteItem(versionName) }.toImmutableList())
-                },
-                onFailure = { ReleaseNotesStatus.Error },
+            val includePrerelease = settingsStore.betaUpdatesEnabled.first()
+            val yanimeHistory = runSuspendCatching {
+                getAppReleaseHistory.yanimeHistory(versionName, includePrerelease)
+            }.getOrDefault(emptyList())
+            val originalHistory = runSuspendCatching {
+                getAppReleaseHistory.originalHistory(versionName, includePrerelease)
+            }.getOrDefault(emptyList())
+            val latestYanimeRelease = runSuspendCatching {
+                getAppReleaseHistory(versionName, includePrerelease).firstOrNull()
+            }.getOrNull()
+            val items = buildReleaseNoteItems(
+                currentVersion = versionName,
+                yanimeHistory = yanimeHistory,
+                originalHistory = originalHistory,
+                latestYanimeRelease = latestYanimeRelease,
             )
+            val status = if (items.isEmpty()) ReleaseNotesStatus.Error
+            else ReleaseNotesStatus.Loaded(items.toImmutableList())
             setState { copy(releaseNotes = status) }
         }
     }

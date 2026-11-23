@@ -96,7 +96,7 @@ internal fun ScheduleLibraryFilterChip(
                 modifier = Modifier.size(24.dp),
             )
             Text(
-                text = stringResource(R.string.schedule_filter_in_library),
+                text = stringResource(R.string.schedule_filter_library),
                 style = MaterialTheme.typography.labelLarge,
                 color = chipColors.content,
                 maxLines = 1,

@@ -33,7 +33,7 @@ import su.afk.yummy.tv.feature.settings.SettingsState
 import su.afk.yummy.tv.feature.settings.model.DetailsButtonMoveDirection
 import su.afk.yummy.tv.feature.settings.model.SettingsTvPicker
 import su.afk.yummy.tv.feature.settings.utils.hint
-import su.afk.yummy.tv.core.designsystem.theme.previewColor
+import su.afk.yummy.tv.core.designsystem.theme.previewColors
 import su.afk.yummy.tv.feature.settings.common.utils.availableAppThemes
 import su.afk.yummy.tv.feature.settings.common.utils.color
 import su.afk.yummy.tv.feature.settings.common.utils.hint
@@ -134,7 +134,7 @@ internal fun SettingsTvPickerPanel(
                 selected = state.appTheme,
                 labelOf = { it.label() },
                 hintOf = { it.hint() },
-                colorOf = { it.previewColor() },
+                previewColorsOf = { it.previewColors() },
                 focusRequester = entryFocusRequester,
                 onSelected = { select(SettingsState.Event.AppThemeSelected(it)) },
             )
@@ -257,6 +257,7 @@ private fun <T> PickerOptions(
     hintOf: (@Composable (T) -> String)? = null,
     colorOf: (@Composable (T) -> Color)? = null,
     iconOf: ((T) -> ImageVector)? = null,
+    previewColorsOf: (@Composable (T) -> List<Color>)? = null,
 ) {
     val focusIndex = values.indexOf(selected).coerceAtLeast(0)
     values.forEachIndexed { index, value ->
@@ -267,6 +268,7 @@ private fun <T> PickerOptions(
             onClick = { onSelected(value) },
             labelColor = colorOf?.invoke(value),
             icon = iconOf?.invoke(value),
+            previewColors = previewColorsOf?.invoke(value).orEmpty(),
             modifier = if (index == focusIndex) Modifier.focusRequester(focusRequester) else Modifier,
         )
         if (index < values.lastIndex) {

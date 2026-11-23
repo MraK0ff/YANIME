@@ -79,7 +79,7 @@ internal fun DetailsMobileHero(
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .matchParentSize()
-                .blur(28.dp)
+                .blur(22.dp)
                 .background(MaterialTheme.colorScheme.surfaceVariant),
         )
         Box(
@@ -88,9 +88,9 @@ internal fun DetailsMobileHero(
                 .background(
                     Brush.verticalGradient(
                         colorStops = arrayOf(
-                            0f to Color.Black.copy(alpha = 0.30f),
-                            0.36f to Color.Black.copy(alpha = 0.18f),
-                            0.54f to MaterialTheme.colorScheme.surface.copy(alpha = 0.26f),
+                            0f to Color.Black.copy(alpha = 0.24f),
+                            0.36f to Color.Black.copy(alpha = 0.12f),
+                            0.54f to MaterialTheme.colorScheme.surface.copy(alpha = 0.32f),
                             0.76f to MaterialTheme.colorScheme.background.copy(alpha = 0.72f),
                             1f to MaterialTheme.colorScheme.background,
                         ),
@@ -125,7 +125,7 @@ internal fun DetailsMobileHero(
             if (canShare) {
                 FilledTonalIconButton(
                     onClick = onShare,
-                    modifier = Modifier.size(52.dp),
+                    modifier = Modifier.size(48.dp),
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Share,
@@ -158,7 +158,7 @@ internal fun DetailsMobileHero(
                 .padding(horizontal = YummySpacing.Large)
                 .padding(top = YummySpacing.Section + YummySpacing.Large + 2.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             FallbackAsyncImage(
                 models = posterUrls,

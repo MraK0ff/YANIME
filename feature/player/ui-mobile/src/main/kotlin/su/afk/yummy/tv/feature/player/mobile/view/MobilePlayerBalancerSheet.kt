@@ -25,12 +25,12 @@ internal fun MobilePlayerBalancerSheet(
     onBalancerSelected: (Int) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    BaseBottomSheet(onDismissRequest = onDismiss, scrollableContent = true) {
+    BaseBottomSheet(
+        onDismissRequest = onDismiss,
+        scrollableContent = true,
+        dragHandle = { MobilePlayerPanelDragTitle(stringResource(R.string.player_balancer_name_prefix)) },
+    ) {
         HideSheetWindowSystemBars()
-        MobilePlayerMenuPageHeader(
-            title = stringResource(R.string.player_balancer_name_prefix),
-            onBack = onDismiss,
-        )
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp),

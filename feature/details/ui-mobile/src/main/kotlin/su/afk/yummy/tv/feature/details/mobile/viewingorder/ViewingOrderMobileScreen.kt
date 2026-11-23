@@ -90,7 +90,11 @@ fun ViewingOrderMobileScreen(
                 contentPadding = PaddingValues(start = 8.dp, end = MobilePosterGridHorizontalPadding, top = 8.dp, bottom = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(TimelineRowGap),
             ) {
-                itemsIndexed(state.items, key = { index, item -> lazyKey("viewingorder", "${item.animeId}:$index", index) }) { index, item ->
+                itemsIndexed(
+                    items = state.items,
+                    key = { index, item -> lazyKey("viewingorder", "${item.animeId}:$index", index) },
+                    contentType = { _, _ -> "viewing_order_item" },
+                ) { index, item ->
                     ViewingOrderTimelineRow(
                         index = index,
                         currentIndex = currentIndex,

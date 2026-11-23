@@ -53,7 +53,7 @@ internal fun HomeFeedSectionRow(
             // Ширину считаем от портретной ширины телефона: на повороте/fold карточки не уменьшаются,
             // в ряду просто помещается больше карточек.
             val cardWidth = currentMobilePosterCellWidth(minOf(maxWidth, HOME_CARD_REFERENCE_WIDTH))
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 MobileSectionHeader(
                     title = section.title,
                     modifier = Modifier.padding(horizontal = MobilePosterGridHorizontalPadding),

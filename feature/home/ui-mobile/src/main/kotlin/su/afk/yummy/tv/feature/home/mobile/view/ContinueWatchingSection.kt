@@ -42,9 +42,10 @@ internal fun ContinueWatchingSection(
         ) {
             itemsIndexed(
                 items = entries,
-                key = { index, entry ->
-                    "${entry.animeId}-${entry.episode}-${entry.videoId}-${entry.updatedAt}-$index"
-                },
+                // ObserveHomeContinueWatchingUseCase guarantees one card per anime title.
+                // The title ID therefore remains stable when the feed is reordered or refreshed.
+                key = { _, entry -> "continue_watching_${entry.animeId}" },
+                contentType = { _, _ -> "continue_watching_card" },
             ) { _, entry ->
                 val episodeTitle = if (entry.episode.isBlank()) {
                     stringResource(R.string.home_episode)

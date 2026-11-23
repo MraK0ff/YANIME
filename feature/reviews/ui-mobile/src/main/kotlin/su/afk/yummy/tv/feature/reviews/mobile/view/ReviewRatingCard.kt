@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
@@ -19,6 +18,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.domain.reviews.model.ReviewRating
 import su.afk.yummy.tv.feature.reviews.mobile.utils.reviewScoreColor
 import su.afk.yummy.tv.feature.reviews.presentation.R
@@ -31,11 +32,11 @@ internal fun ReviewRatingCard(
     Surface(
         modifier = modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surfaceContainer,
-        shape = RoundedCornerShape(16.dp),
+        shape = YummyShapeTokens.Card,
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(YummySpacing.Large),
+            verticalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -51,12 +52,12 @@ internal fun ReviewRatingCard(
                     Surface(
                         color = score.reviewScoreColor(),
                         contentColor = YummySemanticColors.OnScoreBadge,
-                        shape = RoundedCornerShape(10.dp),
+                        shape = YummyShapeTokens.Control,
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = 11.dp, vertical = 7.dp),
+                            modifier = Modifier.padding(horizontal = YummySpacing.Medium, vertical = YummySpacing.Small),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(5.dp),
+                            horizontalArrangement = Arrangement.spacedBy(YummySpacing.XSmall),
                         ) {
                             Icon(Icons.Filled.Star, contentDescription = null)
                             Text(

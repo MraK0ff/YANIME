@@ -168,6 +168,9 @@ internal fun LibraryTvHistoryPage(
                 // Тот же ключ, что и у восстановления фокуса: иначе сверка по itemInfo.key
                 // в launchTvLazyListKeyFocusRestore никогда не совпадает.
                 key = { index -> keys.getOrNull(index) ?: lazyKey("history", null, index) },
+                contentType = { index ->
+                    if (items.getOrNull(index) == null) "history_placeholder" else "history_entry"
+                },
             ) { index ->
                 items.getOrNull(index)?.let { entry ->
                     val entryKey = keys.getOrNull(index)

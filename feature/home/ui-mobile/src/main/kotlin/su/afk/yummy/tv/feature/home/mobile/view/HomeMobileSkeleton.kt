@@ -28,11 +28,11 @@ internal fun HomeMobileSkeleton(modifier: Modifier = Modifier) {
             .fillMaxSize()
             .verticalScroll(rememberScrollState(), enabled = false)
             .padding(top = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
         SkeletonBlock(
             shimmer = shimmer,
-            shape = RoundedCornerShape(20.dp),
+            shape = RoundedCornerShape(16.dp),
             modifier = Modifier
                 .padding(horizontal = 16.dp)
                 .widthIn(max = 520.dp)

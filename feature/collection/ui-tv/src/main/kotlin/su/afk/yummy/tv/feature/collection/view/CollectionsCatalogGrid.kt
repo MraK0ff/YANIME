@@ -101,7 +101,7 @@ internal fun CollectionsCatalogGrid(
                     .fillMaxSize()
                     .focusGroup(),
             ) {
-                item(span = { GridItemSpan(maxLineSpan) }) {
+                item(span = { GridItemSpan(maxLineSpan) }, contentType = "collections_catalog_header") {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -133,6 +133,7 @@ internal fun CollectionsCatalogGrid(
                 items(
                     count = itemCount,
                     key = pagingItems.safeItemKey("collection") { it.id },
+                    contentType = { "collection_card" },
                 ) { index ->
                     val item = pagingItems.getOrNull(index) ?: return@items
                     TvCollectionCard(
@@ -175,7 +176,7 @@ internal fun CollectionsCatalogGrid(
                 }
 
                 if (isLoadingMore) {
-                    item(span = { GridItemSpan(maxLineSpan) }) {
+                    item(span = { GridItemSpan(maxLineSpan) }, contentType = "loading_footer") {
                         TvLoadingFooter()
                     }
                 }

@@ -44,7 +44,7 @@ internal fun DetailsVideoSection(
             var index = 0
             if (trailers.isNotEmpty()) {
                 val itemIndex = index++
-                item(key = "trailers") {
+                item(key = "trailers", contentType = "details_video_card") {
                     DetailsVideoCard(
                         title = stringResource(R.string.details_trailers),
                         icon = Icons.Filled.Movie,
@@ -58,7 +58,7 @@ internal fun DetailsVideoSection(
             }
             if (hasBloggerVideos) {
                 val itemIndex = index++
-                item(key = "blogger_videos") {
+                item(key = "blogger_videos", contentType = "details_video_card") {
                     DetailsVideoCard(
                         title = stringResource(R.string.details_mobile_blogger_videos),
                         icon = Icons.Filled.VideoCameraFront,

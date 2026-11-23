@@ -104,7 +104,11 @@ fun EpisodeDubbingsMobileScreen(
                 contentPadding = PaddingValues(bottom = 4.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(state.dubbings, key = { it.name }) { dubbing ->
+                items(
+                    items = state.dubbings,
+                    key = { it.name },
+                    contentType = { "episode_dubbing" },
+                ) { dubbing ->
                     EpisodeDubbingMobileRow(
                         dubbing = dubbing,
                         onStarClick = { onEvent(EpisodeDubbingsState.Event.DubbingStarToggled(dubbing.name)) },

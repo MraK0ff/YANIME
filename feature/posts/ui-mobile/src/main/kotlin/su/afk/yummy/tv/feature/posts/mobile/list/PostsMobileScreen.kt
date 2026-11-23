@@ -135,8 +135,8 @@ private fun PostsList(
         modifier = Modifier
             .mobileContentMaxWidth()
             .fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp),
+        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         when {
             // При обновлении поверх показанного списка его не прячем: крутится индикатор жеста.
@@ -160,7 +160,11 @@ private fun PostsList(
                 )
             }
 
-            else -> items(posts.itemCount, key = posts.safeItemKey("post") { lazyKey("post", it.id) }) { index ->
+            else -> items(
+                count = posts.itemCount,
+                key = posts.safeItemKey("post") { lazyKey("post", it.id) },
+                contentType = { "post" },
+            ) { index ->
                 posts.getOrNull(index)?.let { post ->
                     PostMobileCard(
                         post,

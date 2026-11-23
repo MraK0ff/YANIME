@@ -64,9 +64,9 @@ internal fun CommentCard(
     val reportFocusRequester = androidx.compose.runtime.remember { FocusRequester() }
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        shape = YummyShapeTokens.ProminentCard,
-        tonalElevation = 1.dp,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        shape = YummyShapeTokens.Card,
+        tonalElevation = 0.dp,
     ) {
         Column(
             modifier = Modifier.padding(horizontal = YummySpacing.XLarge, vertical = YummySpacing.Medium + 2.dp),

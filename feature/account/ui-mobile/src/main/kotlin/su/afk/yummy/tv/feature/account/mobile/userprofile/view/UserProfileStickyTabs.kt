@@ -38,7 +38,7 @@ internal fun UserProfileStickyTabs(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceContainer),
+            .background(MaterialTheme.colorScheme.surfaceContainerLow),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         AnimatedVisibility(

@@ -79,7 +79,11 @@ fun CollectionsMobileScreen(
                 modifier = Modifier.navigationBarsPadding(),
                 minCellWidth = 300.dp,
             ) {
-                items(state.collections, key = { lazyKey("collection", it.id) }) { item ->
+                items(
+                    items = state.collections,
+                    key = { lazyKey("collection", it.id) },
+                    contentType = { "collection" },
+                ) { item ->
                     MobileCollectionCard(
                         title = item.title,
                         posterUrls = item.posterUrls.ifEmpty { listOfNotNull(item.posterUrl) },

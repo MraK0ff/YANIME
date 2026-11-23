@@ -6,6 +6,7 @@ import su.afk.yummy.tv.core.model.settings.PlayerMobileVideoTransformSettings
 import su.afk.yummy.tv.core.model.settings.PlayerOrientationMode
 import su.afk.yummy.tv.core.model.settings.PlayerResizeSettings
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleStyleSettings
+import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.core.model.settings.PreferredVideoQuality
 import su.afk.yummy.tv.core.preferences.settings.PlayerSettingsStore
 import su.afk.yummy.tv.feature.player.model.PlayerResizeSettingsScope
@@ -35,6 +36,7 @@ internal class PlayerSettingsHandler @Inject constructor(
     val adaptiveVideoQualityEnabled: Flow<Boolean> = settingsStore.adaptiveVideoQualityEnabled
     val preferredVideoQuality: Flow<PreferredVideoQuality> = settingsStore.preferredVideoQuality
     val playerSubtitleStyle: Flow<PlayerSubtitleStyleSettings> = settingsStore.playerSubtitleStyle
+    val playerTimeDisplaySettings: Flow<PlayerTimeDisplaySettings> = settingsStore.playerTimeDisplaySettings
     val playerPlaybackSpeed: Flow<Float> = settingsStore.playerPlaybackSpeed
 
     suspend fun savePictureInPictureEnabled(enabled: Boolean) {
@@ -51,6 +53,10 @@ internal class PlayerSettingsHandler @Inject constructor(
 
     suspend fun saveSubtitleStyle(settings: PlayerSubtitleStyleSettings) {
         settingsStore.setPlayerSubtitleStyle(settings)
+    }
+
+    suspend fun saveTimeDisplaySettings(settings: PlayerTimeDisplaySettings) {
+        settingsStore.setPlayerTimeDisplaySettings(settings)
     }
 
     suspend fun saveVolumeStabilizationEnabled(enabled: Boolean) {

@@ -177,7 +177,11 @@ fun VideoDownloadMobileScreen(
                         .padding(horizontal = 16.dp, vertical = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
-                    items(state.groups, key = { lazyKey("group", it.key) }) { group ->
+                    items(
+                        items = state.groups,
+                        key = { lazyKey("group", it.key) },
+                        contentType = { "download_group" },
+                    ) { group ->
                         VideoDownloadGroupCard(
                             group = group,
                             expanded = group.key in state.expandedGroupKeys,

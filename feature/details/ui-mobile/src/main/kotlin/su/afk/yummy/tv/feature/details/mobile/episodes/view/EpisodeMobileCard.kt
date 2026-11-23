@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
@@ -158,7 +159,7 @@ private fun EpisodeInfoBlock(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .then(if (toggleable) Modifier.clickable(onClick = onToggle) else Modifier)
+            .then(if (toggleable) Modifier.clickable(role = Role.Button, onClick = onToggle) else Modifier)
             .padding(start = YummySpacing.Medium, end = YummySpacing.XSmall, bottom = YummySpacing.Medium - 2.dp),
         verticalAlignment = Alignment.Top,
     ) {

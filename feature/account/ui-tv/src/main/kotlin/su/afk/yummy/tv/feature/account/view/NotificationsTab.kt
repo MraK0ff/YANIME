@@ -194,6 +194,7 @@ internal fun NotificationsTab(
                 itemsIndexed(
                     state.notifications,
                     key = { index, item -> lazyKey("notification", item.id, index) },
+                    contentType = { _, _ -> "notification" },
                 ) { index, notification ->
                     NotificationsTabRow(
                         notificationsTabState = notificationsTabState,

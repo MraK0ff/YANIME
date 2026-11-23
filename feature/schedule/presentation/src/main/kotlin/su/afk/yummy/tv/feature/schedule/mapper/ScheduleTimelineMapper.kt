@@ -54,8 +54,11 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
     flatMap { it.items }
         .flatMap { item ->
             buildList {
-                // Прошедшая серия появляется в календаре только после публикации видео.
-                item.videoReleases.forEach { release ->
+                // Feed may include a scheduled video with a future timestamp. It is not an aired episode;
+                // future entries must come from the schedule API's nextDate instead.
+                item.videoReleases
+                    .filter { it.firstVideoAtSeconds <= nowSeconds }
+                    .forEach { release ->
                     add(
                         ScheduleReleaseUi(
                             item = item,
@@ -92,13 +95,28 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
         }
         .toSortedMap()
         .map { (date, items) ->
+            // Календарь показывает один пункт на тайтл в конкретный день, а не отдельную
+            // карточку на каждую озвучку/переиздание/уже вышедшую серию.
+            // Если на тот же день назначена будущая серия, показываем её; иначе — самую
+            // новую опубликованную серию. Это также делает счётчик дня числом тайтлов.
+            val dailyTitles = items
+                .groupBy { it.item.animeId }
+                .values
+                .mapNotNull { titleReleases ->
+                    titleReleases.maxWithOrNull(
+                        compareBy<ScheduleReleaseUi> { !it.aired }
+                            .thenBy { it.episode }
+                            .thenBy { it.epochSeconds },
+                    )
+                }
+                .sortedBy { it.epochSeconds }
             ScheduleDayUi(
                 date = date,
                 weekdayLabel = date.dayOfWeek
                     .getDisplayName(TextStyle.SHORT_STANDALONE, Locale.getDefault())
                     .trimEnd('.')
                     .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
-                items = items.sortedBy { it.epochSeconds },
+                items = dailyTitles,
                 isToday = date == today,
             )
         }

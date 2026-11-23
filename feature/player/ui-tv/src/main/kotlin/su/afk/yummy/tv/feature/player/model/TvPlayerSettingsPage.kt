@@ -1,13 +1,7 @@
 package su.afk.yummy.tv.feature.player.model
 
-/** Подменю бокового меню настроек ТВ-плеера: каждое открывает список вариантов с галочкой. */
+/** Подменю бокового меню настроек ТВ-плеера. */
 internal enum class TvPlayerSettingsPage {
-    Speed,
     Scale,
-    SubtitleTrack,
-    SubtitleSize,
-    SubtitleOffset,
-    SubtitleColor,
-    SubtitleBackground,
-    SubtitleEdge,
+    TimeDisplay,
 }

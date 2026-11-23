@@ -42,7 +42,7 @@ internal fun TvStreamLoadingView(
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                YummyLoadingIndicator(color = Color.White, modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                YummyLoadingIndicator(color = Color.White, modifier = Modifier.size(30.dp))
                 Spacer(Modifier.width(10.dp))
                 Text(
                     text = stringResource(messageRes),

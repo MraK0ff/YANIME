@@ -10,7 +10,10 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -23,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalViewConfiguration
@@ -34,9 +38,10 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 
 @Composable
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Suppress("UNUSED_PARAMETER")
 internal fun MobilePlayerActionButton(
     icon: ImageVector,
     /** Подпись для TalkBack: у кнопки нет текста, иначе она объявляется просто «кнопкой». */
@@ -55,23 +60,16 @@ internal fun MobilePlayerActionButton(
     onLongPress: (() -> Unit)? = null,
     sizeMultiplier: Float = 1f,
     iconScale: Float = 0.55f,
-    surface: Boolean = true,
+    surface: Boolean = false,
     loading: Boolean = false,
 ) {
-    val shape = YummyShapeTokens.Pill
     val contentColor = when {
         !enabled -> Color.White.copy(alpha = 0.26f)
-        primary -> MaterialTheme.colorScheme.onPrimary
+        primary -> if (mobilePlayerTimelinePlayedColor(MaterialTheme.colorScheme.primary).luminance() > 0.45f) Color(0xFF17191D) else Color.White
         else -> Color.White
     }
     val holdProgress = remember { Animatable(0f) }
     val buttonSize = mobilePlayerControlButtonSize(primary) * sizeMultiplier
-    val borderColor = MobilePlayerGlassBorder
-    val surfaceFill = when {
-        !enabled -> Color.Black.copy(alpha = 0.10f)
-        primary -> MaterialTheme.colorScheme.primary
-        else -> MobilePlayerGlassFill
-    }
 
     val baseViewConfiguration = LocalViewConfiguration.current
     val quickLongPressConfiguration = remember(baseViewConfiguration) {
@@ -84,7 +82,7 @@ internal fun MobilePlayerActionButton(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .size(buttonSize)
-            .then(if (surface) Modifier.mobilePlayerGlassSurface(shape = shape, fill = surfaceFill, borderColor = borderColor, elevation = 0.dp) else Modifier)
+            .then(if (surface && primary) Modifier.mobilePlayerGlassSurface(shape = CircleShape, fill = mobilePlayerTimelinePlayedColor(MaterialTheme.colorScheme.primary), borderColor = MobilePlayerGlassBorder, elevation = 0.dp) else Modifier)
             .then(
                 if (onHold == null && onLongPress != null) {
                     Modifier.pointerInput(enabled, onLongPress, onClick) {
@@ -114,9 +112,8 @@ internal fun MobilePlayerActionButton(
             ),
     ) {
         if (loading) {
-            CircularProgressIndicator(
-                color = if (primary) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary,
-                strokeWidth = 3.dp,
+            LoadingIndicator(
+                color = if (primary) contentColor else MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(buttonSize * 0.62f),
             )
         } else {

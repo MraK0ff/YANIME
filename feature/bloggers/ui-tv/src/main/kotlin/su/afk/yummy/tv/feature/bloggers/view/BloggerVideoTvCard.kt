@@ -37,7 +37,7 @@ fun BloggerVideoTvCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val shape = YummyShapeTokens.ProminentCard
+    val shape = YummyShapeTokens.Card
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -47,19 +47,19 @@ fun BloggerVideoTvCard(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         ),
     ) {
-        Row(Modifier.height(190.dp)) {
+        Row(Modifier.height(176.dp)) {
             AsyncImage(
                 video.previewUrl,
                 video.title,
                 Modifier
-                    .width(338.dp)
+                    .width(304.dp)
                     .fillMaxHeight(),
                 contentScale = ContentScale.Crop
             )
             Column(
                 Modifier
                     .weight(1f)
-                    .padding(16.dp),
+                    .padding(14.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
@@ -69,7 +69,7 @@ fun BloggerVideoTvCard(
                 )
                 Text(
                     video.title,
-                    style = MaterialTheme.typography.headlineMediumEmphasized,
+                    style = MaterialTheme.typography.titleLargeEmphasized,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )

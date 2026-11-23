@@ -57,7 +57,7 @@ internal fun ToggleRow(
             .border(width = 2.dp, color = borderColor, shape = shape)
             .background(bgColor, shape)
             .clickable(interactionSource = interactionSource, indication = null, onClick = onClick)
-            .padding(horizontal = YummySpacing.Large, vertical = YummySpacing.Medium),
+            .padding(horizontal = YummySpacing.Large, vertical = YummySpacing.Small + 2.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         icon?.let {
@@ -65,7 +65,7 @@ internal fun ToggleRow(
                 modifier = Modifier
                     .size(YummySpacing.XXLarge + YummySpacing.Small)
                     .clip(YummyShapeTokens.Compact)
-                    .background(iconColor.copy(alpha = 0.16f)),
+                    .background(iconColor.copy(alpha = 0.11f)),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(imageVector = it, contentDescription = null, tint = iconColor, modifier = Modifier.size(YummySpacing.XLarge))

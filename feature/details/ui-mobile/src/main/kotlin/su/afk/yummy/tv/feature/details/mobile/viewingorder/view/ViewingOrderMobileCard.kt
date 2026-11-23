@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.mobile.cards.MobilePosterCard
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.core.designsystem.mobile.cards.MobilePosterType
 import su.afk.yummy.tv.core.designsystem.mobile.cards.MobilePosterYear
 import su.afk.yummy.tv.core.model.anime.AnimeViewingOrderItem
@@ -22,7 +23,7 @@ internal fun ViewingOrderMobileCard(
     /** В ленте хронологии номер и год показывает нода таймлайна, на постере они дублировали бы её. */
     showIndexAndYear: Boolean = true,
 ) {
-    val shape = MaterialTheme.shapes.medium
+    val shape = YummyShapeTokens.Card
     MobilePosterCard(
         title = item.title,
         posterUrls = item.poster.posterUrls(),

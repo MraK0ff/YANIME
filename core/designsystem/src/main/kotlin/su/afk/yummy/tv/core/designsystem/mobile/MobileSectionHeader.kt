@@ -15,8 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -39,14 +37,14 @@ fun MobileSectionHeader(
     ) {
         Box(
             modifier = Modifier
-                .width(4.dp)
-                .height(24.dp)
+                .width(3.dp)
+                .height(20.dp)
                 .clip(YummyShapeTokens.Pill)
                 .background(MaterialTheme.colorScheme.primary),
         )
         Text(
             text = title,
-            style = MaterialTheme.typography.titleLargeEmphasized,
+            style = MaterialTheme.typography.titleMediumEmphasized,
             color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier
                 .weight(1f)

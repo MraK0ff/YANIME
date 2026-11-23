@@ -25,12 +25,12 @@ internal fun MobilePlayerDubbingSheet(
     onDubbingSelected: (Int) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    BaseBottomSheet(onDismissRequest = onDismiss, scrollableContent = true) {
+    BaseBottomSheet(
+        onDismissRequest = onDismiss,
+        scrollableContent = true,
+        dragHandle = { MobilePlayerPanelDragTitle(stringResource(R.string.player_dubbing_title)) },
+    ) {
         HideSheetWindowSystemBars()
-        MobilePlayerMenuPageHeader(
-            title = stringResource(R.string.player_dubbing_title),
-            onBack = onDismiss,
-        )
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp),

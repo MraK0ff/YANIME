@@ -72,6 +72,16 @@ jobs:
           printf 'yummytv.apiBaseUrl=%s\n' "$API_BASE_URL" >> local.properties
           echo "Configured YummyTV API base URL."
 
+      # Compile Kotlin before the packaging/R8/signing pipeline. This gives a
+      # dedicated, early failure point for unresolved symbols and API mismatches.
+      # The subsequent assemble task reuses Gradle outputs and remains the
+      # authoritative end-to-end APK verification.
+      - name: Compile application Kotlin
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew :app:compileReleaseDebugKotlin --stacktrace
+
       - name: Build debug APK
         shell: bash
         run: |

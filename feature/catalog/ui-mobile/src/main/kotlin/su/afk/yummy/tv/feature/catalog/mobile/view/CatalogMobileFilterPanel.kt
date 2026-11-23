@@ -89,7 +89,7 @@ internal fun CatalogMobileFilterPanel(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.55f))
+                    .background(Color.Black.copy(alpha = 0.48f))
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
@@ -104,13 +104,13 @@ internal fun CatalogMobileFilterPanel(
             exit = slideOutHorizontally(tween(PANEL_ANIMATION_MILLIS)) { it },
             modifier = Modifier.align(Alignment.CenterEnd),
         ) {
-            val panelShape = RoundedCornerShape(topStart = 20.dp, bottomStart = 20.dp)
+            val panelShape = RoundedCornerShape(topStart = 24.dp, bottomStart = 24.dp)
             Column(
                 modifier = Modifier
                     .fillMaxHeight()
                     .fillMaxWidth(PANEL_WIDTH_FRACTION)
                     .clip(panelShape)
-                    .background(MaterialTheme.colorScheme.surface)
+                    .background(MaterialTheme.colorScheme.surfaceContainerLow)
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
@@ -185,4 +185,4 @@ internal fun CatalogMobileFilterPanel(
 
 private const val PANEL_ANIMATION_MILLIS = 280
 private const val PANEL_CONTENT_ANIMATION_MILLIS = 260
-private const val PANEL_WIDTH_FRACTION = 0.86f
+private const val PANEL_WIDTH_FRACTION = 0.88f

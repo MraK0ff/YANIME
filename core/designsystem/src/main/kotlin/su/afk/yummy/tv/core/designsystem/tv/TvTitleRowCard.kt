@@ -72,7 +72,7 @@ fun TvTitleRowCard(
             }
             .tvFocusableClick(onClick = onClick, shape = shape, onLongClick = onLongClick),
         shape = shape,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
         Row(Modifier.fillMaxWidth().height(PosterWidth / TITLE_POSTER_ASPECT_RATIO)) {
             Box(
@@ -80,7 +80,7 @@ fun TvTitleRowCard(
                     .width(PosterWidth)
                     .fillMaxHeight()
                     .seasonalCardDecor(animeId ?: posterUrls.firstOrNull().hashCode())
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                    .background(MaterialTheme.colorScheme.surfaceContainer),
                 contentAlignment = Alignment.Center,
             ) {
                 FallbackAsyncImage(

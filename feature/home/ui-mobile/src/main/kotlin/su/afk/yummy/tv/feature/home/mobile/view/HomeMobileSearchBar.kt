@@ -1,7 +1,6 @@
 package su.afk.yummy.tv.feature.home.mobile.view
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -20,7 +19,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.designsystem.mobile.input.clickablePointer
 import su.afk.yummy.tv.feature.home.presentation.R
@@ -34,15 +32,14 @@ internal fun HomeMobileSearchBar(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val shape = YummyShapeTokens.Pill
+    val shape = MaterialTheme.shapes.extraLarge
     val label = stringResource(R.string.home_mobile_search_placeholder)
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = YummySpacing.TouchTarget + YummySpacing.Small)
+            .heightIn(min = 56.dp)
             .clip(shape)
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh, shape)
-            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, shape)
+            .background(MaterialTheme.colorScheme.surfaceContainerLow, shape)
             .clickablePointer()
             .clickable(role = Role.Button, onClickLabel = label, onClick = onClick)
             .padding(horizontal = YummySpacing.Large),

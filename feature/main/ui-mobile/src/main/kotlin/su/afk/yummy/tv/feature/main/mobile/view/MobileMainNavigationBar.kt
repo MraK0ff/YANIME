@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,12 +37,12 @@ internal fun <T> MobileMainNavigationBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceContainerLow)
+            .background(containerColor)
             .navigationBarsPadding(),
     ) {
         NavigationBar(
             modifier = Modifier.height(MobileBottomBarDefaults.BarHeight),
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            containerColor = containerColor,
             tonalElevation = 0.dp,
             windowInsets = WindowInsets(0.dp),
         ) {
@@ -60,6 +61,8 @@ internal fun <T> MobileMainNavigationBar(
                     colors = itemColors,
                     onClick = { onDestinationSelected(item.destination) },
                     icon = { MobileMainNavigationIcon(item, selected) },
+                    label = { Text(item.label, maxLines = 1, style = MaterialTheme.typography.labelMedium) },
+                    alwaysShowLabel = true,
                 )
             }
         }

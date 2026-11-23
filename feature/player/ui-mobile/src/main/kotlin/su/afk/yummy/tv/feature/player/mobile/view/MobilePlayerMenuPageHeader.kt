@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.feature.player.mobile.view
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -52,5 +53,20 @@ internal fun MobilePlayerMenuPageHeader(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+    }
+}
+
+/** Shared title placed in the modal sheet's drag-handle slot. */
+@Composable
+internal fun MobilePlayerPanelDragTitle(title: String) {
+    Box(
+        modifier = Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 4.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
     }
 }

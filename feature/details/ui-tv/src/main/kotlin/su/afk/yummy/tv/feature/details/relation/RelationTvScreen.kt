@@ -209,7 +209,7 @@ fun RelationTvScreen(
                             horizontalArrangement = Arrangement.spacedBy(TvCardSpacing.Horizontal),
                             verticalArrangement = Arrangement.spacedBy(TvCardSpacing.Vertical + TvTopAnchoredExtraRowGap),
                         ) {
-                            item(span = { GridItemSpan(maxLineSpan) }) {
+                            item(span = { GridItemSpan(maxLineSpan) }, contentType = "relation_header") {
                                 Column(
                                     // Фокус на чипе шапки прокручивает грид к шапке целиком, а не
                                     // к самому чипу, иначе панель обрезается по верхнему краю.
@@ -242,7 +242,11 @@ fun RelationTvScreen(
                                     }
                                 }
                             }
-                            itemsIndexed(relation.anime, key = { _, item -> lazyKey("relation", item.animeId) }) { index, item ->
+                            itemsIndexed(
+                                items = relation.anime,
+                                key = { _, item -> lazyKey("relation", item.animeId) },
+                                contentType = { _, _ -> "related_anime" },
+                            ) { index, item ->
                                 TvTitleCard(
                                     title = item.title,
                                     posterUrls = item.poster.posterUrls(),

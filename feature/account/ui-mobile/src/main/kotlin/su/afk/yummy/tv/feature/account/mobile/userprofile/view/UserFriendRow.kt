@@ -41,7 +41,7 @@ internal fun UserFriendRow(item: UserFriend, nowEpochSeconds: Long, onClick: () 
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
+            horizontalArrangement = Arrangement.spacedBy(YummySpacing.Small),
         ) {
             Box {
                 AsyncImage(
@@ -49,7 +49,7 @@ internal fun UserFriendRow(item: UserFriend, nowEpochSeconds: Long, onClick: () 
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .size(YummySpacing.TouchTarget)
+                        .size(YummySpacing.TouchTarget - 4.dp)
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.surfaceVariant),
                 )

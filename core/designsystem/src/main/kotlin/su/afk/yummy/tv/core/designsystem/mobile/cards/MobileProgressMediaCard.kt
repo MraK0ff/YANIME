@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.components.FallbackAsyncImage
@@ -48,7 +49,7 @@ fun MobileProgressMediaCard(
     Card(
         modifier = modifier
             .clickablePointer()
-            .combinedClickable(enabled = !isLoading, onLongClick = onLongClick, onClick = onClick),
+            .combinedClickable(enabled = !isLoading, onLongClick = onLongClick, onClick = onClick, role = Role.Button),
         shape = YummyShapeTokens.Card,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {

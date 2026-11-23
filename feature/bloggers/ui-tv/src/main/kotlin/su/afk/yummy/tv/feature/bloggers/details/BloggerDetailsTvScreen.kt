@@ -137,7 +137,11 @@ fun BloggerDetailsTvScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            items(state.videos, key = { lazyKey("bloggervideo", it.id) }) { video ->
+            items(
+                items = state.videos,
+                key = { lazyKey("bloggervideo", it.id) },
+                contentType = { "blogger_video" },
+            ) { video ->
                 BloggerVideoTvCard(
                     video,
                     { onEvent(BloggerDetailsState.Event.VideoSelected(video.id)) })

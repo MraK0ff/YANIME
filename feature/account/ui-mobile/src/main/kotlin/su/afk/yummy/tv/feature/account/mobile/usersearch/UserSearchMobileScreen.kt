@@ -90,7 +90,7 @@ fun UserSearchMobileScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            item(key = "search") {
+            item(key = "search", contentType = "search_field") {
                 OutlinedTextField(
                     shape = MaterialTheme.shapes.large,
                     value = state.query,
@@ -113,7 +113,7 @@ fun UserSearchMobileScreen(
             }
 
             when {
-                !state.isSearchActive -> item(key = "initial") {
+                !state.isSearchActive -> item(key = "initial", contentType = "initial_state") {
                     MobileMessage(
                         title = stringResource(R.string.user_search_initial),
                         icon = Icons.Default.PersonSearch,
@@ -121,7 +121,7 @@ fun UserSearchMobileScreen(
                     )
                 }
 
-                results.loadState.refresh is LoadState.Loading -> item(key = "loading") {
+                results.loadState.refresh is LoadState.Loading -> item(key = "loading", contentType = "loading_state") {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -132,7 +132,7 @@ fun UserSearchMobileScreen(
                     }
                 }
 
-                results.loadState.refresh is LoadState.Error -> item(key = "error") {
+                results.loadState.refresh is LoadState.Error -> item(key = "error", contentType = "error_state") {
                     MobileMessage(
                         title = stringResource(R.string.user_search_error),
                         icon = Icons.Default.PersonSearch,
@@ -142,7 +142,7 @@ fun UserSearchMobileScreen(
                     )
                 }
 
-                results.itemCount == 0 -> item(key = "empty") {
+                results.itemCount == 0 -> item(key = "empty", contentType = "empty_state") {
                     MobileMessage(
                         title = stringResource(R.string.user_search_empty),
                         icon = Icons.Default.PersonSearch,
@@ -153,6 +153,7 @@ fun UserSearchMobileScreen(
                 else -> items(
                     count = results.itemCount,
                     key = results.safeItemKey("user") { lazyKey("user", it.id) },
+                    contentType = { "user_result" },
                 ) { index ->
                     results.getOrNull(index)?.let { item ->
                         UserSearchCard(
@@ -168,14 +169,14 @@ fun UserSearchMobileScreen(
             }
 
             if (results.loadState.append is LoadState.Loading) {
-                item(key = "append_loading") {
+                item(key = "append_loading", contentType = "loading_state") {
                     Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                         YummyLoadingIndicator()
                     }
                 }
             }
             if (results.loadState.append is LoadState.Error) {
-                item(key = "append_error") {
+                item(key = "append_error", contentType = "error_state") {
                     MobileMessage(
                         title = stringResource(R.string.user_search_error),
                         icon = Icons.Default.PersonSearch,

@@ -74,7 +74,7 @@ fun TvTitleCard(
             .tvFocusableClick(onClick = onClick, shape = shape, onLongClick = onLongClick),
         shape = shape,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
         ),
     ) {
         Column {
@@ -84,7 +84,7 @@ fun TvTitleCard(
                     // Высота от фактической ширины: в гриде ячейка может быть уже или шире cardWidth.
                     .aspectRatio(TITLE_POSTER_ASPECT_RATIO)
                     .seasonalCardDecor(animeId ?: posterUrls.firstOrNull().hashCode())
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                    .background(MaterialTheme.colorScheme.surfaceContainer),
                 contentAlignment = Alignment.Center,
             ) {
                 FallbackAsyncImage(

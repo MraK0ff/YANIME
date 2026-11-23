@@ -249,7 +249,11 @@ internal fun HomeSection(
                     }
                 },
         ) {
-            itemsIndexed(items = items, key = { _, item -> item.focusKey() }) { index, item ->
+            itemsIndexed(
+                items = items,
+                key = { _, item -> item.focusKey() },
+                contentType = { _, _ -> "home_section_item" },
+            ) { index, item ->
                 val wrappedOnFocused = { _: Int, _: Int? ->
                     currentFocusedIndex = index
                     if (!isRestoringFocusState.value) {

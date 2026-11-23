@@ -382,6 +382,8 @@ internal fun TvExoPlayerView(
             panels.close(
                 returnFocusTarget = when (panels.activePanel) {
                     TvPlayerPanel.Quality -> PanelReturnFocusTarget.Quality
+                    TvPlayerPanel.Speed -> PanelReturnFocusTarget.Speed
+                    TvPlayerPanel.Subtitles -> PanelReturnFocusTarget.Subtitles
                     TvPlayerPanel.Dubbing -> PanelReturnFocusTarget.Dubbing
                     TvPlayerPanel.Balancer -> PanelReturnFocusTarget.Balancer
                     TvPlayerPanel.Episodes -> PanelReturnFocusTarget.Episodes
@@ -501,7 +503,7 @@ internal fun TvExoPlayerView(
             animeTitle = state.animeTitle,
             episode = playback.activeEpisode,
             dubbing = playback.activeDubbingLabel,
-            modifier = Modifier.align(Alignment.TopStart),
+            modifier = Modifier.align(Alignment.TopCenter),
         )
 
         TvPlayerNameBadge(
@@ -511,11 +513,19 @@ internal fun TvExoPlayerView(
             modifier = Modifier.align(Alignment.TopEnd),
         )
 
+        TvPlayerTimeOverlay(
+            settings = state.timeDisplaySettings,
+            displayTimeMs = progress.displayTimeMs,
+            durationMs = progress.duration,
+            controlsActive = controllerVisible,
+        )
+
         TvPlayerControlsOverlay(
             visible = controllerVisible,
             hidden = panels.isOpen(TvPlayerPanel.Episodes) && playback.episodes.isNotEmpty(),
             focus = focus,
             progress = progress,
+            timeDisplaySettings = state.timeDisplaySettings,
             wantsPlay = playbackShouldPlay,
             playback = playback,
             animeTitle = state.animeTitle,
@@ -526,10 +536,28 @@ internal fun TvExoPlayerView(
             highlightedSkipKey = skipUi.highlightedSkipKey,
             qualityCount = playback.qualityLabels.size,
             currentQualityLabel = activeQuality.orEmpty(),
+            speeds = speeds,
+            activeSpeed = activeSpeed,
+            onCycleSpeed = {
+                if (speeds.isNotEmpty()) {
+                    val currentIndex = speeds.indexOf(activeSpeed).coerceAtLeast(0)
+                    val nextIndex = (currentIndex + 1) % speeds.size
+                    onPlayerEvent(PlayerState.Event.SpeedSelected(speeds[nextIndex]))
+                    onInteraction()
+                }
+            },
+            onOpenSpeedPanel = {
+                togglePanel(TvPlayerPanel.Speed, PanelReturnFocusTarget.Speed)
+            },
             adaptiveQuality = playback.adaptiveQuality,
             showAllohaButton = trackMenu.showAudioChoice,
+            showSubtitleButton = trackMenu.showSubtitleChoice,
             onPlayPause = { if (wantsPlay) player.pause() else player.play() },
             onSeekTo = seekController::seekTo,
+            onStepSeek = { direction ->
+                seekController.stepSeek(direction)
+                onInteraction()
+            },
             onInteraction = ::onInteraction,
             onSkipActiveSegment = { skipActiveSegment() },
             onStayAutoSkip = {
@@ -559,6 +587,9 @@ internal fun TvExoPlayerView(
             onToggleAlloha = {
                 togglePanel(TvPlayerPanel.Alloha, PanelReturnFocusTarget.Alloha)
             },
+            onToggleSubtitles = {
+                togglePanel(TvPlayerPanel.Subtitles, PanelReturnFocusTarget.Subtitles)
+            },
         )
 
         TvPlayerPanelsHost(
@@ -569,14 +600,18 @@ internal fun TvExoPlayerView(
             activeQuality = activeQuality,
             speeds = speeds,
             activeSpeed = activeSpeed,
+            onSpeedSelected = { speed ->
+                onPlayerEvent(PlayerState.Event.SpeedSelected(speed))
+                panels.close(PanelReturnFocusTarget.Speed)
+                onInteraction()
+            },
             resizeMode = state.resizeMode,
             zoomLevel = state.zoomLevel,
+            timeDisplaySettings = state.timeDisplaySettings,
             volumePercent = playerVolumePercent,
             showVolume = advancedVolumeEnabled,
-            subtitleStyle = state.subtitleStyle,
             showStabilization = state.volumeStabilizationSupported,
             stabilizationEnabled = state.volumeStabilizationEnabled,
-            showAdaptiveQuality = playback.qualityLabels.size > 1,
             adaptiveQualityEnabled = playback.adaptiveQuality,
             audioTrackNames = trackMenu.audioOptions.map(PlayerTrackOption::label),
             selectedAudioTrackIndex = trackMenu.selectedAudioIndex,
@@ -604,10 +639,6 @@ internal fun TvExoPlayerView(
                 panels.close(PanelReturnFocusTarget.Balancer)
                 onInteraction()
             },
-            onSpeedSelected = { idx ->
-                onPlayerEvent(PlayerState.Event.SpeedSelected(speeds[idx]))
-                onInteraction()
-            },
             onResizeModeSelected = { mode ->
                 onPlayerEvent(PlayerState.Event.ResizeModeSelected(mode))
                 onInteraction()
@@ -619,16 +650,16 @@ internal fun TvExoPlayerView(
                 onInteraction()
             },
             onVolumeChange = { volumeController.setPercent(it) },
-            onSubtitleStyleChange = { onPlayerEvent(PlayerState.Event.SubtitleStyleChanged(it)) },
             onStabilizationChange = { onPlayerEvent(PlayerState.Event.VolumeStabilizationToggled(it)) },
             onAdaptiveQualityChange = { onPlayerEvent(PlayerState.Event.AdaptiveQualityToggled(it)) },
+            onTimeDisplaySettingsChange = { onPlayerEvent(PlayerState.Event.TimeDisplaySettingsChanged(it)) },
             onAudioTrackSelected = { idx ->
                 trackMenu.selectAudio(idx, player.currentPosition.coerceAtLeast(0L), onPlayerEvent)
                 panels.close(PanelReturnFocusTarget.Alloha)
                 onInteraction()
             },
             onSubtitleTrackSelected = { idx ->
-                // Панель не закрываем: рядом настройки оформления, их удобно крутить на живых сабах.
+                // Панель остаётся открытой, чтобы можно было быстро переключать дорожки и сравнивать их.
                 trackMenu.selectSubtitle(idx, player.currentPosition.coerceAtLeast(0L), onPlayerEvent)
                 onInteraction()
             },

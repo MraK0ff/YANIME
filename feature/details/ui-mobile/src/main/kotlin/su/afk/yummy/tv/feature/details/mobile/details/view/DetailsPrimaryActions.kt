@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
@@ -97,7 +98,7 @@ internal fun DetailsPrimaryActions(
                         modifier = Modifier
                             .weight(1f)
                             .animateWidth(interactionSource)
-                            .height(46.dp),
+                            .heightIn(min = YummySpacing.TouchTarget),
                     ) {
                         Icon(
                             imageVector = if (state.isInLibrary) {
@@ -134,7 +135,7 @@ internal fun DetailsPrimaryActions(
                         modifier = Modifier
                             .weight(1f)
                             .animateWidth(interactionSource)
-                            .height(46.dp),
+                            .heightIn(min = YummySpacing.TouchTarget),
                     ) {
                         Icon(
                             imageVector = if (state.isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,

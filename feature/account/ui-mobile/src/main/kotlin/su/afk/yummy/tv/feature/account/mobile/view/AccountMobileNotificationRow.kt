@@ -89,7 +89,7 @@ internal fun AccountMobileNotificationRow(
         color = if (notification.viewed) {
             MaterialTheme.colorScheme.surfaceContainer
         } else {
-            MaterialTheme.colorScheme.surfaceContainerHigh
+            MaterialTheme.colorScheme.surfaceContainerLow
         },
     ) {
         Row(

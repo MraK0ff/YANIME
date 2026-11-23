@@ -122,6 +122,7 @@ fun FriendsMobileScreen(
                     items(
                         count = friends.itemCount,
                         key = friends.safeItemKey("friend") { lazyKey("friend", it.id) },
+                        contentType = { "friend" },
                     ) { index ->
                         friends.getOrNull(index)?.let { item ->
                             UserFriendRow(

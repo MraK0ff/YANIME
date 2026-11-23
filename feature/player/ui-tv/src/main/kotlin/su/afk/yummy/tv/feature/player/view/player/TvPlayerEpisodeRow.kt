@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.RecordVoiceOver
+import androidx.compose.material.icons.filled.ClosedCaption
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.Settings
@@ -34,6 +35,7 @@ import su.afk.yummy.tv.core.designsystem.focus.tvFocusRestorer
 import su.afk.yummy.tv.core.designsystem.utils.dubbingDisplayName
 import su.afk.yummy.tv.feature.player.model.PlayerFinalEpisodeAction
 import su.afk.yummy.tv.feature.player.presentation.R
+import su.afk.yummy.tv.feature.player.utils.speedLabel
 import su.afk.yummy.tv.feature.player.utils.withoutDubbingTitlePrefix
 
 @Composable
@@ -50,6 +52,11 @@ internal fun TvPlayerEpisodeRow(
     playerName: String,
     dubbing: String,
     currentQualityLabel: String,
+    speeds: List<Float>,
+    activeSpeed: Float,
+    onCycleSpeed: () -> Unit,
+    onOpenSpeedPanel: () -> Unit,
+    speedFocusRequester: FocusRequester? = null,
     adaptiveQuality: Boolean,
     qualityFocusRequester: FocusRequester? = null,
     dubbingFocusRequester: FocusRequester? = null,
@@ -59,6 +66,8 @@ internal fun TvPlayerEpisodeRow(
     allohaFocusRequester: FocusRequester? = null,
     nextEpisodeFocusRequester: FocusRequester? = null,
     showAllohaButton: Boolean = false,
+    showSubtitleButton: Boolean = false,
+    subtitlesFocusRequester: FocusRequester? = null,
     upFocusRequester: FocusRequester,
     onInteraction: () -> Unit,
     onPrevEpisode: () -> Unit,
@@ -70,6 +79,7 @@ internal fun TvPlayerEpisodeRow(
     onToggleEpisodes: () -> Unit = {},
     onTogglePlayerSettings: () -> Unit = {},
     onToggleAlloha: () -> Unit = {},
+    onToggleSubtitles: () -> Unit = {},
 ) {
     // Серии отдельной кнопки не имеют: «вниз» с ряда кнопок раскрывает ленту серий. Фокус-группа с
     // restorer'ом нужна, чтобы после закрытия ленты фокус вернулся на кнопку, с которой её открыли.
@@ -94,18 +104,66 @@ internal fun TvPlayerEpisodeRow(
                 onFocused = onInteraction,
                 modifier = Modifier
                     .focusProperties { up = upFocusRequester }
-                    .width(48.dp),
+                    .width(44.dp),
                 contentPadding = PaddingValues(horizontal = 0.dp, vertical = 9.dp),
             ) { color ->
                 Icon(
                     imageVector = Icons.Filled.SkipPrevious,
                     contentDescription = stringResource(R.string.player_previous_episode),
                     tint = color,
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(18.dp),
                 )
             }
         }
         Spacer(Modifier.weight(1f))
+        if (speeds.isNotEmpty()) {
+            TvControlButton(
+                onClick = onCycleSpeed,
+                onLongClick = onOpenSpeedPanel,
+                onFocused = onInteraction,
+                focusRequester = speedFocusRequester,
+                modifier = Modifier.focusProperties { up = upFocusRequester },
+            ) { color ->
+                Text(
+                    text = activeSpeed.speedLabel(),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = color,
+                    maxLines = 1,
+                )
+            }
+            Spacer(Modifier.width(8.dp))
+        }
+        if (qualityCount > 0) {
+            TvControlButton(
+                onClick = onToggleQuality,
+                onFocused = onInteraction,
+                focusRequester = qualityFocusRequester,
+                modifier = Modifier
+                    .focusProperties { up = upFocusRequester }
+                    .widthIn(min = 92.dp),
+            ) { color ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    // Буква перед качеством: это выбор адаптации, а не пользователя.
+                    if (adaptiveQuality) {
+                        Text(
+                            text = stringResource(R.string.player_adaptive_quality_badge),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = color,
+                            maxLines = 1,
+                        )
+                    }
+                    Text(
+                        text = currentQualityLabel,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = color,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+            Spacer(Modifier.width(8.dp))
+        }
         if (allDubbingNames.size > 1) {
             val label = allDubbingNames
                 .getOrElse(currentDubbingIndex) { dubbing }
@@ -151,34 +209,22 @@ internal fun TvPlayerEpisodeRow(
             }
             Spacer(Modifier.width(8.dp))
         }
-        if (qualityCount > 0) {
+        if (showSubtitleButton) {
             TvControlButton(
-                onClick = onToggleQuality,
+                onClick = onToggleSubtitles,
                 onFocused = onInteraction,
-                focusRequester = qualityFocusRequester,
+                focusRequester = subtitlesFocusRequester,
                 modifier = Modifier
                     .focusProperties { up = upFocusRequester }
-                    .widthIn(min = 92.dp),
+                    .width(48.dp),
+                contentPadding = PaddingValues(horizontal = 0.dp, vertical = 9.dp),
             ) { color ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    // Буква перед качеством: это выбор адаптации, а не пользователя.
-                    if (adaptiveQuality) {
-                        Text(
-                            text = stringResource(R.string.player_adaptive_quality_badge),
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = color,
-                            maxLines = 1,
-                        )
-                    }
-                    Text(
-                        text = currentQualityLabel,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = color,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
+                Icon(
+                    imageVector = Icons.Filled.ClosedCaption,
+                    contentDescription = stringResource(R.string.player_subtitle_track_title),
+                    tint = color,
+                    modifier = Modifier.size(20.dp),
+                )
             }
             Spacer(Modifier.width(8.dp))
         }

@@ -82,7 +82,7 @@ internal fun ChatMessageMobileBubble(
     val context = LocalContext.current
     var menuExpanded by remember { mutableStateOf(false) }
     val showAvatar = showAuthor && !isOwn
-    val bubbleShape = YummyShapeTokens.ProminentCard
+    val bubbleShape = YummyShapeTokens.Control
 
     val density = LocalDensity.current
     val thresholdPx = with(density) { 56.dp.toPx() }
@@ -165,7 +165,7 @@ internal fun ChatMessageMobileBubble(
                                 end = 14.dp,
                                 bottom = 6.dp
                             ),
-                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalArrangement = Arrangement.spacedBy(3.dp),
                         ) {
                             if (showAvatar && message.nickname.isNotBlank()) {
                                 Text(

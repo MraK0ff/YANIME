@@ -95,6 +95,16 @@ internal fun TvPlayerFocusEffects(
         currentOnSkipFocusHandled()
     }
 
+    LaunchedEffect(panels.isOpen(TvPlayerPanel.Subtitles)) {
+        if (panels.isOpen(TvPlayerPanel.Subtitles)) {
+            requestFocusUntilTimeout(focus.selectedSubtitles)
+        }
+    }
+    LaunchedEffect(panels.isOpen(TvPlayerPanel.Speed)) {
+        if (panels.isOpen(TvPlayerPanel.Speed)) {
+            requestFocusUntilTimeout(focus.selectedSpeed)
+        }
+    }
     LaunchedEffect(panels.isOpen(TvPlayerPanel.Quality)) {
         if (panels.isOpen(TvPlayerPanel.Quality)) {
             requestFocusUntilTimeout(focus.selectedQuality)

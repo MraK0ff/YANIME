@@ -25,9 +25,9 @@ internal fun AccountMobileQuickActionsGrid(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clip(YummyShapeTokens.ProminentCard)
-            .background(MaterialTheme.colorScheme.surfaceContainer)
-            .padding(horizontal = YummySpacing.Small, vertical = YummySpacing.Medium),
+            .clip(YummyShapeTokens.Card)
+            .background(MaterialTheme.colorScheme.surfaceContainerLow)
+            .padding(horizontal = YummySpacing.XSmall, vertical = YummySpacing.Small),
         verticalArrangement = Arrangement.spacedBy(YummySpacing.Small),
     ) {
         actions.chunked(ColumnsPerRow).forEach { row ->

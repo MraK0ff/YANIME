@@ -147,7 +147,16 @@ fun ReviewDetailsTvScreen(
                             )
                         }
                     }
-                    items(blocks, key = { it.id }) { block ->
+                    items(
+                        items = blocks,
+                        key = { it.id },
+                        contentType = {
+                            when (it) {
+                                is ReviewContentBlock.Image -> "review_image"
+                                is ReviewContentBlock.Paragraph -> "review_paragraph"
+                            }
+                        },
+                    ) { block ->
                         val focusModifier = when (block) {
                             is ReviewContentBlock.Image -> Modifier.tvFocusIndicator()
                             is ReviewContentBlock.Paragraph -> Modifier.tvFocusHighlight()
@@ -167,7 +176,7 @@ fun ReviewDetailsTvScreen(
                             }
                         }
                     }
-                    item {
+                    item(contentType = "review_reactions") {
                         val reactions = details.review.reactions
                         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             ReviewReactionButton(

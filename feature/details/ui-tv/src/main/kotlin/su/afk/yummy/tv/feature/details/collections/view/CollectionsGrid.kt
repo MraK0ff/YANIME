@@ -144,7 +144,7 @@ internal fun CollectionsGrid(
                         }
                     },
             ) {
-                item(span = { GridItemSpan(maxLineSpan) }) {
+                item(span = { GridItemSpan(maxLineSpan) }, contentType = "collections_header") {
                     Text(
                         text = stringResource(R.string.details_collections_title),
                         style = MaterialTheme.typography.headlineMedium,
@@ -154,7 +154,9 @@ internal fun CollectionsGrid(
                 }
                 itemsIndexed(
                     collections,
-                    key = { index, collection -> lazyKey("collection", collection.id, index) }) { index, collection ->
+                    key = { index, collection -> lazyKey("collection", collection.id, index) },
+                    contentType = { _, _ -> "collection_card" },
+                ) { index, collection ->
                     val stableOnClick = remember(collection.id, index) {
                         {
                             rememberFocusedCollection(index)

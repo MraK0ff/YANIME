@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.domain.account.model.UserListWatchStat
 import su.afk.yummy.tv.feature.account.common.utils.toDurationLabel
 
@@ -25,17 +26,17 @@ internal fun AccountMobileListStatCard(
     AccountMobileSurfacePanel(modifier = modifier) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(YummySpacing.Small),
         ) {
             Icon(
                 imageVector = Icons.Filled.Schedule,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.68f),
                 modifier = Modifier.size(18.dp),
             )
             Text(
                 text = stat.seconds.toDurationLabel(),
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
             )
         }

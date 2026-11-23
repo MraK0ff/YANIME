@@ -32,7 +32,7 @@ internal fun SubscriptionMobileRow(
     val containerColor = if (option.isSubscribed) {
         colorScheme.primaryContainer
     } else {
-        colorScheme.surfaceVariant.copy(alpha = 0.56f)
+        colorScheme.surfaceContainerLow
     }
     val contentColor = if (option.isSubscribed) {
         colorScheme.onPrimaryContainer
@@ -48,13 +48,13 @@ internal fun SubscriptionMobileRow(
                 role = Role.Checkbox,
                 onValueChange = { onClick() },
             ),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(10.dp),
         color = containerColor,
         contentColor = contentColor,
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(

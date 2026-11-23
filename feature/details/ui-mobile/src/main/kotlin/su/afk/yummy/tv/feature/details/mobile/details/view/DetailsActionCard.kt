@@ -34,7 +34,7 @@ internal fun DetailsActionCard(
             .heightIn(min = YummySpacing.TouchTarget + YummySpacing.Large)
             .onboardingTarget(mobileDetailsActionTargetId(action.action)),
         shape = YummyShapeTokens.Control,
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
     ) {
         Row(
             modifier = Modifier
@@ -47,7 +47,7 @@ internal fun DetailsActionCard(
                 imageVector = action.icon,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(26.dp),
+                modifier = Modifier.size(22.dp),
             )
             Column(verticalArrangement = Arrangement.spacedBy(YummySpacing.XSmall)) {
                 Text(

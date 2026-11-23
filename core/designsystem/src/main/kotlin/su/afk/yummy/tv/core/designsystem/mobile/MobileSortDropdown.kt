@@ -3,11 +3,11 @@ package su.afk.yummy.tv.core.designsystem.mobile
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -29,6 +29,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.Role
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 
 /** Чип сортировки с выпадающим меню; [compact] — только иконка без подписи. */
 @Composable
@@ -47,11 +49,12 @@ fun <T> MobileSortDropdown(
         Row(
             modifier = Modifier
                 .onSizeChanged { chipWidthPx = it.width }
-                .clip(RoundedCornerShape(20.dp))
+                .clip(if (compact) YummyShapeTokens.Pill else YummyShapeTokens.Control)
                 .background(
-                    if (compact) Color.Transparent else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+                    if (compact) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerLow,
                 )
-                .clickable { expanded = true }
+                .clickable(role = Role.Button, onClick = { expanded = true })
+                .heightIn(min = 48.dp)
                 .padding(horizontal = if (compact) 10.dp else 14.dp, vertical = if (compact) 10.dp else 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {

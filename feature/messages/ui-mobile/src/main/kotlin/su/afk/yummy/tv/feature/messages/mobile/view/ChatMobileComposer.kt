@@ -37,7 +37,7 @@ internal fun ChatMobileComposer(
     Column(modifier = Modifier.fillMaxWidth()) {
         if (replyingToNickname != null) {
             Surface(
-                color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                color = MaterialTheme.colorScheme.surfaceContainerLow,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 12.dp, vertical = 6.dp),
@@ -80,9 +80,9 @@ internal fun ChatMobileComposer(
             }
         }
         Surface(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 6.dp),
             color = MaterialTheme.colorScheme.surfaceContainerLow,
-            shape = YummyShapeTokens.ProminentCard,
+            shape = YummyShapeTokens.Card,
         ) {
         Row(
             modifier = Modifier

@@ -2,20 +2,20 @@ package su.afk.yummy.tv.core.designsystem.mobile.cards
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.components.TitleListRowContent
 import su.afk.yummy.tv.core.designsystem.components.yearText
 import su.afk.yummy.tv.core.designsystem.locals.LocalLibraryListStatuses
 import su.afk.yummy.tv.core.designsystem.locals.LocalLibraryUserRatings
 import su.afk.yummy.tv.core.designsystem.mobile.input.clickablePointer
 import su.afk.yummy.tv.core.designsystem.model.TitleListCardUi
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 
 /**
  * Строка тайтла из пользовательского списка (библиотека, списки профиля): постер 2:3 с оценкой
@@ -43,10 +43,10 @@ fun MobileTitleListCard(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(10.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.34f))
+            .clip(YummyShapeTokens.Card)
+            .background(MaterialTheme.colorScheme.surfaceContainerLow)
             .clickablePointer()
-            .clickable(onClick = onClick),
+            .clickable(role = Role.Button, onClick = onClick),
     ) {
         TitleListRowContent(
             item = item,

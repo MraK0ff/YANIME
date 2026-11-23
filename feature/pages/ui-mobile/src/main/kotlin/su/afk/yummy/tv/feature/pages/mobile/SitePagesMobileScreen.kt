@@ -55,7 +55,11 @@ fun SitePagesMobileScreen(
                     .navigationBarsPadding(),
                 contentPadding = PaddingValues(12.dp),
             ) {
-                items(SitePageType.entries, key = SitePageType::apiValue) { type ->
+                items(
+                    items = SitePageType.entries,
+                    key = SitePageType::apiValue,
+                    contentType = { "site_page" },
+                ) { type ->
                     SitePageRow(type.title()) { onEvent(SitePagesState.Event.PageSelected(type)) }
                 }
             }

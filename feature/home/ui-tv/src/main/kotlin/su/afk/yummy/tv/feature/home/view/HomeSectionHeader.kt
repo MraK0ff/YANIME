@@ -26,8 +26,8 @@ internal fun HomeSectionHeader(
     active: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val markerWidth = if (active) 6.dp else 4.dp
-    val markerHeight = if (active) 28.dp else 22.dp
+    val markerWidth = if (active) 5.dp else 3.dp
+    val markerHeight = if (active) 24.dp else 20.dp
     val markerColor = if (active) {
         MaterialTheme.colorScheme.primary
     } else {
@@ -43,7 +43,7 @@ internal fun HomeSectionHeader(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = TvScreenPadding.Horizontal),
-        horizontalArrangement = Arrangement.spacedBy(YummySpacing.Large - 2.dp),
+        horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(

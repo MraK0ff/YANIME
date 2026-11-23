@@ -153,14 +153,18 @@ private fun ScheduleDayReleases(
             .mobileContentMaxWidth()
             .fillMaxSize(),
         contentPadding = PaddingValues(
-            start = YummySpacing.Large,
+            start = YummySpacing.Medium,
             top = YummySpacing.Small,
-            end = YummySpacing.Large,
+            end = YummySpacing.Medium,
             bottom = MobileBottomBarDefaults.contentBottomPadding,
         ),
-        verticalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
+        verticalArrangement = Arrangement.spacedBy(YummySpacing.Small + 2.dp),
     ) {
-        items(group.items, key = { it.focusKey }) { release ->
+        items(
+            items = group.items,
+            key = { it.focusKey },
+            contentType = { "schedule_release" },
+        ) { release ->
             ScheduleMobileReleaseCard(
                 release = release,
                 now = now,

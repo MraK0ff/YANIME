@@ -32,12 +32,12 @@ private val HERO_AUTO_SCROLL_INTERVAL = 5.seconds
 
 /** Автосмена без рывка: дефолтная пружина перекидывает узкую карточку почти мгновенно. */
 private const val HERO_AUTO_SCROLL_DURATION_MS = 900
-private val HERO_PAGE_SPACING = 10.dp
+private val HERO_PAGE_SPACING = 8.dp
 
 /** Отступ по краям пейджера: из-под него выглядывают соседние карточки. */
-private val HERO_PEEK_PADDING = 44.dp
-private const val HERO_INACTIVE_SCALE = 0.88f
-private const val HERO_INACTIVE_ALPHA = 0.75f
+private val HERO_PEEK_PADDING = 36.dp
+private const val HERO_INACTIVE_SCALE = 0.93f
+private const val HERO_INACTIVE_ALPHA = 0.84f
 
 /** На телефоне карточка во всю ширину, на планшете не шире [HERO_MAX_PAGE_WIDTH] — видно несколько. */
 private val HERO_MAX_PAGE_WIDTH = 520.dp

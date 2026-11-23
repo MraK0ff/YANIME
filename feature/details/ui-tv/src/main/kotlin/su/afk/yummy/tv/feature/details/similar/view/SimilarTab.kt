@@ -196,6 +196,7 @@ internal fun SimilarTab(
                             itemsIndexed(
                                 items = state.items,
                                 key = { index, item -> lazyKey("similar", item.animeId, index) },
+                                contentType = { _, _ -> "similar_anime" },
                             ) { index, item ->
                                 val posterUrls = item.poster.posterUrls()
                                 val meta =

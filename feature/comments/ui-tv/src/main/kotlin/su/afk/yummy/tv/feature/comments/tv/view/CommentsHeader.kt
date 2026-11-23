@@ -31,6 +31,7 @@ internal fun CommentsHeader(
     initialFocusRequester: FocusRequester,
     onSortSelected: (CommentSort) -> Unit,
     onRefresh: () -> Unit,
+    onOpenDetails: (() -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -48,6 +49,13 @@ internal fun CommentsHeader(
                 } else {
                     Modifier
                 },
+            )
+        }
+        if (onOpenDetails != null) {
+            TvChip(
+                label = stringResource(R.string.comments_open_details),
+                selected = false,
+                onClick = onOpenDetails,
             )
         }
         Box(

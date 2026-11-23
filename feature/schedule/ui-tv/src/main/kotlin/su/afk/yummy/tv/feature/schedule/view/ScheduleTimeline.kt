@@ -204,7 +204,13 @@ internal fun ScheduleTimeline(
                 focusRequester = filterChipFocusRequester,
                 leftFocusRequester = mainMenuFocusRequester,
                 downFocusRequester = contentDownFocusRequester,
-                onClick = { onEvent(ScheduleState.Event.InLibraryFilterToggled) },
+                onClick = {
+                    onEvent(
+                        ScheduleState.Event.LibraryFilterSelected(
+                            if (onlyInLibrary) ScheduleState.LibraryFilter.ALL else ScheduleState.LibraryFilter.LIBRARY,
+                        ),
+                    )
+                },
             )
             if (schedule.dayGroups.isNotEmpty()) {
                 ScheduleDateChips(
@@ -230,12 +236,12 @@ internal fun ScheduleTimeline(
                 contentAlignment = Alignment.Center,
             ) {
                 TvStateMessage(
-                    title = stringResource(R.string.schedule_filter_in_library_empty),
+                    title = stringResource(R.string.schedule_empty),
                     icon = Icons.Filled.DateRange,
-                    retryLabel = stringResource(R.string.schedule_filter_show_all),
+                    retryLabel = stringResource(R.string.schedule_filter_all),
                     onRetry = {
                         focusFilterOnReset = true
-                        onEvent(ScheduleState.Event.InLibraryFilterToggled)
+                        onEvent(ScheduleState.Event.LibraryFilterSelected(ScheduleState.LibraryFilter.ALL))
                     },
                     retryFocusRequester = emptyResetFocusRequester,
                     fillMaxSize = false,

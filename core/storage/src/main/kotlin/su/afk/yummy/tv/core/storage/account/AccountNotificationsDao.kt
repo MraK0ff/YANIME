@@ -49,6 +49,18 @@ abstract class AccountNotificationsDao {
     @Query("DELETE FROM account_notifications WHERE userId = :userId")
     abstract suspend fun deleteNotifications(userId: Int)
 
+    @Query("UPDATE account_notifications SET viewed = 1 WHERE userId = :userId AND notificationId = :notificationId")
+    abstract suspend fun markNotificationViewed(userId: Int, notificationId: Int)
+
+    @Query("UPDATE account_notifications SET viewed = 1 WHERE userId = :userId")
+    abstract suspend fun markAllNotificationsViewed(userId: Int)
+
+    @Query("DELETE FROM account_notifications WHERE userId = :userId AND notificationId = :notificationId")
+    abstract suspend fun deleteNotificationLocally(userId: Int, notificationId: Int)
+
+    @Query("DELETE FROM account_notifications WHERE userId = :userId")
+    abstract suspend fun deleteAllNotificationsLocally(userId: Int)
+
     @Query(
         """
         DELETE FROM account_notification_pages

@@ -232,3 +232,25 @@ internal inline fun DrawScope.withLayerAlpha(alpha: Float, block: DrawScope.() -
         canvas.restore()
     }
 }
+
+internal fun DrawScope.drawSantaHat(size: Float) {
+    rotate(degrees = 18f, pivot = Offset(size * 0.62f, size * 0.12f)) {
+        val baseY = size * 0.2f
+        val left = size * 0.18f
+        val right = size * 1.04f
+        val body = Path().apply {
+            moveTo(left, baseY)
+            quadraticTo(size * 0.45f, -size * 0.34f, size * 0.98f, -size * 0.12f)
+            lineTo(right, baseY)
+            close()
+        }
+        drawPath(body, HatRed)
+        drawRoundRect(
+            HatWhite,
+            Offset(left - size * 0.04f, baseY - size * 0.07f),
+            Size(right - left + size * 0.08f, size * 0.15f),
+            cornerRadius = CornerRadius(size * 0.075f),
+        )
+        drawCircle(HatWhite, size * 0.1f, Offset(size * 0.98f, -size * 0.12f))
+    }
+}

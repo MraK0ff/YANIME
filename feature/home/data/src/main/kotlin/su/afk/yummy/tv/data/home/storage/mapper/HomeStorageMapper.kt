@@ -36,6 +36,7 @@ internal fun YaniFeedDto.toHomeFeedCache(
     language: String,
     watchSignature: String,
     cachedAt: Long,
+    availableEpisodeCounts: Map<Int, Int> = emptyMap(),
 ): HomeFeedCache =
     HomeFeedCache(
         entry = HomeFeedCacheEntry(
@@ -47,7 +48,7 @@ internal fun YaniFeedDto.toHomeFeedCache(
             language = language,
             watchSignature = watchSignature,
             container = HOME_FEED_CONTAINER_HERO,
-        ) + response.newVideos.toNewVideoEntries(language, watchSignature) +
+        ) + response.newVideos.toNewVideoEntries(language, watchSignature, availableEpisodeCounts) +
                 response.new.toSeriesEntries(
                     language,
                     watchSignature,
@@ -191,10 +192,25 @@ private fun List<YaniAnimeDto>.toSeriesEntries(
 private fun List<YaniVideoDto>.toNewVideoEntries(
     language: String,
     watchSignature: String,
+    availableEpisodeCounts: Map<Int, Int>,
 ): List<HomeFeedItemEntry> =
     groupBy { it.animeId }.mapNotNull { (animeId, videos) ->
         val id = animeId ?: return@mapNotNull null
-        val item = videos.first()
+        val newest = videos
+            .mapNotNull { video ->
+                val episode = video.episodeTitle.toRegularEpisodeNumber() ?: return@mapNotNull null
+                if (availableEpisodeCounts[id]?.let { episode < it } == true) return@mapNotNull null
+                video to episode
+            }
+            .sortedWith(
+                compareByDescending<Pair<YaniVideoDto, Int>> { it.second }
+                    .thenBy { it.first.dubTitle.orEmpty().lowercase(java.util.Locale.ROOT) }
+                    .thenBy { it.first.playerTitle.orEmpty().lowercase(java.util.Locale.ROOT) }
+                    .thenBy { it.first.videoId ?: Int.MAX_VALUE },
+            )
+            .firstOrNull()
+            ?: return@mapNotNull null
+        val item = newest.first
         val title = item.title.takeIf { it.isNotBlank() } ?: return@mapNotNull null
         Triple(id, title, item)
     }.mapIndexed { index, (id, title, item) ->
@@ -254,6 +270,27 @@ private fun List<YaniCollectionDto>.toCollectionEntries(
             collectionViews = item.views.coerceAtLeast(0),
         )
     }
+
+/**
+ * Only regular whole episodes belong in the new-episode shelf. A cached episode count is a
+ * conservative lower bound: late uploads of older dubs must not be promoted as new episodes.
+ * When no count is cached, retain the newest regular episode from the feed.
+ */
+private fun String?.toRegularEpisodeNumber(): Int? {
+    val value = this?.trim()?.takeIf(String::isNotEmpty) ?: return null
+    val match = REGULAR_EPISODE_PATTERN.matchEntire(value) ?: return null
+    val whole = match.groupValues[1]
+    val fraction = match.groupValues[2]
+    val decimal = (if (fraction.isEmpty()) whole else "$whole.$fraction")
+        .toBigDecimalOrNull() ?: return null
+    if (decimal.stripTrailingZeros().scale() > 0) return null
+    return runCatching { decimal.intValueExact() }.getOrNull()?.takeIf { it > 0 }
+}
+
+private val REGULAR_EPISODE_PATTERN = Regex(
+    """^(\d+)\s*(?:[.,]\s*(\d+))?\s*(?:серия|серии|эпизод|эп\.?|episode|ep\.?)?$""",
+    RegexOption.IGNORE_CASE,
+)
 
 private fun YaniPosterDto.standardUrl(): String? =
     mega?.toHttpsUrl()

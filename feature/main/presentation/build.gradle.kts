@@ -30,6 +30,8 @@ dependencies {
     implementation(project(":feature:library:domain"))
     implementation(project(":feature:playersetup:api"))
     implementation(project(":feature:settings:api"))
+    implementation(project(":feature:video-download:api"))
+    implementation(project(":feature:video-download:domain"))
 
     implementation(libs.bundles.compose.presentation)
 

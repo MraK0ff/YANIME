@@ -11,16 +11,15 @@ sealed interface PendingMutation {
     ) : PendingMutation
 
     data class RemoveWatched(val videoIds: List<Int>) : PendingMutation
-
     data class SetList(val animeId: Int, val listId: Int) : PendingMutation
-
     data class RemoveList(val animeId: Int) : PendingMutation
-
     data class SetFavorite(val animeId: Int, val favorite: Boolean) : PendingMutation
-
     data class SetRating(val animeId: Int, val rating: Int) : PendingMutation
-
     data class DeleteRating(val animeId: Int) : PendingMutation
-
     data class VoteReview(val reviewId: Int, val voteApiValue: Int) : PendingMutation
+
+    data class MarkNotificationRead(val notificationId: Int) : PendingMutation
+    data object MarkAllNotificationsRead : PendingMutation
+    data class DeleteNotification(val notificationId: Int) : PendingMutation
+    data object DeleteAllNotifications : PendingMutation
 }

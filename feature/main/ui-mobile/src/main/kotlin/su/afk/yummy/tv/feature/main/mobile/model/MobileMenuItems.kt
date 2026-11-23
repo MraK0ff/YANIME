@@ -2,27 +2,22 @@ package su.afk.yummy.tv.feature.main.mobile.model
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.GridView
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Newspaper
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import su.afk.yummy.tv.core.navigation.root.RootTab
 import su.afk.yummy.tv.feature.main.presentation.R
 
-/** Вкладки мобильной навигации (бар или рейка) в порядке показа. */
+/** Основные мобильные разделы. Новости остаются в «Ещё» на главной, Расписание вынесено в меню. */
 @Composable
-internal fun mobileMenuItems(unreadNotificationsCount: Int, avatarUrl: String): List<MobileMenuItem<RootTab>> = listOf(
+internal fun mobileMenuItems(showDownloads: Boolean): List<MobileMenuItem<RootTab>> = buildList {
     MobileMenuItem(
-        stringResource(R.string.main_tab_news),
-        RootTab.POSTS,
-        Icons.Default.Newspaper,
-    ),
-    MobileMenuItem(
-        stringResource(R.string.main_tab_catalog),
-        RootTab.CATALOG,
-        Icons.Default.GridView,
+        stringResource(R.string.main_tab_schedule),
+        RootTab.SCHEDULE,
+        Icons.Default.CalendarToday,
     ),
     MobileMenuItem(
         stringResource(R.string.main_tab_home),
@@ -34,12 +29,12 @@ internal fun mobileMenuItems(unreadNotificationsCount: Int, avatarUrl: String): 
         stringResource(R.string.main_tab_library),
         RootTab.LIBRARY,
         Icons.AutoMirrored.Filled.List,
-    ),
-    MobileMenuItem(
-        stringResource(R.string.main_mobile_tab_profile),
-        RootTab.ACCOUNT,
-        Icons.Default.AccountCircle,
-        badgeCount = unreadNotificationsCount,
-        avatarUrl = avatarUrl,
-    ),
-)
+    )
+    if (showDownloads) {
+        add(MobileMenuItem(
+            stringResource(R.string.main_tab_downloads),
+            RootTab.DOWNLOADS,
+            Icons.Default.Download,
+        ))
+    }
+}

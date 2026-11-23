@@ -19,6 +19,9 @@ class MainState {
         val appTheme: AppTheme = AppTheme.GRAPHITE,
         val backgroundStyle: BackgroundStyle = BackgroundStyle.AMOLED,
         val navTransitionStyle: NavTransitionStyle = NavTransitionStyle.FADE_SCALE,
+        val mobileHeaderEnabled: Boolean = true,
+        val mobileSearchFabEnabled: Boolean = false,
+        val mobileClassicBottomBar: Boolean = false,
         val seasonalDecorationsEnabled: Boolean = true,
         /** Праздничная тема, включившаяся автоматически, о которой пользователю ещё не сообщили. */
         val seasonalPrompt: SeasonalTheme? = null,
@@ -31,6 +34,8 @@ class MainState {
         val isYaniAuthResolved: Boolean = false,
         val unreadNotificationsCount: Int = 0,
         val isOnline: Boolean = true,
+        /** Есть ли локальные/активные загрузки для отдельной вкладки. */
+        val hasVideoDownloads: Boolean = false,
         /** Списки пользователя по animeId — для подписи карточек тайтлов. */
         val libraryListStatuses: Map<Int, CardListStatus> = emptyMap(),
         /** Избранные тайтлы; не зависит от статуса пользовательского списка. */

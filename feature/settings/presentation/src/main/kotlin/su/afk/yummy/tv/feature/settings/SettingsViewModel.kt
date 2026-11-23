@@ -93,6 +93,9 @@ class SettingsViewModel @Inject internal constructor(
 
     init {
         analytics.eventScreenOpened()
+        settingsStore.mobileHeaderEnabled.onEach { setState { copy(mobileHeaderEnabled = it) } }.launchIn(viewModelScope)
+        settingsStore.mobileSearchFabEnabled.onEach { setState { copy(mobileSearchFabEnabled = it) } }.launchIn(viewModelScope)
+        settingsStore.mobileClassicBottomBar.onEach { setState { copy(mobileClassicBottomBar = it) } }.launchIn(viewModelScope)
         settingsStore.settingsSnapshot
             .onEach { snapshot ->
                 setState {
@@ -284,6 +287,16 @@ class SettingsViewModel @Inject internal constructor(
 
             SettingsState.Event.AccountShortcutsToggled -> viewModelScope.launch {
                 settingsStore.setAccountShortcutsExpanded(!currentState.accountShortcutsExpanded)
+            }
+
+            SettingsState.Event.MobileHeaderToggled -> viewModelScope.launch {
+                settingsStore.setMobileHeaderEnabled(!currentState.mobileHeaderEnabled)
+            }
+            SettingsState.Event.MobileSearchFabToggled -> viewModelScope.launch {
+                settingsStore.setMobileSearchFabEnabled(!currentState.mobileSearchFabEnabled)
+            }
+            SettingsState.Event.MobileClassicBottomBarToggled -> viewModelScope.launch {
+                settingsStore.setMobileClassicBottomBar(!currentState.mobileClassicBottomBar)
             }
 
             SettingsState.Event.NewEpisodesSectionToggled -> viewModelScope.launch {

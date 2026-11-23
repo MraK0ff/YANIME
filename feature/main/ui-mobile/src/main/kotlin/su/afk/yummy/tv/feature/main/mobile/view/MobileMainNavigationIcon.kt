@@ -20,6 +20,7 @@ import su.afk.yummy.tv.feature.main.mobile.model.MobileMenuItem
 @Composable
 internal fun <T> MobileMainNavigationIcon(item: MobileMenuItem<T>, selected: Boolean) {
     BadgedBox(
+        modifier = Modifier.size(34.dp),
         badge = {
             if (item.badgeCount > 0) {
                 Badge { Text(item.badgeCount.toString()) }

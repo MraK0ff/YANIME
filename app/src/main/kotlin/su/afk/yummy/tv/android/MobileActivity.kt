@@ -3,6 +3,7 @@ package su.afk.yummy.tv.android
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
 import androidx.activity.ComponentActivity
@@ -68,6 +69,10 @@ class MobileActivity : ComponentActivity() {
             statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
             navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
         )
+        // The gesture/navigation area must reveal the app background, not Android's grey contrast scrim.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            window.isNavigationBarContrastEnforced = false
+        }
 
         setContent {
             // теги Compose видны UiAutomator как resource-id — на них опираются сценарии

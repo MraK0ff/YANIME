@@ -3,6 +3,10 @@ package su.afk.yummy.tv.feature.library.mobile
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
@@ -165,6 +169,9 @@ fun LibraryMobileScreen(
 
     BaseScreen(
         isScroll = false,
+        // The global header already consumes the status-bar inset. Keep only horizontal
+        // safe-drawing insets here so Library starts immediately below that header.
+        contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal),
     ) {
         Column(
             modifier = Modifier

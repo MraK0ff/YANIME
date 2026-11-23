@@ -68,6 +68,26 @@ internal fun SettingsMobileAppearanceContent(
                 onClick = { onEvent(SettingsState.Event.AccountShortcutsToggled) },
             )
         }
+        SettingsMobileSection(title = stringResource(R.string.settings_mobile_navigation_section)) {
+            SettingsMobileToggleRow(
+                label = stringResource(R.string.settings_mobile_header_enabled),
+                hint = stringResource(R.string.settings_mobile_header_enabled_hint),
+                enabled = state.mobileHeaderEnabled,
+                onClick = { onEvent(SettingsState.Event.MobileHeaderToggled) },
+            )
+            SettingsMobileToggleRow(
+                label = stringResource(R.string.settings_mobile_search_fab_enabled),
+                hint = stringResource(R.string.settings_mobile_search_fab_enabled_hint),
+                enabled = state.mobileSearchFabEnabled,
+                onClick = { onEvent(SettingsState.Event.MobileSearchFabToggled) },
+            )
+            SettingsMobileToggleRow(
+                label = stringResource(R.string.settings_mobile_classic_bottom_bar),
+                hint = stringResource(R.string.settings_mobile_classic_bottom_bar_hint),
+                enabled = state.mobileClassicBottomBar,
+                onClick = { onEvent(SettingsState.Event.MobileClassicBottomBarToggled) },
+            )
+        }
         SettingsMobileSection(title = stringResource(R.string.settings_section_posters)) {
             SettingsMobileIconChoiceRow(
                 label = stringResource(R.string.settings_mobile_poster_size),

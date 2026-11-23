@@ -43,6 +43,7 @@ fun MobileProgressMediaCard(
     isLoading: Boolean = false,
     /** Крупный блеклый текст под картинкой: виден, пока превью грузится или его нет. */
     placeholderText: String? = null,
+    titleMaxLines: Int = 2,
     onLongClick: (() -> Unit)? = null,
     onClick: () -> Unit,
 ) {
@@ -102,7 +103,7 @@ fun MobileProgressMediaCard(
         ) {
             Text(
                 text = title,
-                maxLines = 2,
+                maxLines = titleMaxLines.coerceAtLeast(1),
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodyMediumEmphasized,
                 color = MaterialTheme.colorScheme.onSurface,

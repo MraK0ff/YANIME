@@ -47,6 +47,9 @@ class SettingsState {
         val appTheme: AppTheme = AppTheme.GRAPHITE,
         val backgroundStyle: BackgroundStyle = BackgroundStyle.AMOLED,
         val navTransitionStyle: NavTransitionStyle = NavTransitionStyle.FADE_SCALE,
+        val mobileHeaderEnabled: Boolean = true,
+        val mobileSearchFabEnabled: Boolean = false,
+        val mobileClassicBottomBar: Boolean = false,
         val posterCardSize: PosterCardSize = PosterCardSize.STANDARD,
         val titleCardLayout: TitleCardLayout = TitleCardLayout.TILE,
         val showCatalogTitleYear: Boolean = false,
@@ -165,6 +168,9 @@ class SettingsState {
         /** Пользователь включил или выключил праздничное оформление. */
         data object SeasonalDecorationsToggled : Event
         data object AccountShortcutsToggled : Event
+        data object MobileHeaderToggled : Event
+        data object MobileSearchFabToggled : Event
+        data object MobileClassicBottomBarToggled : Event
 
         /** Пользователь включил или выключил блок новых серий на главной. */
         data object NewEpisodesSectionToggled : Event

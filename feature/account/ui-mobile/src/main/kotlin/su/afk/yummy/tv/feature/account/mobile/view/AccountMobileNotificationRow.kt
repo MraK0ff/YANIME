@@ -44,6 +44,7 @@ import su.afk.yummy.tv.domain.account.model.commentSubjectTitle
 import su.afk.yummy.tv.domain.account.model.hasOpenAction
 import su.afk.yummy.tv.domain.account.model.isExpandable
 import su.afk.yummy.tv.feature.account.mobile.account.utils.buildNotificationText
+import su.afk.yummy.tv.feature.account.mobile.account.utils.notificationBodyWithoutRepeatedTitle
 import su.afk.yummy.tv.feature.account.mobile.account.utils.notificationTypeIcon
 import su.afk.yummy.tv.feature.account.presentation.R
 import su.afk.yummy.tv.feature.account.common.utils.formatDate
@@ -62,15 +63,18 @@ internal fun AccountMobileNotificationRow(
     val isOpenable = notification.hasOpenAction
     val isExpandable = notification.isExpandable
     val openLabel = stringResource(R.string.account_open)
+    val displayBody = remember(notification.title, notification.text) {
+        notificationBodyWithoutRepeatedTitle(notification.title, notification.text)
+    }
     val linkStyle = SpanStyle(
         color = MaterialTheme.colorScheme.primary,
         textDecoration = TextDecoration.Underline,
     )
-    val bodyText = remember(notification.text, notification.links, expanded, linkStyle) {
+    val bodyText = remember(displayBody, notification.links, expanded, linkStyle) {
         if (expanded) {
-            buildNotificationText(notification.text, notification.links, linkStyle, onLinkClick)
+            buildNotificationText(displayBody, notification.links, linkStyle, onLinkClick)
         } else {
-            AnnotatedString(notification.text)
+            AnnotatedString(displayBody)
         }
     }
     Surface(
@@ -159,11 +163,8 @@ internal fun AccountMobileNotificationRow(
                     Icon(
                         imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                         contentDescription = stringResource(
-                            if (expanded) {
-                                R.string.account_notification_collapse
-                            } else {
-                                R.string.account_notification_expand
-                            },
+                            if (expanded) R.string.account_notification_collapse
+                            else R.string.account_notification_expand,
                         ),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f),
                         modifier = Modifier

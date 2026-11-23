@@ -81,6 +81,7 @@ internal fun MobilePlayerTopBar(
     dubbingLabel: String = "",
     balancerLabel: String = "",
     onTrackSettings: () -> Unit = {},
+    trackSettingsExpanded: Boolean = false,
     onEpisodeClick: () -> Unit,
     onMoreMenuItem: (MobilePlayerSettingsPage) -> Unit,
     onQualityClick: () -> Unit,
@@ -108,8 +109,8 @@ internal fun MobilePlayerTopBar(
                 ),
         )
 
-        // Controls sit directly over the video; no decorative button dock.
-        Row(
+        // Remote dubbing/balancer choices are unavailable for a locally cached file.
+        if (!offlinePlayback) Row(
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .heightIn(min = 40.dp)
@@ -145,7 +146,7 @@ internal fun MobilePlayerTopBar(
                 )
             }
             Icon(
-                imageVector = Icons.Filled.KeyboardArrowDown,
+                imageVector = if (trackSettingsExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
                 contentDescription = null,
                 tint = Color.White.copy(alpha = 0.9f),
                 modifier = Modifier.size(20.dp),

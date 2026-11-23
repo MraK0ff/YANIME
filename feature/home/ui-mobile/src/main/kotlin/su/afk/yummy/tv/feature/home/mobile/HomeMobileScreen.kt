@@ -64,7 +64,6 @@ import su.afk.yummy.tv.feature.home.mobile.view.HomeAnnouncementDialog
 import su.afk.yummy.tv.feature.home.mobile.view.HomeContinueWatchingActionsSheet
 import su.afk.yummy.tv.feature.home.mobile.view.HomeFeedSectionRow
 import su.afk.yummy.tv.feature.home.mobile.view.HomeHeroCarousel
-import su.afk.yummy.tv.feature.home.mobile.view.HomeMobileSearchBar
 import su.afk.yummy.tv.feature.home.mobile.view.HomeMobileSkeleton
 import su.afk.yummy.tv.feature.home.mobile.view.HomeBoostyPromptDialog
 import su.afk.yummy.tv.feature.home.mobile.view.HomeCommunityPromptDialog
@@ -230,16 +229,17 @@ fun HomeMobileScreen(
                     val feed = state.feed
 
                     // Плашки и поиск в одном item: иначе spacedBy(24) растягивает зазор между ними
-                    item(key = "search", contentType = "home_search") {
-                        Column(modifier = Modifier.mobileContentMaxWidth()) {
-                            OfflineBanner(isOffline = isOffline)
-                            InfoBanner(message = state.statusMessage)
-                            HomeMobileSearchBar(
-                                onClick = { onEvent(HomeState.Event.SearchSelected) },
+                    if (isOffline || state.statusMessage != null) {
+                        item(key = "status_banners", contentType = "home_status_banners") {
+                            Column(
                                 modifier = Modifier
-                                    .padding(horizontal = 16.dp)
-                                    .padding(top = if (isOffline || state.statusMessage != null) 8.dp else 0.dp),
-                            )
+                                    .mobileContentMaxWidth()
+                                    .padding(horizontal = 16.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                OfflineBanner(isOffline = isOffline)
+                                InfoBanner(message = state.statusMessage)
+                            }
                         }
                     }
 
@@ -305,9 +305,9 @@ fun HomeMobileScreen(
                                 item(key = "quick_actions", contentType = "home_quick_actions") {
                                     HomeQuickActionsSection(
                                         title = stringResource(R.string.home_mobile_more),
-                                        scheduleTitle = stringResource(R.string.home_mobile_schedule),
+                                        newsTitle = stringResource(R.string.home_mobile_news),
                                         reviewsTitle = stringResource(R.string.home_mobile_reviews),
-                                        onScheduleClick = { onEvent(HomeState.Event.ScheduleSelected) },
+                                        onNewsClick = { onEvent(HomeState.Event.NewsSelected) },
                                         onReviewsClick = { onEvent(HomeState.Event.ReviewsSelected) },
                                         modifier = Modifier.mobileContentMaxWidth(),
                                     )

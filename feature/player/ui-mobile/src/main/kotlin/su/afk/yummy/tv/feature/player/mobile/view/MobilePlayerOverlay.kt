@@ -35,6 +35,7 @@ import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.feature.player.common.model.PlayerPlaybackProgressState
 import su.afk.yummy.tv.feature.player.common.model.StepSeekDirection
 import su.afk.yummy.tv.feature.player.presentation.R
+import su.afk.yummy.tv.core.designsystem.components.YummyPlayerLoadingIndicator
 
 @Composable
 internal fun MobilePlayerOverlay(
@@ -69,11 +70,23 @@ internal fun MobilePlayerOverlay(
     balancerLabel: String = "",
     qualityLabel: String = "",
     selectedSpeed: Float = 1f,
+    isSeeking: Boolean = false,
     onQualityClick: () -> Unit = {},
     onSpeedClick: () -> Unit = {},
 ) {
-    if (!visible) return
+    if (!visible) {
+        if (loading) {
+            BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+                Box(Modifier.align(Alignment.Center)) {
+                    YummyPlayerLoadingIndicator(size = 44.dp, color = Color.White)
+                }
+            }
+        }
+        return
+    }
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+        // A single viewport-level scrim is drawn by MobileNativePlayer. Keeping a second
+        // overlay-local scrim here would compound the dimming and make it look uneven.
         val expandedControlsOffset = minOf(56.dp, maxHeight * 0.10f)
         Box(
             modifier = Modifier.align(Alignment.Center)
@@ -114,6 +127,7 @@ internal fun MobilePlayerOverlay(
                 dubbingLabel = dubbingLabel,
                 qualityLabel = qualityLabel,
                 selectedSpeed = selectedSpeed,
+                isSeeking = isSeeking,
                 onQualityClick = onQualityClick,
                 onSpeedClick = onSpeedClick,
                 onMoreActions = onMoreActions,

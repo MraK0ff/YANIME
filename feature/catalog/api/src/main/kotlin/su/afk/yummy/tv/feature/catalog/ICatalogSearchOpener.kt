@@ -18,4 +18,24 @@ interface ICatalogSearchOpener {
 
     /** Экран каталога поставил фокус — запрос снят. */
     fun consumeSearchFocus()
+
+    /** Есть отложенный запрос на открытие случайного тайтла. */
+    val isRandomAnimePending: StateFlow<Boolean>
+
+    /** Переключает на каталог и просит открыть случайный тайтл. */
+    fun openRandomAnime()
+
+    /** Экран каталога обработал запрос случайного тайтла. */
+    fun consumeRandomAnimeRequest()
+
+    /** Shared query for the global header search field. */
+    val searchQuery: StateFlow<String>
+    fun updateSearchQuery(query: String)
+    val isSearchSubmitPending: StateFlow<Boolean>
+    fun submitSearch()
+    fun consumeSearchSubmit()
+
+    val isFilterOpenPending: StateFlow<Boolean>
+    fun openFilters()
+    fun consumeFilterOpen()
 }

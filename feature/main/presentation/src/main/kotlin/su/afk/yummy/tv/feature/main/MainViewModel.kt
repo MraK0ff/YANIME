@@ -32,6 +32,7 @@ import su.afk.yummy.tv.feature.main.presentation.R
 import su.afk.yummy.tv.feature.main.utils.MAIN_ONBOARDING_TOUR_ID
 import su.afk.yummy.tv.feature.playersetup.navigator.PlayerSetupDestination
 import su.afk.yummy.tv.feature.update.navigator.UpdateDestination
+import su.afk.yummy.tv.domain.videodownload.usecase.ObserveVideoDownloadsUseCase
 import javax.inject.Inject
 
 @HiltViewModel
@@ -51,6 +52,7 @@ class MainViewModel @Inject internal constructor(
     private val observeLibraryListStatuses: ObserveLibraryListStatusesUseCase,
     private val observeLibraryFavoriteAnimeIds: ObserveLibraryFavoriteAnimeIdsUseCase,
     private val observeLibraryUserRatings: ObserveLibraryUserRatingsUseCase,
+    private val observeVideoDownloadsUseCase: ObserveVideoDownloadsUseCase,
     private val appClock: AppClock,
 ) : BaseViewModel<MainState.State, MainState.Event, MainState.Effect>() {
 
@@ -90,6 +92,7 @@ class MainViewModel @Inject internal constructor(
         observeOnboarding()
         observeConnectivity()
         observeListStatuses()
+        observeVideoDownloads()
         observeFeatureToggleUpdates()
         observeAccountMutationErrors()
         refreshAccountIfNeeded()
@@ -107,6 +110,12 @@ class MainViewModel @Inject internal constructor(
     private fun observeConnectivity() {
         networkConnectivityMonitor.isOnline
             .onEach { isOnline -> setState { copy(isOnline = isOnline) } }
+            .launchIn(viewModelScope)
+    }
+
+    private fun observeVideoDownloads() {
+        observeVideoDownloadsUseCase()
+            .onEach { downloads -> setState { copy(hasVideoDownloads = downloads.isNotEmpty()) } }
             .launchIn(viewModelScope)
     }
 
@@ -133,6 +142,9 @@ class MainViewModel @Inject internal constructor(
     private fun observeSettings() {
         val yaniApplicationTokenState =
             settingsStore.yaniApplicationTokenState.distinctUntilChanged()
+        settingsStore.mobileHeaderEnabled.onEach { enabled -> setState { copy(mobileHeaderEnabled = enabled) } }.launchIn(viewModelScope)
+        settingsStore.mobileSearchFabEnabled.onEach { enabled -> setState { copy(mobileSearchFabEnabled = enabled) } }.launchIn(viewModelScope)
+        settingsStore.mobileClassicBottomBar.onEach { enabled -> setState { copy(mobileClassicBottomBar = enabled) } }.launchIn(viewModelScope)
         settingsStore.mainSettingsSnapshot
             .onEach { snapshot ->
                 val nowMillis = appClock.nowMillis()

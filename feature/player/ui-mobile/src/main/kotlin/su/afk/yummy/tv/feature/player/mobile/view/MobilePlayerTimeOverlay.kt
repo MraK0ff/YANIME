@@ -1,21 +1,24 @@
 package su.afk.yummy.tv.feature.player.mobile.view
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Icon
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,8 +52,12 @@ internal fun MobilePlayerTimeOverlay(
     onTimeCodeClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val showClock = shouldShow(settings.systemClock, controlsActive)
+    val showFinish = durationMs > 0L && shouldShow(settings.finishAt, controlsActive)
     var nowMs by remember { mutableLongStateOf(System.currentTimeMillis()) }
-    LaunchedEffect(Unit) {
+    // Keep the wall-clock ticker dormant when both time indicators are hidden.
+    LaunchedEffect(showClock, showFinish) {
+        if (!showClock && !showFinish) return@LaunchedEffect
         while (true) {
             nowMs = System.currentTimeMillis()
             delay(1_000L)
@@ -60,8 +67,6 @@ internal fun MobilePlayerTimeOverlay(
     val clockFormat = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
     val systemClock = clockFormat.format(Date(nowMs))
     val finishAt = clockFormat.format(Date(nowMs + remainingMs))
-    val showClock = shouldShow(settings.systemClock, controlsActive)
-    val showFinish = durationMs > 0L && shouldShow(settings.finishAt, controlsActive)
     val combineClockAndFinish = settings.combineClockAndFinishAt && showClock && showFinish
     // Split time chips belong to the idle player only; active controls show one combined timecode.
     val showCombined = !settings.separateTimecodes && !controlsActive && durationMs > 0L && shouldShow(settings.elapsed, controlsActive)
@@ -70,28 +75,36 @@ internal fun MobilePlayerTimeOverlay(
     val edgeTopPadding = 56.dp + videoTopInset.coerceAtLeast(0.dp)
     val edgeBottomPadding = if (videoBottomInset > 0.dp) videoBottomInset / 2 else 12.dp
 
-    Box(modifier = modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top))) {
+    Box(modifier = modifier.fillMaxSize()) {
         if (combineClockAndFinish) {
             TimeChip(
-                values = listOf(systemClock, finishAt),
-                modifier = Modifier.align(Alignment.TopEnd).padding(end = 8.dp, top = edgeTopPadding),
+                values = listOf(systemClock, finishAt), idleDim = !controlsActive,
+                modifier = Modifier.align(Alignment.TopEnd)
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.End + WindowInsetsSides.Top))
+                    .padding(end = 8.dp, top = edgeTopPadding),
             )
         } else {
             if (showClock) TimeChip(
                 values = listOf(systemClock),
-                finishOnly = false,
-                modifier = Modifier.align(Alignment.TopStart).padding(start = 8.dp, top = edgeTopPadding),
+                finishOnly = false, idleDim = !controlsActive,
+                modifier = Modifier.align(Alignment.TopStart)
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Start + WindowInsetsSides.Top))
+                    .padding(start = 8.dp, top = edgeTopPadding),
             )
             if (showFinish) TimeChip(
                 values = listOf(finishAt),
-                finishOnly = true,
-                modifier = Modifier.align(Alignment.TopEnd).padding(end = 8.dp, top = edgeTopPadding),
+                finishOnly = true, idleDim = !controlsActive,
+                modifier = Modifier.align(Alignment.TopEnd)
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.End + WindowInsetsSides.Top))
+                    .padding(end = 8.dp, top = edgeTopPadding),
             )
         }
         if (showCombined) {
             TimeValueChip(
                 value = "${displayTimeMs.millisToClockTime()} / ${durationMs.millisToClockTime()}",
+                idleDim = !controlsActive,
                 modifier = Modifier.align(Alignment.BottomStart)
+                    .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom))
                     .padding(start = 8.dp, bottom = edgeBottomPadding),
                 onClick = onTimeCodeClick,
             )
@@ -100,7 +113,9 @@ internal fun MobilePlayerTimeOverlay(
             TimeValueChip(
                 value = if (showRemainingTime) "-${remainingMs.millisToClockTime().padStart(5, '0')}"
                     else displayTimeMs.millisToClockTime().padStart(5, '0'),
+                idleDim = !controlsActive,
                 modifier = Modifier.align(Alignment.BottomStart)
+                    .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom))
                     .padding(start = 8.dp, bottom = edgeBottomPadding),
                 onClick = onTimeCodeClick,
             )
@@ -108,7 +123,9 @@ internal fun MobilePlayerTimeOverlay(
         if (showDuration) {
             TimeValueChip(
                 value = durationMs.millisToClockTime().padStart(5, '0'),
+                idleDim = !controlsActive,
                 modifier = Modifier.align(Alignment.BottomEnd)
+                    .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom))
                     .padding(end = 8.dp, bottom = edgeBottomPadding),
                 onClick = onTimeCodeClick,
             )
@@ -117,18 +134,22 @@ internal fun MobilePlayerTimeOverlay(
 }
 
 @Composable
-private fun TimeChip(values: List<String>, modifier: Modifier = Modifier, finishOnly: Boolean = false) {
+private fun TimeChip(values: List<String>, modifier: Modifier = Modifier, finishOnly: Boolean = false, idleDim: Boolean = false) {
     Row(
-        modifier = modifier.mobilePlayerGlassSurface().padding(horizontal = 8.dp, vertical = 6.dp),
+        modifier = modifier
+            .then(if (idleDim) Modifier.background(Color.Black.copy(alpha = 0.56f), RoundedCornerShape(8.dp)) else Modifier)
+            .padding(horizontal = 8.dp, vertical = 6.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         values.forEachIndexed { index, value ->
-            if (finishOnly || index > 0) {
-                Icon(Icons.Filled.Flag, contentDescription = null, tint = Color.White.copy(alpha = 0.9f), modifier = Modifier.size(14.dp))
-            } else {
-                Icon(Icons.Filled.Flag, contentDescription = null, tint = Color.White.copy(alpha = 0.9f), modifier = Modifier.size(14.dp))
-            }
+            val isFinishTime = finishOnly || index > 0
+            Icon(
+                imageVector = if (isFinishTime) Icons.Filled.Timer else Icons.Filled.AccessTime,
+                contentDescription = null,
+                tint = Color.White.copy(alpha = 0.76f),
+                modifier = Modifier.size(14.dp),
+            )
             Text(text = value, style = MaterialTheme.typography.labelMedium, color = Color.White, maxLines = 1)
         }
     }
@@ -138,6 +159,7 @@ private fun TimeChip(values: List<String>, modifier: Modifier = Modifier, finish
 private fun TimeValueChip(
     value: String,
     modifier: Modifier = Modifier,
+    idleDim: Boolean = false,
     onClick: () -> Unit,
 ) {
     Text(
@@ -145,8 +167,9 @@ private fun TimeValueChip(
         style = MaterialTheme.typography.labelSmall,
         color = Color.White,
         maxLines = 1,
-        modifier = modifier.mobilePlayerGlassSurface()
+        modifier = modifier
             .clickable(onClick = onClick)
+            .then(if (idleDim) Modifier.background(Color.Black.copy(alpha = 0.56f), RoundedCornerShape(8.dp)) else Modifier)
             .padding(horizontal = 9.dp, vertical = 4.dp),
     )
 }

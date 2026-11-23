@@ -433,4 +433,11 @@
     <string name="settings_video_enhancement_off">Вимк.</string>
     <string name="settings_video_enhancement_sharpen">Різкість</string>
     <string name="settings_video_enhancement_quality">Відновлення якості</string>
+    <string name="settings_mobile_navigation_section">Мобільна навігація</string>
+    <string name="settings_mobile_header_enabled">Глобальний Header</string>
+    <string name="settings_mobile_header_enabled_hint">Показувати логотип, пошук, сповіщення та профіль угорі</string>
+    <string name="settings_mobile_search_fab_enabled">Плаваюча кнопка пошуку</string>
+    <string name="settings_mobile_classic_bottom_bar">Класична нижня панель</string>
+    <string name="settings_mobile_classic_bottom_bar_hint">Використовувати стандартну панель на всю ширину замість плаваючої капсули</string>
+    <string name="settings_mobile_search_fab_enabled_hint">Якщо ввімкнено, пошук відображається лише як FAB; інакше — компактним полем у Header</string>
 </resources>

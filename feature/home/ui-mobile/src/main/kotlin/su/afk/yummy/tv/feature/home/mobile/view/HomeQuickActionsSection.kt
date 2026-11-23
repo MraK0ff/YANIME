@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Newspaper
 import androidx.compose.material.icons.filled.RateReview
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.CircleShape
@@ -33,9 +33,9 @@ import su.afk.yummy.tv.core.designsystem.preview.ScreenPreviewTheme
 @Composable
 internal fun HomeQuickActionsSection(
     title: String,
-    scheduleTitle: String,
+    newsTitle: String,
     reviewsTitle: String,
-    onScheduleClick: () -> Unit,
+    onNewsClick: () -> Unit,
     onReviewsClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -54,9 +54,9 @@ internal fun HomeQuickActionsSection(
             horizontalArrangement = Arrangement.spacedBy(YummySpacing.Small),
         ) {
             HomeQuickActionCard(
-                title = scheduleTitle,
-                icon = Icons.Filled.DateRange,
-                onClick = onScheduleClick,
+                title = newsTitle,
+                icon = Icons.Filled.Newspaper,
+                onClick = onNewsClick,
                 modifier = Modifier.weight(1f),
             )
             HomeQuickActionCard(
@@ -118,14 +118,14 @@ private fun HomeQuickActionCard(
     }
 }
 
-@Preview(name = "Schedule and reviews", showBackground = true)
+@Preview(name = "News and reviews", showBackground = true)
 @Composable
 private fun HomeQuickActionsSectionPreview() = ScreenPreviewTheme {
     HomeQuickActionsSection(
         title = "Ещё",
-        scheduleTitle = "Расписание",
+        newsTitle = "Новости",
         reviewsTitle = "Рецензии",
-        onScheduleClick = {},
+        onNewsClick = {},
         onReviewsClick = {},
     )
 }

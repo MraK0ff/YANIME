@@ -8,7 +8,7 @@ Snapshot: 2026-11-23
 - Legacy head: `4f1517f5a7e6451b802a37d6331ca31942c03d84`
 - Exact upstream base: `Helandy/YummyTV@792bbd9cf9d10bc4dd9667c2bc83a69791159470`
 - Integration branch: `rebuild/yanime-on-upstream-main-2026-11-23`
-- The integration branch is three commits ahead of the upstream base; `main` has not been modified.
+- The integration branch is nine commits ahead of the upstream base; `main` has not been modified.
 
 ## Integration principle
 
@@ -70,6 +70,9 @@ Trees compared by path and blob SHA: common ancestor `6097ba265acc7adfab6bb22485
 - Preserve the distinction between episode premiere and actual YummyAnime video publication.
 - Track episode/video/dubbing history so a late alternate dub of an old episode does not create a false new-episode card.
 - Reimplement the tracker on current feed DTOs, cache models and repository contracts.
+- First adapted slice: the current feed mapper now selects the highest regular episode per anime, ignores fractional specials, and suppresses older feed uploads when the existing local video cache already knows a newer episode count. Unknown counts do not suppress entries.
+- The repository passes the current AnimeStorage.observeAvailableEpisodeCounts() snapshot into the mapper instead of introducing a parallel legacy storage API.
+- Added mapper tests for stale alternate uploads, highest-episode selection and fractional specials. These tests are authored but have not yet been run.
 - Preserve smart tracking and background notifications only after adapting to current worker and notification APIs.
 
 ### Schedule
@@ -106,6 +109,7 @@ Before promotion:
 - [x] New integration branch created directly from the verified upstream main SHA.
 - [x] Three-tree audit reproduced by full Git tree/blob comparison.
 - [x] Application ID, URI scheme and releaseDebug package identity adapted.
+- [x] Adapted the first home-feed release-filtering slice to current upstream storage and DTO contracts.
 - [ ] Complete per-feature three-way migration.
 - [ ] Complete build, runtime, migration and installation verification.
 - [ ] Promote only after all gates pass; do not move `main` prematurely.

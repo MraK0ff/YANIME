@@ -51,6 +51,7 @@ import su.afk.yummy.tv.domain.anime.usecase.RefreshAnimeVideosUseCase
 import su.afk.yummy.tv.domain.videodownload.usecase.ObserveVideoDownloadStatusesUseCase
 import su.afk.yummy.tv.domain.watchlater.usecase.ObserveWatchLaterEpisodesUseCase
 import su.afk.yummy.tv.feature.details.DetailsAnalytics
+import su.afk.yummy.tv.feature.details.episodes.model.EpisodeWatchFilter
 import su.afk.yummy.tv.feature.details.episodes.model.EpisodeWatchStatus
 import su.afk.yummy.tv.feature.details.episodes.utils.watchStatus
 import su.afk.yummy.tv.feature.details.details.handler.DetailsPlayerNavigationHandler
@@ -145,6 +146,14 @@ class EpisodesViewModel @AssistedInject internal constructor(
         viewModelScope.launch { loadMeta() }
         viewModelScope.launch { loadVideos() }
         viewModelScope.launch { loadEpisodeInfo() }
+        appearanceSettingsStore.episodeWatchFilter
+            .distinctUntilChanged()
+            .onEach { stored ->
+                val filter = EpisodeWatchFilter.entries.firstOrNull { it.name == stored }
+                    ?: EpisodeWatchFilter.All
+                setState { copy(watchFilter = filter).withVisibleGroups() }
+            }
+            .launchIn(viewModelScope)
         appearanceSettingsStore.showEpisodeFlags
             .distinctUntilChanged()
             .onEach { enabled -> applyEpisodeFlags(enabled) }
@@ -203,8 +212,16 @@ class EpisodesViewModel @AssistedInject internal constructor(
 
             EpisodesState.Event.BackSelected -> nav.back()
             EpisodesState.Event.RetryVideosSelected -> viewModelScope.launch { loadVideos() }
-            is EpisodesState.Event.WatchFilterSelected -> setState {
-                copy(watchFilter = event.filter).withVisibleGroups()
+            is EpisodesState.Event.WatchFilterSelected -> {
+                setState {
+                    copy(
+                        watchFilter = event.filter,
+                        scrollAnchorEpisode = event.anchorEpisode ?: scrollAnchorEpisode,
+                    ).withVisibleGroups()
+                }
+                viewModelScope.launch {
+                    appearanceSettingsStore.setEpisodeWatchFilter(event.filter.name)
+                }
             }
 
             is EpisodesState.Event.EpisodeDescriptionToggled -> setState {
@@ -263,12 +280,6 @@ class EpisodesViewModel @AssistedInject internal constructor(
                 val action = currentState.pendingEpisodeAction ?: return
                 setState { copy(pendingEpisodeAction = null) }
                 viewModelScope.launch { toggleEpisodeWatched(action.copy(isWatched = true)) }
-            }
-
-            is EpisodesState.Event.EpisodesWatchedUpToChanged -> {
-                val action = currentState.pendingEpisodeAction ?: return
-                setState { copy(pendingEpisodeAction = null) }
-                viewModelScope.launch { setEpisodesWatchedUpTo(action, event.watched) }
             }
 
             EpisodesState.Event.EpisodeWatchLaterToggled -> {
@@ -405,59 +416,20 @@ class EpisodesViewModel @AssistedInject internal constructor(
      * Локальное состояние подхватит подписка [observeAnimeWatchProgress] — вручную его не трогаем.
      */
     private suspend fun toggleEpisodeWatched(action: EpisodesState.EpisodeAction) {
-        val succeeded = applyEpisodeWatched(
-            episode = action.episode,
-            videos = action.videos,
-            watched = !action.isWatched,
-        )
-        finishWatchedChange(succeeded)
-    }
-
-    /**
-     * Массовая отметка: выбранная серия и все предыдущие по порядку списка серий. Уже находящиеся
-     * в нужном состоянии серии пропускаются; список серий с сервера перечитывается один раз.
-     */
-    private suspend fun setEpisodesWatchedUpTo(action: EpisodesState.EpisodeAction, watched: Boolean) {
-        val groups = currentState.episodeGroups
-        val index = groups.indexOfFirst { it.episode == action.episode.episodeGroupKey() }
-        val targets = if (index < 0) {
-            listOf(EpisodesState.EpisodeGroup(action.episode, action.videos))
-        } else {
-            groups.take(index + 1)
-        }
-        var succeeded = true
-        targets.forEach { group ->
-            val progress = currentState.watchProgress
-            val isWatched = progress.bestFor(group.videos)?.isWatchedProgress() == true
-            val hasProgress = group.videos.watchStatus(progress) != EpisodeWatchStatus.None
-            val needsChange = if (watched) !isWatched else (isWatched || hasProgress)
-            if (needsChange) {
-                val episode = group.videos.firstOrNull()?.episode ?: return@forEach
-                succeeded = applyEpisodeWatched(episode, group.videos, watched) && succeeded
-            }
-        }
-        finishWatchedChange(succeeded)
-    }
-
-    private suspend fun applyEpisodeWatched(
-        episode: String,
-        videos: List<AnimeVideo>,
-        watched: Boolean,
-    ): Boolean =
-        if (!watched) {
+        val succeeded = if (action.isWatched) {
             watchedHandler.unmarkWatched(
                 animeId = animeId,
-                episode = episode,
-                videos = videos,
+                episode = action.episode,
+                videos = action.videos,
                 isSignedIn = isSignedIn,
             )
         } else {
             watchedHandler.markWatched(
                 animeId = animeId,
-                episode = episode,
-                videos = videos,
+                episode = action.episode,
+                videos = action.videos,
                 bestDubbing = currentState.bestDubbing,
-                existing = currentState.watchProgress.bestFor(videos),
+                existing = currentState.watchProgress.bestFor(action.videos),
                 meta = EpisodeWatchedHandler.EpisodeMeta(
                     animeTitle = animeTitle,
                     posterUrl = posterUrl,
@@ -466,7 +438,6 @@ class EpisodesViewModel @AssistedInject internal constructor(
             )
         }
 
-    private suspend fun finishWatchedChange(succeeded: Boolean) {
         if (!succeeded) {
             setEffect(
                 EpisodesState.Effect.ShowToast(

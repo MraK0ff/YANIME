@@ -2,7 +2,6 @@ package su.afk.yummy.tv.feature.settings
 
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -12,22 +11,17 @@ import su.afk.yummy.tv.core.common.coroutines.runSuspendCatching
 import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.model.seasonal.seasonalThemeAt
-import su.afk.yummy.tv.core.model.settings.HomeBlockConfig
-import su.afk.yummy.tv.core.model.settings.HomeBlockKind
-import su.afk.yummy.tv.core.model.settings.TorrServerChecker
 import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.preferences.api.TokenStorageMode
 import su.afk.yummy.tv.core.preferences.api.YaniAuthPreferences
 import su.afk.yummy.tv.core.preferences.interface_language.AppInterfaceLanguagePreferences
-import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
-import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceModePreferences
 import su.afk.yummy.tv.core.preferences.settings.AppLifecycleSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.EpisodePushSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
-import su.afk.yummy.tv.core.storage.maintenance.StorageCleanup
 import su.afk.yummy.tv.core.tv.api.ITvIntegration
 import su.afk.yummy.tv.core.utils.logging.AppLogExporter
+import su.afk.yummy.tv.core.storage.maintenance.StorageCleanup
 import su.afk.yummy.tv.core.utils.system.CacheStorageInspector
 import su.afk.yummy.tv.core.utils.system.ImageCacheCleaner
 import su.afk.yummy.tv.domain.update.usecase.GetAppReleaseHistoryUseCase
@@ -37,15 +31,10 @@ import su.afk.yummy.tv.domain.videodownload.usecase.SetVideoDownloadWifiOnlyUseC
 import su.afk.yummy.tv.feature.account.IAccountNavigator
 import su.afk.yummy.tv.feature.settings.mapper.toReleaseNoteItem
 import su.afk.yummy.tv.feature.settings.model.ReleaseNotesStatus
-import su.afk.yummy.tv.feature.settings.model.TorrServerCheckStatus
 import su.afk.yummy.tv.feature.settings.navigator.SettingsCategoryDestination
-import su.afk.yummy.tv.feature.settings.navigator.SettingsHomeBlocksDestination
 import su.afk.yummy.tv.feature.settings.navigator.SettingsLibraryTabOrderDestination
 import su.afk.yummy.tv.feature.settings.utils.groupedByThree
-import su.afk.yummy.tv.feature.settings.utils.movedHomeBlock
 import su.afk.yummy.tv.feature.settings.utils.movedLibraryTab
-import su.afk.yummy.tv.feature.settings.utils.toggledHomeBlock
-import java.util.Optional
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -57,7 +46,6 @@ class SettingsViewModel @Inject internal constructor(
     private val episodePushSettingsStore: EpisodePushSettingsStore,
     private val appLifecycleSettingsStore: AppLifecycleSettingsStore,
     private val yaniAuthPreferences: YaniAuthPreferences,
-    private val interfaceModePreferences: AppInterfaceModePreferences,
     private val interfaceLanguagePreferences: AppInterfaceLanguagePreferences,
     private val tvIntegration: ITvIntegration,
     private val nav: INavigationManager,
@@ -72,14 +60,11 @@ class SettingsViewModel @Inject internal constructor(
     private val appLogExporter: AppLogExporter,
     private val getAppReleaseHistory: GetAppReleaseHistoryUseCase,
     private val analyticsDeviceIdProvider: AnalyticsDeviceIdProvider,
-    private val torrServerChecker: Optional<TorrServerChecker>,
     @param:Named("appVersionName") private val versionName: String,
 ) : BaseViewModel<SettingsState.State, SettingsState.Event, SettingsState.Effect>() {
 
     override fun createInitialState() = SettingsState.State(
-        interfaceMode = interfaceModePreferences.selectedMode ?: AppInterfaceMode.MOBILE,
         interfaceLanguage = interfaceLanguagePreferences.selectedLanguage,
-        torrServerCheckAvailable = torrServerChecker.isPresent,
     )
 
     init {
@@ -95,10 +80,7 @@ class SettingsViewModel @Inject internal constructor(
                         titleCardLayout = snapshot.titleCardLayout,
                         showCatalogTitleYear = snapshot.showCatalogTitleYear,
                         showEpisodeFlags = snapshot.showEpisodeFlags,
-                        newEpisodesSectionEnabled = snapshot.homeBlocks.any {
-                            it.kind == HomeBlockKind.MY_NEW_EPISODES && it.enabled
-                        },
-                        homeBlocks = snapshot.homeBlocks.toImmutableList(),
+                        newEpisodesSectionEnabled = snapshot.newEpisodesSectionEnabled,
                         seasonalDecorationsEnabled = snapshot.seasonalDecorationsEnabled,
                         accountShortcutsExpanded = snapshot.accountShortcutsExpanded,
                         seasonalTheme = seasonalThemeAt(System.currentTimeMillis()),
@@ -158,11 +140,6 @@ class SettingsViewModel @Inject internal constructor(
                 setState { copy(tvPlayerControlsTutorialDismissed = dismissed) }
             }
             .launchIn(viewModelScope)
-        combine(settingsStore.onboardingWelcomeSeen, settingsStore.onboardingToursSeen) { welcomeSeen, tours ->
-            welcomeSeen || tours.isNotEmpty()
-        }
-            .onEach { available -> setState { copy(onboardingResetAvailable = available) } }
-            .launchIn(viewModelScope)
         // Запасной режим хранения сессии показываем в "О приложении": пользователю со сломанным
         // Keystore на кастомной прошивке иначе нечего сообщить в поддержку.
         yaniAuthPreferences.storageMode
@@ -176,12 +153,6 @@ class SettingsViewModel @Inject internal constructor(
         settingsStore.betaUpdatesEnabled
             .onEach { enabled -> setState { copy(betaUpdatesEnabled = enabled) } }
             .launchIn(viewModelScope)
-        // Только начальное значение: поля сохраняются на каждый символ, и повторное чтение потока
-        // возвращало бы в состояние устаревший текст (теряются символы, курсор прыгает).
-        viewModelScope.launch {
-            val torrent = settingsStore.torrentSettings.first()
-            setState { copy(torrent = torrent) }
-        }
         settingsStore.appLogRecordingEnabled
             .onEach { enabled -> setState { copy(appLogRecordingEnabled = enabled) } }
             .launchIn(viewModelScope)
@@ -240,14 +211,6 @@ class SettingsViewModel @Inject internal constructor(
     override fun onEvent(event: SettingsState.Event) {
         when (event) {
             SettingsState.Event.BackSelected -> nav.back()
-            is SettingsState.Event.InterfaceModeSelected -> {
-                if (event.mode == currentState.interfaceMode) return
-                interfaceModePreferences.select(event.mode)
-                analytics.eventInterfaceModeSelected(event.mode)
-                setState { copy(interfaceMode = event.mode) }
-                setEffect(SettingsState.Effect.RestartApplication)
-            }
-
             is SettingsState.Event.AppThemeSelected -> viewModelScope.launch {
                 analytics.eventAppThemeSelected(event.theme)
                 settingsStore.setAppTheme(event.theme)
@@ -282,9 +245,7 @@ class SettingsViewModel @Inject internal constructor(
             }
 
             SettingsState.Event.NewEpisodesSectionToggled -> viewModelScope.launch {
-                settingsStore.setHomeBlocks(
-                    currentState.homeBlocks.toggledHomeBlock(HomeBlockKind.MY_NEW_EPISODES),
-                )
+                settingsStore.setNewEpisodesSectionEnabled(!currentState.newEpisodesSectionEnabled)
             }
 
             is SettingsState.Event.NewEpisodesSourceToggled -> viewModelScope.launch {
@@ -433,12 +394,6 @@ class SettingsViewModel @Inject internal constructor(
                 settingsStore.resetMobilePlayerGestureTutorial()
             }
 
-            SettingsState.Event.OnboardingReset -> viewModelScope.launch {
-                settingsStore.resetOnboarding()
-                settingsStore.resetMobilePlayerGestureTutorial()
-                settingsStore.resetTvPlayerControlsTutorial()
-            }
-
             SettingsState.Event.TvPlayerControlsTutorialReset -> viewModelScope.launch {
                 analytics.eventTvPlayerControlsTutorialReset()
                 settingsStore.resetTvPlayerControlsTutorial()
@@ -470,36 +425,6 @@ class SettingsViewModel @Inject internal constructor(
                 appLifecycleSettingsStore.markNotificationPermissionRequested()
             }
 
-            is SettingsState.Event.TorrentSettingsChanged -> {
-                val previous = currentState.torrent
-                if (previous.enabled != event.settings.enabled) {
-                    analytics.eventTorrentToggled(event.settings.enabled)
-                }
-                // Старый итог относился к прежнему серверу: сбрасываем его только при правке адреса или учётных данных.
-                val serverChanged = previous.torrServerUrl != event.settings.torrServerUrl ||
-                    previous.torrServerUser != event.settings.torrServerUser ||
-                    previous.torrServerPassword != event.settings.torrServerPassword
-                setState {
-                    copy(
-                        torrent = event.settings,
-                        torrServerCheck = if (serverChanged) TorrServerCheckStatus.Idle else torrServerCheck,
-                    )
-                }
-                viewModelScope.launch {
-                    settingsStore.setTorrentSettings(event.settings)
-                }
-            }
-
-            SettingsState.Event.TorrServerCheckRequested -> {
-                val checker = torrServerChecker.orElse(null) ?: return
-                if (currentState.torrServerCheck == TorrServerCheckStatus.Checking) return
-                setState { copy(torrServerCheck = TorrServerCheckStatus.Checking) }
-                viewModelScope.launch {
-                    val result = checker.check(currentState.torrent)
-                    setState { copy(torrServerCheck = TorrServerCheckStatus.Done(result)) }
-                }
-            }
-
             is SettingsState.Event.YaniApplicationTokenChanged -> {
                 setState { copy(yaniApplicationToken = event.token) }
                 viewModelScope.launch {
@@ -512,8 +437,6 @@ class SettingsViewModel @Inject internal constructor(
                 interfaceLanguagePreferences.select(event.language)
                 analytics.eventInterfaceLanguageSelected(event.language)
                 setState { copy(interfaceLanguage = event.language) }
-                // Локаль применяется в attachBaseContext, поэтому нужен новый процесс.
-                setEffect(SettingsState.Effect.ColdRestartApplication)
             }
 
             is SettingsState.Event.ContentLanguageSelected -> viewModelScope.launch {
@@ -530,31 +453,6 @@ class SettingsViewModel @Inject internal constructor(
 
             SettingsState.Event.LibraryTabOrderScreenOpened -> {
                 analytics.eventLibraryTabOrderScreenOpened()
-            }
-
-            is SettingsState.Event.HomeBlockToggled -> viewModelScope.launch {
-                analytics.eventHomeBlockToggled(event.block)
-                settingsStore.setHomeBlocks(currentState.homeBlocks.toggledHomeBlock(event.block))
-            }
-
-            is SettingsState.Event.HomeBlockMoved -> viewModelScope.launch {
-                analytics.eventHomeBlockMoved(event.block, event.direction)
-                settingsStore.setHomeBlocks(
-                    currentState.homeBlocks.movedHomeBlock(event.block, event.direction),
-                )
-            }
-
-            SettingsState.Event.HomeBlocksScreenOpened -> {
-                analytics.eventHomeBlocksScreenOpened()
-            }
-
-            SettingsState.Event.HomeBlocksSelected -> {
-                nav.navigate(SettingsHomeBlocksDestination)
-            }
-
-            SettingsState.Event.HomeBlocksReset -> viewModelScope.launch {
-                analytics.eventHomeBlocksReset()
-                settingsStore.setHomeBlocks(HomeBlockConfig.default)
             }
 
             SettingsState.Event.LibraryTabOrderSelected -> {

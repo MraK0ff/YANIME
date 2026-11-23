@@ -15,28 +15,23 @@ private const val TRAILING_PUNCTUATION = ".,;:!?)»"
  * Знаки препинания в конце ссылки («…/support.») в неё не входят.
  */
 fun AnnotatedString.Builder.addUrlLinks(text: String, linkStyle: SpanStyle) {
-    urlRanges(text).forEach { (url, range) ->
-        addLink(LinkAnnotation.Url(url = url, styles = TextLinkStyles(style = linkStyle)), range.first, range.last + 1)
-    }
-}
-
-/**
- * Только подсвечивает ссылки и почту в [text], не делая их кликабельными. Для ТВ: [LinkAnnotation] фокусируется
- * с пульта, но фокус на ней не виден, и стрелки «застревают» на тексте.
- */
-fun AnnotatedString.Builder.addUrlHighlights(text: String, linkStyle: SpanStyle) {
-    urlRanges(text).forEach { (_, range) -> addStyle(linkStyle, range.first, range.last + 1) }
-}
-
-/** Адрес ссылки (почта — с mailto) и её диапазон в [text]. */
-private fun urlRanges(text: String): List<Pair<String, IntRange>> {
     val webRanges = webUrlRegex.findAll(text).toList()
-    val web = webRanges.mapNotNull { match ->
+    webRanges.forEach { match ->
         val url = match.value.trimEnd { it in TRAILING_PUNCTUATION }
-        url.takeIf { it.isNotEmpty() }?.let { it to (match.range.first until match.range.first + it.length) }
+        if (url.isEmpty()) return@forEach
+        addLink(
+            LinkAnnotation.Url(url = url, styles = TextLinkStyles(style = linkStyle)),
+            start = match.range.first,
+            end = match.range.first + url.length,
+        )
     }
-    val emails = emailRegex.findAll(text)
+    emailRegex.findAll(text)
         .filterNot { email -> webRanges.any { email.range.first in it.range } }
-        .map { "mailto:${it.value}" to it.range }
-    return web + emails
+        .forEach { match ->
+            addLink(
+                LinkAnnotation.Url(url = "mailto:${match.value}", styles = TextLinkStyles(style = linkStyle)),
+                start = match.range.first,
+                end = match.range.last + 1,
+            )
+        }
 }

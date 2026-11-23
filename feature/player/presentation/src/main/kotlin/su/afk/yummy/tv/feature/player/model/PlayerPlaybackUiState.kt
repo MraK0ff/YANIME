@@ -14,13 +14,9 @@ data class PlayerPlaybackUiState(
     val activeEpisodeFlags: EpisodeFlags?,
     val activeVideoId: Int,
     val activeDubbing: String,
-    /** Подпись для чипа озвучки в плеере: название раздачи торрента или имя озвучки. */
-    val activeDubbingLabel: String,
     val activeBalancerName: String,
     /** Имя активного балансера для показа, без префикса «Плеер» — как в [balancerNames]. */
     val activeBalancerLabel: String,
-    /** Серия играет из скачанного файла: к имени плеера добавляется приписка «Скачано». */
-    val isDownloaded: Boolean,
     val activeScreenshotUrl: String,
     val activeSkips: PlayerSkips,
     val hasPrevEpisode: Boolean,

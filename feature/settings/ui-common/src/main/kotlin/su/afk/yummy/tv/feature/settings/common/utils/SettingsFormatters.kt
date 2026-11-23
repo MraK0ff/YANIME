@@ -5,13 +5,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import su.afk.yummy.tv.core.designsystem.theme.isDynamicColorSupported
 import su.afk.yummy.tv.core.model.seasonal.SeasonalTheme
-import su.afk.yummy.tv.core.model.settings.TorrentSort
 import su.afk.yummy.tv.core.model.settings.AppTheme
 import su.afk.yummy.tv.core.model.settings.BackgroundStyle
 import su.afk.yummy.tv.core.model.settings.NavTransitionStyle
 import su.afk.yummy.tv.core.model.settings.BrowserUserAgentProfile
 import su.afk.yummy.tv.core.model.settings.LibraryContinueWatchingCardSize
-import su.afk.yummy.tv.core.model.settings.HomeBlockKind
 import su.afk.yummy.tv.core.model.settings.LibraryTabKind
 import su.afk.yummy.tv.core.model.settings.NewEpisodesSource
 import su.afk.yummy.tv.core.model.settings.PlayerBufferProfile
@@ -23,7 +21,6 @@ import su.afk.yummy.tv.core.model.settings.PreferredVideoQuality
 import su.afk.yummy.tv.core.model.settings.TitleCardLayout
 import su.afk.yummy.tv.core.model.settings.AppInterfaceLanguage
 import su.afk.yummy.tv.core.model.settings.YaniContentLanguage
-import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.feature.settings.presentation.R
 
 @Composable
@@ -32,22 +29,6 @@ fun SeasonalTheme.enabledHint(): String = stringResource(
         SeasonalTheme.HALLOWEEN -> R.string.settings_seasonal_decorations_halloween
         SeasonalTheme.NEW_YEAR -> R.string.settings_seasonal_decorations_new_year
         SeasonalTheme.NONE -> R.string.settings_seasonal_decorations_off_season
-    },
-)
-
-@Composable
-fun AppInterfaceMode.label(): String = stringResource(
-    when (this) {
-        AppInterfaceMode.MOBILE -> R.string.settings_interface_mobile
-        AppInterfaceMode.TV -> R.string.settings_interface_tv
-    },
-)
-
-@Composable
-fun AppInterfaceMode.hint(): String = stringResource(
-    when (this) {
-        AppInterfaceMode.MOBILE -> R.string.settings_interface_mobile_hint
-        AppInterfaceMode.TV -> R.string.settings_interface_tv_hint
     },
 )
 
@@ -121,24 +102,6 @@ fun NavTransitionStyle.hint(): String = stringResource(
         NavTransitionStyle.SLIDE -> R.string.settings_nav_transition_slide_hint
         NavTransitionStyle.FADE_SCALE -> R.string.settings_nav_transition_fade_scale_hint
         NavTransitionStyle.NONE -> R.string.settings_nav_transition_none_hint
-    },
-)
-
-@Composable
-fun TorrentSort.label(): String = stringResource(
-    when (this) {
-        TorrentSort.SEEDERS -> R.string.settings_torrent_sort_seeders
-        TorrentSort.SIZE -> R.string.settings_torrent_sort_size
-        TorrentSort.TITLE -> R.string.settings_torrent_sort_title_name
-    },
-)
-
-@Composable
-fun TorrentSort.hint(): String = stringResource(
-    when (this) {
-        TorrentSort.SEEDERS -> R.string.settings_torrent_sort_seeders_hint
-        TorrentSort.SIZE -> R.string.settings_torrent_sort_size_hint
-        TorrentSort.TITLE -> R.string.settings_torrent_sort_title_hint
     },
 )
 
@@ -236,7 +199,6 @@ val videoQualitySliderEntries: List<PreferredVideoQuality> = listOf(
 @Composable
 fun AppInterfaceLanguage.label(): String = stringResource(
     when (this) {
-        AppInterfaceLanguage.SYSTEM -> R.string.settings_interface_language_system
         AppInterfaceLanguage.RUSSIAN -> R.string.settings_interface_language_russian
         AppInterfaceLanguage.ENGLISH -> R.string.settings_interface_language_english
         AppInterfaceLanguage.UKRAINIAN -> R.string.settings_interface_language_ukrainian
@@ -374,22 +336,6 @@ fun Set<NewEpisodesSource>.newEpisodesSourcesValue(): String =
         }
         labels.joinToString(", ")
     }
-
-@Composable
-fun HomeBlockKind.label(): String = stringResource(
-    when (this) {
-        HomeBlockKind.HERO -> R.string.settings_home_block_hero
-        HomeBlockKind.CONTINUE_WATCHING -> R.string.settings_home_block_continue_watching
-        HomeBlockKind.MY_NEW_EPISODES -> R.string.settings_home_block_my_new_episodes
-        HomeBlockKind.NEW_RELEASES -> R.string.settings_home_block_new_releases
-        HomeBlockKind.NEW_TITLES -> R.string.settings_home_block_new_titles
-        HomeBlockKind.RECOMMENDATIONS -> R.string.settings_home_block_recommendations
-        HomeBlockKind.ANNOUNCEMENTS -> R.string.settings_home_block_announcements
-        HomeBlockKind.COLLECTIONS -> R.string.settings_home_block_collections
-        HomeBlockKind.BLOGGER_VIDEOS -> R.string.settings_home_block_blogger_videos
-        HomeBlockKind.QUICK_ACTIONS -> R.string.settings_home_block_quick_actions
-    },
-)
 
 @Composable
 fun LibraryTabKind.label(): String = stringResource(

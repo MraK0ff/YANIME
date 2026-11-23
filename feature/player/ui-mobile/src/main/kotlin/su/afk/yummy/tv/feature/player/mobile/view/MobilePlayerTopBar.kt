@@ -1,6 +1,8 @@
 package su.afk.yummy.tv.feature.player.mobile.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -9,10 +11,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,8 +31,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.theme.overline
-import su.afk.yummy.tv.core.model.anime.EpisodeFlags
 import su.afk.yummy.tv.core.designsystem.utils.dubbingDisplayName
+import su.afk.yummy.tv.core.model.anime.EpisodeFlags
 import su.afk.yummy.tv.feature.player.presentation.R
 import su.afk.yummy.tv.core.designsystem.R as DesignSystemR
 
@@ -38,9 +42,9 @@ internal fun MobilePlayerTopBar(
     episode: String,
     dubbing: String,
     playerName: String,
-    isDownloaded: Boolean,
     episodeFlags: EpisodeFlags?,
     onBack: () -> Unit,
+    onLockClick: () -> Unit,
     visible: Boolean,
     modifier: Modifier = Modifier,
 ) {
@@ -98,13 +102,9 @@ internal fun MobilePlayerTopBar(
                     horizontalAlignment = Alignment.End,
                     modifier = Modifier.padding(start = 8.dp),
                 ) {
-                    val badgeText = listOfNotNull(
-                        playerName.takeIf(String::isNotBlank),
-                        stringResource(R.string.player_badge_downloaded).takeIf { isDownloaded },
-                    ).joinToString(" • ")
-                    if (badgeText.isNotBlank()) {
+                    if (playerName.isNotBlank()) {
                         Text(
-                            text = badgeText.uppercase(),
+                            text = playerName.uppercase(),
                             color = Color.Black,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -116,16 +116,33 @@ internal fun MobilePlayerTopBar(
                                 .padding(horizontal = 12.dp, vertical = 5.dp),
                         )
                     }
-                    MobilePlayerEpisodeFlagLabel(
-                        flags = episodeFlags,
+                    // Круглая подложка с обводкой, как у кнопок управления внизу: голые точки
+                    // терялись на светлом кадре.
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.padding(top = 6.dp),
-                    )
+                    ) {
+                        IconButton(
+                            onClick = onLockClick,
+                            modifier = Modifier
+                                .size(44.dp)
+                                .clip(CircleShape)
+                                .background(Color.Black.copy(alpha = 0.36f))
+                                .border(1.dp, Color.White.copy(alpha = 0.28f), CircleShape),
+                        ) {
+                            Icon(
+                                Icons.Filled.LockOpen,
+                                contentDescription = stringResource(R.string.player_mobile_lock),
+                                tint = Color.White,
+                                modifier = Modifier.size(24.dp),
+                            )
+                        }
+                    }
                 }
             }
         }
     }
 }
-
 private val FlagFillerColor = Color(0xFFFFC107)
 private val FlagRecapColor = Color(0xFF90CAF9)
 

@@ -1,7 +1,5 @@
 package su.afk.yummy.tv.feature.details.mobile.details.view
 
-import su.afk.yummy.tv.core.designsystem.onboarding.onboardingTarget
-import su.afk.yummy.tv.feature.details.mobile.details.utils.mobileDetailsActionTargetId
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,9 +27,7 @@ internal fun DetailsActionCard(
 ) {
     Surface(
         onClick = action.onClick,
-        modifier = modifier
-            .heightIn(min = 64.dp)
-            .onboardingTarget(mobileDetailsActionTargetId(action.action)),
+        modifier = modifier.heightIn(min = 64.dp),
         shape = MaterialTheme.shapes.large,
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {

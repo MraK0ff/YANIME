@@ -54,18 +54,4 @@ class PlayerBrightnessControllerTest : BaseUnitTest() {
         assertEquals(0.01f, controller.brightness.value!!, 0.0001f)
         coVerify { store.setMobilePlayerBrightnessPercent(1) }
     }
-
-    @Test
-    fun `setAuto clears brightness and stored value`() {
-        val controller = createController(storedPercent = 40)
-        testScheduler.runCurrent()
-
-        controller.setAuto()
-        testScheduler.runCurrent()
-        testScheduler.advanceTimeBy(600)
-        testScheduler.runCurrent()
-
-        assertNull(controller.brightness.value)
-        coVerify { store.clearMobilePlayerBrightness() }
-    }
 }

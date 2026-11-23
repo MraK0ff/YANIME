@@ -12,6 +12,7 @@ internal object SettingsPreferenceKeys {
     val titleCardLayoutKey = stringPreferencesKey("title_card_layout")
     val showCatalogTitleYearKey = booleanPreferencesKey("show_top_title_year")
     val showEpisodeFlagsKey = booleanPreferencesKey("show_episode_flags")
+    val episodeWatchFilterKey = stringPreferencesKey("episode_watch_filter")
     val newEpisodesSectionEnabledKey = booleanPreferencesKey("new_episodes_section_enabled")
     val seasonalDecorationsEnabledKey = booleanPreferencesKey("seasonal_decorations_enabled")
     val accountShortcutsExpandedKey = booleanPreferencesKey("account_shortcuts_expanded")
@@ -39,7 +40,7 @@ internal object SettingsPreferenceKeys {
         intPreferencesKey("player_controls_auto_hide_seconds")
 
     val pictureInPictureEnabledKey = booleanPreferencesKey("picture_in_picture_enabled")
-    /** Нужно ли удерживать кнопку разблокировки экрана (иначе разблокировка по тапу). */
+    /** Нужно ли удерживать кнопки блокировки и смены серии (иначе срабатывают по тапу). */
     val holdToConfirmEnabledKey = booleanPreferencesKey("hold_to_confirm_enabled")
     val playerOrientationModeKey = stringPreferencesKey("player_orientation_mode")
     val suggestNextEpisodeOnWatchedKey =
@@ -76,7 +77,6 @@ internal object SettingsPreferenceKeys {
     val subtitleOffsetKey = intPreferencesKey("subtitle_offset_percent")
     val subtitleEdgeKey = stringPreferencesKey("subtitle_edge")
     val libraryTabOrderKey = stringPreferencesKey("library_tab_order")
-    val homeBlocksKey = stringPreferencesKey("home_blocks")
     val hiddenRecommendationIdsKey = stringSetPreferencesKey("hidden_recommendation_ids")
     val appThemeKey = stringPreferencesKey("app_theme")
     val backgroundStyleKey = stringPreferencesKey("background_style")
@@ -107,8 +107,6 @@ internal object SettingsPreferenceKeys {
         booleanPreferencesKey("preview_channel_prompt_answered")
     val detailsSectionsHintDismissedKey =
         booleanPreferencesKey("details_sections_hint_dismissed")
-    val onboardingWelcomeSeenKey = booleanPreferencesKey("onboarding_welcome_seen")
-    val onboardingToursSeenKey = stringSetPreferencesKey("onboarding_tours_seen")
     val videoExportDirectoryUriKey = stringPreferencesKey("video_export_directory_uri")
     val videoExportDirectoryNameKey = stringPreferencesKey("video_export_directory_name")
     val videoExportAutoEnabledKey = booleanPreferencesKey("video_export_auto_enabled")
@@ -133,17 +131,4 @@ internal object SettingsPreferenceKeys {
     val episodePushRecentPushesKey = stringSetPreferencesKey("episode_push_recent_pushes")
     val episodePushKnownNotificationIdsKey =
         stringSetPreferencesKey("episode_push_known_notification_ids")
-    val torrentEnabledKey = booleanPreferencesKey("torrent_enabled")
-    val torrServerUrlKey = stringPreferencesKey("torrserver_url")
-    val torrServerUserKey = stringPreferencesKey("torrserver_user")
-    val torrServerPasswordKey = stringPreferencesKey("torrserver_password")
-    val torrentIndexerKey = stringPreferencesKey("torrent_indexer")
-    /** Адрес JacRed (раньше — общий адрес индексатора). */
-    val torrentIndexerUrlKey = stringPreferencesKey("torrent_indexer_url")
-    val jacRedEnabledKey = booleanPreferencesKey("torrent_jacred_enabled")
-    val jackettEnabledKey = booleanPreferencesKey("torrent_jackett_enabled")
-    val jackettUrlKey = stringPreferencesKey("torrent_jackett_url")
-    val jackettApiKeyKey = stringPreferencesKey("jackett_api_key")
-    val torrentSortKey = stringPreferencesKey("torrent_sort")
-    val torrentSortReversedKey = booleanPreferencesKey("torrent_sort_reversed")
 }

@@ -21,8 +21,7 @@ interface SettingsStore :
     VideoExportSettingsStore,
     VideoDownloadSettingsStore,
     AppLifecycleSettingsStore,
-    SearchSettingsStore,
-    TorrentSettingsStore {
+    SearchSettingsStore {
 
     val settingsSnapshot: Flow<SettingsSnapshot>
     val mainSettingsSnapshot: Flow<MainSettingsSnapshot>

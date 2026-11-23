@@ -59,9 +59,11 @@ internal fun MobilePlayerOrientationSheet(
                 .padding(start = 16.dp, end = 16.dp, bottom = 18.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            MobilePlayerMenuPageHeader(
-                title = stringResource(R.string.player_mobile_orientation),
-                onBack = onDismiss,
+            Text(
+                text = stringResource(R.string.player_mobile_orientation),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(bottom = 2.dp),
             )
             PlayerOrientationMode.entries.forEach { mode ->
                 OrientationRow(

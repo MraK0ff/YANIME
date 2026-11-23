@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.player.utils
 
-import su.afk.yummy.tv.core.common.player.withoutPlayerPrefix
 import su.afk.yummy.tv.core.common.episode.episodeGroupKey
 import su.afk.yummy.tv.core.common.episode.episodeNumberOrNull
 import su.afk.yummy.tv.core.common.player.isStarredBalancer
@@ -155,7 +154,7 @@ internal fun globalDubbingSourceNames(
 ): String =
     state.sourceGraph.balancers
         .filter { balancer -> balancer.dubbings.any { it.name == dubbingName } }
-        .map { it.name.removePrefix(playerNamePrefix).withoutPlayerPrefix() }
+        .map { it.name.removePrefix(playerNamePrefix) }
         .joinToString(" • ")
 
 internal fun availableBalancerIndices(

@@ -12,7 +12,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import su.afk.yummy.tv.core.common.coroutines.AppClock
 import su.afk.yummy.tv.core.designsystem.baseScreen.ScreenNavigator
 import su.afk.yummy.tv.core.designsystem.components.rememberGlobalToastState
-import su.afk.yummy.tv.core.designsystem.dialog.ChoiceDialogHost
 import su.afk.yummy.tv.core.designsystem.dialog.ConfirmDialogHost
 import su.afk.yummy.tv.core.designsystem.locals.LocalIsOffline
 import su.afk.yummy.tv.core.designsystem.locals.LocalLibraryListStatuses
@@ -20,11 +19,6 @@ import su.afk.yummy.tv.core.designsystem.locals.LocalLibraryUserRatings
 import su.afk.yummy.tv.core.designsystem.locals.LocalNowMillis
 import su.afk.yummy.tv.core.designsystem.locals.LocalPosterCardSize
 import su.afk.yummy.tv.core.designsystem.mobile.bar.LocalMobileBottomBarUpFocusRequester
-import su.afk.yummy.tv.core.designsystem.onboarding.LocalOnboardingController
-import su.afk.yummy.tv.core.designsystem.onboarding.OnboardingSpotlightOverlay
-import su.afk.yummy.tv.core.designsystem.onboarding.OnboardingTourEffect
-import su.afk.yummy.tv.core.designsystem.onboarding.OnboardingWelcome
-import su.afk.yummy.tv.core.designsystem.onboarding.rememberOnboardingController
 import su.afk.yummy.tv.core.designsystem.seasonal.LocalSeasonalDecorationsEnabled
 import su.afk.yummy.tv.core.designsystem.theme.YummyTvTheme
 import su.afk.yummy.tv.core.navigation.host.AppNavHost
@@ -40,8 +34,6 @@ import su.afk.yummy.tv.feature.main.mobile.navigation.MobileNavigationHolder
 import su.afk.yummy.tv.feature.main.mobile.navigation.mobileNavPopTransitionSpec
 import su.afk.yummy.tv.feature.main.mobile.navigation.mobileNavTransitionSpec
 import su.afk.yummy.tv.feature.main.mobile.navigation.rememberMobileListDetailSceneStrategy
-import su.afk.yummy.tv.feature.main.mobile.utils.mobileMainTourSteps
-import su.afk.yummy.tv.feature.main.utils.MAIN_ONBOARDING_TOUR_ID
 import su.afk.yummy.tv.feature.main.mobile.view.MobileMainScaffold
 import su.afk.yummy.tv.feature.update.navigator.UpdateDestination
 import javax.inject.Inject
@@ -70,6 +62,8 @@ class MobileMainGraph @Inject internal constructor(
         val showRail = !isRequiredUpdateDestination && !isFullscreenDestination
 
         ScreenNavigator(viewModel) { state, effect, onEvent ->
+            // Не рисуем тему по умолчанию: ждём атомарную загрузку сохранённых оформления и фона.
+            if (!state.appearanceLoaded) return@ScreenNavigator
             val accountSettingsFocusRequester = remember { FocusRequester() }
             val toast = rememberGlobalToastState()
             LaunchedEffect(effect) {
@@ -86,16 +80,10 @@ class MobileMainGraph @Inject internal constructor(
                 isTelevision = false,
             ) {
                 ConfirmDialogHost(isTelevision = false)
-                ChoiceDialogHost(isTelevision = false)
-                val onboarding = rememberOnboardingController()
-                val tabRootReady = atTabRoot && !isRequiredUpdateDestination && !isFullscreenDestination
-                if (state.onboardingWelcomePending && tabRootReady) {
-                    OnboardingWelcome(onFinished = { onEvent(MainState.Event.OnboardingWelcomeFinished) })
-                }
                 SeasonalPrompt(
                     theme = state.seasonalPrompt,
                     isTelevision = false,
-                    ready = tabRootReady && !state.onboardingWelcomePending,
+                    ready = atTabRoot && !isRequiredUpdateDestination && !isFullscreenDestination,
                     onAnswer = { disable -> onEvent(MainState.Event.SeasonalPromptAnswered(disable)) },
                 )
                 CompositionLocalProvider(
@@ -108,14 +96,7 @@ class MobileMainGraph @Inject internal constructor(
                     LocalMobileBottomBarUpFocusRequester provides accountSettingsFocusRequester.takeIf {
                         atTabRoot && navManager.currentRoot == RootTab.ACCOUNT
                     },
-                    LocalOnboardingController provides onboarding,
                 ) {
-                    OnboardingTourEffect(
-                        tourId = MAIN_ONBOARDING_TOUR_ID,
-                        steps = mobileMainTourSteps,
-                        show = state.showMainOnboardingTour && tabRootReady,
-                        onFinished = { onEvent(MainState.Event.OnboardingMainTourFinished) },
-                    )
                     MobileMainScaffold(
                         selectedDestination = navManager.currentRoot,
                         menuItems = mobileMenuItems(
@@ -148,8 +129,6 @@ class MobileMainGraph @Inject internal constructor(
                         )
                     }
                 }
-                // Поверх всего окна, включая нижний бар: вырез подсвечивает вкладки.
-                OnboardingSpotlightOverlay(controller = onboarding)
             }
         }
     }

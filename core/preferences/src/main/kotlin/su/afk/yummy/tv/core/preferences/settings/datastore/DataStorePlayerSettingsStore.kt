@@ -31,7 +31,6 @@ import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.nextEpis
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.holdToConfirmEnabledKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.pictureInPictureEnabledKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.playerBufferProfileKey
-import su.afk.yummy.tv.core.preferences.BuildConfig
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.playerControlsAutoHideSecondsKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.playerOrientationModeKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.playerPlaybackSpeedKey
@@ -69,7 +68,7 @@ internal class DataStorePlayerSettingsStore @Inject constructor(
         store.boolean(adaptiveVideoQualityEnabledKey, true)
 
     override val autoSkipOpeningsEndings: Flow<Boolean> =
-        store.boolean(autoSkipOpeningsEndingsKey, false)
+        store.boolean(autoSkipOpeningsEndingsKey, true)
 
     override val autoSkipDelaySeconds: Flow<Int> = store.data.map { prefs ->
         (prefs[autoSkipDelaySecondsKey] ?: DEFAULT_AUTO_SKIP_DELAY_SECONDS)
@@ -80,7 +79,7 @@ internal class DataStorePlayerSettingsStore @Inject constructor(
         store.boolean(showOpeningOnTimelineKey, false)
 
     override val autoPlayNextEpisode: Flow<Boolean> =
-        store.boolean(autoPlayNextEpisodeKey, false)
+        store.boolean(autoPlayNextEpisodeKey, true)
 
     // coerceIn и на чтении тоже: значение могло быть записано более старой версией без клампа.
     override val nextEpisodeSwitchDelaySeconds: Flow<Int> = store.data.map { prefs ->
@@ -101,7 +100,7 @@ internal class DataStorePlayerSettingsStore @Inject constructor(
         store.boolean(holdToConfirmEnabledKey, true)
 
     override val playerOrientationMode: Flow<PlayerOrientationMode> =
-        store.enumFlow(playerOrientationModeKey, PlayerOrientationMode.SYSTEM)
+        store.enumFlow(playerOrientationModeKey, PlayerOrientationMode.SENSOR_LANDSCAPE)
 
     override val suggestNextEpisodeOnWatched: Flow<Boolean> =
         store.boolean(suggestNextEpisodeOnWatchedKey, true)
@@ -290,10 +289,6 @@ internal class DataStorePlayerSettingsStore @Inject constructor(
         }
     }
 
-    override suspend fun clearMobilePlayerBrightness() {
-        store.edit { prefs -> prefs.remove(mobilePlayerBrightnessPercentKey) }
-    }
-
     override suspend fun setPlayerPlaybackSpeed(speed: Float) {
         store.edit { prefs ->
             prefs[playerPlaybackSpeedKey] = speed.coerceIn(MIN_PLAYBACK_SPEED, MAX_PLAYBACK_SPEED)
@@ -362,13 +357,12 @@ internal class DataStorePlayerSettingsStore @Inject constructor(
         const val MAX_PLAYBACK_SPEED = 4f
         const val MAX_VOLUME_PERCENT = 100
         const val MIN_BRIGHTNESS_PERCENT = 1
-        const val DEFAULT_AUTO_SKIP_DELAY_SECONDS = 5
+        const val DEFAULT_AUTO_SKIP_DELAY_SECONDS = 1
         const val MIN_AUTO_SKIP_DELAY_SECONDS = 1
         const val MAX_AUTO_SKIP_DELAY_SECONDS = 15
-        const val DEFAULT_NEXT_EPISODE_SWITCH_DELAY_SECONDS = 10
+        const val DEFAULT_NEXT_EPISODE_SWITCH_DELAY_SECONDS = 0
         const val MAX_NEXT_EPISODE_SWITCH_DELAY_SECONDS = 30
-        /** В debug панель плеера не гаснет сама (30000 с): удобно снимать скриншоты и разбирать экран. */
-        val DEFAULT_CONTROLS_AUTO_HIDE_SECONDS = if (BuildConfig.DEBUG) MAX_CONTROLS_AUTO_HIDE_SECONDS else 4
+        const val DEFAULT_CONTROLS_AUTO_HIDE_SECONDS = 2
         const val MIN_CONTROLS_AUTO_HIDE_SECONDS = 1
         const val MAX_CONTROLS_AUTO_HIDE_SECONDS = 30000
         const val DEFAULT_SUBTITLE_TEXT_SIZE_PERCENT = 100

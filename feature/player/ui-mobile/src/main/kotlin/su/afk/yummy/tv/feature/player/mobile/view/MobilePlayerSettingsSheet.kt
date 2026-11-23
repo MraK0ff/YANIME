@@ -27,6 +27,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.drop
@@ -87,9 +88,11 @@ internal fun MobilePlayerSettingsSheet(
                 .padding(start = 16.dp, end = 16.dp, bottom = 18.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            MobilePlayerMenuPageHeader(
-                title = stringResource(R.string.player_mobile_track_settings_title),
-                onBack = onDismiss,
+            Text(
+                text = stringResource(R.string.player_mobile_track_settings_title),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(bottom = 2.dp),
             )
             val dubbingLabel = stringResource(R.string.player_dubbing_title)
             val playerLabel = stringResource(R.string.player_name_prefix)

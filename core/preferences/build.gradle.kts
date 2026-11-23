@@ -5,10 +5,6 @@ plugins {
 
 android {
     namespace = "su.afk.yummy.tv.core.preferences"
-
-    buildFeatures {
-        buildConfig = true
-    }
 }
 
 dependencies {

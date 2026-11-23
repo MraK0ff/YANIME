@@ -42,8 +42,6 @@ fun CatalogTvScreen(
     val onQueryChanged =
         remember(onEvent) { { q: String -> onEvent(CatalogState.Event.QueryChanged(q)) } }
     val onSearchSubmitted = remember(onEvent) { { onEvent(CatalogState.Event.SearchSubmitted) } }
-    val onSearchFocusHandled =
-        remember(onEvent) { { onEvent(CatalogState.Event.SearchFocusHandled) } }
     val onRandomAnimeSelected =
         remember(onEvent) { { onEvent(CatalogState.Event.RandomAnimeSelected) } }
     val onRetry = remember(onEvent, results) {
@@ -92,8 +90,6 @@ fun CatalogTvScreen(
         isFilterPanelOpen = state.isFilterPanelOpen,
         isLoadingFilterOptions = state.isLoadingFilterOptions,
         isRandomAnimeLoading = state.isRandomAnimeLoading,
-        isSearchFocusRequested = state.isSearchFocusRequested,
-        onSearchFocusHandled = onSearchFocusHandled,
         onQueryChanged = onQueryChanged,
         onSearchSubmitted = onSearchSubmitted,
         onRandomAnimeSelected = onRandomAnimeSelected,

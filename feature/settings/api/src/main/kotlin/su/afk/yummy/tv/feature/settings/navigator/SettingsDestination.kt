@@ -9,9 +9,6 @@ data object SettingsDestination : NavKey
 @Serializable
 data object SettingsLibraryTabOrderDestination : NavKey
 
-@Serializable
-data object SettingsHomeBlocksDestination : NavKey
-
 /** Категории мобильных настроек: у каждой свой экран, чтобы не листать один длинный список. */
 @Serializable
 enum class SettingsCategory {
@@ -23,7 +20,6 @@ enum class SettingsCategory {
     NOTIFICATIONS,
     SUBTITLES,
     STORAGE,
-    TORRENT,
     API,
 }
 

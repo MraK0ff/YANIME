@@ -9,7 +9,6 @@ import su.afk.yummy.tv.core.model.settings.NavTransitionStyle
 import su.afk.yummy.tv.core.model.settings.LibraryContinueWatchingCardSize
 import su.afk.yummy.tv.core.model.settings.LibrarySort
 import su.afk.yummy.tv.core.model.settings.LibrarySortDirection
-import su.afk.yummy.tv.core.model.settings.HomeBlockConfig
 import su.afk.yummy.tv.core.model.settings.LibraryTabKind
 import su.afk.yummy.tv.core.model.settings.NewEpisodesSource
 import su.afk.yummy.tv.core.model.settings.PosterCardSize
@@ -21,7 +20,6 @@ import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.navTrans
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.libraryContinueWatchingCardSizeKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.librarySortDirectionKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.librarySortKey
-import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.homeBlocksKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.libraryTabOrderKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.newEpisodesSectionEnabledKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.seasonalAnnouncedKey
@@ -33,6 +31,7 @@ import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.titleCar
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.showLibraryTitleYearKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.showCatalogTitleYearKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.showEpisodeFlagsKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.episodeWatchFilterKey
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -48,6 +47,7 @@ internal class DataStoreAppearanceSettingsStore @Inject constructor(
 
     override val showCatalogTitleYear: Flow<Boolean> = store.boolean(showCatalogTitleYearKey, false)
     override val showEpisodeFlags: Flow<Boolean> = store.boolean(showEpisodeFlagsKey, true)
+    override val episodeWatchFilter: Flow<String> = store.string(episodeWatchFilterKey)
 
     override val seasonalDecorationsEnabled: Flow<Boolean> =
         store.boolean(seasonalDecorationsEnabledKey, true)
@@ -73,10 +73,10 @@ internal class DataStoreAppearanceSettingsStore @Inject constructor(
     override val librarySortDirection: Flow<LibrarySortDirection> =
         store.enumFlow(librarySortDirectionKey, LibrarySortDirection.DESC)
 
-    override val appTheme: Flow<AppTheme> = store.enumFlow(appThemeKey, AppTheme.WARM_AMBER)
+    override val appTheme: Flow<AppTheme> = store.enumFlow(appThemeKey, AppTheme.GRAPHITE)
 
     override val backgroundStyle: Flow<BackgroundStyle> =
-        store.enumFlow(backgroundStyleKey, BackgroundStyle.DARK)
+        store.enumFlow(backgroundStyleKey, BackgroundStyle.AMOLED)
 
     override val navTransitionStyle: Flow<NavTransitionStyle> =
         store.enumFlow(navTransitionStyleKey, NavTransitionStyle.FADE_SCALE)
@@ -110,6 +110,9 @@ internal class DataStoreAppearanceSettingsStore @Inject constructor(
     override suspend fun setShowCatalogTitleYear(enabled: Boolean) =
         store.setBoolean(showCatalogTitleYearKey, enabled)
 
+    override suspend fun setEpisodeWatchFilter(filter: String) =
+        store.edit { prefs -> prefs[episodeWatchFilterKey] = filter }
+
     override suspend fun setShowEpisodeFlags(enabled: Boolean) =
         store.setBoolean(showEpisodeFlagsKey, enabled)
 
@@ -132,14 +135,6 @@ internal class DataStoreAppearanceSettingsStore @Inject constructor(
 
     override suspend fun setNavTransitionStyle(style: NavTransitionStyle) =
         store.setEnum(navTransitionStyleKey, style)
-
-    override val homeBlocks: Flow<List<HomeBlockConfig>> = store.data.map { prefs ->
-        prefs[homeBlocksKey].toHomeBlocks(prefs[newEpisodesSectionEnabledKey] ?: true)
-    }
-
-    override suspend fun setHomeBlocks(blocks: List<HomeBlockConfig>) {
-        store.edit { prefs -> prefs[homeBlocksKey] = blocks.toHomeBlocksPreference() }
-    }
 
     override suspend fun setLibraryTabOrder(order: List<LibraryTabKind>) {
         store.edit { prefs ->

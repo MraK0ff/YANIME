@@ -16,7 +16,6 @@ import su.afk.yummy.tv.core.designsystem.locals.LocalIsOffline
 import su.afk.yummy.tv.core.designsystem.locals.LocalLibraryListStatuses
 import su.afk.yummy.tv.core.designsystem.locals.LocalNowMillis
 import su.afk.yummy.tv.core.designsystem.locals.LocalPosterCardSize
-import su.afk.yummy.tv.core.designsystem.dialog.ChoiceDialogHost
 import su.afk.yummy.tv.core.designsystem.dialog.ConfirmDialogHost
 import su.afk.yummy.tv.core.designsystem.seasonal.LocalSeasonalDecorationsEnabled
 import su.afk.yummy.tv.core.designsystem.theme.YummyTvTheme
@@ -53,6 +52,8 @@ class TvMainGraph @Inject constructor(
         val showMainMenu = atRoot && !isRequiredUpdateDestination
 
         ScreenNavigator(viewModel) { state, effect, onEvent ->
+            // Не рисуем тему по умолчанию: ждём атомарную загрузку сохранённых оформления и фона.
+            if (!state.appearanceLoaded) return@ScreenNavigator
             val toast = rememberGlobalToastState()
             LaunchedEffect(effect) {
                 effect.collect { eff ->
@@ -68,7 +69,6 @@ class TvMainGraph @Inject constructor(
                 isTelevision = true,
             ) {
                 ConfirmDialogHost(isTelevision = true)
-                ChoiceDialogHost(isTelevision = true)
                 SeasonalPrompt(
                     theme = state.seasonalPrompt,
                     isTelevision = true,

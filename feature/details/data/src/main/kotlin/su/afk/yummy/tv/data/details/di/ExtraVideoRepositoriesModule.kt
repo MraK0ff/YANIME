@@ -4,7 +4,6 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.Multibinds
-import su.afk.yummy.tv.domain.anime.repository.EpisodeFlagsSource
 import su.afk.yummy.tv.domain.anime.repository.ExtraVideoRepository
 
 /** Объявляет набор допустимо пустым: модули-источники могут отсутствовать (форк без них собирается как раньше). */
@@ -14,8 +13,4 @@ internal interface ExtraVideoRepositoriesModule {
 
     @Multibinds
     fun extraVideoRepositories(): Set<@JvmSuppressWildcards ExtraVideoRepository>
-
-    /** Источник пометок филлер/рекап (`external/tenrai`) необязателен: без него пометки берутся из резерва на нашем API. */
-    @Multibinds
-    fun episodeFlagsSources(): Set<@JvmSuppressWildcards EpisodeFlagsSource>
 }

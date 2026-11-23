@@ -77,30 +77,23 @@ internal fun TvPlayerInfoBar(
     }
 }
 
-private val TvFlagFillerColor = Color(0xFFFFC107)
-private val TvFlagRecapColor = Color(0xFF90CAF9)
-
-/** Правый верхний угол: имя плеера и под ним пометка текущей серии («Филлер»/«Рекап»). */
 @Composable
 internal fun TvPlayerNameBadge(
     visible: Boolean,
     playerName: String,
-    isDownloaded: Boolean,
     episodeFlags: EpisodeFlags?,
     modifier: Modifier = Modifier,
 ) {
-    val badgeText = listOfNotNull(
-        playerName.takeIf(String::isNotBlank),
-        stringResource(R.string.player_badge_downloaded).takeIf { isDownloaded },
-    ).joinToString(" • ")
-    val flagLabel = when {
+    val fillerColor = Color(0xFFFFC107)
+    val recapColor = Color(0xFF90CAF9)
+    val flagLabel: Pair<String, Color>? = when {
         episodeFlags == null -> null
-        episodeFlags.filler -> stringResource(R.string.player_episode_flag_filler) to TvFlagFillerColor
-        episodeFlags.recap -> stringResource(R.string.player_episode_flag_recap) to TvFlagRecapColor
+        episodeFlags.filler -> Pair(stringResource(R.string.player_episode_flag_filler), fillerColor)
+        episodeFlags.recap -> Pair(stringResource(R.string.player_episode_flag_recap), recapColor)
         else -> null
     }
     AnimatedVisibility(
-        visible = visible && (badgeText.isNotBlank() || flagLabel != null),
+        visible = visible && (playerName.isNotBlank() || flagLabel != null),
         modifier = modifier
             .windowInsetsPadding(WindowInsets.safeDrawing)
             .padding(top = 16.dp, end = 16.dp),
@@ -111,9 +104,9 @@ internal fun TvPlayerNameBadge(
             horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            if (badgeText.isNotBlank()) {
+            if (playerName.isNotBlank()) {
                 Text(
-                    text = badgeText.uppercase(),
+                    text = playerName.uppercase(),
                     style = MaterialTheme.typography.labelSmall.overline(),
                     color = Color.Black,
                     modifier = Modifier

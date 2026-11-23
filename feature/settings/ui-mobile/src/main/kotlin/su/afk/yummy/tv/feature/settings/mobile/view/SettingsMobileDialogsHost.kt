@@ -10,7 +10,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import su.afk.yummy.tv.core.model.settings.BackgroundStyle
 import su.afk.yummy.tv.core.model.settings.NavTransitionStyle
-import su.afk.yummy.tv.core.model.settings.TorrentSort
 import su.afk.yummy.tv.core.model.settings.NewEpisodesSource
 import su.afk.yummy.tv.core.model.settings.PlayerOrientationMode
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleBackground
@@ -18,7 +17,6 @@ import su.afk.yummy.tv.core.model.settings.PlayerSubtitleEdge
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleTextColor
 import su.afk.yummy.tv.core.model.settings.AppInterfaceLanguage
 import su.afk.yummy.tv.core.model.settings.YaniContentLanguage
-import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.feature.settings.SettingsState
 import su.afk.yummy.tv.feature.settings.mobile.model.SettingsMobilePicker
 import su.afk.yummy.tv.feature.settings.mobile.model.SettingsMobilePickerOption
@@ -37,7 +35,6 @@ import su.afk.yummy.tv.feature.settings.common.utils.label
 @Stable
 internal class SettingsMobileDialogs {
     var activePicker by mutableStateOf<SettingsMobilePicker?>(null)
-    var pendingInterfaceMode by mutableStateOf<AppInterfaceMode?>(null)
     var showCacheStorage by mutableStateOf(false)
 }
 
@@ -65,25 +62,6 @@ internal fun SettingsMobileDialogsHost(
             },
             onDismiss = { dialogs.activePicker = null },
             onToggle = { onEvent(SettingsState.Event.NewEpisodesSourceToggled(it)) },
-        )
-
-        SettingsMobilePicker.INTERFACE_MODE -> SettingsMobilePickerSheet(
-            title = stringResource(R.string.settings_interface_type),
-            selectedValue = state.interfaceMode,
-            options = AppInterfaceMode.entries.map {
-                SettingsMobilePickerOption(
-                    it,
-                    it.label(),
-                    it.hint(),
-                )
-            },
-            onDismiss = { dialogs.activePicker = null },
-            onSelected = { selectedMode ->
-                dialogs.activePicker = null
-                if (selectedMode != state.interfaceMode) {
-                    dialogs.pendingInterfaceMode = selectedMode
-                }
-            },
         )
 
         SettingsMobilePicker.THEME -> SettingsMobilePickerSheet(
@@ -134,23 +112,6 @@ internal fun SettingsMobileDialogsHost(
             onDismiss = { dialogs.activePicker = null },
             onSelected = {
                 onEvent(SettingsState.Event.NavTransitionStyleSelected(it))
-                dialogs.activePicker = null
-            },
-        )
-
-        SettingsMobilePicker.TORRENT_SORT -> SettingsMobilePickerSheet(
-            title = stringResource(R.string.settings_torrent_sort_title),
-            selectedValue = state.torrent.sort,
-            options = TorrentSort.entries.map {
-                SettingsMobilePickerOption(
-                    it,
-                    it.label(),
-                    it.hint(),
-                )
-            },
-            onDismiss = { dialogs.activePicker = null },
-            onSelected = {
-                onEvent(SettingsState.Event.TorrentSettingsChanged(state.torrent.copy(sort = it)))
                 dialogs.activePicker = null
             },
         )
@@ -279,14 +240,4 @@ internal fun SettingsMobileDialogsHost(
         )
     }
 
-    dialogs.pendingInterfaceMode?.let { targetMode ->
-        MobileInterfaceModeConfirmationDialog(
-            targetModeLabel = targetMode.label(),
-            onConfirm = {
-                dialogs.pendingInterfaceMode = null
-                onEvent(SettingsState.Event.InterfaceModeSelected(targetMode))
-            },
-            onDismiss = { dialogs.pendingInterfaceMode = null },
-        )
-    }
 }

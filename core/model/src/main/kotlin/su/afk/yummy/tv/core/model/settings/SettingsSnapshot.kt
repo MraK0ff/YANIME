@@ -41,5 +41,4 @@ data class SettingsSnapshot(
     val seasonalDecorationsEnabled: Boolean = true,
     val accountShortcutsExpanded: Boolean = false,
     val libraryTabOrder: List<LibraryTabKind> = LibraryTabKind.entries,
-    val homeBlocks: List<HomeBlockConfig> = HomeBlockConfig.default,
 )

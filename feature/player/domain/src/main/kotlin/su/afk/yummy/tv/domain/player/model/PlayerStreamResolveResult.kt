@@ -14,8 +14,6 @@ sealed interface PlayerStreamResolveResult {
          * при отказе узла можно переехать подменой хоста, не перезапрашивая ссылку у балансера.
          */
         val failoverHost: String? = null,
-        /** Подпись играющего источника (например, название раздачи) вместо общего имени озвучки; null — не задана. */
-        val sourceLabel: String? = null,
     ) : PlayerStreamResolveResult
 
     data class KodikBlocked(

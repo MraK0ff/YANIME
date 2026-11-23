@@ -22,13 +22,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.model.settings.BackgroundStyle
 import su.afk.yummy.tv.core.model.settings.NavTransitionStyle
-import su.afk.yummy.tv.core.model.settings.TorrentSort
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleBackground
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleEdge
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleTextColor
 import su.afk.yummy.tv.core.model.settings.AppInterfaceLanguage
 import su.afk.yummy.tv.core.model.settings.YaniContentLanguage
-import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.feature.settings.SettingsState
 import su.afk.yummy.tv.feature.settings.model.DetailsButtonMoveDirection
 import su.afk.yummy.tv.feature.settings.model.SettingsTvPicker
@@ -44,19 +42,14 @@ import su.afk.yummy.tv.feature.settings.common.utils.newEpisodesSourcesValue
 /** Текущее значение пункта-пикера для строки в центральной колонке. */
 @Composable
 internal fun SettingsTvPicker.valueText(state: SettingsState.State): String = when (this) {
-    SettingsTvPicker.INTERFACE_MODE -> state.interfaceMode.label()
     SettingsTvPicker.INTERFACE_LANGUAGE -> state.interfaceLanguage.label()
     SettingsTvPicker.CONTENT_LANGUAGE -> state.contentLanguage.label()
     SettingsTvPicker.THEME -> state.appTheme.label()
     SettingsTvPicker.BACKGROUND -> state.backgroundStyle.label()
     SettingsTvPicker.NAV_TRANSITION -> state.navTransitionStyle.label()
-    SettingsTvPicker.TORRENT_SORT -> state.torrent.sort.label()
     SettingsTvPicker.NEW_EPISODES_SOURCES -> state.newEpisodesSources.newEpisodesSourcesValue()
     SettingsTvPicker.LIBRARY_TAB_ORDER ->
         state.libraryTabOrder.map { it.label() }.joinToString(" · ")
-
-    SettingsTvPicker.HOME_BLOCKS ->
-        state.homeBlocks.filter { it.enabled }.map { it.kind.label() }.joinToString(" · ")
 
     SettingsTvPicker.SUBTITLE_COLOR -> state.subtitleStyle.textColor.label()
     SettingsTvPicker.SUBTITLE_BACKGROUND -> state.subtitleStyle.background.label()
@@ -75,7 +68,6 @@ internal fun SettingsTvPickerPanel(
     state: SettingsState.State,
     entryFocusRequester: FocusRequester,
     openerFocusRequester: FocusRequester,
-    onInterfaceModeSelected: (AppInterfaceMode) -> Unit,
     onEvent: (SettingsState.Event) -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
@@ -104,17 +96,6 @@ internal fun SettingsTvPickerPanel(
             onClose()
         }
         when (picker) {
-            SettingsTvPicker.INTERFACE_MODE -> PickerOptions(
-                values = AppInterfaceMode.entries,
-                selected = state.interfaceMode,
-                labelOf = { it.label() },
-                hintOf = { it.hint() },
-                focusRequester = entryFocusRequester,
-                onSelected = {
-                    onClose()
-                    onInterfaceModeSelected(it)
-                },
-            )
 
             SettingsTvPicker.INTERFACE_LANGUAGE -> PickerOptions(
                 values = AppInterfaceLanguage.entries,
@@ -160,17 +141,6 @@ internal fun SettingsTvPickerPanel(
                 onSelected = { select(SettingsState.Event.NavTransitionStyleSelected(it)) },
             )
 
-            SettingsTvPicker.TORRENT_SORT -> PickerOptions(
-                values = TorrentSort.entries,
-                selected = state.torrent.sort,
-                labelOf = { it.label() },
-                hintOf = { it.hint() },
-                focusRequester = entryFocusRequester,
-                onSelected = {
-                    select(SettingsState.Event.TorrentSettingsChanged(state.torrent.copy(sort = it)))
-                },
-            )
-
             // Порядок кнопок правится по шагам, поэтому колонка остаётся открытой.
             SettingsTvPicker.NEW_EPISODES_SOURCES -> NewEpisodesSourcesPanel(
                 selected = state.newEpisodesSources,
@@ -190,20 +160,6 @@ internal fun SettingsTvPickerPanel(
                     onEvent(SettingsState.Event.LibraryTabMoved(it, DetailsButtonMoveDirection.DOWN))
                 },
                 onReset = { onEvent(SettingsState.Event.LibraryTabOrderReset) },
-            )
-
-            SettingsTvPicker.HOME_BLOCKS -> HomeBlocksPanel(
-                blocks = state.homeBlocks,
-                upFocusRequester = openerFocusRequester,
-                contentFocusRequester = entryFocusRequester,
-                onToggle = { onEvent(SettingsState.Event.HomeBlockToggled(it)) },
-                onMoveUp = {
-                    onEvent(SettingsState.Event.HomeBlockMoved(it, DetailsButtonMoveDirection.UP))
-                },
-                onMoveDown = {
-                    onEvent(SettingsState.Event.HomeBlockMoved(it, DetailsButtonMoveDirection.DOWN))
-                },
-                onReset = { onEvent(SettingsState.Event.HomeBlocksReset) },
             )
 
             SettingsTvPicker.SUBTITLE_COLOR -> PickerOptions(

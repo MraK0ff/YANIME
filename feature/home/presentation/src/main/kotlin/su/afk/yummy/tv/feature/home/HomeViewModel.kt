@@ -25,7 +25,6 @@ import su.afk.yummy.tv.core.featuretoggle.api.FeatureFlags
 import su.afk.yummy.tv.core.featuretoggle.api.FeatureToggleProvider
 import su.afk.yummy.tv.core.featuretoggle.api.FeatureToggleUpdateObserver
 import su.afk.yummy.tv.core.model.settings.BoostyPromptSnapshot
-import su.afk.yummy.tv.core.model.settings.HomeBlockKind
 import su.afk.yummy.tv.core.model.settings.CommunityPromptSnapshot
 import su.afk.yummy.tv.core.model.settings.SupportPromptSnapshot
 import su.afk.yummy.tv.core.model.text.UiText
@@ -62,7 +61,6 @@ import su.afk.yummy.tv.feature.home.navigator.HomeRecommendationsDestination
 import su.afk.yummy.tv.feature.home.presentation.R
 import su.afk.yummy.tv.feature.home.utils.boostyPromptRemainingMs
 import su.afk.yummy.tv.feature.home.utils.communityPromptRemainingMs
-import su.afk.yummy.tv.feature.home.utils.enabledKinds
 import su.afk.yummy.tv.feature.home.utils.hasPlayableTarget
 import su.afk.yummy.tv.feature.home.utils.shouldOfferPreviewChannel
 import su.afk.yummy.tv.feature.home.utils.supportPromptRemainingMs
@@ -147,7 +145,7 @@ class HomeViewModel @Inject internal constructor(
     /** Просмотренные серии: id тайтла → номера серий. Ими помечаются карточки новых серий. */
     private var watchedEpisodes: Map<Int, Set<Int>> = emptyMap()
 
-    /** Блок новых серий выключен в настройках — секция не собирается вовсе (по умолчанию включён). */
+    /** Блок новых серий выключен в настройках — секция не собирается вовсе. */
     private var newEpisodesSectionEnabled: Boolean = true
 
     private var loadJob: Job? = null
@@ -336,11 +334,9 @@ class HomeViewModel @Inject internal constructor(
             }
             .launchIn(viewModelScope)
 
-        settingsStore.homeBlocks
-            .onEach { blocks ->
-                newEpisodesSectionEnabled =
-                    blocks.any { it.kind == HomeBlockKind.MY_NEW_EPISODES && it.enabled }
-                setState { copy(blocks = blocks.enabledKinds()) }
+        settingsStore.newEpisodesSectionEnabled
+            .onEach { enabled ->
+                newEpisodesSectionEnabled = enabled
                 applyHiddenRecommendations()
             }
             .launchIn(viewModelScope)

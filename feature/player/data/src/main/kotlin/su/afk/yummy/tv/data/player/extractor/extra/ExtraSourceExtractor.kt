@@ -23,6 +23,6 @@ internal class ExtraSourceExtractor @Inject constructor(
     ): PlayerStreamResolveResult {
         val repository = repositories.firstOrNull { it.supports(request.iframeUrl) }
             ?: return PlayerStreamResolveResult.Unsupported
-        return repository.resolve(request.iframeUrl, request.previousIframeUrl)
+        return repository.resolve(request.iframeUrl)
     }
 }

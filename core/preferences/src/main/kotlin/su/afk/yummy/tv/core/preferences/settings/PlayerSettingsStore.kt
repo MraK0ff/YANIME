@@ -36,7 +36,7 @@ interface PlayerSettingsStore {
 
     val pictureInPictureEnabled: Flow<Boolean>
 
-    /** Разблокировка экрана в мобильном плеере срабатывает только по удержанию (по умолчанию да). */
+    /** Блокировка и смена серии в мобильном плеере срабатывают только по удержанию (по умолчанию да). */
     val holdToConfirmEnabled: Flow<Boolean>
 
     /** Принудительная альбомная ориентация плеера, не зависящая от системной блокировки поворота. */
@@ -116,9 +116,6 @@ interface PlayerSettingsStore {
     suspend fun setAdvancedPlayerVolumeEnabled(enabled: Boolean)
     suspend fun setAdvancedPlayerVolumePercent(percent: Int)
     suspend fun setMobilePlayerBrightnessPercent(percent: Int)
-
-    /** Сбрасывает ручную яркость плеера: дальше действует системная (авто). */
-    suspend fun clearMobilePlayerBrightness()
     suspend fun setPlayerPlaybackSpeed(speed: Float)
     suspend fun setVolumeStabilizationEnabled(enabled: Boolean)
     suspend fun setAudioFocusDisabled(disabled: Boolean)

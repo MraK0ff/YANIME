@@ -22,7 +22,6 @@ import su.afk.yummy.tv.core.testing.BaseUnitTest
 import su.afk.yummy.tv.domain.player.model.AllohaAudioTrack
 import su.afk.yummy.tv.domain.player.model.PlayerStreamResolveResult
 import su.afk.yummy.tv.domain.player.model.PlayerStreamUnavailableCause
-import su.afk.yummy.tv.domain.player.usecase.ForgetExtraSourceSelectionUseCase
 import su.afk.yummy.tv.domain.player.usecase.GetWatchProgressUseCase
 import su.afk.yummy.tv.domain.player.usecase.InvalidatePlayerStreamCacheUseCase
 import su.afk.yummy.tv.domain.player.usecase.ResolvePlayerStreamUseCase
@@ -39,7 +38,6 @@ class PlayerStreamHandlerTest : BaseUnitTest() {
     private val settingsStore: PlayerSettingsStore = mockk()
     private val resolvePlayerStream: ResolvePlayerStreamUseCase = mockk()
     private val invalidateCache: InvalidatePlayerStreamCacheUseCase = mockk(relaxed = true)
-    private val forgetSelection: ForgetExtraSourceSelectionUseCase = mockk(relaxed = true)
     private val strings: StringProvider = mockk()
     private val offline = MutableStateFlow(false)
     private val connectivity: NetworkConnectivityMonitor = mockk { every { isOffline } returns offline }
@@ -245,7 +243,6 @@ class PlayerStreamHandlerTest : BaseUnitTest() {
         settingsStore = settingsStore,
         resolvePlayerStream = resolvePlayerStream,
         invalidatePlayerStreamCache = invalidateCache,
-        forgetExtraSourceSelection = forgetSelection,
         strings = strings,
         connectivity = connectivity,
     )

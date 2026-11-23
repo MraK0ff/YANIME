@@ -157,14 +157,6 @@ internal class NavigationManager(
         backStack += root
     }
 
-    override fun resetRoot(root: RootTab) {
-        appBackStack.clear()
-        stacks.getValue(root).apply {
-            clear()
-            add(roots.getValue(root))
-        }
-    }
-
     override fun resetAllRoots() {
         appBackStack.clear()
         RootTab.entries.forEach { rootTab ->

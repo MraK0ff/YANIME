@@ -7,7 +7,6 @@ import su.afk.yummy.tv.core.model.settings.BackgroundStyle
 import su.afk.yummy.tv.core.model.settings.NavTransitionStyle
 import su.afk.yummy.tv.core.model.settings.BrowserUserAgentProfile
 import su.afk.yummy.tv.core.model.settings.LibraryContinueWatchingCardSize
-import su.afk.yummy.tv.core.model.settings.HomeBlockKind
 import su.afk.yummy.tv.core.model.settings.LibraryTabKind
 import su.afk.yummy.tv.core.model.settings.PlayerBufferProfile
 import su.afk.yummy.tv.core.model.settings.PlayerOrientationMode
@@ -17,7 +16,6 @@ import su.afk.yummy.tv.core.model.settings.TitleCardLayout
 import su.afk.yummy.tv.core.model.settings.WatchedThresholds
 import su.afk.yummy.tv.core.model.settings.AppInterfaceLanguage
 import su.afk.yummy.tv.core.model.settings.YaniContentLanguage
-import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.feature.settings.model.DetailsButtonMoveDirection
 import javax.inject.Inject
 
@@ -32,12 +30,6 @@ internal class SettingsAnalytics @Inject constructor(
     }
 
     /** Пользователь изменил тип интерфейса приложения. */
-    fun eventInterfaceModeSelected(mode: AppInterfaceMode) {
-        tracker.track(
-            EVENT_INTERFACE_MODE_SELECTED,
-            analyticsParamsOf(PARAM_VALUE to mode.name.lowercase()),
-        )
-    }
 
     /**
      * Пользователь изменил тему приложения.
@@ -402,32 +394,6 @@ internal class SettingsAnalytics @Inject constructor(
         )
     }
 
-    /** Пользователь открыл экран настройки блоков главной. */
-    fun eventHomeBlocksScreenOpened() {
-        tracker.track(EVENT_HOME_BLOCKS_SCREEN_OPENED)
-    }
-
-    /** Пользователь включил или выключил блок главной. Параметры: block. */
-    fun eventHomeBlockToggled(block: HomeBlockKind) {
-        tracker.track(EVENT_HOME_BLOCK_TOGGLED, analyticsParamsOf(PARAM_BLOCK to block.name.lowercase()))
-    }
-
-    /** Пользователь изменил порядок блоков главной. Параметры: block, direction. */
-    fun eventHomeBlockMoved(block: HomeBlockKind, direction: DetailsButtonMoveDirection) {
-        tracker.track(
-            EVENT_HOME_BLOCK_MOVED,
-            analyticsParamsOf(
-                PARAM_BLOCK to block.name.lowercase(),
-                PARAM_DIRECTION to direction.name.lowercase(),
-            ),
-        )
-    }
-
-    /** Пользователь сбросил блоки главной. */
-    fun eventHomeBlocksReset() {
-        tracker.track(EVENT_HOME_BLOCKS_RESET)
-    }
-
     /**
      * Пользователь сбросил порядок вкладок библиотеки.
      */
@@ -458,14 +424,6 @@ internal class SettingsAnalytics @Inject constructor(
         )
     }
 
-    /** Пользователь включил или выключил торрент-источник. */
-    fun eventTorrentToggled(enabled: Boolean) {
-        tracker.track(
-            EVENT_TORRENT_TOGGLED,
-            analyticsParamsOf(PARAM_TARGET_STATE to enabled),
-        )
-    }
-
     /** Пользователь включил или выключил запись логов приложения в файл. */
     fun eventAppLogRecordingToggled(enabled: Boolean) {
         tracker.track(
@@ -477,7 +435,6 @@ internal class SettingsAnalytics @Inject constructor(
     internal companion object {
         private const val PARAM_ACTION = "action"
         private const val PARAM_DIRECTION = "direction"
-        private const val PARAM_BLOCK = "block"
         private const val PARAM_TAB = "tab"
         private const val PARAM_TARGET_STATE = "target_state"
         private const val PARAM_VALUE = "value"
@@ -494,13 +451,8 @@ internal class SettingsAnalytics @Inject constructor(
         const val EVENT_CONTENT_LANGUAGE_SELECTED = "settings_content_language_selected"
         const val EVENT_INTERFACE_LANGUAGE_SELECTED = "settings_interface_language_selected"
         const val EVENT_LIBRARY_TAB_ORDER_MOVED = "settings_library_tab_order_moved"
-        const val EVENT_HOME_BLOCKS_SCREEN_OPENED = "settings_home_blocks_screen"
-        const val EVENT_HOME_BLOCK_TOGGLED = "settings_home_block_toggled"
-        const val EVENT_HOME_BLOCK_MOVED = "settings_home_block_moved"
-        const val EVENT_HOME_BLOCKS_RESET = "settings_home_blocks_reset"
         const val EVENT_LIBRARY_TAB_ORDER_RESET = "settings_library_tab_order_reset"
         const val EVENT_LIBRARY_TAB_ORDER_SCREEN_OPENED = "settings_library_tab_order_screen"
-        const val EVENT_INTERFACE_MODE_SELECTED = "settings_interface_mode_selected"
         const val EVENT_SCREEN_OPENED = "settings_screen"
         const val EVENT_SHOW_CATALOG_TITLE_YEAR_TOGGLED =
             "settings_show_top_title_year_toggled"
@@ -549,7 +501,6 @@ internal class SettingsAnalytics @Inject constructor(
         const val EVENT_WATCH_NEXT_TOGGLED = "settings_watch_next_toggled"
         const val EVENT_SAVE_LAST_SEARCH_TOGGLED = "settings_save_last_search_toggled"
         const val EVENT_BETA_UPDATES_TOGGLED = "settings_beta_updates_toggled"
-        const val EVENT_TORRENT_TOGGLED = "settings_torrent_toggled"
         const val EVENT_APP_LOG_RECORDING_TOGGLED = "settings_app_log_recording_toggled"
     }
 }

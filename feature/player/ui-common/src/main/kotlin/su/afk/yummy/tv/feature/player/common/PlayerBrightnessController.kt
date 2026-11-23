@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -34,10 +35,6 @@ class PlayerBrightnessController @Inject constructor(
     /** Сохранённая яркость как доля 0.01f..1f; `null` — использовать системную. */
     val brightness: StateFlow<Float?> = _brightness.asStateFlow()
 
-    // До ответа DataStore null в _brightness ещё ничего не значит, поэтому сброс в хранилище не пишем.
-    @Volatile
-    private var restored = false
-
     init {
         scope.launch {
             val storedPercent = settingsStore.mobilePlayerBrightnessPercent.first()
@@ -45,29 +42,19 @@ class PlayerBrightnessController @Inject constructor(
             if (_brightness.value == null && storedPercent != null) {
                 _brightness.value = (storedPercent / 100f).coerceIn(MIN_BRIGHTNESS, MAX_BRIGHTNESS)
             }
-            restored = true
         }
         scope.launch {
             _brightness
-                .map { fraction -> fraction?.let { (it * 100f).roundToInt() } }
+                .filterNotNull()
+                .map { (it * 100f).roundToInt() }
                 .distinctUntilChanged()
                 .debounce(PERSIST_DEBOUNCE_MS)
-                .collect { percent ->
-                    when {
-                        percent != null -> settingsStore.setMobilePlayerBrightnessPercent(percent)
-                        restored -> settingsStore.clearMobilePlayerBrightness()
-                    }
-                }
+                .collect { percent -> settingsStore.setMobilePlayerBrightnessPercent(percent) }
         }
     }
 
     fun setFraction(value: Float) {
         _brightness.value = value.coerceIn(MIN_BRIGHTNESS, MAX_BRIGHTNESS)
-    }
-
-    /** Возвращает автояркость: ручное значение снимается и в памяти, и в хранилище. */
-    fun setAuto() {
-        _brightness.value = null
     }
 
     companion object {

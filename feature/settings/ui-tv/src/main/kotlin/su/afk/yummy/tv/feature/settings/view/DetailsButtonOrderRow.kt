@@ -39,8 +39,6 @@ internal fun DetailsButtonOrderRow(
     /** Иконка пункта в цветной плашке; без неё — только подпись. */
     icon: ImageVector? = null,
     iconColor: Color = MaterialTheme.colorScheme.primary,
-    /** Доп. элемент перед кнопками перемещения (например, переключатель видимости). */
-    trailing: (@Composable () -> Unit)? = null,
 ) {
     Row(
         modifier = Modifier
@@ -73,7 +71,6 @@ internal fun DetailsButtonOrderRow(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        trailing?.invoke()
         FocusableIconButton(
             icon = Icons.Filled.KeyboardArrowUp,
             contentDescription = stringResource(R.string.settings_details_button_move_up),

@@ -6,9 +6,11 @@
 
 ## Определение телевизора
 
-Единого флага нет: интерфейс выбирает пользователь (`AppInterfaceModePreferences`, диалог в
-`InterfaceRouterActivity`), а в местах, где нужно знать тип устройства, код сам читает
-`Configuration.UI_MODE_TYPE_TELEVISION`:
+Тип устройства централизованно определяет `DeviceTypeDetector` в `core:preferences`. Основной
+критерий — `UiModeManager.currentModeType == UI_MODE_TYPE_TELEVISION` (на старых API используется
+`Configuration.UI_MODE_TYPE_MASK`); `PackageManager.FEATURE_LEANBACK` — дополнительный признак
+для диагностики несовпадений. При расхождении признаков приоритет остаётся за UI mode. Ручной
+выбор платформы отсутствует:
 
 | Где                              | Что зависит                                                                |
 |----------------------------------|----------------------------------------------------------------------------|
@@ -67,8 +69,8 @@ AndroidKeyStore бывает нерабочим, и тогда приложен�
 
 ## Сеть
 
-- `network_security_config` теперь разрешает cleartext (нужно для TorrServer в LAN); передача сессии
-  по-прежнему использует CIO-клиент
+- `network_security_config` разрешает cleartext только для `127.0.0.1` и `localhost`; запрос на
+  LAN-адрес через OkHttp не проходит, поэтому передача сессии использует CIO-клиент
   ([local-auth-session-transfer.md](local-auth-session-transfer.md)).
 
 ## Block Store

@@ -124,8 +124,6 @@ internal fun SettingsTvAppearanceContent(
     )
     SettingsDivider()
     pickerRow(SettingsTvPicker.LIBRARY_TAB_ORDER, Modifier)
-    SettingsDivider()
-    pickerRow(SettingsTvPicker.HOME_BLOCKS, Modifier)
     SettingsBlockGap()
     SettingsSectionTitle(text = stringResource(R.string.settings_section_new_episodes))
     ToggleRow(

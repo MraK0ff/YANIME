@@ -6,7 +6,7 @@ plugins {
     id("yummytv.android.application.baselineprofile")
 }
 
-val baseApplicationId = providers.gradleProperty("yummytv.applicationId").get()
+val baseApplicationId = providers.gradleProperty("yanime.applicationId").get()
 val appVersionName = providers.gradleProperty("yummytv.versionName").get()
 val appVersionCode = providers.gradleProperty("yummytv.versionCode").get().toInt()
 
@@ -68,7 +68,7 @@ android {
 androidComponents {
     onVariants { variant ->
         variant.outputs.forEach { output ->
-            val fileName = "YummyTV-${output.versionName.orNull ?: "1.0"}-${variant.buildType}.apk"
+            val fileName = "YAnime-${output.versionName.orNull ?: "1.0"}-${variant.buildType}.apk"
             (output as? com.android.build.api.variant.impl.VariantOutputImpl)?.outputFileName?.set(fileName)
         }
     }
@@ -91,8 +91,6 @@ androidComponents {
 dependencies {
     // Необязательный источник «4K»: нет каталога source/anime4k, нет и зависимости.
     findProject(":source:anime4k:data")?.let { implementation(it) }
-    // Необязательный источник «Торренты» (TorrServer + JacRed/Jackett): нет каталога source/torrent, нет и зависимости.
-    findProject(":source:torrent:data")?.let { implementation(it) }
     // Необязательный источник «AiLiberty» (нужен source/availability): нет каталога, нет и зависимости.
     findProject(":source:availability:data")?.let { implementation(it) }
     findProject(":source:ailiberty:data")?.let { implementation(it) }
@@ -126,8 +124,6 @@ dependencies {
     findProject(":source:amedia:data")?.let { implementation(it) }
     // Необязательный источник «AniLibria»: нет каталога source/anilibria, нет и зависимости.
     findProject(":source:anilibria:data")?.let { implementation(it) }
-    // Необязательный источник «Tenrai» (пометки филлер/рекап): нет каталога external/tenrai, нет и зависимости.
-    findProject(":external:tenrai")?.let { implementation(it) }
     implementation(project(":core:analytics"))
     implementation(project(":core:deeplink"))
     implementation(project(":core:deeplink:api"))

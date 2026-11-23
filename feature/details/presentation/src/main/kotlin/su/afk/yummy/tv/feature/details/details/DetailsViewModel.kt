@@ -30,7 +30,6 @@ import su.afk.yummy.tv.core.preferences.settings.AppLifecycleSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.EpisodePushSettingsStore
 import su.afk.yummy.tv.domain.account.model.UserAnimeList
 import su.afk.yummy.tv.feature.bloggers.IBloggerVideosNavigator
-import su.afk.yummy.tv.feature.catalog.ICatalogSearchOpener
 import su.afk.yummy.tv.feature.collection.ICollectionNavigator
 import su.afk.yummy.tv.feature.comments.ICommentsNavigator
 import su.afk.yummy.tv.feature.commonscreen.navigator.IImageViewNavigator
@@ -59,7 +58,6 @@ import su.afk.yummy.tv.feature.details.navigator.DetailsRelationKind
 import su.afk.yummy.tv.feature.details.presentation.R
 import su.afk.yummy.tv.feature.details.screenshots.utils.galleryUrlAt
 import su.afk.yummy.tv.feature.details.screenshots.utils.galleryUrls
-import su.afk.yummy.tv.feature.details.utils.DETAILS_ONBOARDING_TOUR_ID
 import su.afk.yummy.tv.feature.details.utils.animeSiteUrl
 import su.afk.yummy.tv.feature.details.utils.fullscreenUrl
 import su.afk.yummy.tv.feature.details.utils.playerPosterUrl
@@ -78,7 +76,6 @@ class DetailsViewModel @AssistedInject internal constructor(
     private val reviewsNavigator: IReviewsNavigator,
     private val collectionNavigator: ICollectionNavigator,
     private val bloggerVideosNavigator: IBloggerVideosNavigator,
-    private val catalogSearchOpener: ICatalogSearchOpener,
     private val imageViewNavigator: IImageViewNavigator,
     private val stringProvider: StringProvider,
     private val screenDataHandler: DetailsScreenDataHandler,
@@ -139,12 +136,6 @@ class DetailsViewModel @AssistedInject internal constructor(
             .launchIn(viewModelScope)
         appLifecycleSettingsStore.detailsSectionsHintDismissed
             .onEach { dismissed -> setState { copy(showSectionsHint = !dismissed) } }
-            .launchIn(viewModelScope)
-        combine(
-            appLifecycleSettingsStore.onboardingWelcomeSeen,
-            appLifecycleSettingsStore.onboardingToursSeen,
-        ) { welcomeSeen, tours -> welcomeSeen && DETAILS_ONBOARDING_TOUR_ID !in tours }
-            .onEach { pending -> setState { copy(onboardingTourPending = pending) } }
             .launchIn(viewModelScope)
         screenDataHandler.observeLibraryState(animeId)
             .onEach { library ->
@@ -213,7 +204,6 @@ class DetailsViewModel @AssistedInject internal constructor(
         when (event) {
             DetailsState.Event.BackSelected -> nav.back()
             DetailsState.Event.ShareSelected -> shareAnime()
-            DetailsState.Event.NewSearchSelected -> catalogSearchOpener.openSearch()
             DetailsState.Event.RetrySelected -> {
                 analytics.eventDetailsRetry(animeId)
                 load()
@@ -371,10 +361,6 @@ class DetailsViewModel @AssistedInject internal constructor(
 
             DetailsState.Event.SectionsHintDismissed -> viewModelScope.launch {
                 appLifecycleSettingsStore.dismissDetailsSectionsHint()
-            }
-
-            DetailsState.Event.OnboardingTourFinished -> viewModelScope.launch {
-                appLifecycleSettingsStore.markOnboardingTourSeen(DETAILS_ONBOARDING_TOUR_ID)
             }
         }
     }

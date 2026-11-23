@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.core.designsystem.seasonal
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
@@ -8,6 +9,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.unit.dp
 import kotlin.math.cos
 import kotlin.math.sin
@@ -23,6 +25,8 @@ private val WebShadow = Color(0x80000000)
 private val SpiderColor = Color(0xFF1E1E24)
 private val SpiderEyes = Color(0xFFFF3B3B)
 private val SnowColor = Color(0xF2FFFFFF)
+private val HatRed = Color(0xFFD62828)
+private val HatWhite = Color(0xFFFFFFFF)
 private val BerryRed = Color(0xFFC62828)
 private val BerryShine = Color(0xFFFF8A80)
 private val BowDark = Color(0xFFB71C1C)

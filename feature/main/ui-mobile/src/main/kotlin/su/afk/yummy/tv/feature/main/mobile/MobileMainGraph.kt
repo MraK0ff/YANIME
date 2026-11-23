@@ -81,6 +81,9 @@ class MobileMainGraph @Inject internal constructor(
             val accountSettingsFocusRequester = remember { FocusRequester() }
             val baseMenuItems = mobileMenuItems(
                 showDownloads = state.hasVideoDownloads || navManager.currentRoot == RootTab.DOWNLOADS,
+                order = state.mobileMainTabsOrder,
+                enabled = state.mobileMainTabsEnabled,
+                selectedDestination = navManager.currentRoot,
             )
             val toast = rememberGlobalToastState()
             val catalogSearchQuery by catalogSearchOpener.searchQuery.collectAsState()
@@ -128,6 +131,9 @@ class MobileMainGraph @Inject internal constructor(
                             state.yaniAvatarUrl,
                             state.isYaniSignedIn,
                             state.unreadNotificationsCount,
+                            state.mobileMainTabsOrder,
+                            state.mobileMainTabsEnabled,
+                            state.hasVideoDownloads,
                             profileTabLabel,
                         ) {
                             if (state.mobileHeaderEnabled) baseMenuItems else {

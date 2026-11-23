@@ -35,6 +35,8 @@ interface AppearanceSettingsStore {
     val mobileHeaderEnabled: Flow<Boolean>
     val mobileSearchFabEnabled: Flow<Boolean>
     val mobileClassicBottomBar: Flow<Boolean>
+    val mobileMainTabsOrder: Flow<List<String>>
+    val mobileMainTabsEnabled: Flow<Set<String>>
 
     /** Порядок вкладок на экране библиотеки. */
     val libraryTabOrder: Flow<List<LibraryTabKind>>
@@ -73,6 +75,8 @@ interface AppearanceSettingsStore {
     suspend fun setMobileHeaderEnabled(enabled: Boolean)
     suspend fun setMobileSearchFabEnabled(enabled: Boolean)
     suspend fun setMobileClassicBottomBar(enabled: Boolean)
+    suspend fun setMobileMainTabsOrder(order: List<String>)
+    suspend fun setMobileMainTabsEnabled(enabled: Set<String>)
     suspend fun setLibraryTabOrder(order: List<LibraryTabKind>)
     suspend fun setHomeBlocks(blocks: List<HomeBlockConfig>)
     suspend fun setDetailsSections(sections: List<DetailsSectionConfig>)
@@ -86,5 +90,7 @@ interface AppearanceSettingsStore {
 
     companion object {
         val defaultLibraryTabOrder: List<LibraryTabKind> = LibraryTabKind.entries
+        val defaultMobileMainTabsOrder: List<String> = listOf("SCHEDULE", "HOME", "LIBRARY", "DOWNLOADS", "POSTS", "COLLECTIONS")
+        val defaultMobileMainTabsEnabled: Set<String> = setOf("SCHEDULE", "HOME", "LIBRARY", "DOWNLOADS")
     }
 }

@@ -16,6 +16,8 @@ data class SettingsSnapshot(
     val preferredVideoQuality: PreferredVideoQuality,
     val adaptiveVideoQualityEnabled: Boolean = true,
     val watchNextEnabled: Boolean,
+    /** Размер кэша превью в мегабайтах. */
+    val previewCacheSize: Int = 100,
     val autoSkipOpeningsEndings: Boolean,
     val autoSkipDelaySeconds: Int,
     val showOpeningOnTimeline: Boolean,
@@ -41,6 +43,7 @@ data class SettingsSnapshot(
     val yaniApplicationToken: String,
     val contentLanguage: YaniContentLanguage,
     val seasonalDecorationsEnabled: Boolean = true,
+    val accountShortcutsExpanded: Boolean = false,
     val libraryTabOrder: List<LibraryTabKind> = LibraryTabKind.entries,
     val homeBlocks: List<HomeBlockConfig> = HomeBlockConfig.default,
     val detailsSections: List<DetailsSectionConfig> = DetailsSectionConfig.default,

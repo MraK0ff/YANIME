@@ -70,30 +70,38 @@ internal fun <T> MobileMainNavigationBar(
     onDestinationSelected: (T) -> Unit,
 ) {
     val orderedItems = remember(menuItems) { menuItems }
+    if (orderedItems.isEmpty()) return
+
     val isClassic = classicStyle
     val selectedItemIndex = orderedItems.indexOfFirst { it.destination == selectedDestination }
         .takeIf { it >= 0 } ?: 0
-    val dragState = remember(selectedDestination, orderedItems) {
+    // The drag state must survive destination changes. Recreating it on every
+    // selection can leave it without anchors because onSizeChanged is not guaranteed
+    // to run again when only the selected destination changes.
+    val dragState = remember(orderedItems) {
         AnchoredDraggableState(initialValue = selectedItemIndex)
     }
+    var navigationWidth by remember { androidx.compose.runtime.mutableIntStateOf(0) }
 
     // Keep anchors tied to the measured navigation surface. The action tile is a
     // real slot in the classic bar, but never a destination in the swipe sequence.
-    val dragModifier = Modifier
-        .onSizeChanged { measuredSize ->
-            val destinationCount = orderedItems.size
-            if (destinationCount > 0 && measuredSize.width > 0) {
-                val slotCount = destinationCount + if (isClassic && searchFabEnabled) 1 else 0
-                val anchors = DraggableAnchors {
-                    orderedItems.indices.forEach { index ->
-                        val anchor = measuredSize.width.toFloat() *
-                            (index + 0.5f) / slotCount.coerceAtLeast(1)
-                        index at anchor
-                    }
+    LaunchedEffect(navigationWidth, orderedItems, isClassic, searchFabEnabled, selectedDestination) {
+        if (navigationWidth > 0) {
+            val slotCount = orderedItems.size + if (isClassic && searchFabEnabled) 1 else 0
+            val anchors = DraggableAnchors {
+                orderedItems.indices.forEach { index ->
+                    val anchor = navigationWidth.toFloat() *
+                        (index + 0.5f) / slotCount.coerceAtLeast(1)
+                    index at anchor
                 }
-                dragState.updateAnchors(anchors)
             }
+            dragState.updateAnchors(anchors)
+            dragState.animateTo(selectedItemIndex)
         }
+    }
+
+    val dragModifier = Modifier
+        .onSizeChanged { measuredSize -> navigationWidth = measuredSize.width }
         .anchoredDraggable(
             state = dragState,
             orientation = Orientation.Horizontal,

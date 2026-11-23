@@ -67,7 +67,7 @@ internal fun ScheduleMobileLibraryFilterChip(
             modifier = Modifier.size(18.dp),
         )
         Text(
-            text = stringResource(R.string.schedule_filter_in_library),
+            text = stringResource(R.string.schedule_filter_library),
             style = MaterialTheme.typography.labelLarge,
             fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
             color = contentColor,

@@ -31,7 +31,7 @@ class ScheduleTimelineMapperTest {
 
         val release = timeline.dayGroups.single().items.single()
         assertEquals(3, release.episode)
-        assertEquals(publishedAt, release.epochSeconds)
+        assertEquals(broadcastAt, release.epochSeconds)
         assertTrue(release.aired)
     }
 

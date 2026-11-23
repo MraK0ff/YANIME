@@ -1,5 +1,10 @@
 package su.afk.yummy.tv.feature.player.mobile.view
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,6 +39,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.components.drawExpressiveWavyTimelineTrack
+import kotlin.math.PI
 import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.core.utils.formatting.millisToClockTime
 
@@ -55,6 +61,7 @@ internal fun MobilePlayerProgressRow(
     onTrackSettings: () -> Unit = {},
     qualityLabel: String = "",
     selectedSpeed: Float = 1f,
+    isPlaying: Boolean,
     onQualityClick: () -> Unit = {},
     onSpeedClick: () -> Unit = {},
     onMoreActions: () -> Unit = {},
@@ -73,6 +80,7 @@ internal fun MobilePlayerProgressRow(
                 progress = seekProgress.coerceIn(0f, 1f),
                 bufferedProgress = bufferedProgress.coerceIn(seekProgress.coerceIn(0f, 1f), 1f),
                 enabled = duration > 0L,
+                isPlaying = isPlaying,
                 onValueChange = onSeekChange,
                 onValueChangeFinished = onSeekFinished,
                 modifier = Modifier
@@ -156,9 +164,20 @@ private fun MobilePlayerTimeline(
     enabled: Boolean,
     onValueChange: (Float) -> Unit,
     onValueChangeFinished: () -> Unit,
+    isPlaying: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val playedColor = mobilePlayerTimelinePlayedColor(MaterialTheme.colorScheme.primary)
+    val wavePhase = if (isPlaying) {
+        rememberInfiniteTransition(label = "mobileTimelineWave").animateFloat(
+            initialValue = 0f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(tween(durationMillis = 2200, easing = LinearEasing)),
+            label = "mobileTimelineWavePhase",
+        ).value
+    } else {
+        0f
+    }
     val safeProgress = progress.coerceIn(0f, 1f)
     Box(
         modifier = modifier
@@ -201,6 +220,7 @@ private fun MobilePlayerTimeline(
                 progress = safeProgress,
                 bufferedProgress = bufferedProgress,
                 playedColor = playedColor,
+                wavePhase = wavePhase,
             )
         }
     }

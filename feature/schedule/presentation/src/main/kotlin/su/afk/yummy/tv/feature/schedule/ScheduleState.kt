@@ -11,6 +11,7 @@ import su.afk.yummy.tv.domain.schedule.model.AnimeScheduleDay
 import su.afk.yummy.tv.feature.schedule.model.ScheduleTimelineUi
 
 class ScheduleState {
+    enum class LibraryFilter { ALL, LIBRARY }
     @Immutable
     data class State(
         val isLoading: Boolean = true,
@@ -18,6 +19,8 @@ class ScheduleState {
         val isRefreshing: Boolean = false,
         val days: ImmutableList<AnimeScheduleDay> = persistentListOf(),
         val tvSchedule: ScheduleTimelineUi = ScheduleTimelineUi(),
+        val libraryFilter: LibraryFilter = LibraryFilter.ALL,
+        val hideWatched: Boolean = false,
         val error: UiText? = null,
     ) : UiState
 
@@ -34,6 +37,10 @@ class ScheduleState {
 
         /** Пользователь выбрал дату по значению epoch day. */
         data class DateSelected(val epochDay: Long) : Event
+
+        data class LibraryFilterSelected(val filter: LibraryFilter) : Event
+
+        data class HideWatchedToggled(val enabled: Boolean) : Event
 
         /** Пользователь выбрал аниме с указанным идентификатором. */
         data class AnimeSelected(val animeId: Int) : Event

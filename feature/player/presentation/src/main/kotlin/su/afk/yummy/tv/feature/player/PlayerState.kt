@@ -10,6 +10,7 @@ import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleStyleSettings
 import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.core.model.settings.PlayerZoomLevel
+import su.afk.yummy.tv.core.model.settings.VideoEnhancementMode
 import su.afk.yummy.tv.core.mvi.UiEffect
 import su.afk.yummy.tv.core.mvi.UiEvent
 import su.afk.yummy.tv.core.mvi.UiState
@@ -48,6 +49,8 @@ class PlayerState {
         val adaptiveCeilingHeight: Int = QualityAdaptationPolicy.DEFAULT_CEILING_HEIGHT,
         /** Серия, в которой пользователь выбрал качество вручную: адаптация в ней не вмешивается. */
         val manualQualityEpisode: String? = null,
+        /** Серия, в которой уже выполнено автоматическое понижение после ошибки потока. */
+        val qualityFallbackEpisode: String? = null,
         /**
          * Резервный узел CDN для текущего потока: подпись от узла не зависит, поэтому при отказе
          * узла хост подменяется на месте, без перерезолва источника.
@@ -99,6 +102,8 @@ class PlayerState {
         val tvPlayerVolumeKeysEnabled: Boolean = false,
         val advancedPlayerVolumeEnabled: Boolean = false,
         val volumeStabilizationEnabled: Boolean = false,
+        /** Улучшение картинки: выключено, резкость или Anime4K. */
+        val videoEnhancementMode: VideoEnhancementMode = VideoEnhancementMode.OFF,
         /** DynamicsProcessing есть только с API 28 — ниже тумблер стабилизации не показываем. */
         val volumeStabilizationSupported: Boolean = PlatformInfo.isAtLeastPie,
         val mobileVideoScale: Float = 1f,
@@ -174,6 +179,9 @@ class PlayerState {
          */
         data class DubbingSelected(val index: Int, val currentPosMs: Long) : Event
 
+        /** Озвучка и её балансер подтверждены вместе; активный поток до выбора не меняется. */
+        data class DubbingBalancerSelected(val dubbingIndex: Int, val balancerIndex: Int, val currentPosMs: Long) : Event
+
         /**
          * Пользователь выбрал балансер по индексу в `PlayerPlaybackUiState.balancerNames` (не по
          * индексу графа — перевод делает ViewModel), сохранив текущую позицию.
@@ -226,6 +234,12 @@ class PlayerState {
         /** Пользователь выбрал в ползунке лимита пункт «Лучшее»: потолка нет, в настройки пишется «Лучшее». */
         data object AdaptiveQualityLimitBestSelected : Event
 
+        /** Пользователь выбрал режим улучшения картинки (выкл., резкость или Anime4K). */
+        data class VideoEnhancementModeSelected(val mode: VideoEnhancementMode) : Event
+
+        /** Декодер не справляется с включённым улучшением картинки. */
+        data object VideoEnhancementOverloaded : Event
+
         /** Пользователь включил или выключил стабилизацию громкости в боковой панели плеера. */
         data class VolumeStabilizationToggled(val enabled: Boolean) : Event
 
@@ -261,7 +275,13 @@ class PlayerState {
         ) : Event
 
         /** Плеер запросил сохранение снимка прогресса просмотра. */
-        data class SaveProgress(val snapshot: PlayerProgressSnapshot) : Event
+        data class SaveProgress(
+            val snapshot: PlayerProgressSnapshot,
+            /** Отправить на сервер сразу, минуя интервал плановой синхронизации (пауза, уход в фон). */
+            val forceRemoteSync: Boolean = false,
+            /** Уход из приложения (ON_PAUSE): отправка через очередь мутаций, переживает смерть процесса. */
+            val leaving: Boolean = false,
+        ) : Event
 
         /** Пользователь выбрал пропуск сегмента указанного типа и диапазона. */
         data class SkipSegmentSelected(

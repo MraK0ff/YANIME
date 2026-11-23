@@ -26,14 +26,18 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.compose.ContentFrame
 import androidx.media3.ui.compose.SURFACE_TYPE_SURFACE_VIEW
 import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
+import su.afk.yummy.tv.core.model.settings.VideoEnhancementMode
 import su.afk.yummy.tv.feature.player.PlayerState
 import su.afk.yummy.tv.feature.player.common.PlayerBlackBackdrop
+import su.afk.yummy.tv.feature.player.common.PlayerDiagnosticsOverlay
 import su.afk.yummy.tv.feature.player.common.PlayerBufferingIndicator
+import su.afk.yummy.tv.feature.player.common.PlayerDecoderCapabilityEffect
 import su.afk.yummy.tv.feature.player.common.PlayerEpisodeEndController
 import su.afk.yummy.tv.feature.player.common.PlayerKeepScreenOnEffect
 import su.afk.yummy.tv.feature.player.common.PlayerLifecycleEffect
@@ -42,10 +46,10 @@ import su.afk.yummy.tv.feature.player.common.PlayerMediaItemEffect
 import su.afk.yummy.tv.feature.player.common.PlayerProgressPollingEffect
 import su.afk.yummy.tv.feature.player.common.PlayerQualityAdaptationEffect
 import su.afk.yummy.tv.feature.player.common.PlayerSpeedOptions
-import su.afk.yummy.tv.feature.player.common.PlayerDecoderCapabilityEffect
 import su.afk.yummy.tv.feature.player.common.PlayerStallWatchdogEffect
 import su.afk.yummy.tv.feature.player.common.PlayerSubtitleOverlay
 import su.afk.yummy.tv.feature.player.common.PlayerTrackOption
+import su.afk.yummy.tv.feature.player.common.PlayerVideoEnhancementOverloadEffect
 import su.afk.yummy.tv.feature.player.common.PlayerVolumeEffect
 import su.afk.yummy.tv.feature.player.common.model.StepSeekDirection
 import su.afk.yummy.tv.feature.player.common.model.rememberPlayerPlaybackProgressState
@@ -209,6 +213,7 @@ internal fun TvExoPlayerView(
     }
 
     PlayerKeepScreenOnEffect(
+        player = player,
         ended = prompts.ended,
     )
 
@@ -299,6 +304,12 @@ internal fun TvExoPlayerView(
 
     PlayerStallWatchdogEffect(player = player, onEvent = onPlayerEvent)
     PlayerDecoderCapabilityEffect(player = player, onEvent = onPlayerEvent)
+
+    PlayerVideoEnhancementOverloadEffect(
+        player = player,
+        enabled = state.videoEnhancementMode != VideoEnhancementMode.OFF,
+        onEvent = onPlayerEvent,
+    )
 
     PlayerQualityAdaptationEffect(
         player = player,
@@ -454,6 +465,16 @@ internal fun TvExoPlayerView(
             modifier = Modifier.fillMaxSize(),
         )
 
+        if (state.showResolveLog) {
+            PlayerDiagnosticsOverlay(
+                player = player,
+                fontSize = 15.sp,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(start = 8.dp, top = 96.dp, end = 8.dp),
+            )
+        }
+
         TvPlayerPointerOverlay(
             enabled = !panels.isAnyOpen && !prompts.anyVisible && !recoveryHintVisible,
             onClick = {
@@ -502,6 +523,7 @@ internal fun TvExoPlayerView(
             visible = controllerVisible,
             animeTitle = state.animeTitle,
             episode = playback.activeEpisode,
+            episodeTitle = playback.activeEpisodeTitle,
             dubbing = playback.activeDubbingLabel,
             modifier = Modifier.align(Alignment.TopCenter),
         )
@@ -651,6 +673,8 @@ internal fun TvExoPlayerView(
             },
             onVolumeChange = { volumeController.setPercent(it) },
             onStabilizationChange = { onPlayerEvent(PlayerState.Event.VolumeStabilizationToggled(it)) },
+            videoEnhancementMode = state.videoEnhancementMode,
+            onVideoEnhancementModeChange = { onPlayerEvent(PlayerState.Event.VideoEnhancementModeSelected(it)) },
             onAdaptiveQualityChange = { onPlayerEvent(PlayerState.Event.AdaptiveQualityToggled(it)) },
             onTimeDisplaySettingsChange = { onPlayerEvent(PlayerState.Event.TimeDisplaySettingsChanged(it)) },
             onAudioTrackSelected = { idx ->

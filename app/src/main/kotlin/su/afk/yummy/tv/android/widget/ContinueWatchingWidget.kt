@@ -49,6 +49,8 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import su.afk.yummy.tv.R
 import su.afk.yummy.tv.android.InterfaceRouterActivity
+import su.afk.yummy.tv.android.widget.model.ContinueWatchingWidgetCard
+import su.afk.yummy.tv.android.widget.utils.widgetSubtitle
 import su.afk.yummy.tv.android.continuewatching.loadSoftwarePoster
 import su.afk.yummy.tv.android.continuewatching.surfacePosterUrl
 import su.afk.yummy.tv.core.common.coroutines.runSuspendCatching

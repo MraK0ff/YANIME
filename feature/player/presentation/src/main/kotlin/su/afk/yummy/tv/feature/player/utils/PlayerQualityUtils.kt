@@ -38,3 +38,14 @@ internal fun preferredQualityForLabel(label: String): PreferredVideoQuality? {
         .maxByOrNull { quality -> quality.height ?: 0 }
         ?: PreferredVideoQuality.P360
 }
+
+
+/** Ближайшее качество ниже текущего (например, 1080p → 720p). */
+internal fun lowerQualityLabel(labels: Collection<String>, active: String?): String? {
+    val activeHeight = active?.qualityHeight() ?: return null
+    return labels
+        .mapNotNull { label -> label.qualityHeight()?.let { label to it } }
+        .filter { it.second < activeHeight }
+        .maxByOrNull { it.second }
+        ?.first
+}

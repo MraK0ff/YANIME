@@ -8,12 +8,14 @@ import su.afk.yummy.tv.core.model.seasonal.SeasonalTheme
 import su.afk.yummy.tv.core.model.settings.AppInterfaceLanguage
 import su.afk.yummy.tv.core.model.settings.AppTheme
 import su.afk.yummy.tv.core.model.settings.BackgroundStyle
-import su.afk.yummy.tv.core.model.settings.NavTransitionStyle
 import su.afk.yummy.tv.core.model.settings.BrowserUserAgentProfile
-import su.afk.yummy.tv.core.model.settings.LibraryContinueWatchingCardSize
+import su.afk.yummy.tv.core.model.settings.DetailsSectionConfig
+import su.afk.yummy.tv.core.model.settings.DetailsSectionKind
 import su.afk.yummy.tv.core.model.settings.HomeBlockConfig
 import su.afk.yummy.tv.core.model.settings.HomeBlockKind
+import su.afk.yummy.tv.core.model.settings.LibraryContinueWatchingCardSize
 import su.afk.yummy.tv.core.model.settings.LibraryTabKind
+import su.afk.yummy.tv.core.model.settings.NavTransitionStyle
 import su.afk.yummy.tv.core.model.settings.NewEpisodesSource
 import su.afk.yummy.tv.core.model.settings.PlayerBufferProfile
 import su.afk.yummy.tv.core.model.settings.PlayerOrientationMode
@@ -21,8 +23,9 @@ import su.afk.yummy.tv.core.model.settings.PlayerSubtitleStyleSettings
 import su.afk.yummy.tv.core.model.settings.PosterCardSize
 import su.afk.yummy.tv.core.model.settings.PreferredVideoQuality
 import su.afk.yummy.tv.core.model.settings.TitleCardLayout
-import su.afk.yummy.tv.core.model.settings.WatchedThresholds
 import su.afk.yummy.tv.core.model.settings.TorrentSettings
+import su.afk.yummy.tv.core.model.settings.VideoEnhancementMode
+import su.afk.yummy.tv.core.model.settings.WatchedThresholds
 import su.afk.yummy.tv.core.model.settings.YaniApplicationToken
 import su.afk.yummy.tv.core.model.settings.YaniContentLanguage
 import su.afk.yummy.tv.core.mvi.UiEffect
@@ -86,6 +89,8 @@ class SettingsState {
         val advancedPlayerVolumeEnabled: Boolean = false,
         val mobilePlayerAutoBrightnessEnabled: Boolean = true,
         val volumeStabilizationEnabled: Boolean = false,
+        /** Улучшение картинки в плеере: выключено, резкость или Anime4K. */
+        val videoEnhancementMode: VideoEnhancementMode = VideoEnhancementMode.OFF,
         /** Аудиофокус плеера отключён пользователем. */
         val audioFocusDisabled: Boolean = false,
         val playerBufferProfile: PlayerBufferProfile = PlayerBufferProfile.SMALL,
@@ -100,6 +105,7 @@ class SettingsState {
         val libraryTabOrder: ImmutableList<LibraryTabKind> =
             SettingsStore.defaultLibraryTabOrder.toImmutableList(),
         val homeBlocks: ImmutableList<HomeBlockConfig> = HomeBlockConfig.default.toImmutableList(),
+        val detailsSections: ImmutableList<DetailsSectionConfig> = DetailsSectionConfig.default.toImmutableList(),
         val videoExportDirectoryName: String? = null,
         val cacheStorageEntries: ImmutableList<CacheStorageEntry> = persistentListOf(),
         val cacheStorageTotalBytes: Long = 0L,
@@ -239,6 +245,9 @@ class SettingsState {
         /** Пользователь переключил стабилизацию громкости (сжатие динамического диапазона). */
         data object VolumeStabilizationToggled : Event
 
+        /** Пользователь выбрал режим улучшения видео. */
+        data class VideoEnhancementModeSelected(val mode: VideoEnhancementMode) : Event
+
         /** Переключить отключение аудиофокуса (включение подтверждается диалогом на экране). */
         data object AudioFocusToggled : Event
 
@@ -313,6 +322,24 @@ class SettingsState {
 
         /** Пользователь сбросил блоки главной к стандартным. */
         data object HomeBlocksReset : Event
+
+        /** Пользователь включил или выключил блок экрана деталей. */
+        data class DetailsSectionToggled(val section: DetailsSectionKind) : Event
+
+        /** Пользователь переместил блок экрана деталей в указанном направлении. */
+        data class DetailsSectionMoved(
+            val section: DetailsSectionKind,
+            val direction: DetailsButtonMoveDirection,
+        ) : Event
+
+        /** Пользователь открыл экран настройки блоков деталей. */
+        data object DetailsSectionsScreenOpened : Event
+
+        /** Пользователь перешёл к настройке блоков деталей. */
+        data object DetailsSectionsSelected : Event
+
+        /** Пользователь сбросил блоки деталей к стандартным. */
+        data object DetailsSectionsReset : Event
 
         /** Пользователь открыл категорию настроек (мобильный интерфейс). */
         data class CategorySelected(val category: SettingsCategory) : Event

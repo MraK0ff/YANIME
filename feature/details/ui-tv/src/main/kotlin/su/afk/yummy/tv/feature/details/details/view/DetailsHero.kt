@@ -3,6 +3,7 @@ package su.afk.yummy.tv.feature.details.details.view
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,30 +22,42 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import su.afk.yummy.tv.core.designsystem.components.FallbackAsyncImage
-import su.afk.yummy.tv.core.designsystem.components.MarqueeTitleText
 import su.afk.yummy.tv.core.designsystem.components.UserRatingChip
+import su.afk.yummy.tv.core.designsystem.focus.tvWholeItemBringIntoView
+import su.afk.yummy.tv.core.designsystem.motion.YummyMotion
 import su.afk.yummy.tv.core.model.anime.AnimeDetails
 import su.afk.yummy.tv.core.model.anime.posterUrls
 import su.afk.yummy.tv.core.model.settings.DetailsButtonAction
 import su.afk.yummy.tv.domain.account.model.UserAnimeList
 import su.afk.yummy.tv.feature.details.details.model.VideosUiState
+import su.afk.yummy.tv.feature.details.details.utils.localTopOf
 import su.afk.yummy.tv.feature.details.model.DetailsWatchProgressIndex
 
 @Composable
@@ -81,14 +94,22 @@ internal fun DetailsHero(
     onCommentsSelected: () -> Unit,
     onReviewsSelected: () -> Unit,
     onBloggerVideosSelected: () -> Unit,
+    /** Кубик «ещё случайный тайтл»; `null` — деталка открыта не из кубика каталога. */
+    onRandomAnimeSelected: (() -> Unit)?,
+    isRandomAnimeLoading: Boolean,
     onGenreSelected: (Int) -> Unit,
     onStudioSelected: (id: Int, url: String?) -> Unit,
     onDirectorSelected: (Int) -> Unit,
     chipFocusModifier: @Composable (index: Int) -> Modifier,
     chipsEntryFocusRequester: FocusRequester?,
+    barLastRowFocusRequester: FocusRequester,
     hintFocusRequester: FocusRequester,
     onHintFocused: (Boolean) -> Unit,
     minHeight: Dp,
+    descriptionFocusModifier: Modifier,
+    descriptionTailFocusModifier: Modifier,
+    showChips: Boolean = true,
+    showDescription: Boolean = true,
 ) {
     val titleFocusRequester = remember { FocusRequester() }
 
@@ -98,18 +119,18 @@ internal fun DetailsHero(
     LaunchedEffect(Unit) { appeared = true }
     val infoAlpha by animateFloatAsState(
         targetValue = if (appeared) 1f else 0f,
-        animationSpec = tween(durationMillis = HERO_APPEAR_MILLIS),
+        animationSpec = tween(durationMillis = YummyMotion.Long),
         label = "heroInfoAlpha",
     )
     val infoShift by animateFloatAsState(
         targetValue = if (appeared) 0f else 1f,
-        animationSpec = tween(durationMillis = HERO_APPEAR_MILLIS),
+        animationSpec = tween(durationMillis = YummyMotion.Long),
         label = "heroInfoShift",
     )
     val posterAlpha by animateFloatAsState(
         targetValue = if (appeared) 1f else 0f,
         animationSpec = tween(
-            durationMillis = HERO_APPEAR_MILLIS,
+            durationMillis = YummyMotion.Long,
             delayMillis = HERO_POSTER_APPEAR_DELAY_MILLIS,
         ),
         label = "heroPosterAlpha",
@@ -118,8 +139,24 @@ internal fun DetailsHero(
     val infoShiftPx = with(density) { HERO_APPEAR_SHIFT.toPx() }
 
     // Высота хиро — минимум: если контент (длинное название, чипы, подсказка) не влезает, хиро растёт, а не наезжает на описание.
+    // Позиции — в координатах самого хиро, а не экрана: при прокрутке ленты они не меняются. Экранные
+    // уходили в минус, когда верх описания скрывался за кромкой, и прокрутка к хвосту описания
+    // переключалась на весь хиро — лента качалась вверх-вниз. NaN — ещё не измерено.
+    val heroCoordinates = remember { mutableStateOf<LayoutCoordinates?>(null) }
+    var descriptionTop by remember { mutableFloatStateOf(Float.NaN) }
     Box(
         modifier = modifier
+            // Родитель получает onGloballyPositioned раньше детей — к их колбэкам координаты хиро уже есть.
+            .onGloballyPositioned { heroCoordinates.value = it }
+            // Фокус на описании поднимает ленту так, чтобы оно уместилось вместе с продолжением под постером;
+            // для остального хиро (кнопки, чипы) подгоняется весь блок.
+            .tvWholeItemBringIntoView(rectOverride = { localRect, size ->
+                if (size != IntSize.Zero && !descriptionTop.isNaN() && localRect.top >= descriptionTop - 40f) {
+                    Rect(0f, localRect.top, size.width.toFloat(), size.height.toFloat())
+                } else {
+                    null
+                }
+            })
             .fillMaxWidth()
             .heightIn(min = minHeight)
             .background(MaterialTheme.colorScheme.surface),
@@ -134,152 +171,248 @@ internal fun DetailsHero(
         }
         val rowSpacing = if (isCompactHeight) 24.dp else 40.dp
         val columnSpacing = if (isCompactHeight) 8.dp else 12.dp
-        val titleMaxLines = 3
-        val posterWidth = if (isCompactHeight) 260.dp else 300.dp
+        val titleFontSize = if (isCompactHeight) 34.sp else 40.sp
+        val titleTailFontSize = if (isCompactHeight) 22.sp else 26.sp
+        val posterWidth = if (isCompactHeight) HERO_POSTER_WIDTH_COMPACT else HERO_POSTER_WIDTH
 
-        Row(
+        val description = if (showDescription) details.description.trim() else ""
+        val textMeasurer = rememberTextMeasurer()
+        val descriptionStyle = MaterialTheme.typography.bodyLarge
+        var descriptionExpanded by rememberSaveable { mutableStateOf(false) }
+        var tailOverflows by remember { mutableStateOf(false) }
+        var posterBottom by remember { mutableFloatStateOf(Float.NaN) }
+        var headSize by remember { mutableStateOf(IntSize.Zero) }
+        val paddingPx = with(density) { DetailsDescriptionPadding.toPx() }
+        // Описание «обтекает» постер: сколько строк влезает рядом с ним, столько в голове, остальное — под постером.
+        val splitIndex = remember(description, descriptionStyle, headSize, posterBottom, descriptionTop) {
+            val availableHeight = posterBottom - descriptionTop - 2 * paddingPx
+            val textWidth = (headSize.width - 2 * paddingPx).toInt()
+            if (description.isEmpty() || textWidth <= 0 || availableHeight.isNaN() || availableHeight <= 0f) {
+                description.length
+            } else {
+                val layout = textMeasurer.measure(
+                    text = description,
+                    style = descriptionStyle,
+                    constraints = Constraints(maxWidth = textWidth),
+                )
+                val fitting = (0 until layout.lineCount).count { layout.getLineBottom(it) <= availableHeight }
+                when {
+                    fitting <= 0 || fitting >= layout.lineCount -> description.length
+                    else -> layout.getLineEnd(fitting - 1)
+                }
+            }
+        }
+        val descriptionHead = description.substring(0, splitIndex).trimEnd()
+        val descriptionTail = description.substring(splitIndex).trimStart()
+
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = horizontalPadding, vertical = verticalPadding),
-            horizontalArrangement = Arrangement.spacedBy(rowSpacing),
-            verticalAlignment = Alignment.Top,
+                .padding(
+                    start = horizontalPadding,
+                    end = horizontalPadding,
+                    top = verticalPadding,
+                    // С остатком описания снизу блок кончается текстом: большой отступ до «Видео» не нужен.
+                    bottom = if (descriptionTail.isNotEmpty()) 8.dp else verticalPadding,
+                ),
         ) {
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .graphicsLayer {
-                        alpha = infoAlpha
-                        translationY = infoShift * infoShiftPx
-                    },
-                verticalArrangement = Arrangement.spacedBy(columnSpacing),
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(rowSpacing),
+                verticalAlignment = Alignment.Top,
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .graphicsLayer {
+                            alpha = infoAlpha
+                            translationY = infoShift * infoShiftPx
+                        },
+                    verticalArrangement = Arrangement.spacedBy(columnSpacing),
                 ) {
-                    MarqueeTitleText(
-                        text = details.title,
-                        style = MaterialTheme.typography.displaySmall.copy(
-                            fontSize = 30.sp,
-                            color = if (titleFocused) MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.onSurface,
-                        ),
-                        fontWeight = FontWeight.SemiBold,
-                        minLines = 1,
-                        maxLines = titleMaxLines,
-                        isFocused = titleFocused,
-                        marqueeWhenOverflow = true,
-                        modifier = Modifier
-                            .weight(1f)
-                            .alignByBaseline()
-                            .focusRequester(titleFocusRequester)
-                            .focusProperties { down = downFocusRequester }
-                            .focusable()
-                            .onFocusChanged { fs -> titleFocused = fs.isFocused },
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+                        DetailsHeroTitle(
+                            title = details.title,
+                            style = MaterialTheme.typography.displaySmall.copy(
+                                fontSize = titleFontSize,
+                                lineHeight = titleFontSize * 1.1f,
+                                letterSpacing = (-0.5).sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (titleFocused) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.onSurface
+                                },
+                            ),
+                            tailFontSize = titleTailFontSize,
+                            tailLineHeight = titleTailFontSize * 1.2f,
+                            modifier = Modifier
+                                .weight(1f)
+                                .alignByBaseline()
+                                .focusRequester(titleFocusRequester)
+                                .focusProperties { down = downFocusRequester }
+                                .focusable()
+                                .onFocusChanged { fs -> titleFocused = fs.isFocused },
+                        )
+                        userRating?.let { userRating ->
+                            // По первой строке заголовка, а не по центру двух строк.
+                            UserRatingChip(
+                                rating = userRating,
+                                textStyle = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.alignByBaseline(),
+                            )
+                        }
+                    }
+
+                    HeroMetaRow(details)
+                    HeroEpisodesRow(details)
+
+                    DetailsButtonBar(
+                        details = details,
+                        hasScreenshots = hasScreenshots,
+                        isInLibrary = isInLibrary,
+                        isFavorite = isFavorite,
+                        libraryList = libraryList,
+                        videosState = videosState,
+                        isWatchLoading = isWatchLoading,
+                        watchProgress = watchProgress,
+                        canSubscribe = canSubscribe,
+                        restoreFocusRequest = restoreButtonFocusRequest,
+                        hiddenActions = hiddenActions,
+                        focusOnResume = focusOnResume,
+                        firstFocusRequester = downFocusRequester,
+                        bottomFocusRequester = chipsEntryFocusRequester,
+                        lastRowEntryFocusRequester = barLastRowFocusRequester,
+                        onWatchSelected = onWatchSelected,
+                        onLibraryToggle = onLibraryToggle,
+                        onFavoriteToggle = onFavoriteToggle,
+                        onSubscriptionsSelected = onSubscriptionsSelected,
+                        onDetailsSelected = onFullDetailsSelected,
+                        onEpisodesSelected = onEpisodesSelected,
+                        onTrailersSelected = onTrailersSelected,
+                        onSimilarSelected = onSimilarSelected,
+                        onViewingOrderSelected = onViewingOrderSelected,
+                        onScreenshotsSelected = onScreenshotsSelected,
+                        onRatingSelected = onRatingScreenSelected,
+                        onCollectionsSelected = onCollectionsSelected,
+                        onCommentsSelected = onCommentsSelected,
+                        onReviewsSelected = onReviewsSelected,
+                        onBloggerVideosSelected = onBloggerVideosSelected,
+                        onRandomAnimeSelected = onRandomAnimeSelected,
+                        isRandomAnimeLoading = isRandomAnimeLoading,
+                        modifier = Modifier.padding(top = 8.dp),
                     )
-                    userRating?.let { userRating ->
-                        // По первой строке заголовка, а не по центру двух строк.
-                        UserRatingChip(
-                            rating = userRating,
-                            textStyle = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.alignByBaseline(),
+
+                    if (showChips) {
+                        HeroChipsRow(
+                            details = details,
+                            onGenreSelected = onGenreSelected,
+                            onStudioSelected = onStudioSelected,
+                            onDirectorSelected = onDirectorSelected,
+                            // Кнопка подсказки стоит справа, а чип слева: поиск фокуса вниз по геометрии её не находит.
+                            chipFocusModifier = { index ->
+                                chipFocusModifier(index).then(
+                                    if (showSectionsHint) {
+                                        Modifier.focusProperties { down = hintFocusRequester }
+                                    } else {
+                                        Modifier
+                                    },
+                                )
+                            },
+                        )
+                    }
+
+                    if (showSectionsHint) {
+                        DetailsSectionsHint(
+                            onDismiss = onSectionsHintDismissed,
+                            dismissFocusModifier = Modifier
+                                .focusRequester(hintFocusRequester)
+                                .onFocusChanged { onHintFocused(it.isFocused) },
+                        )
+                    }
+
+                    // Описание занимает свободное место под кнопками рядом с постером; по OK раскрывается.
+                    if (descriptionHead.isNotEmpty()) {
+                        DetailsDescriptionHead(
+                            text = descriptionHead,
+                            onToggle = { descriptionExpanded = !descriptionExpanded },
+                            modifier = descriptionFocusModifier
+                                .onSizeChanged { headSize = it }
+                                .onGloballyPositioned { coordinates ->
+                                    heroCoordinates.value?.let { descriptionTop = it.localTopOf(coordinates) }
+                                },
                         )
                     }
                 }
 
-                HeroMetaRow(details)
-                HeroEpisodesRow(details)
-
-                DetailsButtonBar(
-                    details = details,
-                    hasScreenshots = hasScreenshots,
-                    isInLibrary = isInLibrary,
-                    isFavorite = isFavorite,
-                    libraryList = libraryList,
-                    videosState = videosState,
-                    isWatchLoading = isWatchLoading,
-                    watchProgress = watchProgress,
-                    canSubscribe = canSubscribe,
-                    restoreFocusRequest = restoreButtonFocusRequest,
-                    hiddenActions = hiddenActions,
-                    focusOnResume = focusOnResume,
-                    firstFocusRequester = downFocusRequester,
-                    bottomFocusRequester = chipsEntryFocusRequester,
-                    onWatchSelected = onWatchSelected,
-                    onLibraryToggle = onLibraryToggle,
-                    onFavoriteToggle = onFavoriteToggle,
-                    onSubscriptionsSelected = onSubscriptionsSelected,
-                    onDetailsSelected = onFullDetailsSelected,
-                    onEpisodesSelected = onEpisodesSelected,
-                    onTrailersSelected = onTrailersSelected,
-                    onSimilarSelected = onSimilarSelected,
-                    onViewingOrderSelected = onViewingOrderSelected,
-                    onScreenshotsSelected = onScreenshotsSelected,
-                    onRatingSelected = onRatingScreenSelected,
-                    onCollectionsSelected = onCollectionsSelected,
-                    onCommentsSelected = onCommentsSelected,
-                    onReviewsSelected = onReviewsSelected,
-                    onBloggerVideosSelected = onBloggerVideosSelected,
-                    modifier = Modifier.padding(top = 8.dp),
-                )
-
-                HeroChipsRow(
-                    details = details,
-                    onGenreSelected = onGenreSelected,
-                    onStudioSelected = onStudioSelected,
-                    onDirectorSelected = onDirectorSelected,
-                    // Кнопка подсказки стоит справа, а чип слева: поиск фокуса вниз по геометрии её не находит.
-                    chipFocusModifier = { index ->
-                        chipFocusModifier(index).then(
-                            if (showSectionsHint) {
-                                Modifier.focusProperties { down = hintFocusRequester }
-                            } else {
-                                Modifier
-                            },
+                Column(
+                    modifier = Modifier
+                        .width(posterWidth)
+                        .onGloballyPositioned { coordinates ->
+                            heroCoordinates.value?.let {
+                                posterBottom = it.localTopOf(coordinates) + coordinates.size.height
+                            }
+                        }
+                        .graphicsLayer { alpha = posterAlpha },
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    val posterShape = RoundedCornerShape(HERO_POSTER_CORNER)
+                    val posterGlow = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(2f / 3f)
+                            .shadow(
+                                elevation = HERO_POSTER_ELEVATION,
+                                shape = posterShape,
+                                ambientColor = posterGlow,
+                                spotColor = posterGlow,
+                            )
+                            .border(
+                                1.dp,
+                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.14f),
+                                posterShape,
+                            ),
+                        shape = posterShape,
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        ),
+                    ) {
+                        FallbackAsyncImage(
+                            models = details.poster.posterUrls(),
+                            contentDescription = details.title,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize(),
                         )
-                    },
-                )
+                    }
 
-                if (showSectionsHint) {
-                    DetailsSectionsHint(
-                        onDismiss = onSectionsHintDismissed,
-                        dismissFocusModifier = Modifier
-                            .focusRequester(hintFocusRequester)
-                            .onFocusChanged { onHintFocused(it.isFocused) },
-                    )
+                    HeroRatingRow(details)
                 }
             }
-
-            Column(
-                modifier = Modifier
-                    .width(posterWidth)
-                    .graphicsLayer { alpha = posterAlpha },
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                HeroRatingRow(details)
-
-                Card(
+            if (descriptionTail.isNotEmpty()) {
+                DetailsDescriptionTail(
+                    text = descriptionTail,
+                    expanded = descriptionExpanded,
+                    overflows = tailOverflows,
+                    onOverflowChanged = { tailOverflows = it },
+                    onToggle = { descriptionExpanded = !descriptionExpanded },
+                    // Зазор от постера: рамка фокуса с увеличением не должна его задевать.
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(2f / 3f),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    ),
-                ) {
-                    FallbackAsyncImage(
-                        models = details.poster.posterUrls(),
-                        contentDescription = details.title,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
+                        .padding(top = 6.dp)
+                        .then(descriptionTailFocusModifier),
+                )
             }
         }
     }
 }
 
 internal val HERO_BACKDROP_BLUR = 26.dp
+private val HERO_POSTER_WIDTH = 340.dp
+private val HERO_POSTER_WIDTH_COMPACT = 300.dp
+private val HERO_POSTER_CORNER = 20.dp
+private val HERO_POSTER_ELEVATION = 24.dp
 internal val HERO_APPEAR_SHIFT = 18.dp
-internal const val HERO_APPEAR_MILLIS = 380
 internal const val HERO_POSTER_APPEAR_DELAY_MILLIS = 100

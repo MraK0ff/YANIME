@@ -44,6 +44,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import su.afk.yummy.tv.core.designsystem.components.FallbackAsyncImage
+import su.afk.yummy.tv.core.designsystem.components.ListStatusBadge
+import su.afk.yummy.tv.core.designsystem.locals.LocalLibraryListStatuses
+import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
 import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.core.model.anime.posterUrls
 import su.afk.yummy.tv.feature.schedule.model.ScheduleReleaseUi
@@ -70,18 +73,14 @@ internal fun ScheduleReleaseRow(
     val releaseAt = Instant.ofEpochSecond(release.epochSeconds).atZone(zone)
     val aired = releaseAt.isAfter(now).not()
     val remainingLabels = scheduleRemainingLabels()
-    val accentColor = if (aired) AiredColor else MaterialTheme.colorScheme.onSurfaceVariant
+    val listStatus = LocalLibraryListStatuses.current[item.animeId]
+    val accentColor = if (aired && listStatus == null) AiredColor else MaterialTheme.colorScheme.onSurfaceVariant
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
     val active = focused || selected
     val shape = YummyShapeTokens.Card
     val rowScale = if (focused) 1.025f else 1f
-    val rowBackground = when {
-        focused -> MaterialTheme.colorScheme.surfaceContainerHigh
-        selected -> MaterialTheme.colorScheme.surfaceContainerHigh
-        aired -> AiredColor.copy(alpha = 0.12f)
-        else -> MaterialTheme.colorScheme.surfaceContainerLow
-    }
+    val rowBackground = MaterialTheme.colorScheme.surfaceContainerLow
 
     Box(
         modifier = Modifier
@@ -120,15 +119,14 @@ internal fun ScheduleReleaseRow(
         Row(
             modifier = Modifier
                 .matchParentSize()
-                .padding(horizontal = 14.dp, vertical = 10.dp),
+                .padding(end = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(0.dp),
         ) {
             Box(
                 modifier = Modifier
-                    .width(74.dp)
+                    .width(96.dp)
                     .fillMaxHeight()
-                    .clip(YummyShapeTokens.Control)
                     .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)),
             ) {
                 FallbackAsyncImage(
@@ -139,9 +137,17 @@ internal fun ScheduleReleaseRow(
                 )
             }
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).fillMaxHeight().padding(start = 12.dp, end = 8.dp, top = 10.dp, bottom = 10.dp),
                 verticalArrangement = Arrangement.Center,
             ) {
+                listStatus?.let { status ->
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        ListStatusBadge(status = status, compact = true)
+                        if (release.isFavorite) FavoriteScheduleBadge()
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+                }
+                if (listStatus == null && release.isFavorite) FavoriteScheduleBadge()
                 Text(
                     text = item.title,
                     style = MaterialTheme.typography.titleLargeEmphasized,
@@ -167,13 +173,31 @@ internal fun ScheduleReleaseRow(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            Text(
-                text = releaseAt.timeLabel(),
-                modifier = Modifier.widthIn(min = 82.dp),
-                style = MaterialTheme.typography.headlineMediumEmphasized,
-                color = accentColor,
-                maxLines = 1,
-            )
+            Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                if (release.isFavorite) {
+                    Text(text = "♥", color = su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors.StatusFavorite, style = MaterialTheme.typography.titleMedium)
+                }
+                Text(
+                    text = releaseAt.timeLabel(),
+                    modifier = Modifier.widthIn(min = 82.dp),
+                    style = MaterialTheme.typography.headlineMediumEmphasized,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                )
+            }
         }
     }
+}
+
+@Composable
+private fun FavoriteScheduleBadge() {
+    Text(
+        text = "♥ " + stringResource(R.string.schedule_favorite),
+        color = YummySemanticColors.StatusFavorite,
+        style = MaterialTheme.typography.labelSmall,
+        fontWeight = FontWeight.SemiBold,
+        modifier = Modifier
+            .background(YummySemanticColors.StatusFavorite.copy(alpha = 0.14f), YummyShapeTokens.Control)
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+    )
 }

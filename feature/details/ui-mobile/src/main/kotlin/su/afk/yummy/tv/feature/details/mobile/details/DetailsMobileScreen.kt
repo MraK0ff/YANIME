@@ -1,14 +1,13 @@
 package su.afk.yummy.tv.feature.details.mobile.details
 
-import su.afk.yummy.tv.core.designsystem.onboarding.OnboardingTourEffect
-import su.afk.yummy.tv.feature.details.utils.DETAILS_ONBOARDING_TOUR_ID
-import su.afk.yummy.tv.feature.details.mobile.details.utils.mobileDetailsTourSteps
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
@@ -18,7 +17,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -31,12 +29,13 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
-import su.afk.yummy.tv.core.designsystem.R as CoreR
 import su.afk.yummy.tv.core.designsystem.baseScreen.BaseScreen
 import su.afk.yummy.tv.core.designsystem.components.OfflineBanner
+import su.afk.yummy.tv.core.designsystem.components.RandomAnimeFloatingButton
 import su.afk.yummy.tv.core.designsystem.error.asString
 import su.afk.yummy.tv.core.designsystem.locals.LocalIsOffline
 import su.afk.yummy.tv.core.designsystem.mobile.NotificationPermissionGateHost
@@ -44,18 +43,22 @@ import su.afk.yummy.tv.core.designsystem.mobile.bar.MobileTopBar
 import su.afk.yummy.tv.core.designsystem.mobile.layout.mobileContentMaxWidth
 import su.afk.yummy.tv.core.designsystem.mobile.rememberNotificationPermissionGate
 import su.afk.yummy.tv.core.designsystem.mobile.state.MobileMessage
+import su.afk.yummy.tv.core.designsystem.mvi.collectAsEffect
+import su.afk.yummy.tv.core.designsystem.onboarding.OnboardingTourEffect
 import su.afk.yummy.tv.core.designsystem.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.core.model.ErrorItem
 import su.afk.yummy.tv.core.model.anime.posterUrls
+import su.afk.yummy.tv.core.model.settings.DetailsSectionKind
 import su.afk.yummy.tv.core.model.text.UiText
 import su.afk.yummy.tv.core.utils.formatting.toCompactCount
 import su.afk.yummy.tv.core.utils.system.shareText
 import su.afk.yummy.tv.domain.account.model.UserAnimeList
 import su.afk.yummy.tv.feature.details.details.DetailsState
+import su.afk.yummy.tv.feature.details.mobile.details.utils.mobileDetailsTourSteps
 import su.afk.yummy.tv.feature.details.mobile.details.utils.tightenVerticalSpacing
 import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsCollectionsSection
 import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsCommentsBar
-import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsInfoBlock
+import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsDescriptionBlock
 import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsInfoSheet
 import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsLinkRow
 import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsLinksCard
@@ -64,6 +67,7 @@ import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsMobileSkeleton
 import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsPickerSheets
 import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsRatingOverviewCard
 import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsRatingOverviewSkeleton
+import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsRelationsBlock
 import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsScreenshotsRow
 import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsSecondaryActions
 import su.afk.yummy.tv.feature.details.mobile.details.view.DetailsUniverseSection
@@ -73,6 +77,8 @@ import su.afk.yummy.tv.feature.details.mobile.details.view.buildDetailsLinks
 import su.afk.yummy.tv.feature.details.mobile.details.view.commentsDetailsLink
 import su.afk.yummy.tv.feature.details.mobile.details.view.similarDetailsLink
 import su.afk.yummy.tv.feature.details.presentation.R
+import su.afk.yummy.tv.feature.details.utils.DETAILS_ONBOARDING_TOUR_ID
+import su.afk.yummy.tv.core.designsystem.R as CoreR
 
 @Preview(name = "Default", device = "spec:width=412dp,height=915dp,dpi=420", showBackground = true)
 @Composable
@@ -118,12 +124,10 @@ fun DetailsMobileScreen(
     val listState = rememberLazyListState()
     val notificationPermissionGate = rememberNotificationPermissionGate()
     val context = LocalContext.current
-    LaunchedEffect(effect) {
-        effect.collect { detailsEffect ->
-            when (detailsEffect) {
-                is DetailsState.Effect.ShareAnime ->
-                    context.shareText(text = detailsEffect.url, subject = detailsEffect.title)
-            }
+    effect.collectAsEffect { detailsEffect ->
+        when (detailsEffect) {
+            is DetailsState.Effect.ShareAnime ->
+                context.shareText(text = detailsEffect.url, subject = detailsEffect.title)
         }
     }
     val isOffline = LocalIsOffline.current
@@ -131,8 +135,23 @@ fun DetailsMobileScreen(
     BaseScreen(
         isScroll = false,
         contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal),
+        // Деталка открыта из кубика каталога — кубик остаётся, чтобы листать случайные тайтлы дальше.
+        floatingActionButtonEnd = if (state.isRandomAnimeEnabled && details != null) {
+            {
+                RandomAnimeFloatingButton(
+                    description = stringResource(R.string.details_random_anime),
+                    isLoading = state.isRandomAnimeLoading,
+                    onClick = { onEvent(DetailsState.Event.RandomAnimeSelected) },
+                )
+            }
+        } else {
+            null
+        },
+        floatingActionButtonBottomPadding = 8.dp,
         customTopBar = {
-            if (details == null) {
+            // Пока идёт первая загрузка, кнопку «назад» рисует сам скелетон на месте шапки: панель
+            // Scaffold исчезала при появлении деталей раньше, чем гаснет скелетон, и постер прыгал вверх.
+            if (details == null && !state.isLoading) {
                 MobileTopBar(
                     title = "",
                     onBack = { onEvent(DetailsState.Event.BackSelected) },
@@ -140,7 +159,7 @@ fun DetailsMobileScreen(
             }
         },
         isLoading = state.isLoading && details == null,
-        loadingContent = { DetailsMobileSkeleton() },
+        loadingContent = { DetailsMobileSkeleton(onBack = { onEvent(DetailsState.Event.BackSelected) }) },
         error = error?.let { ErrorItem(title = it, message = it) },
         onRetry = { onEvent(DetailsState.Event.RetrySelected) },
         isEmpty = details == null,
@@ -162,7 +181,10 @@ fun DetailsMobileScreen(
                 .mobileContentMaxWidth()
                 .fillMaxSize()
                 .testTag("details_root"),
-            contentPadding = PaddingValues(bottom = 0.dp),
+            // Нижний отступ у ленты, а не у блока: последним может оказаться любой раздел.
+            contentPadding = PaddingValues(
+                bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp,
+            ),
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             item(key = "hero", contentType = "details_hero") {
@@ -203,84 +225,158 @@ fun DetailsMobileScreen(
                     modifier = Modifier.padding(horizontal = 16.dp),
                 )
             }
-            item(key = "description", contentType = "details_description") {
-                DetailsInfoBlock(
-                    details = details,
-                    onGenreSelected = { onEvent(DetailsState.Event.GenreSelected(it)) },
-                    onStudioSelected = { id, url -> onEvent(DetailsState.Event.StudioSelected(id, url)) },
-                    onDirectorSelected = { onEvent(DetailsState.Event.DirectorSelected(it)) },
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                )
-            }
-            if (state.screenshots.isNotEmpty()) {
-                item(key = "screenshots", contentType = "details_screenshots") {
-                    DetailsScreenshotsRow(
-                        screenshots = state.screenshots,
-                        onScreenshotClick = { onEvent(DetailsState.Event.ScreenshotSelected(it)) },
-                    )
-                }
-            }
-            item(key = "video", contentType = "details_video") {
-                DetailsVideoSection(
-                    trailers = state.trailers,
-                    bloggerVideosImageModels = details.poster.posterUrls(),
-                    isTrailersLoading = state.isExtrasLoading && details.trailersCount > 0,
-                    hasBloggerVideos = details.bloggerVideosCount > 0,
-                    onTrailersClick = { onEvent(DetailsState.Event.TrailersSelected) },
-                    onBloggerVideosClick = { onEvent(DetailsState.Event.BloggerVideosSelected) },
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                )
-            }
-            val ratingOverview = state.ratingOverview
-            if (ratingOverview != null) {
-                item(key = "rating", contentType = "details_rating") {
-                    DetailsRatingOverviewCard(
-                        overview = ratingOverview,
-                        userRating = state.userRating,
-                        onClick = { onEvent(DetailsState.Event.RatingScreenSelected) },
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                    )
-                }
-            } else if (state.isExtrasLoading) {
-                item(key = "rating", contentType = "details_rating") {
-                    DetailsRatingOverviewSkeleton(modifier = Modifier.padding(horizontal = 16.dp))
-                }
-            }
-            state.details?.takeIf { it.viewingOrder.size > 1 }?.let { details ->
-                item(key = "universe", contentType = "details_universe") {
-                    DetailsUniverseSection(
-                        items = details.viewingOrder,
-                        currentAnimeId = details.id,
-                        onAnimeClick = { onEvent(DetailsState.Event.AnimeSelected(it)) },
-                        onShowAllClick = { onEvent(DetailsState.Event.ViewingOrderSelected) },
-                    )
-                }
-            }
-            item(key = "similar", contentType = "details_similar") {
-                // Ближе к «Вселенной» выше и к коллекциям ниже, чем общий шаг ленты.
-                DetailsLinkRow(
-                    link = similarDetailsLink { onEvent(DetailsState.Event.SimilarSelected) },
-                    modifier = Modifier.tightenVerticalSpacing(top = 12.dp, bottom = 8.dp),
-                )
-            }
-            if (state.collections.isNotEmpty()) {
-                item(key = "collections", contentType = "details_collections") {
-                    DetailsCollectionsSection(
-                        collections = state.collections,
-                        onCollectionClick = { onEvent(DetailsState.Event.CollectionSelected(it)) },
-                        onShowAllClick = { onEvent(DetailsState.Event.CollectionsSelected) },
-                    )
-                }
-            }
-            if (details.reviewsCount > 0) {
-                item(key = "links", contentType = "details_links") {
-                    DetailsLinksCard(
-                        links = buildDetailsLinks(
-                            reviewsCount = details.reviewsCount,
-                            reviewsBadge = details.reviewsCount.toCompactCount(),
-                            onReviewsSelected = { onEvent(DetailsState.Event.ReviewsSelected) },
-                        ),
-                    )
+            val hasRelations = details.studios.any { it.title.isNotBlank() } ||
+                details.creators.any { it.title.isNotBlank() } ||
+                details.genres.any { it.title.isNotBlank() }
+            state.sections.forEachIndexed { index, section ->
+                when (section) {
+                    DetailsSectionKind.INFO -> {
+                        if (hasRelations) {
+                            // Сразу под описанием студии и жанры стоят плотнее, как одна карточка с ним.
+                            val followsDescription = details.description.isNotBlank() &&
+                                state.sections.getOrNull(index - 1) == DetailsSectionKind.DESCRIPTION
+                            item(key = "relations") {
+                                DetailsRelationsBlock(
+                                    details = details,
+                                    onGenreSelected = { onEvent(DetailsState.Event.GenreSelected(it)) },
+                                    onStudioSelected = { id, url ->
+                                        onEvent(DetailsState.Event.StudioSelected(id, url))
+                                    },
+                                    onDirectorSelected = { onEvent(DetailsState.Event.DirectorSelected(it)) },
+                                    modifier = Modifier
+                                        .padding(horizontal = 16.dp)
+                                        .tightenVerticalSpacing(top = if (followsDescription) 14.dp else Dp.Hairline),
+                                )
+                            }
+                        }
+                    }
+                    DetailsSectionKind.DESCRIPTION -> {
+                        if (details.description.isNotBlank()) {
+                            // Сразу под студиями и жанрами описание стоит плотнее, как одна карточка с ними.
+                            val followsRelations = hasRelations &&
+                                state.sections.getOrNull(index - 1) == DetailsSectionKind.INFO
+                            item(key = "description") {
+                                DetailsDescriptionBlock(
+                                    description = details.description,
+                                    modifier = Modifier
+                                        .padding(horizontal = 16.dp)
+                                        .tightenVerticalSpacing(top = if (followsRelations) 14.dp else Dp.Hairline),
+                                )
+                            }
+                        }
+                    }
+                    DetailsSectionKind.SCREENSHOTS -> {
+                        if (state.screenshots.isNotEmpty()) {
+                            item(key = "screenshots") {
+                                DetailsScreenshotsRow(
+                                    screenshots = state.screenshots,
+                                    onScreenshotClick = { onEvent(DetailsState.Event.ScreenshotSelected(it)) },
+                                )
+                            }
+                        }
+                    }
+                    DetailsSectionKind.VIDEO -> {
+                        val isTrailersLoading = state.isExtrasLoading && details.trailersCount > 0
+                        // Пустой элемент всё равно занял бы шаг ленты и удвоил отступ между соседями.
+                        if (state.trailers.isNotEmpty() || isTrailersLoading || details.bloggerVideosCount > 0) {
+                            item(key = "video") {
+                                DetailsVideoSection(
+                                    trailers = state.trailers,
+                                    bloggerVideosImageModels = details.poster.posterUrls(),
+                                    isTrailersLoading = isTrailersLoading,
+                                    hasBloggerVideos = details.bloggerVideosCount > 0,
+                                    onTrailersClick = { onEvent(DetailsState.Event.TrailersSelected) },
+                                    onBloggerVideosClick = { onEvent(DetailsState.Event.BloggerVideosSelected) },
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                )
+                            }
+                        }
+                    }
+                    DetailsSectionKind.RATING -> {
+                        val ratingOverview = state.ratingOverview
+                        if (ratingOverview != null) {
+                            item(key = "rating") {
+                                DetailsRatingOverviewCard(
+                                    overview = ratingOverview,
+                                    userRating = state.userRating,
+                                    onClick = { onEvent(DetailsState.Event.RatingScreenSelected) },
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                )
+                            }
+                        } else if (state.isExtrasLoading) {
+                            item(key = "rating") {
+                                DetailsRatingOverviewSkeleton(modifier = Modifier.padding(horizontal = 16.dp))
+                            }
+                        }
+                    }
+                    DetailsSectionKind.UNIVERSE -> {
+                        state.details?.takeIf { it.viewingOrder.size > 1 }?.let { details ->
+                            item(key = "universe") {
+                                DetailsUniverseSection(
+                                    items = details.viewingOrder,
+                                    currentAnimeId = details.id,
+                                    onAnimeClick = { onEvent(DetailsState.Event.AnimeSelected(it)) },
+                                    onShowAllClick = { onEvent(DetailsState.Event.ViewingOrderSelected) },
+                                )
+                            }
+                        }
+                    }
+                    DetailsSectionKind.SIMILAR -> {
+                        // Ближе к «Вселенной» выше и к коллекциям ниже, чем общий шаг ленты.
+                        val previous = state.sections.getOrNull(index - 1)
+                        val next = state.sections.getOrNull(index + 1)
+                        item(key = "similar") {
+                            DetailsLinkRow(
+                                link = similarDetailsLink { onEvent(DetailsState.Event.SimilarSelected) },
+                                modifier = Modifier.tightenVerticalSpacing(
+                                    top = if (previous == DetailsSectionKind.UNIVERSE && details.viewingOrder.size > 1) {
+                                        12.dp
+                                    } else {
+                                        Dp.Hairline
+                                    },
+                                    bottom = if (next == DetailsSectionKind.COLLECTIONS && state.collections.isNotEmpty()) {
+                                        8.dp
+                                    } else {
+                                        Dp.Hairline
+                                    },
+                                ),
+                            )
+                        }
+                    }
+                    DetailsSectionKind.COLLECTIONS -> {
+                        if (state.collections.isNotEmpty()) {
+                            item(key = "collections") {
+                                DetailsCollectionsSection(
+                                    collections = state.collections,
+                                    onCollectionClick = { onEvent(DetailsState.Event.CollectionSelected(it)) },
+                                    onShowAllClick = { onEvent(DetailsState.Event.CollectionsSelected) },
+                                )
+                            }
+                        }
+                    }
+                    DetailsSectionKind.REVIEWS -> {
+                        if (details.reviewsCount > 0) {
+                            item(key = "links") {
+                                DetailsLinksCard(
+                                    links = buildDetailsLinks(
+                                        reviewsCount = details.reviewsCount,
+                                        reviewsBadge = details.reviewsCount.toCompactCount(),
+                                        onReviewsSelected = { onEvent(DetailsState.Event.ReviewsSelected) },
+                                    ),
+                                )
+                            }
+                        }
+                    }
+                    DetailsSectionKind.COMMENTS -> {
+                        item(key = "comments") {
+                            DetailsCommentsBar(
+                                commentsDetailsLink(
+                                    commentsBadge = details.commentsCount.takeIf { it > 0 }?.toCompactCount(),
+                                    onCommentsSelected = { onEvent(DetailsState.Event.CommentsSelected) },
+                                ),
+                            )
+                        }
+                    }
                 }
             }
             state.error?.let { error ->
@@ -291,14 +387,6 @@ fun DetailsMobileScreen(
                         onAction = { onEvent(DetailsState.Event.RetrySelected) },
                     )
                 }
-            }
-            item(key = "comments", contentType = "details_comments") {
-                DetailsCommentsBar(
-                    commentsDetailsLink(
-                        commentsBadge = details.commentsCount.takeIf { it > 0 }?.toCompactCount(),
-                        onCommentsSelected = { onEvent(DetailsState.Event.CommentsSelected) },
-                    ),
-                )
             }
         }
         DetailsPickerSheets(

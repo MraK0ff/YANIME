@@ -51,8 +51,8 @@ internal fun MobilePlayerCenterControls(
             onClick = onPlayPause,
             primary = true,
             loading = loading,
-            sizeMultiplier = 1.32f,
-            iconScale = 1f,
+            sizeMultiplier = 0.99f,
+            iconScale = 0.75f,
             surface = true,
         )
         Box(Modifier.size(CENTER_SWITCH_SLOT), contentAlignment = Alignment.Center) {

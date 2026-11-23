@@ -5,8 +5,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import su.afk.yummy.tv.core.network.yani.YaniHttpClientProvider
+import su.afk.yummy.tv.core.network.yani.YaniMirrorFallback
 import su.afk.yummy.tv.core.preferences.api.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.schedule.AnimeScheduleStorage
+import su.afk.yummy.tv.core.storage.anime.AnimeStorage
 import su.afk.yummy.tv.core.storage.document.DocumentCacheStorage
 import su.afk.yummy.tv.data.schedule.network.YaniScheduleApi
 import su.afk.yummy.tv.data.home.network.YaniHomeApi
@@ -19,8 +21,10 @@ import javax.inject.Singleton
 object ScheduleDataModule {
     @Provides
     @Singleton
-    fun provideYaniScheduleApi(clientProvider: YaniHttpClientProvider): YaniScheduleApi =
-        YaniScheduleApi(clientProvider)
+    fun provideYaniScheduleApi(
+        clientProvider: YaniHttpClientProvider,
+        fallback: YaniMirrorFallback,
+    ): YaniScheduleApi = YaniScheduleApi(clientProvider, fallback)
 
     @Provides
     @Singleton
@@ -30,6 +34,7 @@ object ScheduleDataModule {
         settingsStore: YaniAccountSettingsStore,
         documentCache: DocumentCacheStorage,
         homeApi: YaniHomeApi,
+        animeStorage: AnimeStorage,
     ): AnimeScheduleRepository =
-        YaniScheduleRepository(api, scheduleStore, settingsStore, documentCache, homeApi)
+        YaniScheduleRepository(api, scheduleStore, settingsStore, documentCache, homeApi, animeStorage)
 }

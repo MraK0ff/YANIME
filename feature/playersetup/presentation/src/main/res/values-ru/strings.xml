@@ -48,6 +48,11 @@
     <string name="player_setup_theme_sakura">Сакура</string>
     <string name="player_setup_theme_mint">Мятная</string>
     <string name="player_setup_theme_ocean">Океан</string>
+    <string name="player_setup_theme_lavender">Лавандовая</string>
+    <string name="player_setup_theme_ruby">Рубиновая</string>
+    <string name="player_setup_theme_forest">Лесная</string>
+    <string name="player_setup_theme_sunset">Закат</string>
+    <string name="player_setup_theme_gold">Золотая</string>
     <string name="player_setup_theme_dynamic">Динамическая (Material You)</string>
     <string name="player_setup_background_system">Системный</string>
     <string name="player_setup_background_light">Светлый</string>

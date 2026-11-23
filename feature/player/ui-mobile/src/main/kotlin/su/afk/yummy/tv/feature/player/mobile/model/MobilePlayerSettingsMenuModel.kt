@@ -4,6 +4,7 @@ import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
 import su.afk.yummy.tv.core.model.settings.PlayerOrientationMode
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleStyleSettings
 import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
+import su.afk.yummy.tv.core.model.settings.VideoEnhancementMode
 
 /** Всё, что единое меню настроек показывает: значения пунктов и доступность необязательных. */
 internal data class MobilePlayerSettingsMenuModel(
@@ -21,6 +22,10 @@ internal data class MobilePlayerSettingsMenuModel(
     val dubbingViews: List<Int>,
     val dubbingAvailability: List<Boolean>,
     val selectedDubbingIndex: Int,
+    val dubbingBalancerNames: List<List<String>>,
+    val dubbingBalancerIndices: List<List<Int>>,
+    val recommendedDubbingBalancerIndices: List<Int?>,
+    val selectedBalancerGraphIndex: Int,
     val balancerNames: List<String>,
     val balancerAvailability: List<Boolean>,
     val balancerExternal: List<Boolean>,
@@ -42,6 +47,7 @@ internal data class MobilePlayerSettingsMenuModel(
     val showPictureInPicture: Boolean,
     val pictureInPictureEnabled: Boolean,
     val timeDisplaySettings: PlayerTimeDisplaySettings,
+    val videoEnhancementMode: VideoEnhancementMode,
     val showCast: Boolean,
 )
 
@@ -53,7 +59,7 @@ internal class MobilePlayerSettingsMenuActions(
     val onAdaptiveLimitBestSelected: () -> Unit,
     val onSpeedSelected: (Float) -> Unit,
     val onAudioTrackSelected: (Int) -> Unit,
-    val onDubbingSelected: (Int) -> Unit,
+    val onDubbingBalancerSelected: (dubbingIndex: Int, balancerGraphIndex: Int) -> Unit,
     val onBalancerSelected: (Int) -> Unit,
     val onSubtitleTrackSelected: (Int) -> Unit,
     val onSubtitleStyleChange: (PlayerSubtitleStyleSettings) -> Unit,
@@ -66,4 +72,5 @@ internal class MobilePlayerSettingsMenuActions(
     val onDetails: () -> Unit,
     val onPictureInPictureChange: (Boolean) -> Unit,
     val onTimeDisplaySettingsChange: (PlayerTimeDisplaySettings) -> Unit,
+    val onVideoEnhancementModeChange: (VideoEnhancementMode) -> Unit,
 )

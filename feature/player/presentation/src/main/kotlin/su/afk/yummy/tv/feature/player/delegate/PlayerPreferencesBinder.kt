@@ -8,6 +8,7 @@ import su.afk.yummy.tv.core.model.settings.PlayerOrientationMode
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleStyleSettings
 import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 import su.afk.yummy.tv.core.model.settings.PreferredVideoQuality
+import su.afk.yummy.tv.core.model.settings.VideoEnhancementMode
 import su.afk.yummy.tv.core.preferences.settings.SourceStarsSettingsStore
 import su.afk.yummy.tv.core.utils.logging.AppLogRecordingSettings
 import su.afk.yummy.tv.feature.player.PlayerState
@@ -45,6 +46,7 @@ internal class PlayerPreferencesBinder @Inject constructor(
             host.bind(tvPlayerVolumeKeysEnabled) { copy(tvPlayerVolumeKeysEnabled = it) }
             host.bind(advancedPlayerVolumeEnabled) { copy(advancedPlayerVolumeEnabled = it) }
             host.bind(volumeStabilizationEnabled) { copy(volumeStabilizationEnabled = it) }
+            host.bind(videoEnhancementMode) { copy(videoEnhancementMode = it) }
             host.bind(adaptiveVideoQualityEnabled) { copy(adaptiveQualityEnabled = it) }
             host.bind(preferredVideoQuality) {
                 copy(adaptiveCeilingHeight = it.height ?: QualityAdaptationPolicy.DEFAULT_CEILING_HEIGHT)
@@ -83,6 +85,11 @@ internal class PlayerPreferencesBinder @Inject constructor(
     fun setVolumeStabilization(host: PlayerStateHost, enabled: Boolean) {
         host.update { copy(volumeStabilizationEnabled = enabled) }
         host.scope.launch { settings.saveVolumeStabilizationEnabled(enabled) }
+    }
+
+    fun setVideoEnhancementMode(host: PlayerStateHost, mode: VideoEnhancementMode) {
+        host.update { copy(videoEnhancementMode = mode) }
+        host.scope.launch { settings.saveVideoEnhancementMode(mode) }
     }
 
     /** Включение снимает ручную блокировку серии: адаптация снова управляет качеством. */

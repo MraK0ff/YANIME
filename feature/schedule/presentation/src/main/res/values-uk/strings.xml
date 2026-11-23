@@ -1,7 +1,7 @@
 <resources>
     <string name="schedule_mobile_title">Розклад</string>
     <string name="schedule_episode_aired">%1$d серія вже вийшла</string>
-    <string name="schedule_episode_future">%1$d серія вийде через %2$s</string>
+    <string name="schedule_episode_future">Серія %1$d вийде через</string>
     <string name="schedule_day_one">день</string>
     <string name="schedule_day_few">дні</string>
     <string name="schedule_day_many">днів</string>
@@ -14,4 +14,8 @@
     <string name="schedule_less_than_minute">менше хвилини</string>
     <string name="schedule_loading">Завантажуємо розклад</string>
     <string name="schedule_empty">Розклад порожній</string>
+    <string name="schedule_filter_all">Усі</string>
+    <string name="schedule_filter_library">У бібліотеці</string>
+    <string name="schedule_hide_watched">Приховувати переглянуті</string>
+    <string name="schedule_favorite">Улюблене</string>
 </resources>

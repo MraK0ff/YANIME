@@ -91,7 +91,11 @@ internal fun HomeFeedCard(
             )
             .border(
                 width = 2.dp,
-                color = if (active) MaterialTheme.colorScheme.primary else Color.Transparent,
+                color = when {
+                    active -> MaterialTheme.colorScheme.primary
+                    item.isFromSelectedList -> MaterialTheme.colorScheme.tertiary
+                    else -> Color.Transparent
+                },
                 shape = shape,
             ),
         shape = shape,

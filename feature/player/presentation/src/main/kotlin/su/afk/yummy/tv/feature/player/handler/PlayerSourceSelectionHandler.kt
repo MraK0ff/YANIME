@@ -101,6 +101,34 @@ internal class PlayerSourceSelectionHandler @Inject constructor() {
         )
     }
 
+    fun selectDubbingInBalancer(
+        state: PlayerState.State,
+        dubbingIndex: Int,
+        balancerIndex: Int,
+        currentPosMs: Long,
+    ): PlayerState.State? {
+        val dubbingName = globalDubbingNames(state).getOrNull(dubbingIndex) ?: return null
+        val balancer = state.sourceGraph.balancers.getOrNull(balancerIndex) ?: return null
+        val targetDubbingIndex = balancer.dubbings.indexOfFirst { it.name == dubbingName }
+        if (targetDubbingIndex < 0) return null
+        val currentEpisode = activeEpisode(state)
+        val targetEpisodes = balancer.dubbings[targetDubbingIndex].episodes
+        val targetEpisodeIndex = targetEpisodes.indexOfFirst {
+            it.number.episodeGroupKey() == currentEpisode.episodeGroupKey()
+        }
+        if (targetEpisodeIndex < 0) return null
+        val current = normalizedSourceSelection(state)
+        if (current.balancerIndex == balancerIndex && current.dubbingIndex == targetDubbingIndex) return null
+        return state.copy(
+            dubbingResumeMs = resumeOverrideMs(currentPosMs, state.dubbingResumeMs),
+            sourceSelection = PlayerSourceSelection(balancerIndex, targetDubbingIndex, targetEpisodeIndex),
+            allohaAudioTracks = emptyList(),
+            selectedAllohaAudioId = null,
+            allohaSubtitles = emptyList(),
+            selectedAllohaSubtitleIndex = null,
+        )
+    }
+
     fun selectBalancer(
         state: PlayerState.State,
         index: Int,

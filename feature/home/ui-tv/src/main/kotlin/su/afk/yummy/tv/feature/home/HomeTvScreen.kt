@@ -1,5 +1,9 @@
 package su.afk.yummy.tv.feature.home
 
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Box
+import su.afk.yummy.tv.core.designsystem.motion.rememberStateChangeFade
+import su.afk.yummy.tv.core.designsystem.motion.stateChangeFade
 import android.widget.Toast
 import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.foundation.layout.Column
@@ -32,9 +36,11 @@ import su.afk.yummy.tv.core.designsystem.focus.rememberTvStateFocusHandoff
 import su.afk.yummy.tv.core.designsystem.focus.tvFocusablePlaceholder
 import su.afk.yummy.tv.core.designsystem.focus.tvStateFocusTracking
 import su.afk.yummy.tv.core.designsystem.locals.LocalIsOffline
+import su.afk.yummy.tv.core.designsystem.mvi.collectAsEffect
 import su.afk.yummy.tv.core.designsystem.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.core.model.text.UiText
 import su.afk.yummy.tv.core.utils.system.openExternalUri
+import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.domain.home.model.HomeFeedItem
 import su.afk.yummy.tv.feature.home.mapper.toHomeEventOrNull
 import su.afk.yummy.tv.feature.home.utils.hasInitialContent
@@ -47,6 +53,7 @@ import su.afk.yummy.tv.feature.home.view.HomeBoostyPromptDialog
 import su.afk.yummy.tv.feature.home.view.HomeCommunityPromptDialog
 import su.afk.yummy.tv.feature.home.view.HomePreviewChannelPromptDialog
 import su.afk.yummy.tv.feature.home.view.HomeSupportPromptDialog
+import su.afk.yummy.tv.feature.home.view.TvContinueWatchingRemoveDialog
 import su.afk.yummy.tv.feature.home.view.TvRecommendationActionsDialog
 
 @Preview(
@@ -100,28 +107,27 @@ fun HomeTvScreen(
 ) {
     val context = LocalContext.current
     var recommendationActionItem by remember { mutableStateOf<HomeFeedItem?>(null) }
+    var continueWatchingActionEntry by remember { mutableStateOf<HomeContinueWatchingItem?>(null) }
 
     LaunchedEffect(Unit) {
         onEvent(HomeState.Event.ScreenResumed)
     }
 
-    LaunchedEffect(Unit) {
-        effect.collect { event ->
-            when (event) {
-                is HomeState.Effect.ShowToast -> {
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
-                }
+    effect.collectAsEffect { event ->
+        when (event) {
+            is HomeState.Effect.ShowToast -> {
+                Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+            }
 
-                is HomeState.Effect.OpenUri -> context.openExternalUri(event.uri)
+            is HomeState.Effect.OpenUri -> context.openExternalUri(event.uri)
 
-                // На ТВ откат недоступен — показываем обычное уведомление.
-                is HomeState.Effect.ShowRecommendationUndo -> {
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
-                }
+            // На ТВ откат недоступен — показываем обычное уведомление.
+            is HomeState.Effect.ShowRecommendationUndo -> {
+                Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+            }
 
-                is HomeState.Effect.ShowContinueWatchingUndo -> {
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
-                }
+            is HomeState.Effect.ShowContinueWatchingUndo -> {
+                Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -164,6 +170,7 @@ fun HomeTvScreen(
             message = state.statusMessage,
             modifier = Modifier.padding(horizontal = TvScreenPadding.Horizontal - 16.dp),
         )
+        val contentFade = rememberStateChangeFade(error == null && feed != null && state.hasInitialContent())
         when {
             error != null -> HomeError(
                 message = error,
@@ -176,19 +183,22 @@ fun HomeTvScreen(
                 modifier = Modifier.tvFocusablePlaceholder(focusHandoff),
             )
 
-            else -> HomeDashboard(
-                feed = feed,
-                blocks = state.blocks,
-                continueWatching = state.continueWatching,
-                launchingContinueWatchingAnimeId = state.launchingContinueWatchingAnimeId,
-                requestInitialFocus = focusHandoff.shouldFocusContent,
-                onInitialFocusHandled = focusHandoff::onContentFocused,
-                onContinueWatchingSelected = { entry ->
-                    onEvent(HomeState.Event.ContinueWatchingSelected(entry))
-                },
-                onItemSelected = onItemSelected,
-                onRecommendationLongClick = { item -> recommendationActionItem = item },
-            )
+            else -> Box(Modifier.fillMaxSize().stateChangeFade(contentFade)) {
+                HomeDashboard(
+                    feed = feed,
+                    blocks = state.blocks,
+                    continueWatching = state.continueWatching,
+                    launchingContinueWatchingAnimeId = state.launchingContinueWatchingAnimeId,
+                    requestInitialFocus = focusHandoff.shouldFocusContent,
+                    onInitialFocusHandled = focusHandoff::onContentFocused,
+                    onContinueWatchingSelected = { entry ->
+                        onEvent(HomeState.Event.ContinueWatchingSelected(entry))
+                    },
+                    onContinueWatchingLongClick = { entry -> continueWatchingActionEntry = entry },
+                    onItemSelected = onItemSelected,
+                    onRecommendationLongClick = { item -> recommendationActionItem = item },
+                )
+            }
         }
     }
 
@@ -200,6 +210,17 @@ fun HomeTvScreen(
                 onEvent(HomeState.Event.RecommendationHideRequested(item.id))
             },
             onDismiss = { recommendationActionItem = null },
+        )
+    }
+
+    continueWatchingActionEntry?.let { entry ->
+        TvContinueWatchingRemoveDialog(
+            title = entry.animeTitle,
+            onRemove = {
+                continueWatchingActionEntry = null
+                onEvent(HomeState.Event.ContinueWatchingRemoveRequested(entry))
+            },
+            onDismiss = { continueWatchingActionEntry = null },
         )
     }
 

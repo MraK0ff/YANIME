@@ -1,17 +1,14 @@
 package su.afk.yummy.tv.feature.player.mobile.view
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
@@ -22,27 +19,22 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 /** Режим правой части строки меню настроек. */
 internal sealed interface MobilePlayerMenuRowTrailing {
-    /** Значение и стрелка «вглубь». */
     data class Navigate(val value: String? = null) : MobilePlayerMenuRowTrailing
-
-    /** Переключатель; клик по всей строке меняет его. */
     data class Toggle(val checked: Boolean) : MobilePlayerMenuRowTrailing
-
-    /** Галочка у выбранного варианта списка. */
     data class Choice(val selected: Boolean) : MobilePlayerMenuRowTrailing
-
     data object None : MobilePlayerMenuRowTrailing
 }
 
-/** Выразительная строка настроек: отдельная tonal-иконка, крупная зона нажатия и ясное состояние. */
+/** Строка настроек в актуальном стиле плеера: компактная иконка, подпись и состояние справа. */
 @Composable
 internal fun MobilePlayerMenuRow(
     label: String,
@@ -50,62 +42,37 @@ internal fun MobilePlayerMenuRow(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
-    /** Поясняющая строка под названием (мельче и приглушённее). */
     subtitle: String? = null,
+    labelColor: Color = MaterialTheme.colorScheme.onSurface,
 ) {
-    val shape = RoundedCornerShape(20.dp)
-    val iconShape = RoundedCornerShape(14.dp)
-    val isSelected = trailing is MobilePlayerMenuRowTrailing.Choice && trailing.selected
-
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clip(shape)
-            .background(
-                if (isSelected) MaterialTheme.colorScheme.secondaryContainer
-                else MaterialTheme.colorScheme.surfaceContainerLow,
-            )
             .clickable(
                 role = if (trailing is MobilePlayerMenuRowTrailing.Toggle) Role.Switch else Role.Button,
                 onClickLabel = label,
                 onClick = onClick,
             )
-            .heightIn(min = 64.dp)
-            .padding(horizontal = 12.dp, vertical = 10.dp),
+            .padding(horizontal = 8.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(14.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        if (isSelected || icon != null) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(iconShape)
-                    .background(
-                        if (isSelected) MaterialTheme.colorScheme.primaryContainer
-                        else MaterialTheme.colorScheme.surfaceContainerHighest,
-                    ),
-                contentAlignment = Alignment.Center,
-            ) {
-                if (isSelected) {
-                    Icon(
-                        Icons.Filled.Check,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                    )
-                } else if (icon != null) {
-                    Icon(
-                        icon,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+        Box(modifier = Modifier.size(28.dp), contentAlignment = Alignment.Center) {
+            when {
+                icon != null -> Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface)
+                trailing is MobilePlayerMenuRowTrailing.Choice && trailing.selected -> Icon(
+                    Icons.Filled.Check,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurface,
+                )
             }
         }
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = if (trailing is MobilePlayerMenuRowTrailing.Choice && trailing.selected) FontWeight.SemiBold else null,
+                color = labelColor,
             )
             if (subtitle != null) {
                 Text(
@@ -133,12 +100,11 @@ internal fun MobilePlayerMenuRow(
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-
-            is MobilePlayerMenuRowTrailing.Toggle -> Switch(
-                checked = trailing.checked,
-                onCheckedChange = { onClick() },
-            )
-            is MobilePlayerMenuRowTrailing.Choice, MobilePlayerMenuRowTrailing.None -> Unit
+            is MobilePlayerMenuRowTrailing.Toggle -> Switch(checked = trailing.checked, onCheckedChange = null)
+            is MobilePlayerMenuRowTrailing.Choice -> if (icon != null && trailing.selected) {
+                Icon(Icons.Filled.Check, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface)
+            }
+            MobilePlayerMenuRowTrailing.None -> Unit
         }
     }
 }

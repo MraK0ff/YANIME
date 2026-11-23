@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,8 +36,8 @@ import su.afk.yummy.tv.core.designsystem.error.uiMessage
 import su.afk.yummy.tv.core.designsystem.mobile.MobileSwipeableTabsPager
 import su.afk.yummy.tv.core.designsystem.mobile.bar.MobileTopBar
 import su.afk.yummy.tv.core.designsystem.mobile.rememberMobileSwipeableTabsState
-import su.afk.yummy.tv.core.designsystem.mobile.state.MobileSectionLoading
 import su.afk.yummy.tv.core.designsystem.mobile.state.MobileStateContent
+import su.afk.yummy.tv.core.designsystem.mvi.collectAsEffect
 import su.afk.yummy.tv.core.designsystem.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.feature.comments.CommentsState
 import su.afk.yummy.tv.feature.comments.mobile.view.CommentSortOverlay
@@ -43,6 +45,7 @@ import su.afk.yummy.tv.feature.comments.mobile.view.CommentSortRowHeight
 import su.afk.yummy.tv.feature.comments.mobile.view.CommentsComposer
 import su.afk.yummy.tv.feature.comments.mobile.view.CommentsDialogs
 import su.afk.yummy.tv.feature.comments.mobile.view.CommentsList
+import su.afk.yummy.tv.feature.comments.mobile.view.CommentsNeighborPage
 import su.afk.yummy.tv.feature.comments.mobile.view.commentSortOrder
 import su.afk.yummy.tv.feature.comments.presentation.R
 import su.afk.yummy.tv.feature.comments.utils.buildVisibleComments
@@ -107,12 +110,10 @@ fun CommentsMobileScreen(
         },
     )
 
-    LaunchedEffect(Unit) {
-        effect.collect { event ->
-            when (event) {
-                is CommentsState.Effect.ShowToast ->
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
-            }
+    effect.collectAsEffect { event ->
+        when (event) {
+            is CommentsState.Effect.ShowToast ->
+                Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
         }
     }
     // Сброс наверх — только при смене сортировки: при возврате с другого экрана (профиль автора)
@@ -135,6 +136,13 @@ fun CommentsMobileScreen(
             MobileTopBar(
                 title = stringResource(R.string.comments_title),
                 onBack = { onEvent(CommentsState.Event.BackSelected) },
+                actions = {
+                    if (state.hasDetailsAction) {
+                        TextButton(onClick = { onEvent(CommentsState.Event.DetailsSelected) }) {
+                            Text(stringResource(R.string.comments_open_details))
+                        }
+                    }
+                },
             )
         },
     ) {
@@ -149,6 +157,7 @@ fun CommentsMobileScreen(
                     state = tabsState,
                     modifier = Modifier.fillMaxSize(),
                     key = { page -> commentSortOrder[page].name },
+                    beyondViewportPageCount = 1,
                 ) { page ->
                     if (commentSortOrder.getOrNull(page) == state.sort) {
                         PullToRefreshBox(
@@ -179,7 +188,12 @@ fun CommentsMobileScreen(
                             }
                         }
                     } else {
-                        MobileSectionLoading(modifier = Modifier.fillMaxSize())
+                        CommentsNeighborPage(
+                            state = state,
+                            sort = commentSortOrder[page],
+                            topInset = CommentSortRowHeight,
+                            onEvent = onEvent,
+                        )
                     }
                 }
                 CommentSortOverlay(

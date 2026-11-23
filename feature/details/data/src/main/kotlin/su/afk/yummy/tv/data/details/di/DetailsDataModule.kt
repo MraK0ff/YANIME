@@ -5,8 +5,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import su.afk.yummy.tv.core.network.yani.YaniHttpClientProvider
+import su.afk.yummy.tv.core.network.yani.YaniMirrorFallback
 import su.afk.yummy.tv.core.network.yummy.SiteApiConfig
-import su.afk.yummy.tv.core.network.yummy.SiteRequestSigner
 import su.afk.yummy.tv.core.preferences.api.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.account.AccountStorage
 import su.afk.yummy.tv.core.storage.anime.AnimeStorage
@@ -29,26 +29,24 @@ object DetailsDataModule {
 
     @Provides
     @Singleton
-    fun provideYaniAnimeApi(clientProvider: YaniHttpClientProvider): YaniAnimeApi =
-        YaniAnimeApi(clientProvider)
+    fun provideYaniAnimeApi(clientProvider: YaniHttpClientProvider, fallback: YaniMirrorFallback): YaniAnimeApi =
+        YaniAnimeApi(clientProvider, fallback)
 
     @Provides
     @Singleton
     fun provideYummyEpisodesApi(
         clientProvider: YaniHttpClientProvider,
         siteApiConfig: SiteApiConfig,
-        signers: Set<@JvmSuppressWildcards SiteRequestSigner>,
     ): YummyEpisodesApi =
-        YummyEpisodesApi(clientProvider, siteApiConfig, signers)
+        YummyEpisodesApi(clientProvider, siteApiConfig)
 
     @Provides
     @Singleton
     fun provideYummyEpisodeFlagsApi(
         clientProvider: YaniHttpClientProvider,
         siteApiConfig: SiteApiConfig,
-        signers: Set<@JvmSuppressWildcards SiteRequestSigner>,
     ): YummyEpisodeFlagsApi =
-        YummyEpisodeFlagsApi(clientProvider, siteApiConfig, signers)
+        YummyEpisodeFlagsApi(clientProvider, siteApiConfig)
 
     @Provides
     @Singleton

@@ -16,6 +16,8 @@ data class Anime4kLookupRequestDto(
 data class Anime4kTitleResponseDto(
     val available: Boolean = false,
     val episodes: List<Anime4kEpisodeResponseDto> = emptyList(),
+    /** 4K у тайтла был, но сервер его больше не находит: возможно, вернётся. */
+    val possible: Boolean = false,
 )
 
 @Serializable
@@ -26,15 +28,7 @@ data class Anime4kEpisodeResponseDto(
 )
 
 @Serializable
-data class Anime4kTicketResponseDto(
-    val ticket: String = "",
-    val notBeforeSec: Int = 0,
-    val expiresInSec: Int = 0,
-)
-
-@Serializable
 data class Anime4kStreamsRequestDto(
-    val ticket: String,
     val malId: Int,
     val season: String,
     val episode: String,

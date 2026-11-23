@@ -7,6 +7,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
 import su.afk.yummy.tv.core.model.settings.PlayerZoomLevel
+import su.afk.yummy.tv.core.model.settings.VideoEnhancementMode
 import su.afk.yummy.tv.feature.player.common.PlayerVolumeController
 import su.afk.yummy.tv.feature.player.model.TvPlayerSettingsPage
 import su.afk.yummy.tv.feature.player.presentation.R
@@ -21,6 +22,7 @@ internal fun TvPlayerSettingsRoot(
     rowFocus: Map<TvPlayerSettingsPage, FocusRequester>,
     resizeMode: PlayerResizeMode,
     zoomLevel: PlayerZoomLevel,
+    videoEnhancementMode: VideoEnhancementMode,
     showVolume: Boolean,
     volumePercent: Int,
     onVolumeChange: (Int) -> Unit,
@@ -57,6 +59,18 @@ internal fun TvPlayerSettingsRoot(
         page = TvPlayerSettingsPage.TimeDisplay,
         label = stringResource(R.string.player_time_display_title),
         value = "",
+    )
+
+    PageRow(
+        page = TvPlayerSettingsPage.VideoEnhancement,
+        label = stringResource(R.string.player_video_enhancement_title),
+        value = stringResource(
+            when (videoEnhancementMode) {
+                VideoEnhancementMode.OFF -> R.string.player_toggle_off
+                VideoEnhancementMode.SHARPEN -> R.string.player_video_enhancement_sharpen
+                VideoEnhancementMode.QUALITY -> R.string.player_video_enhancement_quality
+            },
+        ),
     )
 
     if (showVolume || showStabilization) {

@@ -16,6 +16,8 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import su.afk.yummy.tv.core.network.yani.MirrorState
+import su.afk.yummy.tv.core.network.yani.YaniMirrorFallback
 import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.error.api.StringProvider
@@ -39,6 +41,7 @@ import su.afk.yummy.tv.domain.account.repository.AccountRepository
 import su.afk.yummy.tv.domain.account.usecase.ObserveAccountSessionUseCase
 import su.afk.yummy.tv.domain.library.repository.LibraryRepository
 import su.afk.yummy.tv.domain.library.usecase.ObserveLibraryListStatusesUseCase
+import su.afk.yummy.tv.domain.library.usecase.ObserveLibraryFavoriteAnimeIdsUseCase
 import su.afk.yummy.tv.domain.library.usecase.ObserveLibraryUserRatingsUseCase
 import su.afk.yummy.tv.feature.main.MainState.Effect
 import su.afk.yummy.tv.feature.main.MainState.Event
@@ -60,13 +63,14 @@ class MainViewModelTest : BaseUnitTest() {
     private val accountMutationErrorRepository: AccountMutationErrorRepository = mockk()
     private val stringProvider: StringProvider = mockk()
     private val networkConnectivityMonitor: NetworkConnectivityMonitor = mockk()
+    private val yaniMirrorFallback: YaniMirrorFallback = mockk()
+    private val mirrorState = MutableStateFlow(MirrorState())
     private val libraryRepository: LibraryRepository = mockk()
 
     private val snapshot = MutableStateFlow(snapshot(nickname = "sandy", unread = 4))
     private val tokenState = MutableStateFlow(YaniApplicationTokenState.DEFAULT)
     private val session = MutableStateFlow(AccountSession(isAuthorized = true, userId = 1))
     private val isOnline = MutableStateFlow(true)
-    private val welcomeSeen = MutableStateFlow(false)
     private val toursSeen = MutableStateFlow(emptySet<String>())
     private val mutationErrors = MutableSharedFlow<AccountMutationErrorEvent>()
     private val toggleUpdates = MutableSharedFlow<Long>()
@@ -75,12 +79,11 @@ class MainViewModelTest : BaseUnitTest() {
     fun setUp() {
         every { settingsStore.mainSettingsSnapshot } returns snapshot
         every { settingsStore.yaniApplicationTokenState } returns tokenState
-        every { settingsStore.onboardingWelcomeSeen } returns welcomeSeen
         every { settingsStore.onboardingToursSeen } returns toursSeen
-        coEvery { settingsStore.markOnboardingWelcomeSeen() } returns Unit
         coEvery { settingsStore.markOnboardingTourSeen(any()) } returns Unit
         every { accountRepository.observeSession() } returns session
         every { networkConnectivityMonitor.isOnline } returns isOnline
+        every { yaniMirrorFallback.state } returns mirrorState
         every { libraryRepository.observeAll() } returns flowOf(emptyList())
         every { accountMutationErrorRepository.events } returns mutationErrors
         every { featureToggleUpdateObserver.currentActivationId } returns 1L
@@ -105,8 +108,10 @@ class MainViewModelTest : BaseUnitTest() {
         accountMutationErrorRepository = accountMutationErrorRepository,
         stringProvider = stringProvider,
         networkConnectivityMonitor = networkConnectivityMonitor,
+        yaniMirrorFallback = yaniMirrorFallback,
         interfaceModePreferences = mockk(relaxed = true),
         observeLibraryListStatuses = ObserveLibraryListStatusesUseCase(libraryRepository),
+        observeLibraryFavoriteAnimeIds = ObserveLibraryFavoriteAnimeIdsUseCase(libraryRepository),
         observeLibraryUserRatings = ObserveLibraryUserRatingsUseCase(libraryRepository),
         appClock = object : AppClock {
             // Середина июня 2025: вне праздничных периодов.
@@ -146,13 +151,8 @@ class MainViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `welcome slides go first and the main tour follows until it is passed`() {
+    fun `main tour is shown until it is passed`() {
         val viewModel = createViewModel()
-        assertTrue(viewModel.currentState.onboardingWelcomePending)
-        assertFalse(viewModel.currentState.showMainOnboardingTour)
-
-        welcomeSeen.value = true
-        assertFalse(viewModel.currentState.onboardingWelcomePending)
         assertTrue(viewModel.currentState.showMainOnboardingTour)
 
         toursSeen.value = setOf(MAIN_ONBOARDING_TOUR_ID)
@@ -163,10 +163,8 @@ class MainViewModelTest : BaseUnitTest() {
     fun `finished onboarding events are persisted`() {
         val viewModel = createViewModel()
 
-        viewModel.setEvent(Event.OnboardingWelcomeFinished)
         viewModel.setEvent(Event.OnboardingMainTourFinished)
 
-        coVerify(exactly = 1) { settingsStore.markOnboardingWelcomeSeen() }
         coVerify(exactly = 1) { settingsStore.markOnboardingTourSeen(MAIN_ONBOARDING_TOUR_ID) }
     }
 

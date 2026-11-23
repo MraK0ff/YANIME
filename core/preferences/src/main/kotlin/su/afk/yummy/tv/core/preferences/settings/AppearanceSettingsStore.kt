@@ -3,6 +3,7 @@ package su.afk.yummy.tv.core.preferences.settings
 import kotlinx.coroutines.flow.Flow
 import su.afk.yummy.tv.core.model.settings.AppTheme
 import su.afk.yummy.tv.core.model.settings.BackgroundStyle
+import su.afk.yummy.tv.core.model.settings.DetailsSectionConfig
 import su.afk.yummy.tv.core.model.settings.HomeBlockConfig
 import su.afk.yummy.tv.core.model.settings.LibraryContinueWatchingCardSize
 import su.afk.yummy.tv.core.model.settings.LibrarySort
@@ -21,6 +22,7 @@ interface AppearanceSettingsStore {
     val showCatalogTitleYear: Flow<Boolean>
 
     /** Показывать у серий пометки «филлер» и «рекап». */
+    val scheduleLibraryFilter: Flow<String>
     val episodeWatchFilter: Flow<String>
     val showEpisodeFlags: Flow<Boolean>
     val showLibraryTitleYear: Flow<Boolean>
@@ -37,6 +39,9 @@ interface AppearanceSettingsStore {
     /** Блоки главной: порядок списка — порядок на экране, [HomeBlockConfig.enabled] — видимость. */
     val homeBlocks: Flow<List<HomeBlockConfig>>
 
+    /** Блоки ленты деталей: порядок списка — порядок на экране, [DetailsSectionConfig.enabled] — видимость. */
+    val detailsSections: Flow<List<DetailsSectionConfig>>
+
     /** Показывать ли праздничное оформление (гирлянда, тыквы) в сезон. */
     val seasonalDecorationsEnabled: Flow<Boolean>
 
@@ -52,6 +57,7 @@ interface AppearanceSettingsStore {
     suspend fun setPosterCardSize(size: PosterCardSize)
     suspend fun setTitleCardLayout(layout: TitleCardLayout)
     suspend fun setShowCatalogTitleYear(enabled: Boolean)
+    suspend fun setScheduleLibraryFilter(filter: String)
     suspend fun setEpisodeWatchFilter(filter: String)
     suspend fun setShowEpisodeFlags(enabled: Boolean)
     suspend fun setShowLibraryTitleYear(enabled: Boolean)
@@ -63,6 +69,7 @@ interface AppearanceSettingsStore {
     suspend fun setNavTransitionStyle(style: NavTransitionStyle)
     suspend fun setLibraryTabOrder(order: List<LibraryTabKind>)
     suspend fun setHomeBlocks(blocks: List<HomeBlockConfig>)
+    suspend fun setDetailsSections(sections: List<DetailsSectionConfig>)
     suspend fun setNewEpisodesSectionEnabled(enabled: Boolean)
     suspend fun setSeasonalDecorationsEnabled(enabled: Boolean)
     suspend fun setAccountShortcutsExpanded(expanded: Boolean)

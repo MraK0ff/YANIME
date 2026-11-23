@@ -8,6 +8,9 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import kotlin.math.min
+import kotlin.math.max
+import kotlin.math.sin
+import kotlin.math.PI
 
 /**
  * Shared M3 Expressive-inspired playback track.
@@ -23,6 +26,7 @@ fun DrawScope.drawExpressiveWavyTimelineTrack(
     focused: Boolean = false,
     inactiveColor: Color = Color.White.copy(alpha = 0.20f),
     bufferedColor: Color = Color.White.copy(alpha = 0.34f),
+    wavePhase: Float = 0f,
 ) {
     if (size.width <= 0f || size.height <= 0f) return
 
@@ -34,16 +38,19 @@ fun DrawScope.drawExpressiveWavyTimelineTrack(
     val baseWidth = if (focused) 4.dp.toPx() else 3.dp.toPx()
     val playedWidth = if (focused) 5.dp.toPx() else 4.dp.toPx()
 
-    // One continuous rail under all states.
-    drawLine(
-        color = inactiveColor,
-        start = Offset(0f, centerY),
-        end = Offset(size.width, centerY),
-        strokeWidth = baseWidth,
-        cap = StrokeCap.Round,
-    )
+    // Draw only the unplayed rail. The played wave replaces its section completely,
+    // so no straight line can peek through underneath the snake.
+    if (playedX < size.width) {
+        drawLine(
+            color = inactiveColor,
+            start = Offset(playedX, centerY),
+            end = Offset(size.width, centerY),
+            strokeWidth = baseWidth,
+            cap = StrokeCap.Round,
+        )
+    }
 
-    // Buffered media begins exactly where the played wave returns to the baseline.
+    // Buffered progress starts exactly at the snake's endpoint.
     if (bufferedX > playedX) {
         drawLine(
             color = bufferedColor,
@@ -56,39 +63,31 @@ fun DrawScope.drawExpressiveWavyTimelineTrack(
 
     if (playedX <= 0.5f) return
 
-    val halfWave = 19.dp.toPx()
-    val amplitude = min(4.5.dp.toPx(), size.height * 0.22f)
+    // Shorter wavelength creates more, finer waves across the watched section.
+    val wavelength = 24.dp.toPx()
+    val amplitude = min(3.dp.toPx(), size.height * 0.15f)
+    val fadeDistance = wavelength * 0.55f
+    val phase = wavePhase * (2f * PI.toFloat())
+    // Keep the animated head visually active across the final three wave cycles.
+    val activeHeadLength = wavelength * 3f
     val wave = Path().apply {
         moveTo(0f, centerY)
         var x = 0f
-        var waveIndex = 0
-
         while (x < playedX) {
-            val nextX = min(x + halfWave, playedX)
-            val segmentWidth = nextX - x
-            if (segmentWidth <= 0.5f) break
-
-            val direction = if (waveIndex % 2 == 0) -1f else 1f
-            val isFinalSegment = nextX >= playedX - 0.5f
-            val controlOneX = x + segmentWidth * 0.28f
-            val controlTwoX = if (isFinalSegment) {
-                nextX - segmentWidth * 0.10f
-            } else {
-                x + segmentWidth * 0.72f
-            }
-            val controlTwoY = if (isFinalSegment) centerY else centerY + direction * amplitude
-
-            cubicTo(
-                controlOneX,
-                centerY + direction * amplitude,
-                controlTwoX,
-                controlTwoY,
-                nextX,
-                centerY,
+            x = min(x + 2.dp.toPx(), playedX)
+            val edgeFade = min(
+                1f,
+                min(x / fadeDistance, (playedX - x) / fadeDistance).coerceAtLeast(0f),
             )
-            x = nextX
-            waveIndex++
+            val headProgress = ((x - (playedX - activeHeadLength)) / activeHeadLength).coerceIn(0f, 1f)
+            val headBlend = headProgress * headProgress * (3f - 2f * headProgress)
+            val headPhase = phase * (1f + headBlend * 0.9f)
+            val oscillation = sin((x / wavelength) * (2f * PI.toFloat()) - headPhase)
+            val headIntensity = 1f + headBlend * 0.65f
+            val y = centerY + oscillation * amplitude * headIntensity * edgeFade
+            lineTo(x, y)
         }
+        lineTo(playedX, centerY)
     }
 
     drawPath(

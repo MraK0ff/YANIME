@@ -259,4 +259,6 @@
     <string name="details_onboarding_episodes_text">Усі серії з позначками перегляду. Тут же можна обрати озвучення для конкретної серії.</string>
     <string name="details_onboarding_subscriptions_title">Сповіщення про серії</string>
     <string name="details_onboarding_subscriptions_text">Підпишіться на озвучення, щоб дізнаватися про вихід нової серії.</string>
+    <string name="details_random_anime">Випадкове аніме</string>
+    <string name="details_shikimori_rating_short">Shiki %1$s</string>
 </resources>

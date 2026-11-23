@@ -259,4 +259,6 @@
     <string name="details_onboarding_episodes_text">Все серии с отметками просмотра. Здесь же можно выбрать озвучку для конкретной серии.</string>
     <string name="details_onboarding_subscriptions_title">Уведомления о сериях</string>
     <string name="details_onboarding_subscriptions_text">Подпишитесь на озвучку, чтобы узнавать о выходе новой серии.</string>
+    <string name="details_random_anime">Случайное аниме</string>
+    <string name="details_shikimori_rating_short">Shiki %1$s</string>
 </resources>

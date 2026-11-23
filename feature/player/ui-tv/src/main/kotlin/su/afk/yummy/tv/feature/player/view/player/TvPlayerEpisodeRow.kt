@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.RecordVoiceOver
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.ClosedCaption
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
@@ -164,48 +165,47 @@ internal fun TvPlayerEpisodeRow(
             }
             Spacer(Modifier.width(8.dp))
         }
-        if (allDubbingNames.size > 1) {
-            val label = allDubbingNames
+        if (allDubbingNames.size > 1 || allBalancerNames.size > 1) {
+            val dubbingLabel = allDubbingNames
                 .getOrElse(currentDubbingIndex) { dubbing }
                 .dubbingDisplayName()
                 .withoutDubbingTitlePrefix(stringResource(R.string.player_dubbing_title))
+            val balancerLabel = allBalancerNames.getOrElse(currentBalancerIndex) {
+                playerName.removePrefix(stringResource(R.string.player_name_prefix))
+            }
             TvControlButton(
                 onClick = onToggleDubbing,
                 onFocused = onInteraction,
                 focusRequester = dubbingFocusRequester,
                 modifier = Modifier
                     .focusProperties { up = upFocusRequester }
-                    .widthIn(min = 164.dp, max = 220.dp),
+                    .widthIn(min = 220.dp, max = 300.dp),
             ) { color ->
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.labelLarge,
-                    color = color,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-            Spacer(Modifier.width(8.dp))
-        }
-        if (allBalancerNames.size > 1) {
-            val label = allBalancerNames.getOrElse(currentBalancerIndex) {
-                playerName.removePrefix(stringResource(R.string.player_name_prefix))
-            }
-            TvControlButton(
-                onClick = onToggleBalancer,
-                onFocused = onInteraction,
-                focusRequester = balancerFocusRequester,
-                modifier = Modifier
-                    .focusProperties { up = upFocusRequester }
-                    .widthIn(min = 128.dp, max = 156.dp),
-            ) { color ->
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.labelLarge,
-                    color = color,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(7.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.RecordVoiceOver,
+                        contentDescription = null,
+                        tint = color,
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Text(
+                        text = listOf(dubbingLabel, balancerLabel).filter { it.isNotBlank() }.joinToString("  ·  "),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = color,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false),
+                    )
+                    Icon(
+                        imageVector = Icons.Filled.KeyboardArrowDown,
+                        contentDescription = null,
+                        tint = color.copy(alpha = 0.85f),
+                        modifier = Modifier.size(18.dp),
+                    )
+                }
             }
             Spacer(Modifier.width(8.dp))
         }

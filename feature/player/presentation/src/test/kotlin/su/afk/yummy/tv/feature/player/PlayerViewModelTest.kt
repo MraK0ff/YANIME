@@ -79,6 +79,7 @@ class PlayerViewModelTest : BaseUnitTest() {
     @Before
     fun setUp() {
         every { strings.get(any<Int>()) } returns "stream error"
+        every { strings.get(any<Int>(), *anyVararg()) } returns "fallback toast"
         coEvery { finalEpisodeActionHandler.resolve(any()) } returns finalAction
         coEvery { artworkHandler.resolve(any()) } returns null
         coEvery { sourceStreamHandler.loadSourceGraph(any(), any(), any(), any(), any(), any()) } returns
@@ -90,6 +91,35 @@ class PlayerViewModelTest : BaseUnitTest() {
         coEvery {
             sourceStreamHandler.resolveStream(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
         } returns PlayerStreamLoadResult.State(state = streamState, consumedDestinationResume = false)
+    }
+
+    /** Поток с одним качеством: при ошибке снижать нечего, сразу показывается экран ошибки. */
+    private fun useSingleQualityStream() {
+        coEvery {
+            sourceStreamHandler.resolveStream(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
+        } returns PlayerStreamLoadResult.State(
+            state = streamState.copy(selectedQuality = "480p", streamQualityMap = linkedMapOf("480p" to STREAM_URL)),
+            consumedDestinationResume = false,
+        )
+    }
+
+    /** Поток Kodik: у каждого качества свой HLS-плейлист, значит играет синтетический master. */
+    private fun useKodikStream(selected: String) {
+        val qualities = linkedMapOf(
+            "480p" to "https://cdn.test/v/480.mp4:hls:manifest.m3u8",
+            "720p" to "https://cdn.test/v/720.mp4:hls:manifest.m3u8",
+            "1080p" to "https://cdn.test/v/1080.mp4:hls:manifest.m3u8",
+        )
+        coEvery {
+            sourceStreamHandler.resolveStream(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
+        } returns PlayerStreamLoadResult.State(
+            state = streamState.copy(
+                streamUrl = qualities.getValue(selected),
+                selectedQuality = selected,
+                streamQualityMap = qualities,
+            ),
+            consumedDestinationResume = false,
+        )
     }
 
     private fun createViewModel(dest: PlayerDestination = dest()) = PlayerViewModel(
@@ -254,7 +284,37 @@ class PlayerViewModelTest : BaseUnitTest() {
     }
 
     @Test
+    fun `playback error steps down to the next lower quality once before showing the error`() = runTest {
+        val vm = createViewModel()
+        val effects = collectEmissions(vm.effect)
+
+        vm.setEvent(PlayerState.Event.PlaybackError(message = "boom", positionMs = 5_000L))
+
+        assertNull(vm.currentState.playerError)
+        assertEquals(1, vm.currentState.retryKey)
+        assertEquals("fallback toast", (effects.single() as PlayerState.Effect.ShowToast).message)
+        verify(exactly = 1) { analytics.eventQualityAutoFallback(any(), "720p", "480p") }
+        verify(exactly = 0) { analytics.eventDecoderQualityChanged(any(), any(), any()) }
+
+        vm.setEvent(PlayerState.Event.PlaybackError(message = "boom", positionMs = 5_000L))
+
+        assertEquals("friendly error", vm.currentState.playerError)
+    }
+
+    @Test
+    fun `playback error while offline does not step down the quality`() {
+        val vm = createViewModel()
+        offline.value = true
+
+        vm.setEvent(PlayerState.Event.PlaybackError(message = "boom"))
+
+        assertEquals("friendly error", vm.currentState.playerError)
+        assertEquals(0, vm.currentState.retryKey)
+    }
+
+    @Test
     fun `unhandled playback error stops the stream and shows the message`() {
+        useSingleQualityStream()
         val vm = createViewModel()
 
         vm.setEvent(PlayerState.Event.PlaybackError(message = "boom", positionMs = 5_000L))
@@ -381,6 +441,7 @@ class PlayerViewModelTest : BaseUnitTest() {
 
     @Test
     fun `network returning after a playback error retries the stream once`() {
+        useSingleQualityStream()
         val vm = createViewModel()
         offline.value = true
         vm.setEvent(PlayerState.Event.PlaybackError(message = "boom"))
@@ -451,6 +512,46 @@ class PlayerViewModelTest : BaseUnitTest() {
         assertEquals("1080p", vm.currentState.selectedQuality)
         assertEquals(12_000L, vm.currentState.resumeFromMs)
         verify(exactly = 1) { allohaSource.onQualitySelected("1080p") }
+    }
+
+    @Test
+    fun `raising the adaptive limit lifts the master ceiling at once`() {
+        useKodikStream(selected = "480p")
+        val vm = createViewModel()
+
+        vm.setEvent(PlayerState.Event.AdaptiveQualityLimitBestSelected)
+
+        assertEquals("1080p", vm.currentState.selectedQuality)
+    }
+
+    @Test
+    fun `raising the limit to a middle step lifts the ceiling only that far`() {
+        useKodikStream(selected = "480p")
+        val vm = createViewModel()
+
+        vm.setEvent(PlayerState.Event.AdaptiveQualityLimitSelected("720p", currentPosMs = 5_000L))
+
+        assertEquals("720p", vm.currentState.selectedQuality)
+    }
+
+    @Test
+    fun `raising the limit does nothing after a manual quality choice`() {
+        useKodikStream(selected = "720p")
+        val vm = createViewModel()
+        vm.setEvent(PlayerState.Event.QualitySelected("480p", currentPosMs = 1_000L, auto = false))
+
+        vm.setEvent(PlayerState.Event.AdaptiveQualityLimitBestSelected)
+
+        assertEquals("480p", vm.currentState.selectedQuality)
+    }
+
+    @Test
+    fun `raising the limit does not touch a source without a master`() {
+        val vm = createViewModel()
+
+        vm.setEvent(PlayerState.Event.AdaptiveQualityLimitBestSelected)
+
+        assertEquals("720p", vm.currentState.selectedQuality)
     }
 
     @Test
@@ -600,6 +701,18 @@ class PlayerViewModelTest : BaseUnitTest() {
         assertFalse(info.canSubscribe)
         assertEquals(STREAM_URL, vm.currentState.streamUrl)
         verify(exactly = 0) { analytics.eventNextEpisode(any(), any()) }
+    }
+
+    @Test
+    fun `decoder struggle warning is shown only once per player screen`() = runTest {
+        every { strings.get(R.string.player_toast_decoder_may_struggle) } returns "weak decoder"
+        val vm = createViewModel()
+        val effects = collectEmissions(vm.effect)
+
+        vm.setEvent(PlayerState.Event.DecoderMayStruggle)
+        vm.setEvent(PlayerState.Event.DecoderMayStruggle)
+
+        assertEquals("weak decoder", (effects.single() as PlayerState.Effect.ShowToast).message)
     }
 
     @Test

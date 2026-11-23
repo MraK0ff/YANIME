@@ -9,11 +9,11 @@ import su.afk.yummy.tv.core.model.settings.LibraryContinueWatchingCardSize
 import su.afk.yummy.tv.core.model.settings.PosterCardSize
 import su.afk.yummy.tv.core.model.settings.TitleCardLayout
 import su.afk.yummy.tv.feature.settings.SettingsState
+import su.afk.yummy.tv.feature.settings.common.utils.enabledHint
 import su.afk.yummy.tv.feature.settings.common.utils.hint
 import su.afk.yummy.tv.feature.settings.common.utils.icon
 import su.afk.yummy.tv.feature.settings.common.utils.label
 import su.afk.yummy.tv.feature.settings.model.SettingsTvPicker
-import su.afk.yummy.tv.feature.settings.common.utils.enabledHint
 import su.afk.yummy.tv.feature.settings.presentation.R
 import su.afk.yummy.tv.feature.settings.utils.hint
 import su.afk.yummy.tv.feature.settings.utils.restoreCategoryFocusOnLeft
@@ -77,11 +77,6 @@ internal fun SettingsTvAppearanceContent(
     SettingsDivider()
     ToggleRow(
         label = stringResource(R.string.settings_show_catalog_title_year),
-        hint = if (state.showCatalogTitleYear) {
-            stringResource(R.string.settings_show_catalog_title_year_enabled)
-        } else {
-            stringResource(R.string.settings_disabled)
-        },
         enabled = state.showCatalogTitleYear,
         onClick = { onEvent(SettingsState.Event.ShowCatalogTitleYearToggled) },
         modifier = Modifier.restoreCategoryFocusOnLeft(tabFocusRequester),
@@ -89,11 +84,6 @@ internal fun SettingsTvAppearanceContent(
     SettingsDivider()
     ToggleRow(
         label = stringResource(R.string.settings_show_episode_flags),
-        hint = if (state.showEpisodeFlags) {
-            stringResource(R.string.settings_show_episode_flags_enabled)
-        } else {
-            stringResource(R.string.settings_disabled)
-        },
         enabled = state.showEpisodeFlags,
         onClick = { onEvent(SettingsState.Event.ShowEpisodeFlagsToggled) },
         modifier = Modifier.restoreCategoryFocusOnLeft(tabFocusRequester),
@@ -101,13 +91,15 @@ internal fun SettingsTvAppearanceContent(
     SettingsDivider()
     ToggleRow(
         label = stringResource(R.string.settings_show_library_title_year),
-        hint = if (state.showLibraryTitleYear) {
-            stringResource(R.string.settings_show_library_title_year_enabled)
-        } else {
-            stringResource(R.string.settings_disabled)
-        },
         enabled = state.showLibraryTitleYear,
         onClick = { onEvent(SettingsState.Event.ShowLibraryTitleYearToggled) },
+        modifier = Modifier.restoreCategoryFocusOnLeft(tabFocusRequester),
+    )
+    SettingsDivider()
+    ToggleRow(
+        label = stringResource(R.string.settings_minimal_details),
+        enabled = state.minimalDetails,
+        onClick = { onEvent(SettingsState.Event.MinimalDetailsToggled) },
         modifier = Modifier.restoreCategoryFocusOnLeft(tabFocusRequester),
     )
     SettingsBlockGap()

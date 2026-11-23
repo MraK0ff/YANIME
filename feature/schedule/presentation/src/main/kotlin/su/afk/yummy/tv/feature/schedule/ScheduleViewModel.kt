@@ -72,57 +72,64 @@ class ScheduleViewModel @Inject internal constructor(
 
     private var loadJob: Job? = null
 
-    /** Перезагружает расписание, не пряча уже показанные дни; ошибку при них не показывает. */
     private fun refresh() {
-        if (currentState.days.isEmpty()) return load()
-        if (currentState.isRefreshing) return
-        loadJob?.cancel()
-        loadJob = viewModelScope.launch {
-            setState { copy(isRefreshing = true) }
-            runSuspendCatching { getSchedule() }.fold(
-                onSuccess = { days ->
-                    setState {
-                        copy(
-                            isRefreshing = false,
-                            days = days.toImmutableList(),
-                            tvSchedule = days.toTimelineUi(
-                                now = Instant.ofEpochMilli(appClock.nowMillis()).atZone(ZoneId.systemDefault()),
-                                selectedEpochDay = tvSchedule.selectedEpochDay,
-                            ),
-                        )
-                    }
-                },
-                onFailure = {
-                    analytics.eventLoadError(it)
-                    setState { copy(isRefreshing = false) }
-                },
-            )
+        if (currentState.days.isEmpty()) {
+            load()
+            return
         }
+        if (currentState.isRefreshing) return
+        requestSchedule(isRefresh = true)
     }
 
     private fun load() {
+        requestSchedule(isRefresh = false)
+    }
+
+    /**
+     * Единственная точка загрузки расписания для первоначального запроса, повтора и refresh.
+     *
+     * Refresh сохраняет уже показанные данные при ошибке; обычная загрузка показывает ошибку.
+     * Оба сценария сбрасывают противоположный индикатор, поэтому отменённый refresh не может
+     * оставить экран навсегда в состоянии isRefreshing после смены языка или Retry.
+     */
+    private fun requestSchedule(isRefresh: Boolean) {
         loadJob?.cancel()
         loadJob = viewModelScope.launch {
-            setState { copy(isLoading = true, error = null) }
+            setState {
+                copy(
+                    isLoading = !isRefresh,
+                    isRefreshing = isRefresh,
+                    error = if (isRefresh) error else null,
+                )
+            }
+
             runSuspendCatching { getSchedule() }.fold(
                 onSuccess = { days ->
+                    val now = Instant.ofEpochMilli(appClock.nowMillis())
+                        .atZone(ZoneId.systemDefault())
                     setState {
                         copy(
                             isLoading = false,
+                            isRefreshing = false,
                             days = days.toImmutableList(),
                             tvSchedule = days.toTimelineUi(
-                                now = Instant.ofEpochMilli(appClock.nowMillis()).atZone(ZoneId.systemDefault()),
+                                now = now,
                                 selectedEpochDay = tvSchedule.selectedEpochDay,
                             ),
                         )
                     }
                 },
-                onFailure = {
-                    analytics.eventLoadError(it)
+                onFailure = { throwable ->
+                    analytics.eventLoadError(throwable)
                     setState {
                         copy(
                             isLoading = false,
-                            error = UiText.Failure(it)
+                            isRefreshing = false,
+                            error = if (isRefresh && days.isNotEmpty()) {
+                                error
+                            } else {
+                                UiText.Failure(throwable)
+                            },
                         )
                     }
                 },

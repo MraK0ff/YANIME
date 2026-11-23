@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -22,6 +21,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.baseScreen.BaseBottomSheet
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 /** Мобильный вид выбора из списка: шторка с прокручиваемым списком строк. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,7 +35,7 @@ internal fun MobileChoiceSheet(
     BaseBottomSheet(
         onDismissRequest = { onAnswer(null) },
         title = request.title,
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
         scrollableContent = true,
     ) {
         when (val current = state) {
@@ -84,10 +85,10 @@ private fun ChoiceRow(item: ChoiceDialogItem, onClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
+            .clip(YummyShapeTokens.Control)
             .background(colors.surfaceVariant.copy(alpha = 0.72f))
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = YummySpacing.Large, vertical = YummySpacing.Medium),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(
@@ -130,9 +131,9 @@ private fun ChoiceActionRow(text: String, filled: Boolean, onClick: () -> Unit) 
         textAlign = TextAlign.Center,
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
+            .clip(YummyShapeTokens.Control)
             .background(if (filled) colors.primary else colors.surfaceVariant.copy(alpha = 0.72f))
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+            .padding(horizontal = YummySpacing.Large, vertical = YummySpacing.Medium),
     )
 }

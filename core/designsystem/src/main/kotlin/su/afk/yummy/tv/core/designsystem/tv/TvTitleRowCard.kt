@@ -35,6 +35,8 @@ import su.afk.yummy.tv.core.designsystem.components.RatingBadge
 import su.afk.yummy.tv.core.designsystem.dimensions.TITLE_POSTER_ASPECT_RATIO
 import su.afk.yummy.tv.core.designsystem.focus.tvFocusableClick
 import su.afk.yummy.tv.core.designsystem.locals.LocalLibraryListStatuses
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 private val PosterWidth = 110.dp
 private const val DESCRIPTION_MAX_LINES = 3
@@ -57,7 +59,7 @@ fun TvTitleRowCard(
     /** Если задан — постер подписывается списком пользователя, в котором лежит тайтл. */
     animeId: Int? = null,
 ) {
-    val shape = MaterialTheme.shapes.medium
+    val shape = YummyShapeTokens.Card
     var isFocused by remember { mutableStateOf(false) }
 
     Card(
@@ -102,12 +104,12 @@ fun TvTitleRowCard(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                    .padding(horizontal = YummySpacing.Large, vertical = YummySpacing.Small),
+                verticalArrangement = Arrangement.spacedBy(YummySpacing.XSmall),
             ) {
                 MarqueeTitleText(
                     text = title,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleMediumEmphasized,
                     fontWeight = FontWeight.SemiBold,
                     minLines = 1,
                     maxLines = 1,
@@ -116,7 +118,7 @@ fun TvTitleRowCard(
                 if (year != null || rating != null) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
                     ) {
                         rating?.takeIf { it > 0.0 }?.let { RatingBadge(rating = it) }
                         year?.let {

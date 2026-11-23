@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.designsystem.R as CoreR
 import su.afk.yummy.tv.core.designsystem.components.YummyLoadingIndicator
 import su.afk.yummy.tv.core.designsystem.error.asString
@@ -75,11 +76,11 @@ internal fun CommentThread(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp),
+                            .padding(vertical = YummySpacing.Small),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium - 2.dp),
                     ) {
-                        YummyLoadingIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                        YummyLoadingIndicator(modifier = Modifier.size(YummySpacing.Large), strokeWidth = 2.dp)
                         Text(
                             text = stringResource(CoreR.string.common_loading),
                             style = MaterialTheme.typography.bodySmall,
@@ -92,14 +93,14 @@ internal fun CommentThread(
                         text = error.asString(),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(vertical = 8.dp),
+                        modifier = Modifier.padding(vertical = YummySpacing.Small),
                     )
                 }
                 if (item.childrenHasMore) {
                     InlineTextAction(
                         text = stringResource(R.string.comments_load_more_replies),
                         onClick = { onLoadMoreChildren(item.comment.id) },
-                        modifier = Modifier.padding(vertical = 6.dp),
+                        modifier = Modifier.padding(vertical = YummySpacing.Small - 2.dp),
                     )
                 }
             }

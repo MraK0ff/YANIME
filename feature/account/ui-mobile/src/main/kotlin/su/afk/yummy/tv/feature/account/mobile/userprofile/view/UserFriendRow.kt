@@ -19,6 +19,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import coil3.compose.AsyncImage
 import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
 import su.afk.yummy.tv.domain.account.model.UserFriend
@@ -35,12 +36,12 @@ internal fun UserFriendRow(item: UserFriend, nowEpochSeconds: Long, onClick: () 
     val lastOnline = item.lastOnlineSeconds.lastOnlineLabel(item.sex, nowEpochSeconds)
     AccountMobileSurfacePanel(
         modifier = Modifier
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = YummySpacing.Large)
             .clickable(onClick = onClick),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
         ) {
             Box {
                 AsyncImage(
@@ -48,21 +49,21 @@ internal fun UserFriendRow(item: UserFriend, nowEpochSeconds: Long, onClick: () 
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .size(48.dp)
+                        .size(YummySpacing.TouchTarget)
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.surfaceVariant),
                 )
                 if (item.lastOnlineSeconds > 0L) {
                     AccountMobileOnlineDot(
                         isOnline = isOnline,
-                        size = 14.dp,
-                        ring = 2.dp,
+                        size = YummySpacing.Medium + 2.dp,
+                        ring = YummySpacing.XSmall / 2,
                         ringColor = MaterialTheme.colorScheme.surfaceContainer,
                         modifier = Modifier.align(Alignment.BottomEnd),
                     )
                 }
             }
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(YummySpacing.XSmall / 2)) {
                 Text(
                     text = item.nickname.ifBlank { stringResource(R.string.account_unknown_user) },
                     style = MaterialTheme.typography.titleSmall,

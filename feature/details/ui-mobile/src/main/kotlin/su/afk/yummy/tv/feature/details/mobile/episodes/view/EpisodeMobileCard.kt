@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.model.anime.EpisodeFlags
@@ -105,7 +106,7 @@ internal fun EpisodeMobileCard(
         } else {
             {
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(YummySpacing.XSmall),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     if (flags != null) EpisodeMobileFlagBadge(flags)
@@ -158,13 +159,13 @@ private fun EpisodeInfoBlock(
         modifier = Modifier
             .fillMaxWidth()
             .then(if (toggleable) Modifier.clickable(onClick = onToggle) else Modifier)
-            .padding(start = 12.dp, end = 4.dp, bottom = 10.dp),
+            .padding(start = YummySpacing.Medium, end = YummySpacing.XSmall, bottom = YummySpacing.Medium - 2.dp),
         verticalAlignment = Alignment.Top,
     ) {
         Column(
             modifier = Modifier
                 .weight(1f)
-                .padding(top = 6.dp),
+                .padding(top = YummySpacing.Small - 2.dp),
         ) {
             if (title != null) {
                 Text(
@@ -199,7 +200,7 @@ private fun EpisodeInfoBlock(
                     },
                 ),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f),
-                modifier = Modifier.padding(8.dp),
+                modifier = Modifier.padding(YummySpacing.Small),
             )
         }
     }
@@ -210,7 +211,7 @@ private fun EpisodeInfoBlock(
 private fun EpisodeActionsButton(onClick: () -> Unit) {
     IconButton(
         onClick = onClick,
-        modifier = Modifier.size(48.dp),
+        modifier = Modifier.size(YummySpacing.TouchTarget),
     ) {
         Icon(
             imageVector = Icons.Filled.MoreVert,
@@ -345,7 +346,7 @@ private fun downloadStatusText(
 private fun EpisodeMobileWatchLaterIndicator() {
     Box(
         modifier = Modifier
-            .size(24.dp)
+            .size(YummySpacing.XXLarge)
             .background(Color.Black.copy(alpha = 0.72f), CircleShape),
         contentAlignment = Alignment.Center,
     ) {
@@ -353,7 +354,7 @@ private fun EpisodeMobileWatchLaterIndicator() {
             imageVector = Icons.Filled.Bookmark,
             contentDescription = stringResource(R.string.details_episode_watch_later_badge),
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(18.dp),
+            modifier = Modifier.size(YummySpacing.Large + YummySpacing.XSmall),
         )
     }
 }
@@ -380,7 +381,7 @@ private fun EpisodeMobileWatchIndicator(
                 imageVector = Icons.Filled.VisibilityOff,
                 contentDescription = null,
                 tint = Color.White,
-                modifier = Modifier.size(22.dp),
+                modifier = Modifier.size(YummySpacing.Large + YummySpacing.Small / 2),
             )
         }
     }

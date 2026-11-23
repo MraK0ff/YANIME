@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -30,6 +29,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.core.designsystem.components.FallbackAsyncImage
 import su.afk.yummy.tv.core.designsystem.components.ListStatusBadge
 import su.afk.yummy.tv.core.designsystem.components.ListStatusBadgeHeight
@@ -67,7 +67,7 @@ internal fun HomeFeedCard(
     val cardDimensions = currentTvHomeFeedCardDimensions()
     val animeId = (item.action as? HomeFeedItemAction.OpenSeries)?.seriesId
 
-    val shape = RoundedCornerShape(8.dp)
+    val shape = YummyShapeTokens.Control
 
     Card(
         modifier = modifier
@@ -96,7 +96,7 @@ internal fun HomeFeedCard(
             ),
         shape = shape,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         ),
     ) {
         Column {
@@ -135,7 +135,7 @@ internal fun HomeFeedCard(
                             .padding(6.dp)
                             .background(
                                 MaterialTheme.colorScheme.primary,
-                                RoundedCornerShape(4.dp),
+                                YummyShapeTokens.Compact,
                             )
                             .padding(horizontal = 6.dp, vertical = 3.dp),
                     )
@@ -172,7 +172,7 @@ internal fun HomeFeedCard(
                                 .padding(4.dp)
                                 .background(
                                     MaterialTheme.colorScheme.surface.copy(alpha = 0.88f),
-                                    RoundedCornerShape(4.dp),
+                                    YummyShapeTokens.Compact,
                                 )
                                 .padding(horizontal = 6.dp, vertical = 3.dp),
                         )

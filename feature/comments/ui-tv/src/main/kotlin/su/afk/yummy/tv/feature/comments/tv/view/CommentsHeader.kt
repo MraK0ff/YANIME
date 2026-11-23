@@ -18,6 +18,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.designsystem.focus.tvFocusableClick
 import su.afk.yummy.tv.core.designsystem.tv.TvChip
 import su.afk.yummy.tv.domain.comments.model.CommentSort
@@ -34,7 +35,7 @@ internal fun CommentsHeader(
 ) {
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         listOf(CommentSort.NEW, CommentSort.BEST, CommentSort.OLD).forEachIndexed { index, sort ->
@@ -57,14 +58,14 @@ internal fun CommentsHeader(
                     shape = CircleShape,
                     focusedScale = 1.06f,
                 )
-                .padding(10.dp),
+                .padding(YummySpacing.Medium - 2.dp),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = Icons.Filled.Refresh,
                 contentDescription = stringResource(R.string.comments_refresh),
                 tint = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(YummySpacing.Large + YummySpacing.XSmall),
             )
         }
     }

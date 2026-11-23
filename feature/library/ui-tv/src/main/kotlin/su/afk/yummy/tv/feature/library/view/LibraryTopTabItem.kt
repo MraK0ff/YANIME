@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -40,6 +39,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.focus.tvFocusableClick
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 @Composable
 internal fun LibraryTopTabItem(
@@ -56,7 +57,7 @@ internal fun LibraryTopTabItem(
     rightFocusRequester: FocusRequester?,
     onFocused: () -> Unit,
 ) {
-    val shape = RoundedCornerShape(8.dp)
+    val shape = YummyShapeTokens.Control
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
     val contentColor = when {
@@ -126,18 +127,18 @@ internal fun LibraryTopTabItem(
                 focusedScale = 1f,
                 focusedBorderColor = Color.Transparent,
             )
-            .padding(horizontal = 14.dp, vertical = 4.dp),
+            .padding(horizontal = YummySpacing.Medium, vertical = YummySpacing.XSmall),
     ) {
         // Как на мобилке: сверху иконка со счётчиком, под ними подпись.
         Row(
-            horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
+            horizontalArrangement = Arrangement.spacedBy(YummySpacing.XSmall, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
                 tint = color,
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(YummySpacing.XLarge),
             )
             if (count != null) {
                 LibraryTopTabCountBadge(
@@ -151,8 +152,7 @@ internal fun LibraryTopTabItem(
         Spacer(modifier = Modifier.height(1.dp))
         Text(
             text = label,
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.SemiBold,
+            style = MaterialTheme.typography.labelLargeEmphasized,
             color = contentColor,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -160,9 +160,9 @@ internal fun LibraryTopTabItem(
         Spacer(modifier = Modifier.height(2.dp))
         Box(
             modifier = Modifier
-                .width(24.dp)
+                .width(YummySpacing.XXLarge)
                 .height(2.dp)
-                .background(color = indicatorColor, shape = RoundedCornerShape(1.dp)),
+                .background(color = indicatorColor, shape = YummyShapeTokens.Pill),
         )
     }
 }
@@ -175,7 +175,7 @@ private fun LibraryTopTabCountBadge(
     focused: Boolean,
 ) {
     Surface(
-        shape = RoundedCornerShape(percent = 50),
+        shape = YummyShapeTokens.Pill,
         color = when {
             focused -> color.copy(alpha = 0.22f)
             selected -> color.copy(alpha = 0.18f)
@@ -193,9 +193,9 @@ private fun LibraryTopTabCountBadge(
             textAlign = TextAlign.Center,
             maxLines = 1,
             modifier = Modifier
-                .heightIn(min = 20.dp)
-                .widthIn(min = 24.dp)
-                .padding(horizontal = 7.dp, vertical = 1.dp),
+                .heightIn(min = YummySpacing.XLarge)
+                .widthIn(min = YummySpacing.XXLarge)
+                .padding(horizontal = YummySpacing.Small - 1.dp, vertical = YummySpacing.None + 1.dp),
         )
     }
 }

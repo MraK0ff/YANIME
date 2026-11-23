@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
@@ -29,6 +28,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.R as CoreR
 import su.afk.yummy.tv.core.designsystem.focus.tvFocusableClick
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.feature.library.presentation.R
 
 @Composable
@@ -67,7 +68,7 @@ private fun LibraryActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val shape = RoundedCornerShape(8.dp)
+    val shape = YummyShapeTokens.Control
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
     val containerColor = if (focused) {
@@ -83,7 +84,7 @@ private fun LibraryActionButton(
 
     Box(
         modifier = modifier
-            .defaultMinSize(minHeight = 36.dp)
+            .defaultMinSize(minHeight = YummySpacing.XXLarge + YummySpacing.Small)
             .background(containerColor, shape)
             .tvFocusableClick(
                 onClick = onClick,
@@ -92,18 +93,18 @@ private fun LibraryActionButton(
                 focusedScale = 1.04f,
                 focusedBorderColor = focusedBorderColor,
             )
-            .padding(horizontal = 9.dp, vertical = 5.dp),
+            .padding(horizontal = YummySpacing.Small + 1.dp, vertical = YummySpacing.XSmall + 1.dp),
         contentAlignment = Alignment.Center,
     ) {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(5.dp),
+            horizontalArrangement = Arrangement.spacedBy(YummySpacing.XSmall + 1.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
                 tint = contentColor,
-                modifier = Modifier.size(14.dp),
+                modifier = Modifier.size(YummySpacing.Medium + 2.dp),
             )
             Text(
                 text = label,

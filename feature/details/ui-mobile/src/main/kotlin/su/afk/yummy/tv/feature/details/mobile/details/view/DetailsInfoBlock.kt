@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Business
@@ -31,6 +30,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.model.anime.AnimeDetails
 import su.afk.yummy.tv.feature.details.presentation.R
 
@@ -49,7 +50,7 @@ internal fun DetailsInfoBlock(
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(YummySpacing.Medium - 2.dp),
     ) {
         RelationRow(
             icon = Icons.Outlined.Business,
@@ -97,9 +98,9 @@ internal fun DetailsInfoBlock(
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .align(Alignment.End)
-                        .clip(RoundedCornerShape(8.dp))
+                        .clip(YummyShapeTokens.Compact)
                         .clickable { expanded = !expanded }
-                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                        .padding(horizontal = YummySpacing.Small, vertical = YummySpacing.XSmall),
                 )
             }
         }
@@ -123,7 +124,7 @@ private fun RelationRow(
         .filter { it.items.isNotEmpty() }
     if (visible.isEmpty()) return
     Row(
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
         verticalAlignment = Alignment.Top,
     ) {
         Icon(
@@ -132,9 +133,9 @@ private fun RelationRow(
             tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             modifier = Modifier
                 .padding(top = 2.dp)
-                .size(22.dp),
+                .size(YummySpacing.Large + YummySpacing.Small / 2),
         )
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(YummySpacing.Small)) {
             visible.forEachIndexed { groupIndex, group ->
                 Text(
                     text = "${group.label}:",

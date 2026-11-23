@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
@@ -30,6 +29,8 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.designsystem.dimensions.TvScreenPadding
 import su.afk.yummy.tv.domain.catalog.model.SearchFilters
 import su.afk.yummy.tv.feature.catalog.presentation.R
@@ -61,8 +62,8 @@ internal fun CatalogTvHeaderRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = TvScreenPadding.Horizontal, vertical = 12.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+            .padding(horizontal = TvScreenPadding.Horizontal, vertical = YummySpacing.Medium),
+        horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         OutlinedTextField(
@@ -71,7 +72,7 @@ internal fun CatalogTvHeaderRow(
             placeholder = { Text(stringResource(R.string.search_placeholder)) },
             readOnly = !searchEditing,
             singleLine = true,
-            shape = RoundedCornerShape(12.dp),
+            shape = YummyShapeTokens.Control,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(onSearch = {
                 keyboardController?.hide()

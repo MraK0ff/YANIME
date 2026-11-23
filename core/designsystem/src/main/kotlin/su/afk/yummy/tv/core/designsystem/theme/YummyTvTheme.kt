@@ -9,6 +9,7 @@ import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.darkColorScheme
@@ -217,23 +218,15 @@ fun YummyTvTheme(
         LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { applyBars() }
     }
 
-    if (useTvTypography) {
-        MaterialTheme(
-            colorScheme = colorScheme,
-            typography = YummyTvTypography,
-            shapes = YummyShapes,
-            content = content,
-        )
-    } else {
-        // Мобильная тема: более округлые формы шкалы M3 Expressive.
-        MaterialTheme(
-            colorScheme = colorScheme,
-            typography = YummyMobileTypography,
-            shapes = YummyShapes,
-            motionScheme = MotionScheme.expressive(),
-            content = content,
-        )
-    }
+    // Одна expressive motion-система для обоих форм-факторов. TV-компоненты отдельно
+    // ограничивают амплитуду движения в focus-анимациях, сохраняя выразительную обратную связь.
+    MaterialExpressiveTheme(
+        colorScheme = colorScheme,
+        typography = if (useTvTypography) YummyTvTypography else YummyMobileTypography,
+        shapes = YummyShapes,
+        motionScheme = MotionScheme.expressive(),
+        content = content,
+    )
 }
 
 private tailrec fun Context.findActivity(): Activity? = when (this) {
@@ -302,9 +295,11 @@ private fun YummyTvPalette.toDarkColorScheme() = darkColorScheme(
     onSecondary = onPrimary,
     secondaryContainer = surfaceVariant,
     onSecondaryContainer = onBackground,
-    tertiary = primaryContainer,
-    onTertiary = onPrimaryContainer,
-    tertiaryContainer = primaryContainer,
+    // Secondary accent is the distinct expressive tertiary role; the container remains
+    // tonal and neutral enough to preserve hierarchy on poster-heavy screens.
+    tertiary = lerp(secondary, primary, 0.38f),
+    onTertiary = onPrimary,
+    tertiaryContainer = lerp(surfaceVariant, primaryContainer, 0.42f),
     onTertiaryContainer = onPrimaryContainer,
     error = error,
     onError = onError,
@@ -365,9 +360,9 @@ private fun YummyTvPalette.toLightColorScheme(neutrals: LightNeutrals) = lightCo
     // Акцентная «таблетка» выделения (напр. активная вкладка нижнего меню) несёт оттенок палитры.
     secondaryContainer = primaryContainerLight,
     onSecondaryContainer = onPrimaryContainerLight,
-    tertiary = primaryContainerLight,
-    onTertiary = onPrimaryContainerLight,
-    tertiaryContainer = primaryContainerLight,
+    tertiary = lerp(secondaryLight, primaryLight, 0.38f),
+    onTertiary = onPrimaryLight,
+    tertiaryContainer = lerp(neutrals.surfaceVariant, primaryContainerLight, 0.36f),
     onTertiaryContainer = onPrimaryContainerLight,
     error = Color(0xFFBA1A1A),
     onError = Color(0xFFFFFFFF),

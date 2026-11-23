@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import su.afk.yummy.tv.core.designsystem.components.YummyLoadingIndicator
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
 /**
  * Мобильный диалог с кнопками друг под другом на всю ширину: основное действие
@@ -56,8 +57,8 @@ fun MobileAlertDialog(
             color = MaterialTheme.colorScheme.surfaceContainerHigh,
         ) {
             Column(
-                modifier = Modifier.padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.padding(YummySpacing.XXLarge),
+                verticalArrangement = Arrangement.spacedBy(YummySpacing.Large),
             ) {
                 if (icon != null) {
                     Column(
@@ -67,7 +68,7 @@ fun MobileAlertDialog(
                 }
                 if (title != null) {
                     CompositionLocalProvider(
-                        LocalTextStyle provides MaterialTheme.typography.headlineSmall,
+                        LocalTextStyle provides MaterialTheme.typography.headlineSmallEmphasized,
                     ) { title() }
                 }
                 if (content != null) {
@@ -83,7 +84,7 @@ fun MobileAlertDialog(
                 }
                 Column(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(YummySpacing.Small),
                 ) {
                     Button(
                         onClick = onConfirm,

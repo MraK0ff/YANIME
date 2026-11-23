@@ -1,21 +1,24 @@
 package su.afk.yummy.tv.feature.player.view.player
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.snap
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import su.afk.yummy.tv.core.designsystem.skeleton.rememberAnimationsEnabled
+import su.afk.yummy.tv.core.designsystem.theme.YummyMotion
 
-internal const val TV_PLAYER_FOCUS_ANIMATION_DURATION_MS = 150
+internal const val TV_PLAYER_FOCUS_ANIMATION_DURATION_MS = YummyMotion.FastEffectsMillis
 
 private const val TV_PLAYER_FOCUSED_SCALE = 1.05f
 
 @Composable
 internal fun Modifier.tvPlayerFocusScale(focused: Boolean): Modifier {
+    val animationsEnabled = rememberAnimationsEnabled()
     val scale by animateFloatAsState(
         targetValue = if (focused) TV_PLAYER_FOCUSED_SCALE else 1f,
-        animationSpec = tween(TV_PLAYER_FOCUS_ANIMATION_DURATION_MS),
+        animationSpec = if (animationsEnabled) YummyMotion.TvFocusScale else snap(),
         label = "tvPlayerFocusScale",
     )
     return graphicsLayer {

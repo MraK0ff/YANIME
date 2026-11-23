@@ -44,6 +44,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import su.afk.yummy.tv.core.designsystem.components.FallbackAsyncImage
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.core.model.anime.posterUrls
 import su.afk.yummy.tv.feature.schedule.model.ScheduleReleaseUi
 import su.afk.yummy.tv.feature.schedule.presentation.R
@@ -73,13 +74,13 @@ internal fun ScheduleReleaseRow(
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
     val active = focused || selected
-    val shape = RoundedCornerShape(8.dp)
+    val shape = YummyShapeTokens.ProminentCard
     val rowScale = if (focused) 1.025f else 1f
     val rowBackground = when {
-        focused -> MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)
-        selected -> MaterialTheme.colorScheme.primary.copy(alpha = 0.09f)
-        aired -> AiredColor.copy(alpha = 0.10f)
-        else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.045f)
+        focused -> MaterialTheme.colorScheme.primaryContainer
+        selected -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.72f)
+        aired -> AiredColor.copy(alpha = 0.12f)
+        else -> MaterialTheme.colorScheme.surfaceContainerLow
     }
 
     Box(
@@ -127,7 +128,7 @@ internal fun ScheduleReleaseRow(
                 modifier = Modifier
                     .width(74.dp)
                     .fillMaxHeight()
-                    .clip(RoundedCornerShape(6.dp))
+                    .clip(YummyShapeTokens.Control)
                     .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)),
             ) {
                 FallbackAsyncImage(
@@ -143,7 +144,7 @@ internal fun ScheduleReleaseRow(
             ) {
                 Text(
                     text = item.title,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleLargeEmphasized,
                     color = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -169,7 +170,7 @@ internal fun ScheduleReleaseRow(
             Text(
                 text = releaseAt.timeLabel(),
                 modifier = Modifier.widthIn(min = 82.dp),
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.headlineMediumEmphasized,
                 color = accentColor,
                 maxLines = 1,
             )

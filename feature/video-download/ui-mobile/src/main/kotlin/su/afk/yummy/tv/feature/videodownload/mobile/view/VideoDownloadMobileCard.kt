@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.components.FallbackAsyncImage
 import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.core.model.anime.EpisodeFlags
 import su.afk.yummy.tv.core.utils.episode.episodeThumbnailModels
 import su.afk.yummy.tv.core.utils.episode.episodeThumbnailOf
@@ -87,11 +88,11 @@ internal fun VideoDownloadMobileCard(
     }
 
     Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(enabled = item.status == VideoDownloadStatus.Downloaded, onClick = onClick),
-        shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        onClick = onClick,
+        enabled = item.status == VideoDownloadStatus.Downloaded,
+        modifier = modifier.fillMaxWidth(),
+        shape = YummyShapeTokens.ProminentCard,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -101,7 +102,7 @@ internal fun VideoDownloadMobileCard(
                 modifier = Modifier
                     .weight(0.42f)
                     .aspectRatio(1.45f)
-                    .background(MaterialTheme.colorScheme.surface),
+                    .background(MaterialTheme.colorScheme.surfaceContainerHighest),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
@@ -122,7 +123,7 @@ internal fun VideoDownloadMobileCard(
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .padding(8.dp)
-                        .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(4.dp))
+                        .background(MaterialTheme.colorScheme.primary, CircleShape)
                         .padding(horizontal = 7.dp, vertical = 3.dp),
                 )
                 if (flags != null) {
@@ -180,8 +181,8 @@ internal fun VideoDownloadMobileCard(
                             R.string.video_download_item_dubbing,
                             item.dubbingLabel()
                         ),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )

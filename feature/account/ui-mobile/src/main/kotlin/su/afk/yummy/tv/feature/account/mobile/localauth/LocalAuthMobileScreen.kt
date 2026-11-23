@@ -17,18 +17,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -43,6 +40,7 @@ import kotlinx.coroutines.flow.Flow
 import su.afk.yummy.tv.core.designsystem.baseScreen.BaseScreen
 import su.afk.yummy.tv.core.designsystem.components.InlineError
 import su.afk.yummy.tv.core.designsystem.components.YummyLoadingIndicator
+import su.afk.yummy.tv.core.designsystem.mobile.bar.MobileTopBar
 import su.afk.yummy.tv.core.designsystem.mobile.layout.mobileContentMaxWidth
 import su.afk.yummy.tv.core.designsystem.permissions.missingLocalNetworkPermissionNames
 import su.afk.yummy.tv.core.designsystem.permissions.rememberLocalNetworkPermissionGate
@@ -54,7 +52,6 @@ import su.afk.yummy.tv.feature.account.mobile.localauth.utils.rememberLocalAuthQ
 import su.afk.yummy.tv.feature.account.presentation.R
 import su.afk.yummy.tv.core.designsystem.R as CoreR
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LocalAuthMobileScreen(
     state: LocalAuthState.State,
@@ -115,17 +112,10 @@ fun LocalAuthMobileScreen(
     BaseScreen(
         isScroll = false,
         contentModifier = Modifier.navigationBarsPadding(),
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.account_local_auth_login_on_tv)) },
-                navigationIcon = {
-                    IconButton(onClick = { onEvent(LocalAuthState.Event.BackSelected) }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(CoreR.string.common_back),
-                        )
-                    }
-                },
+        customTopBar = { _ ->
+            MobileTopBar(
+                title = stringResource(R.string.account_local_auth_login_on_tv),
+                onBack = { onEvent(LocalAuthState.Event.BackSelected) },
                 actions = {
                     if (!state.isTransferred) {
                         IconButton(onClick = restartSearch, enabled = !state.isTransferring) {

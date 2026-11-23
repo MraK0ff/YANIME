@@ -53,7 +53,7 @@ internal fun AccountMobileLoginCard(
     modifier: Modifier = Modifier,
 ) {
     AccountMobileSurfacePanel(modifier = modifier) {
-        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Box(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center,
@@ -65,7 +65,7 @@ internal fun AccountMobileLoginCard(
                     AppBrandIcon(modifier = Modifier.size(76.dp))
                     Text(
                         text = stringResource(R.string.account_mobile_title),
-                        style = MaterialTheme.typography.headlineSmall,
+                        style = MaterialTheme.typography.headlineSmallEmphasized,
                         color = MaterialTheme.colorScheme.onBackground,
                         textAlign = TextAlign.Center,
                     )

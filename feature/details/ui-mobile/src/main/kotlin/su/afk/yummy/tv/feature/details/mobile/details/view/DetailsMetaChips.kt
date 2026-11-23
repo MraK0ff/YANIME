@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.common.anime.isReleasedAnimeStatus
 import su.afk.yummy.tv.core.model.anime.AnimeDetails
 import su.afk.yummy.tv.feature.details.mobile.details.utils.formatViews
@@ -29,8 +29,8 @@ internal fun DetailsMetaChips(details: AnimeDetails) {
 
     FlowRow(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
+        horizontalArrangement = Arrangement.spacedBy(YummySpacing.Small, Alignment.CenterHorizontally),
+        verticalArrangement = Arrangement.spacedBy(YummySpacing.Small),
     ) {
         chips.forEach { chip ->
             DetailsChip(label = chip)

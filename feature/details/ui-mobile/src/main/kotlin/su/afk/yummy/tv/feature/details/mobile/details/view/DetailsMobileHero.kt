@@ -13,14 +13,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,6 +37,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.designsystem.R
 import su.afk.yummy.tv.core.designsystem.components.FallbackAsyncImage
 import su.afk.yummy.tv.core.designsystem.components.UserRatingChip
@@ -101,7 +102,7 @@ internal fun DetailsMobileHero(
                 .align(Alignment.TopEnd)
                 .statusBarsPadding()
                 .padding(top = topExtra)
-                .padding(end = 4.dp),
+                .padding(end = YummySpacing.XSmall),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             val canShare = details.animeUrl.isNotBlank()
@@ -109,39 +110,37 @@ internal fun DetailsMobileHero(
                 UserRatingChip(
                     rating = userRating,
                     textStyle = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(end = 4.dp),
+                    modifier = Modifier.padding(end = YummySpacing.XSmall),
                 )
             }
-            IconButton(
+            FilledTonalIconButton(
                 onClick = onNewSearch,
-                modifier = Modifier.size(52.dp),
+                modifier = Modifier.size(YummySpacing.TouchTarget + YummySpacing.XSmall),
             ) {
                 Icon(
                     imageVector = Icons.Filled.Search,
                     contentDescription = stringResource(DetailsR.string.details_new_search),
-                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.92f),
-                )
+                    )
             }
             if (canShare) {
-                IconButton(
+                FilledTonalIconButton(
                     onClick = onShare,
                     modifier = Modifier.size(52.dp),
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Share,
                         contentDescription = stringResource(DetailsR.string.details_share),
-                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.92f),
                     )
                 }
             }
         }
-        IconButton(
+        FilledTonalIconButton(
             onClick = onBack,
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .statusBarsPadding()
                 .padding(top = topExtra)
-                .padding(start = 12.dp)
+                .padding(start = YummySpacing.Medium)
                 .size(52.dp),
         ) {
             Icon(
@@ -156,8 +155,8 @@ internal fun DetailsMobileHero(
                 .fillMaxWidth()
                 .statusBarsPadding()
                 .padding(top = topExtra)
-                .padding(horizontal = 16.dp)
-                .padding(top = 58.dp),
+                .padding(horizontal = YummySpacing.Large)
+                .padding(top = YummySpacing.Section + YummySpacing.Large + 2.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
@@ -168,7 +167,7 @@ internal fun DetailsMobileHero(
                 modifier = Modifier
                     .width(posterWidth)
                     .aspectRatio(2f / 3f)
-                    .clip(RoundedCornerShape(16.dp))
+                    .clip(YummyShapeTokens.ProminentCard)
                     .background(MaterialTheme.colorScheme.surfaceVariant)
                     .clickable(onClick = onPosterClick),
             )
@@ -179,7 +178,7 @@ internal fun DetailsMobileHero(
             Text(
                 text = details.title,
                 modifier = Modifier.fillMaxWidth(),
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineMediumEmphasized,
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
                 maxLines = 3,
@@ -189,7 +188,7 @@ internal fun DetailsMobileHero(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                horizontalArrangement = Arrangement.spacedBy(YummySpacing.Small, Alignment.CenterHorizontally),
             ) {
                 originalTitle?.let {
                     Text(
@@ -237,7 +236,7 @@ internal fun DetailsMobileHero(
                 onWatchSelected = onWatchSelected,
                 onLibraryToggle = onLibraryToggle,
                 onFavoriteToggle = onFavoriteToggle,
-                modifier = Modifier.padding(top = 6.dp, bottom = 12.dp),
+                modifier = Modifier.padding(top = YummySpacing.Small - 2.dp, bottom = YummySpacing.Medium),
             )
         }
     }

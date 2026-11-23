@@ -71,6 +71,67 @@ class ScheduleTimelineMapperTest {
         assertEquals(listOf(first, second), timeline.dayGroups.flatMap { it.items }.map { it.epochSeconds })
     }
 
+    @Test
+    fun `episodes with the same publication timestamp have unique lazy list keys`() {
+        val publishedAt = nowSeconds - 3_600L
+        val timeline = listOf(
+            day(
+                item(
+                    releases = listOf(
+                        release(episode = 3, publishedAt = publishedAt),
+                        release(episode = 4, publishedAt = publishedAt),
+                    ),
+                ),
+            ),
+        ).toTimelineUi(zone, now)
+
+        val releases = timeline.dayGroups.single().items
+        assertEquals(2, releases.size)
+        assertEquals(2, releases.map { it.focusKey }.distinct().size)
+    }
+
+
+    @Test
+    fun `duplicate upstream rows cannot produce duplicate lazy keys across the timeline`() {
+        val publishedAt = nowSeconds - 3_600L
+        val duplicate = item(
+            releases = listOf(
+                release(episode = 3, publishedAt = publishedAt),
+                release(episode = 4, publishedAt = publishedAt),
+            ),
+        )
+        val timeline = listOf(
+            day(duplicate),
+            day(duplicate),
+        ).toTimelineUi(zone, now)
+
+        val releases = timeline.dayGroups.flatMap { it.items }
+        assertEquals(2, releases.size)
+        assertEquals(releases.size, releases.map { it.focusKey }.distinct().size)
+        assertEquals(setOf("1:3:true", "1:4:true"), releases.map { it.focusKey }.toSet())
+    }
+
+    @Test
+    fun `duplicate episode records keep the earliest publication timestamp`() {
+        val firstPublishedAt = nowSeconds - 7_200L
+        val laterDuplicateAt = nowSeconds - 3_600L
+        val timeline = listOf(
+            day(
+                item(
+                    releases = listOf(
+                        release(episode = 3, publishedAt = laterDuplicateAt),
+                        release(episode = 3, publishedAt = firstPublishedAt),
+                    ),
+                ),
+            ),
+        ).toTimelineUi(zone, now)
+
+        val release = timeline.dayGroups.single().items.single()
+        assertEquals(3, release.episode)
+        assertEquals(firstPublishedAt, release.epochSeconds)
+        assertEquals("1:3:true", release.focusKey)
+    }
+
     private fun day(item: AnimeScheduleItem) = AnimeScheduleDay("day", listOf(item))
 
     private fun item(

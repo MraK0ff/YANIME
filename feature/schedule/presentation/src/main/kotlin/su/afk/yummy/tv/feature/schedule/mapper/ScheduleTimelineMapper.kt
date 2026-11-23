@@ -83,8 +83,10 @@ private fun List<AnimeScheduleDay>.toUiDayGroups(
         .filter { release ->
             Instant.ofEpochSecond(release.epochSeconds).atZone(zone).toLocalDate() >= today.minusDays(1)
         }
-        .distinctBy { "${it.item.animeId}:${it.episode}:${it.aired}" }
+        // Resolve duplicate upstream rows deterministically: keep the earliest publication
+        // timestamp, then deduplicate by the exact key consumed by both mobile and TV LazyColumns.
         .sortedBy { it.epochSeconds }
+        .distinctBy { it.focusKey }
         .groupBy { release ->
             Instant.ofEpochSecond(release.epochSeconds).atZone(zone).toLocalDate()
         }

@@ -11,7 +11,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import su.afk.yummy.tv.core.designsystem.baseScreen.BaseScreen
@@ -77,7 +77,7 @@ fun SettingsMobileCategoryScreen(
             modifier = Modifier
                 .mobileContentMaxWidth()
                 .imePadding(),
-            contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 32.dp),
+            contentPadding = PaddingValues(start = YummySpacing.Large, top = YummySpacing.Large, end = YummySpacing.Large, bottom = YummySpacing.XXXLarge),
         ) {
             item(key = category.name) {
                 when (category) {

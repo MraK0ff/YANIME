@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import su.afk.yummy.tv.core.designsystem.mobile.MobileSectionHeader
 import su.afk.yummy.tv.core.designsystem.mobile.cards.MobileProgressMediaCard
 import su.afk.yummy.tv.core.model.anime.posterUrls
@@ -30,14 +31,14 @@ internal fun ContinueWatchingSection(
     onEntrySelected: (HomeContinueWatchingItem) -> Unit,
     onEntryLongClick: (HomeContinueWatchingItem) -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(YummySpacing.Medium - 2.dp)) {
         MobileSectionHeader(
             title = stringResource(R.string.continue_watching),
-            modifier = Modifier.padding(horizontal = 16.dp),
+            modifier = Modifier.padding(horizontal = YummySpacing.Large),
         )
         LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(horizontal = YummySpacing.Large),
+            horizontalArrangement = Arrangement.spacedBy(YummySpacing.Medium),
         ) {
             itemsIndexed(
                 items = entries,

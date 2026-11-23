@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Reply
 import androidx.compose.material.icons.filled.ExpandLess
@@ -29,6 +28,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import coil3.compose.AsyncImage
 import su.afk.yummy.tv.core.utils.formatting.formatCommentDateTime
 import su.afk.yummy.tv.domain.comments.model.Comment
@@ -58,7 +59,7 @@ internal fun CommentItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 10.dp),
+                .padding(vertical = YummySpacing.Medium - 2.dp),
             verticalAlignment = Alignment.Top,
         ) {
             AsyncImage(
@@ -66,17 +67,17 @@ internal fun CommentItem(
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .size(40.dp)
+                    .size(YummySpacing.TouchTarget - YummySpacing.Small)
                     .clip(CircleShape)
                     .clickable(enabled = comment.author.id > 0) {
                         onAuthorSelected(comment.author.id)
                     }
                     .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)),
             )
-            Spacer(Modifier.width(10.dp))
+            Spacer(Modifier.width(YummySpacing.Medium - 2.dp))
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(7.dp),
+                verticalArrangement = Arrangement.spacedBy(YummySpacing.Small - 1.dp),
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -84,26 +85,25 @@ internal fun CommentItem(
                 ) {
                     Text(
                         text = comment.author.name.ifBlank { stringResource(R.string.comments_unknown_author) },
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
+                        style = MaterialTheme.typography.titleMediumEmphasized,
                         color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
                             .weight(1f, fill = false)
-                            .clip(RoundedCornerShape(8.dp))
+                            .clip(YummyShapeTokens.Compact)
                             .clickable(enabled = comment.author.id > 0) {
                                 onAuthorSelected(comment.author.id)
                             }
-                            .padding(horizontal = 2.dp, vertical = 1.dp),
+                            .padding(horizontal = YummySpacing.XSmall / 2, vertical = YummySpacing.XSmall / 4),
                     )
-                    Spacer(Modifier.width(6.dp))
+                    Spacer(Modifier.width(YummySpacing.Small - 2.dp))
                     Text(
                         text = comment.createdAtEpochSeconds.formatCommentDateTime(),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.68f),
                     )
-                    Spacer(Modifier.width(2.dp))
+                    Spacer(Modifier.width(YummySpacing.XSmall / 2))
                     CommentMenu(
                         canEdit = canEdit,
                         onEdit = { onEdit(comment.id) },

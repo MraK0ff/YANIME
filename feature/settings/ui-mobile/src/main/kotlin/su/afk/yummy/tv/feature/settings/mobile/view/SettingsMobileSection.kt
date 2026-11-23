@@ -1,17 +1,8 @@
 package su.afk.yummy.tv.feature.settings.mobile.view
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.feature.settings.common.utils.color
+import su.afk.yummy.tv.core.designsystem.mobile.settings.MobileSettingSection
 
 @Composable
 internal fun SettingsMobileSection(
@@ -20,42 +11,10 @@ internal fun SettingsMobileSection(
     subtitle: String? = null,
     content: @Composable () -> Unit,
 ) {
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        if (title != null || subtitle != null) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(1.dp),
-                modifier = Modifier.padding(horizontal = 4.dp),
-            ) {
-                if (title != null) {
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                }
-                if (subtitle != null) {
-                    Text(
-                        text = subtitle,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-        }
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.extraLarge,
-            color = MaterialTheme.colorScheme.surfaceContainer,
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(2.dp),
-                content = { content() },
-            )
-        }
-    }
+    MobileSettingSection(
+        modifier = modifier,
+        title = title,
+        subtitle = subtitle,
+        content = content,
+    )
 }

@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.core.designsystem.dialog
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -16,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,7 +46,10 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import kotlin.time.Duration.Companion.seconds
 import su.afk.yummy.tv.core.designsystem.focus.requestFocusUntilTimeout
+import su.afk.yummy.tv.core.designsystem.theme.YummyMotion
 import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
+import su.afk.yummy.tv.core.designsystem.skeleton.rememberAnimationsEnabled
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.core.designsystem.tv.TvOverlayAppear
 
 /** ТВ-вид запроса подтверждения: оверлей как у выбора озвучки, фокус сразу на подтверждающей строке. */
@@ -90,9 +93,9 @@ internal fun TvConfirmDialog(
                     modifier = Modifier
                         .wrapContentSize()
                         .width(440.dp)
-                        .clip(RoundedCornerShape(16.dp))
+                        .clip(YummyShapeTokens.Dialog)
                         .background(YummySemanticColors.OverlayScrim)
-                        .border(1.dp, Color.White.copy(alpha = 0.10f), RoundedCornerShape(16.dp))
+                        .border(1.dp, Color.White.copy(alpha = 0.10f), YummyShapeTokens.Control)
                         .focusGroup()
                         .onPreviewKeyEvent { event ->
                             if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
@@ -108,7 +111,7 @@ internal fun TvConfirmDialog(
                 ) {
                     Text(
                         text = request.title,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleMediumEmphasized,
                         fontWeight = FontWeight.SemiBold,
                         color = Color.White,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
@@ -147,11 +150,12 @@ private fun TvConfirmOption(
     testTag: String,
     onClick: () -> Unit,
 ) {
+    val animationsEnabled = rememberAnimationsEnabled()
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
     val bgColor by animateColorAsState(
         targetValue = if (focused) Color.White else Color.White.copy(alpha = 0.10f),
-        animationSpec = tween(durationMillis = 150),
+        animationSpec = if (animationsEnabled) tween(durationMillis = YummyMotion.FastEffectsMillis) else snap(),
         label = "confirmOptionBg",
     )
     val textColor = when {
@@ -161,7 +165,7 @@ private fun TvConfirmOption(
     }
     Text(
         text = text,
-        style = MaterialTheme.typography.titleSmall,
+        style = MaterialTheme.typography.titleSmallEmphasized,
         fontWeight = FontWeight.SemiBold,
         color = textColor,
         textAlign = TextAlign.Center,
@@ -169,7 +173,7 @@ private fun TvConfirmOption(
             .fillMaxWidth()
             .testTag(testTag)
             .focusRequester(focusRequester)
-            .clip(RoundedCornerShape(12.dp))
+            .clip(YummyShapeTokens.Control)
             .background(bgColor)
             .clickable(
                 interactionSource = interactionSource,

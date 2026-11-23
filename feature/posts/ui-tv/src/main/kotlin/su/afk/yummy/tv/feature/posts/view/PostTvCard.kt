@@ -30,10 +30,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.components.CachedAsyncImage
 import su.afk.yummy.tv.core.designsystem.focus.tvFocusableClick
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.core.utils.formatting.formatFeedDateTime
 import su.afk.yummy.tv.domain.posts.model.PostSummary
 
-private val CardShape = RoundedCornerShape(16.dp)
+private val CardShape = YummyShapeTokens.ProminentCard
 private val CardHeight = 196.dp
 private val PreviewWidth = 320.dp
 
@@ -73,7 +74,7 @@ fun PostTvCard(post: PostSummary, onClick: () -> Unit, modifier: Modifier = Modi
                 )
                 Text(
                     post.title,
-                    style = MaterialTheme.typography.headlineSmall,
+                    style = MaterialTheme.typography.headlineMediumEmphasized,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,

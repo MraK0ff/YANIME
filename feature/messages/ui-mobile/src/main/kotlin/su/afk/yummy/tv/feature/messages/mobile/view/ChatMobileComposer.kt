@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -19,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
 import su.afk.yummy.tv.core.designsystem.R as CoreR
 import su.afk.yummy.tv.feature.messages.presentation.R
 
@@ -35,10 +37,11 @@ internal fun ChatMobileComposer(
     Column(modifier = Modifier.fillMaxWidth()) {
         if (replyingToNickname != null) {
             Surface(
-                color = MaterialTheme.colorScheme.surfaceVariant,
+                color = MaterialTheme.colorScheme.surfaceContainerHigh,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                    .padding(horizontal = 12.dp, vertical = 6.dp),
+                shape = YummyShapeTokens.Control,
             ) {
                 Row(
                     modifier = Modifier.padding(
@@ -76,10 +79,15 @@ internal fun ChatMobileComposer(
                 }
             }
         }
+        Surface(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerLow,
+            shape = YummyShapeTokens.ProminentCard,
+        ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             OutlinedTextField(
@@ -91,12 +99,13 @@ internal fun ChatMobileComposer(
                 modifier = Modifier.weight(1f),
                 maxLines = 5,
             )
-            IconButton(onClick = onSend, enabled = enabled && text.isNotBlank()) {
+            FilledIconButton(onClick = onSend, enabled = enabled && text.isNotBlank()) {
                 Icon(
                     Icons.AutoMirrored.Filled.Send,
                     contentDescription = stringResource(R.string.messages_send),
                 )
             }
+        }
         }
     }
 }

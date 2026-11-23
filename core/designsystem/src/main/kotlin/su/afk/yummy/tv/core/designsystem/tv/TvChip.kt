@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,12 +17,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.focus.tvFocusableClick
+import su.afk.yummy.tv.core.designsystem.theme.YummyShapeTokens
+import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 
-private val ChipShape = RoundedCornerShape(percent = 50)
+private val ChipShape = YummyShapeTokens.Pill
 
 /**
  * Единый ТВ-чип (фильтр/сортировка/категория) в форме pill с видимым фокусом
@@ -63,8 +64,10 @@ fun TvChip(
                 interactionSource = interactionSource,
                 focusedScale = 1.06f,
                 focusedBorderColor = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.primary,
+                role = Role.Tab,
+                selectedState = selected,
             )
-            .padding(horizontal = 20.dp, vertical = 10.dp),
+            .padding(horizontal = YummySpacing.XLarge, vertical = YummySpacing.Small),
         horizontalArrangement = Arrangement.spacedBy(7.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -78,8 +81,7 @@ fun TvChip(
         }
         Text(
             text = label,
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
+            style = if (selected) MaterialTheme.typography.labelLargeEmphasized else MaterialTheme.typography.labelLarge,
             color = contentColor,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

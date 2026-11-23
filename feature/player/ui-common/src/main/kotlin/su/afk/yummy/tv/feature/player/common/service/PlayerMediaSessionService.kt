@@ -104,6 +104,13 @@ class PlayerMediaSessionService : MediaSessionService() {
                     stopState = stopState,
                     analyticsTracker = analyticsTracker,
                     onStopRequested = { stopService(reason = "command") },
+                    onScrubbingModeChanged = { enabled ->
+                        // Scrubbing mode is an ExoPlayer optimization. Do not enable it on the
+                        // local player while Cast owns playback; remote seeking stays on CastPlayer.
+                        if (castPlayer?.deviceInfo?.playbackType != DeviceInfo.PLAYBACK_TYPE_REMOTE) {
+                            exoPlayer?.setScrubbingModeEnabled(enabled)
+                        }
+                    },
                 ),
             )
             .build()

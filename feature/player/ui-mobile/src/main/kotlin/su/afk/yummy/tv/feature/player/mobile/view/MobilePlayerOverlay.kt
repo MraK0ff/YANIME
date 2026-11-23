@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.text.style.TextOverflow
@@ -27,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
@@ -48,7 +50,9 @@ internal fun MobilePlayerOverlay(
     holdToSwitchEpisode: Boolean,
     onPlayPause: () -> Unit,
     onSeekChange: (Float) -> Unit,
+    onSeekStarted: () -> Unit,
     onSeekFinished: () -> Unit,
+    seekEnabled: Boolean = true,
     onStepSeek: (StepSeekDirection) -> Unit,
     onLongPressSeek: (StepSeekDirection) -> Unit,
     onPrevEpisode: () -> Unit,
@@ -74,35 +78,39 @@ internal fun MobilePlayerOverlay(
     onQualityClick: () -> Unit = {},
     onSpeedClick: () -> Unit = {},
 ) {
-    if (!visible) {
-        if (loading) {
-            BoxWithConstraints(modifier = modifier.fillMaxSize()) {
-                Box(Modifier.align(Alignment.Center)) {
-                    YummyPlayerLoadingIndicator(size = 44.dp, color = Color.White)
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+        // Keep the central action (and its spinner animation) in composition while controls hide.
+        val expandedControlsOffset = minOf(56.dp, maxHeight * 0.10f)
+        if (visible || loading) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .offset(y = if (visible && episodesStripVisible) -expandedControlsOffset else 0.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (visible) {
+                    MobilePlayerCenterControls(
+                        wantsPlay = wantsPlay,
+                        hasPrevEpisode = hasPrevEpisode,
+                        hasNextEpisode = hasNextEpisode,
+                        onPlayPause = onPlayPause,
+                        onPrevEpisode = onPrevEpisode,
+                        onNextEpisode = onNextEpisode,
+                        loading = loading,
+                        enabled = true,
+                    )
+                } else {
+                    // The inactive panel must not leave the primary action's tinted glass
+                    // background behind the loader. Match the original standalone spinner.
+                    YummyPlayerLoadingIndicator(
+                        modifier = Modifier.size(44.dp),
+                        size = 44.dp,
+                        color = Color.White,
+                    )
                 }
             }
         }
-        return
-    }
-    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
-        // A single viewport-level scrim is drawn by MobileNativePlayer. Keeping a second
-        // overlay-local scrim here would compound the dimming and make it look uneven.
-        val expandedControlsOffset = minOf(56.dp, maxHeight * 0.10f)
-        Box(
-            modifier = Modifier.align(Alignment.Center)
-                .offset(y = if (episodesStripVisible) -expandedControlsOffset else 0.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            MobilePlayerCenterControls(
-                wantsPlay = wantsPlay,
-                hasPrevEpisode = hasPrevEpisode,
-                hasNextEpisode = hasNextEpisode,
-                onPlayPause = onPlayPause,
-                onPrevEpisode = onPrevEpisode,
-                onNextEpisode = onNextEpisode,
-                loading = loading,
-            )
-        }
+        if (visible) {
 
         Column(
             modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()
@@ -118,7 +126,9 @@ internal fun MobilePlayerOverlay(
                 bufferedProgress = progress.bufferedProgress,
                 isPlaying = wantsPlay,
                 onSeekChange = onSeekChange,
+                onSeekStarted = onSeekStarted,
                 onSeekFinished = onSeekFinished,
+                seekEnabled = seekEnabled,
                 videoWidthFraction = videoWidthFraction,
                 videoBottomInset = videoBottomInset,
                 timeDisplaySettings = timeDisplaySettings,
@@ -144,6 +154,7 @@ internal fun MobilePlayerOverlay(
                     }
                 }
             }
+        }
         }
     }
 }

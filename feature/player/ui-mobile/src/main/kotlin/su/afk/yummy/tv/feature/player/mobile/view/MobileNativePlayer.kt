@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.player.mobile.view
 
-import android.os.SystemClock
 import androidx.activity.compose.BackHandler
 import androidx.annotation.OptIn
 import androidx.compose.animation.core.animateDpAsState
@@ -40,11 +39,14 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.compose.foundation.layout.width
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.compose.ContentFrame
 import androidx.media3.ui.compose.SURFACE_TYPE_TEXTURE_VIEW
@@ -91,6 +93,7 @@ import su.afk.yummy.tv.feature.player.mobile.model.rememberMobilePlayerSettingsS
 import su.afk.yummy.tv.feature.player.common.rememberPlayerSleepTimer
 import su.afk.yummy.tv.feature.player.common.rememberPlayerVolumeController
 import su.afk.yummy.tv.feature.player.common.service.rememberPlayerMediaController
+import su.afk.yummy.tv.feature.player.common.service.setTimelineScrubbingMode
 import su.afk.yummy.tv.feature.player.common.utils.hasOtherSource
 import su.afk.yummy.tv.feature.player.common.utils.isVisible
 import su.afk.yummy.tv.feature.player.common.utils.playerContentScale
@@ -147,6 +150,7 @@ internal fun MobileNativePlayer(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
     val playerSettingsStore = rememberMobilePlayerSettingsStore()
     val timeDisplaySettings by playerSettingsStore.playerTimeDisplaySettings.collectAsStateWithLifecycle(
         initialValue = PlayerTimeDisplaySettings(),
@@ -176,8 +180,6 @@ internal fun MobileNativePlayer(
         initialDurationMs = state.playbackDurationMs,
     )
     var settingsMenuOpen by remember { mutableStateOf(false) }
-    var wasPlayingBeforeScrub by remember { mutableStateOf(false) }
-    var lastScrubPreviewAtMs by remember { mutableStateOf(0L) }
     var settingsMenuPage by remember { mutableStateOf(MobilePlayerSettingsPage.Root) }
     var showRemainingTime by rememberSaveable { mutableStateOf(false) }
     var wantsPlay by remember { mutableStateOf(true) }
@@ -337,6 +339,24 @@ internal fun MobileNativePlayer(
         return
     }
 
+    var mediaSeekable by remember(player) { mutableStateOf(player.isCurrentMediaItemSeekable) }
+    DisposableEffect(player) {
+        val listener = object : Player.Listener {
+            override fun onEvents(player: Player, events: Player.Events) {
+                mediaSeekable = player.isCurrentMediaItemSeekable
+            }
+        }
+        player.addListener(listener)
+        mediaSeekable = player.isCurrentMediaItemSeekable
+        onDispose { player.removeListener(listener) }
+    }
+
+    // A screen transition can dispose the timeline during an active drag. Always release
+    // ExoPlayer's temporary scrubbing mode so playback cannot remain suppressed.
+    DisposableEffect(player, progress) {
+        onDispose { player.setTimelineScrubbingMode(false) }
+    }
+
     val trackMenu = rememberPlayerTrackMenu(player, state)
     val sleepTimer = rememberPlayerSleepTimer(player = player, onElapsed = { overlay.show() })
 
@@ -465,6 +485,8 @@ internal fun MobileNativePlayer(
     LaunchedEffect(isInPictureInPictureMode) {
         if (isInPictureInPictureMode) {
             overlay.visible = false
+            progress.isSeeking = false
+            player.setTimelineScrubbingMode(false)
             endFlow.hideAll()
             gestures.resetForPictureInPicture()
             settingsMenuOpen = false
@@ -631,9 +653,24 @@ internal fun MobileNativePlayer(
         // TextureView keeps the video in Compose's composition layer, so this scrim
         // covers the complete viewport (including the video at any scale and subtitles).
         if (overlay.visible && !locked) {
-            Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.36f)))
+            // Draw above the TextureView even when its video content is transformed/zoomed.
+            Box(
+                Modifier
+                    // This overlay is a direct child of the full-screen player root, not of
+                    // ContentFrame's clipped video viewport. The offscreen layer makes the
+                    // translucent Compose scrim participate in the same window composition
+                    // above Media3's TextureView, including the fitted side regions.
+                    .matchParentSize()
+                    .zIndex(10f)
+                    // Keep the scrim in the window's normal Compose draw pass. An offscreen
+                    // layer can be composed underneath the TextureView on some Android GPUs,
+                    // leaving the fitted side regions visibly undimmed.
+                    .background(Color.Black.copy(alpha = 0.36f)),
+            )
         }
 
+        // Keep every interactive layer above the viewport scrim and the TextureView.
+        Box(Modifier.fillMaxSize().zIndex(20f)) {
         if (state.showResolveLog) {
             PlayerDiagnosticsOverlay(
                 player = player,
@@ -649,6 +686,9 @@ internal fun MobileNativePlayer(
             locked = locked,
             onTap = {
                 if (locked) {
+                    // A touch on the locked player must return focus to the video surface,
+                    // not leave keyboard/accessibility focus trapped on a hidden control.
+                    focusManager.clearFocus(force = true)
                     // При активной блокировке касание не должно оставлять панель «наготове»:
                     // после разблокировки она останется скрытой до следующего обычного тапа.
                     overlay.visible = false
@@ -874,8 +914,13 @@ internal fun MobileNativePlayer(
             visible = overlay.visible && !locked && !isInPictureInPictureMode &&
                 !tutorialBlocksPlayback && !settingsMenuOpen,
             wantsPlay = wantsPlay,
-            loading = isBuffering || showRecoveryIndicator,
+            // PiP is a clean video-only surface: never draw Compose loading controls over it.
+            // When the control panel is hidden, MobilePlayerOverlay renders a standalone spinner
+            // without the Play button's glass surface.
+            loading = (isBuffering || showRecoveryIndicator) &&
+                !isInPictureInPictureMode && !settingsMenuOpen && !locked && !tutorialBlocksPlayback,
             isSeeking = progress.isSeeking,
+            seekEnabled = mediaSeekable,
             progress = progress,
             hasPrevEpisode = ui.hasPrevEpisode,
             hasNextEpisode = ui.hasNextEpisode,
@@ -890,35 +935,36 @@ internal fun MobileNativePlayer(
                     overlay.cancelHide()
                 }
             },
-            onSeekChange = { value ->
+            onSeekStarted = {
                 if (!progress.isSeeking) {
-                    wasPlayingBeforeScrub = wantsPlay
-                    lastScrubPreviewAtMs = 0L
-                    if (wasPlayingBeforeScrub) player.pause()
+                    progress.isSeeking = true
+                    overlay.visible = true
+                    overlay.cancelHide()
+                    // MediaController cannot call ExoPlayer's unstable API directly. This
+                    // session command enables native Media3 scrubbing mode in the playback service.
+                    player.setTimelineScrubbingMode(true)
                 }
-                progress.isSeeking = true
+            },
+            onSeekChange = { value ->
                 progress.seekProgress = value
                 overlay.visible = true
                 overlay.cancelHide()
                 val duration = progress.duration
-                val now = SystemClock.elapsedRealtime()
-                if (duration > 0L && (lastScrubPreviewAtMs == 0L || now - lastScrubPreviewAtMs >= 120L)) {
-                    // MediaController does not expose ExoPlayer's unstable scrubbing-mode API.
-                    // Throttled preview seeks keep the real video surface responsive while dragging.
+                // In scrubbing mode ExoPlayer coalesces rapid seeks and keeps rendering preview
+                // frames instead of aborting each in-flight seek. Taps are committed on release.
+                if (progress.isSeeking && duration > 0L) {
                     player.seekTo((value * duration).toLong().coerceIn(0L, duration))
-                    lastScrubPreviewAtMs = now
                 }
             },
             onSeekFinished = {
+                val wasScrubbing = progress.isSeeking
                 val duration = progress.duration
                 if (duration > 0L) {
                     val newPosition = (progress.seekProgress * duration).toLong().coerceIn(0L, duration)
                     seekController.seekTo(newPosition)
                 }
                 progress.isSeeking = false
-                if (wasPlayingBeforeScrub) player.play()
-                wasPlayingBeforeScrub = false
-                lastScrubPreviewAtMs = 0L
+                if (wasScrubbing) player.setTimelineScrubbingMode(false)
                 overlay.show()
             },
             onStepSeek = seekController::stepSeek,
@@ -1232,6 +1278,7 @@ internal fun MobileNativePlayer(
                 onStopCasting = { stopCasting(context) },
                 modifier = Modifier.align(Alignment.Center),
             )
+        }
         }
     }
 }

@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -263,7 +262,7 @@ private fun MobileMainTabsCustomizationDialog(
                         Checkbox(
                             checked = key in enabled,
                             onCheckedChange = { checked ->
-                                onEnabledChanged(if (checked) enabled + key else enabled - key)
+                                onEnabledChanged(if (checked) enabled + key else if (enabled.size > 1) enabled - key else enabled)
                             },
                         )
                         Text(

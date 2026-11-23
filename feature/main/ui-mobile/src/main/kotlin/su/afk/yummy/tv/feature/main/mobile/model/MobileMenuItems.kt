@@ -21,16 +21,15 @@ internal fun mobileMenuItems(
     enabled: Set<String>,
     selectedDestination: RootTab,
 ): List<MobileMenuItem<RootTab>> {
-    val available = buildMap {
-        put("SCHEDULE", MobileMenuItem(stringResource(R.string.main_tab_schedule), RootTab.SCHEDULE, Icons.Default.CalendarToday))
-        put("HOME", MobileMenuItem(stringResource(R.string.main_tab_home), RootTab.HOME, Icons.Default.Home, hasSeasonalDecor = true))
-        put("LIBRARY", MobileMenuItem(stringResource(R.string.main_tab_library), RootTab.LIBRARY, Icons.AutoMirrored.Filled.List))
-        put("POSTS", MobileMenuItem(stringResource(R.string.main_tab_news), RootTab.POSTS, Icons.Default.Article))
-        put("COLLECTIONS", MobileMenuItem(stringResource(R.string.main_tab_collections), RootTab.COLLECTIONS, Icons.Default.CollectionsBookmark))
-        if (showDownloads) {
-            put("DOWNLOADS", MobileMenuItem(stringResource(R.string.main_tab_downloads), RootTab.DOWNLOADS, Icons.Default.Download))
-        }
-    }
+    val available = listOf(
+        "SCHEDULE" to MobileMenuItem(stringResource(R.string.main_tab_schedule), RootTab.SCHEDULE, Icons.Default.CalendarToday),
+        "HOME" to MobileMenuItem(stringResource(R.string.main_tab_home), RootTab.HOME, Icons.Default.Home, hasSeasonalDecor = true),
+        "LIBRARY" to MobileMenuItem(stringResource(R.string.main_tab_library), RootTab.LIBRARY, Icons.AutoMirrored.Filled.List),
+        "POSTS" to MobileMenuItem(stringResource(R.string.main_tab_news), RootTab.POSTS, Icons.Default.Article),
+        "COLLECTIONS" to MobileMenuItem(stringResource(R.string.main_tab_collections), RootTab.COLLECTIONS, Icons.Default.CollectionsBookmark),
+    ).toMap() + if (showDownloads) {
+        mapOf("DOWNLOADS" to MobileMenuItem(stringResource(R.string.main_tab_downloads), RootTab.DOWNLOADS, Icons.Default.Download))
+    } else emptyMap()
     val ordered = order.asSequence()
         .filter { it in enabled }
         .mapNotNull(available::get)
@@ -39,5 +38,6 @@ internal fun mobileMenuItems(
     if (ordered.none { it.destination == selectedDestination }) {
         available.values.firstOrNull { it.destination == selectedDestination }?.let(ordered::add)
     }
+    if (ordered.isEmpty()) available["HOME"]?.let(ordered::add)
     return ordered
 }

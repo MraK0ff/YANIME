@@ -21,6 +21,7 @@ internal class PlayerSessionCallback(
     private val stopState: PlayerServiceStopState,
     private val analyticsTracker: AnalyticsTracker,
     private val onStopRequested: () -> Unit,
+    private val onScrubbingModeChanged: (Boolean) -> Unit,
 ) : MediaSession.Callback {
     override fun onConnect(
         session: MediaSession,
@@ -36,6 +37,7 @@ internal class PlayerSessionCallback(
             .setAvailableSessionCommands(
                 MediaSession.ConnectionResult.DEFAULT_SESSION_COMMANDS.buildUpon()
                     .add(PlayerSessionCommands.STOP_SERVICE)
+                    .add(PlayerSessionCommands.SET_SCRUBBING_MODE)
                     .build(),
             )
             .build()
@@ -47,10 +49,13 @@ internal class PlayerSessionCallback(
         customCommand: SessionCommand,
         args: Bundle,
     ): ListenableFuture<SessionResult> {
-        if (customCommand.customAction != PlayerSessionCommands.ACTION_STOP_SERVICE) {
-            return super.onCustomCommand(session, controller, customCommand, args)
+        when (customCommand.customAction) {
+            PlayerSessionCommands.ACTION_STOP_SERVICE -> onStopRequested()
+            PlayerSessionCommands.ACTION_SET_SCRUBBING_MODE -> onScrubbingModeChanged(
+                args.getBoolean(PlayerSessionCommands.KEY_SCRUBBING_ENABLED),
+            )
+            else -> return super.onCustomCommand(session, controller, customCommand, args)
         }
-        onStopRequested()
         return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
     }
 }

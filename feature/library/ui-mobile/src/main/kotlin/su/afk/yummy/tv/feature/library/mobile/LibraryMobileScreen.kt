@@ -166,7 +166,7 @@ fun LibraryMobileScreen(
     LaunchedEffect(state.selectedTab) {
         val targetPage = state.selectedTab.toLibraryMobilePage(tabs)
         if (tabsState.currentPage != targetPage) {
-            tabsState.animateScrollToPage(targetPage)
+            tabsState.selectPage(targetPage)
         }
     }
 

@@ -21,6 +21,7 @@ import su.afk.yummy.tv.core.designsystem.error.asString
 import su.afk.yummy.tv.core.designsystem.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.core.model.text.UiText
 import su.afk.yummy.tv.feature.details.details.model.DetailsScreenState
+import su.afk.yummy.tv.feature.details.details.view.OtherTitlesDialog
 import su.afk.yummy.tv.feature.details.details.view.DetailsBody
 import su.afk.yummy.tv.feature.details.details.view.DetailsMinimalBody
 import su.afk.yummy.tv.feature.details.details.view.DetailsTvSkeleton
@@ -150,6 +151,7 @@ fun DetailsTvScreen(
                             onCommentsSelected = { onEvent(DetailsState.Event.CommentsSelected) },
                             onReviewsSelected = { onEvent(DetailsState.Event.ReviewsSelected) },
                             onBloggerVideosSelected = { onEvent(DetailsState.Event.BloggerVideosSelected) },
+                            onInfoSelected = { onEvent(DetailsState.Event.InfoSelected) },
                             onRandomAnimeSelected = if (state.isRandomAnimeEnabled) {
                                 { onEvent(DetailsState.Event.RandomAnimeSelected) }
                             } else {
@@ -186,6 +188,7 @@ fun DetailsTvScreen(
                             onCommentsSelected = { onEvent(DetailsState.Event.CommentsSelected) },
                             onReviewsSelected = { onEvent(DetailsState.Event.ReviewsSelected) },
                             onBloggerVideosSelected = { onEvent(DetailsState.Event.BloggerVideosSelected) },
+                            onInfoSelected = { onEvent(DetailsState.Event.InfoSelected) },
                             onRandomAnimeSelected = if (state.isRandomAnimeEnabled) {
                                 { onEvent(DetailsState.Event.RandomAnimeSelected) }
                             } else {
@@ -251,6 +254,14 @@ fun DetailsTvScreen(
                     restoreButtonFocus()
                 },
             )
+        if (state.showInfoSheet) {
+            details?.let { anime ->
+                OtherTitlesDialog(
+                    titles = (listOf(anime.title) + anime.otherTitles).filter(String::isNotBlank).distinct(),
+                    onDismiss = { onEvent(DetailsState.Event.InfoDismissed) },
+                )
+            }
+        }
         }
     }
 }

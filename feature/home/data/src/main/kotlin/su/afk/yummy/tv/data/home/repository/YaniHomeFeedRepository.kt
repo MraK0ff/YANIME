@@ -168,10 +168,15 @@ class YaniHomeFeedRepository(
         analyticsTracker.log(TAG) { "Fetch feed language=$languageCode watchSignature=$watchSignature" }
         val dto = api.getFeed()
         analyticsTracker.log(TAG) { "Feed dto ${dto.summaryForLog()}" }
+        // Use only locally known episode counts. Unknown counts do not suppress feed entries.
+        val availableEpisodeCounts = animeStorage
+            .observeAvailableEpisodeCounts(languageCode)
+            .first()
         val cache = dto.toHomeFeedCache(
             language = languageCode,
             watchSignature = watchSignature,
             cachedAt = System.currentTimeMillis(),
+            availableEpisodeCounts = availableEpisodeCounts,
         )
         // Лента не бывает пустой целиком: пустой ответ (сбой yani) не заменяет сохранённую.
         if (cache.items.isEmpty() && homeFeedStore.getFeed(languageCode, watchSignature)?.items?.isNotEmpty() == true) {

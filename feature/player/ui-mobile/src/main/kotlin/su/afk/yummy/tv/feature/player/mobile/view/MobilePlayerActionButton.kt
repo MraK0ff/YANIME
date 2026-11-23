@@ -15,8 +15,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
@@ -54,6 +54,9 @@ internal fun MobilePlayerActionButton(
     onHoldHint: () -> Unit = {},
     onLongPress: (() -> Unit)? = null,
     sizeMultiplier: Float = 1f,
+    iconScale: Float = 0.55f,
+    surface: Boolean = true,
+    loading: Boolean = false,
 ) {
     val shape = CircleShape
     val contentColor = when {
@@ -63,11 +66,11 @@ internal fun MobilePlayerActionButton(
     }
     val holdProgress = remember { Animatable(0f) }
     val buttonSize = mobilePlayerControlButtonSize(primary) * sizeMultiplier
-    val borderColor = Color.White.copy(alpha = 0.10f)
+    val borderColor = MobilePlayerGlassBorder
     val surfaceFill = when {
         !enabled -> Color.Black.copy(alpha = 0.10f)
         primary -> MaterialTheme.colorScheme.primary
-        else -> Color.White.copy(alpha = 0.10f)
+        else -> MobilePlayerGlassFill
     }
 
     val baseViewConfiguration = LocalViewConfiguration.current
@@ -81,7 +84,7 @@ internal fun MobilePlayerActionButton(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .size(buttonSize)
-            .mobilePlayerGlassSurface(shape = shape, fill = surfaceFill, borderColor = borderColor, elevation = 0.dp)
+            .then(if (surface) Modifier.mobilePlayerGlassSurface(shape = shape, fill = surfaceFill, borderColor = borderColor, elevation = 0.dp) else Modifier)
             .then(
                 if (onHold == null && onLongPress != null) {
                     Modifier.pointerInput(enabled, onLongPress, onClick) {
@@ -110,7 +113,20 @@ internal fun MobilePlayerActionButton(
                 },
             ),
     ) {
-        Icon(imageVector = icon, contentDescription = contentDescription, tint = contentColor)
+        if (loading) {
+            CircularProgressIndicator(
+                color = if (primary) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary,
+                strokeWidth = 3.dp,
+                modifier = Modifier.size(buttonSize * 0.62f),
+            )
+        } else {
+            Icon(
+                imageVector = icon,
+                contentDescription = contentDescription,
+                tint = contentColor,
+                modifier = Modifier.size(buttonSize * iconScale.coerceIn(0.1f, 1f)),
+            )
+        }
         if (onHold != null) {
             CircularProgressIndicator(
                 progress = { holdProgress.value },

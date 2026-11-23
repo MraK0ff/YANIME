@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -27,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
 import su.afk.yummy.tv.core.designsystem.components.FallbackAsyncImage
@@ -37,7 +37,7 @@ import su.afk.yummy.tv.feature.player.model.PlayerEpisodeProgress
 import su.afk.yummy.tv.feature.player.presentation.R
 
 private val STRIP_CARD_WIDTH = 150.dp
-private val STRIP_CARD_SHAPE = RoundedCornerShape(8.dp)
+private val STRIP_CARD_SHAPE = MobilePlayerInteractiveShape
 private const val UNAVAILABLE_ALPHA = 0.6f
 
 /** Горизонтальная лента серий внизу полноэкранного плеера (ландшафт): листается вместе с панелью управления. */
@@ -84,9 +84,8 @@ private fun StripCard(
     Column(
         modifier = Modifier
             .width(STRIP_CARD_WIDTH)
-            .clip(STRIP_CARD_SHAPE)
             .alpha(if (item.available) 1f else UNAVAILABLE_ALPHA)
-            .clickable(onClick = onClick),
+            .clickable(role = Role.Button, onClickLabel = stringResource(R.string.player_mobile_episode_number, item.number), onClick = onClick),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Box(

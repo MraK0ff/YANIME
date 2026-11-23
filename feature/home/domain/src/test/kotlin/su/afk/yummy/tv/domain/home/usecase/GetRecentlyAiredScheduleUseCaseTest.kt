@@ -8,6 +8,7 @@ import org.junit.Before
 import org.junit.Test
 import su.afk.yummy.tv.core.testing.BaseUnitTest
 import su.afk.yummy.tv.domain.home.model.HomeFeedItemAction
+import su.afk.yummy.tv.domain.schedule.model.AnimeEpisodeRelease
 import su.afk.yummy.tv.domain.schedule.model.AnimeScheduleDay
 import su.afk.yummy.tv.domain.schedule.model.AnimeScheduleItem
 import su.afk.yummy.tv.domain.schedule.repository.AnimeScheduleRepository
@@ -26,50 +27,68 @@ class GetRecentlyAiredScheduleUseCaseTest : BaseUnitTest() {
     }
 
     @Test
-    fun `episodes inside the window are returned and the freshest comes first`() = runTest {
-        schedule += scheduleItem(animeId = 1, previousDate = NOW - 10 * DAY)
-        schedule += scheduleItem(animeId = 2, previousDate = NOW - DAY)
+    fun `episodes inside the video publication window are returned freshest first`() = runTest {
+        schedule += scheduleItem(animeId = 1, releases = listOf(release(1, NOW - 10 * DAY)))
+        schedule += scheduleItem(animeId = 2, releases = listOf(release(2, NOW - DAY)))
 
-        val result = createUseCase()(NOW)
-
-        assertEquals(listOf(2, 1), result.map { it.id })
+        assertEquals(listOf(2, 1), createUseCase()(NOW).map { it.id })
     }
 
     @Test
-    fun `episodes older than the window are dropped`() = runTest {
-        schedule += scheduleItem(animeId = 1, previousDate = NOW - 15 * DAY)
+    fun `episodes older than the video publication window are dropped`() = runTest {
+        schedule += scheduleItem(animeId = 1, releases = listOf(release(1, NOW - 15 * DAY)))
 
         assertEquals(emptyList<Int>(), createUseCase()(NOW).map { it.id })
     }
 
     @Test
-    fun `the window boundary is inclusive`() = runTest {
-        schedule += scheduleItem(animeId = 1, previousDate = NOW - 14 * DAY)
+    fun `the video publication window boundary is inclusive`() = runTest {
+        schedule += scheduleItem(animeId = 1, releases = listOf(release(1, NOW - 14 * DAY)))
 
         assertEquals(listOf(1), createUseCase()(NOW).map { it.id })
     }
 
     @Test
-    fun `announcements never reach the result`() = runTest {
-        schedule += scheduleItem(animeId = 1, airedEpisodes = null, previousDate = NOW - DAY)
+    fun `Japanese aired count without an actual video does not create a release`() = runTest {
+        schedule += scheduleItem(animeId = 1, airedEpisodes = 12, releases = emptyList())
 
         assertEquals(emptyList<Int>(), createUseCase()(NOW).map { it.id })
     }
 
     @Test
-    fun `a title appears once even with several schedule entries`() = runTest {
-        schedule += scheduleItem(animeId = 1, previousDate = NOW - 2 * DAY)
-        schedule += scheduleItem(animeId = 1, previousDate = NOW - DAY)
+    fun `a title appears once with its freshest actually published episode`() = runTest {
+        schedule += scheduleItem(
+            animeId = 1,
+            airedEpisodes = 8,
+            releases = listOf(
+                release(1, NOW - 2 * DAY, episode = 7),
+                release(1, NOW - DAY, episode = 8),
+            ),
+        )
 
         val result = createUseCase()(NOW)
 
         assertEquals(listOf(1), result.map { it.id })
+        assertEquals(8, result.single().episodeNumber)
         assertEquals(NOW - DAY, result.single().airedAtSeconds)
     }
 
     @Test
-    fun `episode number and air date are carried over`() = runTest {
-        schedule += scheduleItem(animeId = 7, airedEpisodes = 3, previousDate = NOW - DAY)
+    fun `future-dated or invalid release observations are not treated as released`() = runTest {
+        schedule += scheduleItem(
+            animeId = 1,
+            releases = listOf(
+                release(1, NOW + DAY),
+                release(1, 0L, episode = 2),
+            ),
+        )
+
+        assertEquals(emptyList<Int>(), createUseCase()(NOW).map { it.id })
+    }
+
+    @Test
+    fun `episode number and first video publication time are carried over`() = runTest {
+        schedule += scheduleItem(animeId = 7, releases = listOf(release(7, NOW - DAY, episode = 3)))
 
         val item = createUseCase()(NOW).single()
 
@@ -83,7 +102,7 @@ class GetRecentlyAiredScheduleUseCaseTest : BaseUnitTest() {
     private fun scheduleItem(
         animeId: Int,
         airedEpisodes: Int? = 2,
-        previousDate: Long? = null,
+        releases: List<AnimeEpisodeRelease>,
     ) = AnimeScheduleItem(
         animeId = animeId,
         title = "Title $animeId",
@@ -91,8 +110,17 @@ class GetRecentlyAiredScheduleUseCaseTest : BaseUnitTest() {
         nextDateEpochSeconds = null,
         airedEpisodes = airedEpisodes,
         totalEpisodes = 12,
-        previousDateEpochSeconds = previousDate,
+        videoReleases = releases,
     )
+
+    private fun release(animeId: Int, publishedAt: Long, episode: Int = 1) =
+        AnimeEpisodeRelease(
+            animeId = animeId,
+            episodeNumber = episode,
+            firstVideoAtSeconds = publishedAt,
+            firstVideoId = animeId * 100 + episode,
+            title = "Title $animeId",
+        )
 
     private companion object {
         const val DAY = 24L * 60 * 60

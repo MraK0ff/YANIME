@@ -3,6 +3,9 @@ package su.afk.yummy.tv.feature.player.mobile.view
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,7 +26,7 @@ import kotlin.time.Duration.Companion.seconds
 import su.afk.yummy.tv.feature.player.common.model.StepSeekDirection
 import su.afk.yummy.tv.feature.player.common.toastIcon
 
-internal val MOBILE_PLAYER_SEEK_TOAST_DURATION = 2.seconds
+internal val MOBILE_PLAYER_SEEK_TOAST_DURATION = 1.1.seconds
 
 /**
  * Подсветка половины экрана при двойном тапе (как у YouTube): серая «капля» с иконкой и суммарным
@@ -39,8 +42,10 @@ internal fun MobilePlayerSeekRipple(
     Box(modifier = modifier.fillMaxSize()) {
         AnimatedVisibility(
             visible = text != null,
-            enter = fadeIn(),
-            exit = fadeOut(),
+            enter = fadeIn(animationSpec = tween(110)) +
+                scaleIn(initialScale = 0.94f, animationSpec = tween(150)),
+            exit = fadeOut(animationSpec = tween(130)) +
+                scaleOut(targetScale = 0.985f, animationSpec = tween(130)),
             modifier = Modifier
                 .fillMaxHeight()
                 .fillMaxWidth(0.5f)

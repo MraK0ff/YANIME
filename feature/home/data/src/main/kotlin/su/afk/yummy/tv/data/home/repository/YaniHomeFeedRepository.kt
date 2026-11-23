@@ -1,5 +1,6 @@
 package su.afk.yummy.tv.data.home.repository
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -13,7 +14,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
-import su.afk.yummy.tv.core.common.episode.episodeNumberOrNull
 import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.model.anime.AnimeWatchProgress
 import su.afk.yummy.tv.core.preferences.api.YaniAccountSettingsStore
@@ -22,6 +22,8 @@ import su.afk.yummy.tv.core.preferences.settings.currentLanguageCode
 import su.afk.yummy.tv.core.storage.anime.AnimeStorage
 import su.afk.yummy.tv.core.storage.home.HomeFeedCache
 import su.afk.yummy.tv.core.storage.home.HomeFeedStorage
+import su.afk.yummy.tv.core.storage.home.HomeNewReleaseEntry
+import su.afk.yummy.tv.core.storage.home.HOME_FEED_CONTAINER_NEW_RELEASES
 import su.afk.yummy.tv.core.storage.home.isFresh
 import su.afk.yummy.tv.core.storage.offlinefirst.offlineFirstCache
 import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStorage
@@ -29,17 +31,68 @@ import su.afk.yummy.tv.data.home.mapper.LocalFeedContext
 import su.afk.yummy.tv.data.home.mapper.localContinueWatchingItems
 import su.afk.yummy.tv.data.home.mapper.withLocalOverrides
 import su.afk.yummy.tv.data.home.network.YaniHomeApi
+import su.afk.yummy.tv.data.home.utils.YaniNewReleaseTracker
 import su.afk.yummy.tv.data.home.storage.mapper.toHomeContinueWatchingItem
 import su.afk.yummy.tv.data.home.storage.mapper.toHomeFeedCache
 import su.afk.yummy.tv.domain.home.model.ContinueWatchingProgressMigration
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.domain.home.model.HomeFeed
 import su.afk.yummy.tv.domain.home.repository.HomeFeedRepository
+import su.afk.yummy.tv.data.home.mapper.toAnimeEpisodeReleases
+import su.afk.yummy.tv.domain.schedule.repository.AnimeScheduleRepository
 import su.afk.yummy.tv.data.home.storage.mapper.toHomeFeed as toStoredHomeFeed
+
+
+/**
+ * The old cache had one card per anime but no episode number. Convert it into a zero-episode
+ * baseline so the first history-aware poll enriches it without producing false new-release moves.
+ */
+private fun HomeFeedCache?.toLegacyReleaseHistory(now: Long): List<HomeNewReleaseEntry> {
+    val baselineAt = this?.cachedAt?.takeIf { it > 0L } ?: now
+    return this?.items
+        .orEmpty()
+        .asSequence()
+        .filter { it.container == HOME_FEED_CONTAINER_NEW_RELEASES }
+        .sortedBy { it.position }
+        .distinctBy { it.itemId }
+        .mapIndexed { index, item ->
+            HomeNewReleaseEntry(
+                animeId = item.itemId,
+                title = item.title,
+                animeUrl = "",
+                description = item.description,
+                episodeNumber = 0,
+                episodeTitle = "",
+                videoId = null,
+                dubTitle = item.dubbing.takeIf(String::isNotBlank),
+                playerTitle = item.playerName.takeIf(String::isNotBlank),
+                posterSmallUrl = item.posterSmallUrl,
+                posterMediumUrl = item.posterMediumUrl,
+                posterBigUrl = item.posterBigUrl,
+                posterFullsizeUrl = item.posterFullsizeUrl,
+                posterMegaUrl = item.posterMegaUrl,
+                firstSeenAt = baselineAt,
+                lastDetectedAt = baselineAt,
+                lastUpdatedAt = 0L,
+                position = index,
+            )
+        }
+        .toList()
+}
 
 private const val FEED_TTL_MS = 60 * 1000L
 private const val FEED_CACHE_SIGNATURE_VERSION = "cw-local1"
 private const val TAG = "YaniHomeFeed"
+
+/**
+ * Returns a whole episode number only for plain numeric episode labels.
+ * Fractional specials (for example "7.5") must not be counted as episode 7.
+ */
+private fun String.toWholeEpisodeNumberOrNull(): Int? {
+    val number = trim().toDoubleOrNull() ?: return null
+    if (!number.isFinite() || number <= 0.0 || number % 1.0 != 0.0) return null
+    return number.toInt()
+}
 
 class YaniHomeFeedRepository(
     private val api: YaniHomeApi,
@@ -50,6 +103,7 @@ class YaniHomeFeedRepository(
     private val watchProgressStore: WatchProgressStorage,
     private val animeStorage: AnimeStorage,
     private val analyticsTracker: AnalyticsTracker,
+    private val scheduleRepository: AnimeScheduleRepository,
 ) : HomeFeedRepository {
 
     /** Параллельные загрузки ленты (экран и канал ТВ) ждут друг друга, а не качают её дважды. */
@@ -108,11 +162,8 @@ class YaniHomeFeedRepository(
                     .groupBy { it.animeId }
                     .mapValues { (_, items) ->
                         items.mapNotNullTo(mutableSetOf()) { entry ->
-                            // Спецвыпуски вроде «7.5» — не серия 7, иначе она ложно считалась бы
-                            // просмотренной.
-                            entry.episode.episodeNumberOrNull()
-                                ?.takeIf { it % 1.0 == 0.0 }
-                                ?.toInt()
+                            // Спецвыпуски вроде «7.5» не должны засчитываться как серия 7.
+                            entry.episode.toWholeEpisodeNumberOrNull()
                         }
                     }
             }
@@ -173,10 +224,33 @@ class YaniHomeFeedRepository(
         analyticsTracker.log(TAG) { "Fetch feed language=$languageCode watchSignature=$watchSignature" }
         val dto = api.getFeed()
         analyticsTracker.log(TAG) { "Feed dto ${dto.summaryForLog()}" }
+        try {
+            // Even an empty feed is a successful poll: the schedule repository can avoid a duplicate request.
+            scheduleRepository.saveEpisodeReleases(dto.response.newVideos.toAnimeEpisodeReleases())
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (error: Exception) {
+            analyticsTracker.log(TAG) { "Could not persist episode release history: ${error.message}" }
+        }
+        val now = System.currentTimeMillis()
+        val previousCache = homeFeedStore.getFeed(languageCode, watchSignature)
+        val storedHistory = homeFeedStore.getNewReleaseHistory()
+        // Upgrade old installs: previous feed cards did not store their episode number. Keep them
+        // as a baseline so they survive a feed rotation without being mistaken for new releases.
+        val historyForMerge = storedHistory.ifEmpty {
+            previousCache.toLegacyReleaseHistory(now)
+        }
+        val releaseHistory = YaniNewReleaseTracker().merge(
+            videos = dto.response.newVideos,
+            history = historyForMerge,
+            now = now,
+        )
+        homeFeedStore.saveNewReleaseHistory(releaseHistory)
         val cache = dto.toHomeFeedCache(
             language = languageCode,
             watchSignature = watchSignature,
-            cachedAt = System.currentTimeMillis(),
+            cachedAt = now,
+            newReleaseHistory = releaseHistory,
         )
         homeFeedStore.saveFeed(cache)
         analyticsTracker.log(TAG) {

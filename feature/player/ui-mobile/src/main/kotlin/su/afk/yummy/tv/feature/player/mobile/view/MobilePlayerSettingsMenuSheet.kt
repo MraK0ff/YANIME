@@ -8,34 +8,41 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Audiotrack
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.HighQuality
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Cast
 import androidx.compose.material.icons.filled.AspectRatio
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Bedtime
 import androidx.compose.material.icons.filled.BrightnessMedium
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.ScreenRotation
 import androidx.compose.material.icons.filled.Subtitles
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.font.FontWeight
 import su.afk.yummy.tv.core.designsystem.baseScreen.BaseBottomSheet
 import su.afk.yummy.tv.core.designsystem.baseScreen.HideSheetWindowSystemBars
 import su.afk.yummy.tv.feature.player.mobile.model.MobilePlayerSettingsMenuActions
 import su.afk.yummy.tv.feature.player.mobile.model.MobilePlayerSettingsMenuModel
 import su.afk.yummy.tv.feature.player.mobile.model.MobilePlayerSettingsPage
 import su.afk.yummy.tv.feature.player.presentation.R
+import su.afk.yummy.tv.core.designsystem.utils.dubbingDisplayName
 
 /**
  * Единое меню настроек плеера в стиле YouTube: одна шторка с главным списком (качество, скорость,
  * озвучка и плеер, дорожки, блокировка, «Ещё») и вложенными страницами. Применяет всё сразу -
- * настройки общие с экраном «Настройки». Шторка «Озвучка и плеер» (большие списки) открывается
- * отдельно через [MobilePlayerSettingsMenuActions.onDubbingAndPlayer].
+ * настройки общие с экраном «Настройки». Качество, скорость, озвучка, балансер и ориентация
+ * открываются как страницы этой же шторки, без параллельных меню.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,26 +53,30 @@ internal fun MobilePlayerSettingsMenuSheet(
     /** Страница, на которой меню открывается: нижняя панель ведёт сразу на «Скорость». */
     initialPage: MobilePlayerSettingsPage = MobilePlayerSettingsPage.Root,
 ) {
-    var page by rememberSaveable { mutableStateOf(initialPage) }
-    // Страницу, открытую сразу с нижней панели (скорость, качество), «назад» закрывает целиком:
-    // иначе стрелка раскрывала бы главное меню, которого пользователь не открывал.
+    var pageStack by rememberSaveable { mutableStateOf(listOf(initialPage)) }
+    val page = pageStack.last()
+    androidx.compose.runtime.LaunchedEffect(initialPage) {
+        pageStack = listOf(initialPage)
+    }
     val goBack = {
-        if (initialPage != MobilePlayerSettingsPage.Root && page == initialPage) {
-            onDismiss()
+        if (pageStack.size > 1) {
+            pageStack = pageStack.dropLast(1)
         } else {
-            page = MobilePlayerSettingsPage.Root
+            onDismiss()
         }
+    }
+    val navigate: (MobilePlayerSettingsPage) -> Unit = { nextPage ->
+        pageStack = pageStack + nextPage
     }
     BaseBottomSheet(onDismissRequest = onDismiss, scrollableContent = true) {
         HideSheetWindowSystemBars()
-        // Назад на вложенной странице ведёт к главному списку, а не закрывает шторку. Обработчик
-        // обязан жить внутри диалога шторки: снаружи его перебивает собственный back самой шторки.
-        BackHandler(enabled = page != MobilePlayerSettingsPage.Root, onBack = goBack)
+        // Back follows the actual nested page stack; direct toolbar entries close in one step.
+        BackHandler(enabled = pageStack.size > 1, onBack = goBack)
         when (page) {
             MobilePlayerSettingsPage.Root -> MobilePlayerMenuRoot(
                 model = model,
                 actions = actions,
-                onNavigate = { page = it },
+                onNavigate = navigate,
                 onDismiss = onDismiss,
             )
 
@@ -109,6 +120,21 @@ internal fun MobilePlayerSettingsMenuSheet(
                 )
             }
 
+            MobilePlayerSettingsPage.Sources -> MobilePlayerSourcesPage(
+                dubbingNames = model.dubbingNames,
+                dubbingEpisodeCounts = model.dubbingEpisodeCounts,
+                dubbingViews = model.dubbingViews,
+                dubbingAvailability = model.dubbingAvailability,
+                selectedDubbingIndex = model.selectedDubbingIndex,
+                onDubbingSelected = actions.onDubbingSelected,
+                balancerNames = model.balancerNames,
+                balancerAvailability = model.balancerAvailability,
+                balancerExternal = model.balancerExternal,
+                selectedBalancerIndex = model.selectedBalancerIndex,
+                onBalancerSelected = actions.onBalancerSelected,
+                onBack = goBack,
+            )
+
             MobilePlayerSettingsPage.SleepTimer -> MobilePlayerSleepTimerPage(
                 selectedMinutes = model.sleepTimerMinutes,
                 onSelected = actions.onSleepTimerSelected,
@@ -126,13 +152,23 @@ internal fun MobilePlayerSettingsMenuSheet(
                 )
             }
 
+            MobilePlayerSettingsPage.Orientation -> MobilePlayerOrientationPage(
+                selected = model.orientationMode,
+                onSelected = actions.onOrientationModeSelected,
+                onBack = goBack,
+            )
+
             MobilePlayerSettingsPage.CastAndPip -> MobilePlayerCastPipPage(
                 showPictureInPicture = model.showPictureInPicture,
                 showCast = model.showCast,
-                onPictureInPicture = {
-                    onDismiss()
-                    actions.onPictureInPicture()
-                },
+                pictureInPictureEnabled = model.pictureInPictureEnabled,
+                onPictureInPictureChange = actions.onPictureInPictureChange,
+                onBack = goBack,
+            )
+
+            MobilePlayerSettingsPage.TimeDisplay -> MobilePlayerTimeDisplayPage(
+                settings = model.timeDisplaySettings,
+                onSettingsChange = actions.onTimeDisplaySettingsChange,
                 onBack = goBack,
             )
 
@@ -143,6 +179,12 @@ internal fun MobilePlayerSettingsMenuSheet(
                 MobilePlayerMenuPageHeader(
                     title = stringResource(R.string.player_menu_display),
                     onBack = goBack,
+                )
+                MobilePlayerMenuRow(
+                    icon = Icons.Filled.ScreenRotation,
+                    label = stringResource(R.string.player_mobile_orientation),
+                    trailing = MobilePlayerMenuRowTrailing.Navigate(),
+                    onClick = { navigate(MobilePlayerSettingsPage.Orientation) },
                 )
                 MobilePlayerMenuRow(
                     icon = Icons.Filled.BrightnessMedium,
@@ -183,8 +225,19 @@ private fun MobilePlayerMenuRoot(
     onNavigate: (MobilePlayerSettingsPage) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        // Качество и скорость вынесены кнопками на нижнюю панель плеера - в меню их нет (страницы те же).
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Text(
+            text = stringResource(R.string.player_mobile_playback_settings_title),
+            style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.SemiBold,
+            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+        )
+
+        // First show settings that do not have a dedicated shortcut on the player surface.
         if (model.showAudioTracks) {
             MobilePlayerMenuRow(
                 icon = Icons.Filled.Audiotrack,
@@ -195,17 +248,12 @@ private fun MobilePlayerMenuRoot(
                 onClick = { onNavigate(MobilePlayerSettingsPage.AudioTrack) },
             )
         }
-        // Выбор субтитров есть только у Alloha (см. PlayerTrackMenu.showSubtitleChoice): для остальных пункт не нужен.
         if (model.showSubtitleTracks) {
             MobilePlayerMenuRow(
                 icon = Icons.Filled.Subtitles,
                 label = stringResource(R.string.player_menu_subtitles),
                 trailing = MobilePlayerMenuRowTrailing.Navigate(
-                    if (model.showSubtitleTracks) {
-                        model.subtitleTrackNames.getOrNull(model.selectedSubtitleTrackIndex)
-                    } else {
-                        null
-                    },
+                    model.subtitleTrackNames.getOrNull(model.selectedSubtitleTrackIndex),
                 ),
                 onClick = { onNavigate(MobilePlayerSettingsPage.Subtitles) },
             )
@@ -214,11 +262,8 @@ private fun MobilePlayerMenuRoot(
             icon = Icons.Filled.Bedtime,
             label = stringResource(R.string.player_sleep_title),
             trailing = MobilePlayerMenuRowTrailing.Navigate(
-                if (model.sleepTimerMinutes > 0) {
-                    sleepTimerLabel(model.sleepTimerMinutes)
-                } else {
-                    stringResource(R.string.player_sleep_off)
-                },
+                if (model.sleepTimerMinutes > 0) sleepTimerLabel(model.sleepTimerMinutes)
+                else stringResource(R.string.player_sleep_off),
             ),
             onClick = { onNavigate(MobilePlayerSettingsPage.SleepTimer) },
         )
@@ -227,6 +272,12 @@ private fun MobilePlayerMenuRoot(
             label = stringResource(R.string.player_resize_title),
             trailing = MobilePlayerMenuRowTrailing.Navigate(),
             onClick = { onNavigate(MobilePlayerSettingsPage.Resize) },
+        )
+        MobilePlayerMenuRow(
+            icon = Icons.Filled.AccessTime,
+            label = stringResource(R.string.player_time_display_title),
+            trailing = MobilePlayerMenuRowTrailing.Navigate(),
+            onClick = { onNavigate(MobilePlayerSettingsPage.TimeDisplay) },
         )
         MobilePlayerMenuRow(
             icon = Icons.Filled.BrightnessMedium,
@@ -251,6 +302,39 @@ private fun MobilePlayerMenuRoot(
                     onDismiss()
                     actions.onDetails()
                 },
+            )
+        }
+
+        // Quick-access controls remain together below the less frequently reached settings.
+        MobilePlayerMenuRow(
+            icon = Icons.Filled.HighQuality,
+            label = stringResource(R.string.player_quality_title),
+            trailing = MobilePlayerMenuRowTrailing.Navigate(
+                playerQualityButtonLabel(
+                    activeQuality = model.selectedQuality,
+                    adaptiveQuality = model.adaptiveQuality,
+                    adaptiveLimitQuality = model.adaptiveLimitQuality,
+                    adaptiveLimitBest = model.adaptiveLimitBest,
+                ),
+            ),
+            onClick = { onNavigate(MobilePlayerSettingsPage.Quality) },
+        )
+        MobilePlayerMenuRow(
+            icon = Icons.Filled.Speed,
+            label = stringResource(R.string.player_speed_title),
+            trailing = MobilePlayerMenuRowTrailing.Navigate(
+                if (model.speed % 1f == 0f) "${model.speed.toInt()}x" else "${model.speed}x",
+            ),
+            onClick = { onNavigate(MobilePlayerSettingsPage.Speed) },
+        )
+        if (model.dubbingNames.isNotEmpty()) {
+            MobilePlayerMenuRow(
+                icon = Icons.Filled.Mic,
+                label = stringResource(R.string.player_mobile_track_settings_title),
+                trailing = MobilePlayerMenuRowTrailing.Navigate(
+                    model.dubbingNames.getOrNull(model.selectedDubbingIndex)?.dubbingDisplayName(),
+                ),
+                onClick = { onNavigate(MobilePlayerSettingsPage.Sources) },
             )
         }
     }

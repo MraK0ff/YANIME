@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import su.afk.yummy.tv.feature.player.presentation.R
 
-/** Выбор дорожки субтитров («Выкл» первым пунктом) в боковой панели плеера. */
+/** Выбор дорожки субтитров («Выкл» первым пунктом) в общей странице настроек плеера. */
 @Composable
 internal fun MobilePlayerSubtitleTrackSection(
     trackNames: List<String>,

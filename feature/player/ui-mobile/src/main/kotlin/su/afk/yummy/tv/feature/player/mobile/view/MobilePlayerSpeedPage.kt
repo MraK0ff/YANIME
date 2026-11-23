@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.Role
 import su.afk.yummy.tv.feature.player.mobile.utils.MOBILE_PLAYER_SPEED_MAX
 import su.afk.yummy.tv.feature.player.mobile.utils.MOBILE_PLAYER_SPEED_MIN
 import su.afk.yummy.tv.feature.player.mobile.utils.MOBILE_PLAYER_SPEED_SLIDER_STEPS
@@ -124,12 +125,12 @@ private fun MobilePlayerSpeedChip(
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Surface(
             shape = CircleShape,
-            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = MobilePlayerUnselectedContainerAlpha),
             contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(40.dp)
-                .clickable(onClick = onClick),
+                .height(MobilePlayerMinimumTouchTarget)
+                .clickable(role = Role.RadioButton, onClickLabel = value.toSpeedChipLabel(), onClick = onClick),
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Text(text = value.toSpeedChipLabel(), style = MaterialTheme.typography.bodyLarge)

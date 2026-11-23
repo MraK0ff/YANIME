@@ -6,6 +6,7 @@ import su.afk.yummy.tv.core.preferences.settings.EpisodePushSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.episodePushEnabledKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.episodePushKnownLibraryEpisodesKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.episodePushKnownNotificationIdsKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.episodePushKnownSubscribedEpisodesKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.episodePushLibraryEnabledKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.episodePushRecentPushesKey
 import javax.inject.Inject
@@ -56,6 +57,27 @@ internal class DataStoreEpisodePushSettingsStore @Inject constructor(
             prefs[episodePushKnownNotificationIdsKey] = current + ids.map(Int::toString)
         }
     }
+
+    override val knownSubscribedEpisodeNumbers: Flow<Map<Int, Int>> =
+        store.stringSet(episodePushKnownSubscribedEpisodesKey)
+            .map { entries -> entries.parseEpisodeNumbers() }
+
+    override suspend fun setKnownSubscribedEpisodeNumbers(values: Map<Int, Int>) {
+        store.edit { prefs ->
+            prefs[episodePushKnownSubscribedEpisodesKey] =
+                values.mapTo(mutableSetOf()) { (animeId, episode) -> "$animeId:$episode" }
+        }
+    }
+
+    private fun Set<String>.parseEpisodeNumbers(): Map<Int, Int> =
+        mapNotNull { entry ->
+            val parts = entry.split(':', limit = 2)
+            if (parts.size != 2) return@mapNotNull null
+            val animeId = parts[0].toIntOrNull() ?: return@mapNotNull null
+            val episode = parts[1].toIntOrNull() ?: return@mapNotNull null
+            if (animeId <= 0 || episode <= 0) return@mapNotNull null
+            animeId to episode
+        }.toMap()
 
     private fun Set<String>.parseRecentPushes(): Map<Int, Long> =
         mapNotNull { entry ->

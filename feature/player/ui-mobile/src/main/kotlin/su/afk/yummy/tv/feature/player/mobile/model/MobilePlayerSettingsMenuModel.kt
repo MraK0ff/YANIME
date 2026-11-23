@@ -1,7 +1,9 @@
 package su.afk.yummy.tv.feature.player.mobile.model
 
 import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
+import su.afk.yummy.tv.core.model.settings.PlayerOrientationMode
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleStyleSettings
+import su.afk.yummy.tv.core.model.settings.PlayerTimeDisplaySettings
 
 /** Всё, что единое меню настроек показывает: значения пунктов и доступность необязательных. */
 internal data class MobilePlayerSettingsMenuModel(
@@ -14,11 +16,21 @@ internal data class MobilePlayerSettingsMenuModel(
     val audioTrackNames: List<String>,
     val selectedAudioTrackIndex: Int,
     val showAudioTracks: Boolean,
+    val dubbingNames: List<String>,
+    val dubbingEpisodeCounts: List<Int>,
+    val dubbingViews: List<Int>,
+    val dubbingAvailability: List<Boolean>,
+    val selectedDubbingIndex: Int,
+    val balancerNames: List<String>,
+    val balancerAvailability: List<Boolean>,
+    val balancerExternal: List<Boolean>,
+    val selectedBalancerIndex: Int,
     val subtitleTrackNames: List<String>,
     val selectedSubtitleTrackIndex: Int,
     val showSubtitleTracks: Boolean,
     val subtitleStyle: PlayerSubtitleStyleSettings,
     val resizeMode: PlayerResizeMode,
+    val orientationMode: PlayerOrientationMode,
     val autoBrightness: Boolean,
     val showVolume: Boolean,
     val volumePercent: Int,
@@ -28,6 +40,8 @@ internal data class MobilePlayerSettingsMenuModel(
     val sleepTimerMinutes: Int,
     val showDetails: Boolean,
     val showPictureInPicture: Boolean,
+    val pictureInPictureEnabled: Boolean,
+    val timeDisplaySettings: PlayerTimeDisplaySettings,
     val showCast: Boolean,
 )
 
@@ -39,13 +53,17 @@ internal class MobilePlayerSettingsMenuActions(
     val onAdaptiveLimitBestSelected: () -> Unit,
     val onSpeedSelected: (Float) -> Unit,
     val onAudioTrackSelected: (Int) -> Unit,
+    val onDubbingSelected: (Int) -> Unit,
+    val onBalancerSelected: (Int) -> Unit,
     val onSubtitleTrackSelected: (Int) -> Unit,
     val onSubtitleStyleChange: (PlayerSubtitleStyleSettings) -> Unit,
     val onResizeModeSelected: (PlayerResizeMode) -> Unit,
+    val onOrientationModeSelected: (PlayerOrientationMode) -> Unit,
     val onAutoBrightnessChange: (Boolean) -> Unit,
     val onVolumeChange: (Int) -> Unit,
     val onStabilizationChange: (Boolean) -> Unit,
     val onSleepTimerSelected: (Int) -> Unit,
     val onDetails: () -> Unit,
-    val onPictureInPicture: () -> Unit,
+    val onPictureInPictureChange: (Boolean) -> Unit,
+    val onTimeDisplaySettingsChange: (PlayerTimeDisplaySettings) -> Unit,
 )

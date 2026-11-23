@@ -7,8 +7,11 @@ internal enum class MobilePlayerSettingsPage {
     Speed,
     Subtitles,
     AudioTrack,
+    Sources,
     SleepTimer,
     Resize,
     Display,
+    Orientation,
+    TimeDisplay,
     CastAndPip,
 }

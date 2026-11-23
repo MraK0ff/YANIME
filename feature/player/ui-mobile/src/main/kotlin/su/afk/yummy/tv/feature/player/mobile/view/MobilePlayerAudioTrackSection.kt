@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import su.afk.yummy.tv.feature.player.presentation.R
 
-/** Выбор озвучки Alloha в боковой панели плеера, рядом с дорожкой субтитров. */
+/** Выбор дорожки озвучки в общей странице настроек плеера. */
 @Composable
 internal fun MobilePlayerAudioTrackSection(
     trackNames: List<String>,

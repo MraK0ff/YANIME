@@ -7,19 +7,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -32,52 +24,40 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.core.designsystem.baseScreen.BaseBottomSheetCustom
-import su.afk.yummy.tv.core.designsystem.baseScreen.HideSheetWindowSystemBars
 import su.afk.yummy.tv.core.model.settings.PlayerOrientationMode
 import su.afk.yummy.tv.feature.player.mobile.utils.hintRes
 import su.afk.yummy.tv.feature.player.mobile.utils.icon
 import su.afk.yummy.tv.feature.player.mobile.utils.labelRes
 import su.afk.yummy.tv.feature.player.presentation.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun MobilePlayerOrientationSheet(
+internal fun MobilePlayerOrientationPage(
     selected: PlayerOrientationMode,
     onSelected: (PlayerOrientationMode) -> Unit,
-    onDismiss: () -> Unit,
+    onBack: () -> Unit,
 ) {
-    BaseBottomSheetCustom(onDismissRequest = onDismiss) { maxHeight ->
-        HideSheetWindowSystemBars()
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(max = maxHeight)
-                .verticalScroll(rememberScrollState())
-                .windowInsetsPadding(WindowInsets.navigationBars)
-                .padding(start = 16.dp, end = 16.dp, bottom = 18.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            MobilePlayerMenuPageHeader(
-                title = stringResource(R.string.player_mobile_orientation),
-                onBack = onDismiss,
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        MobilePlayerMenuPageHeader(
+            title = stringResource(R.string.player_mobile_orientation),
+            onBack = onBack,
+        )
+        PlayerOrientationMode.entries.forEach { mode ->
+            OrientationChoiceRow(
+                label = stringResource(mode.labelRes),
+                hint = stringResource(mode.hintRes),
+                icon = mode.icon,
+                selected = mode == selected,
+                onClick = { onSelected(mode) },
             )
-            PlayerOrientationMode.entries.forEach { mode ->
-                OrientationRow(
-                    label = stringResource(mode.labelRes),
-                    hint = stringResource(mode.hintRes),
-                    icon = mode.icon,
-                    selected = mode == selected,
-                    onClick = { onSelected(mode) },
-                )
-            }
         }
     }
 }
 
 @Composable
-private fun OrientationRow(
+private fun OrientationChoiceRow(
     label: String,
     hint: String,
     icon: ImageVector,
@@ -85,15 +65,13 @@ private fun OrientationRow(
     onClick: () -> Unit,
 ) {
     val background = if (selected) {
-        MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+        MaterialTheme.colorScheme.primary.copy(alpha = MobilePlayerSelectedContainerAlpha)
     } else {
-        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.58f)
+        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = MobilePlayerUnselectedContainerAlpha)
     }
-
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.medium)
+        modifier = Modifier.fillMaxWidth()
+            .clip(MobilePlayerInteractiveShape)
             .background(background)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
@@ -104,12 +82,12 @@ private fun OrientationRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        val tint = MaterialTheme.colorScheme.primary
+        val tint = if (selected) MaterialTheme.colorScheme.primary
+            else MaterialTheme.colorScheme.onSurfaceVariant
         Box(
-            modifier = Modifier
-                .size(36.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(tint.copy(alpha = 0.16f)),
+            modifier = Modifier.size(36.dp)
+                .clip(MobilePlayerStaticShape)
+                .background(tint.copy(alpha = 0.12f)),
             contentAlignment = Alignment.Center,
         ) {
             Icon(imageVector = icon, contentDescription = null, tint = tint, modifier = Modifier.size(20.dp))
@@ -122,7 +100,7 @@ private fun OrientationRow(
                 text = label,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-                color = MaterialTheme.colorScheme.primary,
+                color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
             )
             Text(
                 text = hint,

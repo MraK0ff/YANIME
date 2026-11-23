@@ -41,4 +41,9 @@ interface EpisodePushSettingsStore {
     suspend fun recordPush(animeId: Int, seconds: Long)
 
     suspend fun addKnownNotificationIds(ids: Set<Int>)
+
+    /** Последний номер серии, уже известный по подпискам (animeId → episodeNumber). */
+    val knownSubscribedEpisodeNumbers: Flow<Map<Int, Int>>
+
+    suspend fun setKnownSubscribedEpisodeNumbers(values: Map<Int, Int>)
 }

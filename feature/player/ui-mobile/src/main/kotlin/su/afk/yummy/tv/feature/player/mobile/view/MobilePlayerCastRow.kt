@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -25,6 +26,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.media3.cast.MediaRouteButton
@@ -37,11 +42,17 @@ import su.afk.yummy.tv.feature.player.presentation.R
  */
 @Composable
 internal fun MobilePlayerCastRow() {
+    val castLabel = stringResource(R.string.player_mobile_cast)
     val interactionSource = remember { MutableInteractionSource() }
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(MaterialTheme.shapes.medium)
+            .clip(MobilePlayerInteractiveShape)
+            .heightIn(min = MobilePlayerMinimumTouchTarget)
+            .semantics {
+                role = Role.Button
+                contentDescription = castLabel
+            }
             // Заливка при нажатии, но без своего clickable: тап должен дойти до кнопки ниже.
             .indication(interactionSource, LocalIndication.current)
             .pointerInput(Unit) {
@@ -67,7 +78,7 @@ internal fun MobilePlayerCastRow() {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 10.dp),
+                .padding(horizontal = 12.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
@@ -75,7 +86,7 @@ internal fun MobilePlayerCastRow() {
                 Icon(Icons.Filled.Cast, contentDescription = null)
             }
             Text(
-                text = stringResource(R.string.player_mobile_cast),
+                text = castLabel,
                 style = MaterialTheme.typography.bodyLarge,
             )
         }

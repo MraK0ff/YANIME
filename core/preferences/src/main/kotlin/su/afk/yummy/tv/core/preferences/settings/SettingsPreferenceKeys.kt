@@ -61,8 +61,11 @@ internal object SettingsPreferenceKeys {
         intPreferencesKey("advanced_player_volume_percent")
     val mobilePlayerBrightnessPercentKey =
         intPreferencesKey("mobile_player_brightness_percent")
+    val mobilePlayerAutoBrightnessEnabledKey =
+        booleanPreferencesKey("mobile_player_auto_brightness_enabled")
     val playerPlaybackSpeedKey =
         floatPreferencesKey("player_playback_speed")
+    val playerTimeDisplaySettingsKey = stringPreferencesKey("player_time_display_settings")
     val volumeStabilizationEnabledKey =
         booleanPreferencesKey("volume_stabilization_enabled")
     val audioFocusDisabledKey =
@@ -134,6 +137,8 @@ internal object SettingsPreferenceKeys {
     val episodePushRecentPushesKey = stringSetPreferencesKey("episode_push_recent_pushes")
     val episodePushKnownNotificationIdsKey =
         stringSetPreferencesKey("episode_push_known_notification_ids")
+    val episodePushKnownSubscribedEpisodesKey =
+        stringSetPreferencesKey("episode_push_known_subscribed_episodes")
     val torrentEnabledKey = booleanPreferencesKey("torrent_enabled")
     val torrServerUrlKey = stringPreferencesKey("torrserver_url")
     val torrServerUserKey = stringPreferencesKey("torrserver_user")

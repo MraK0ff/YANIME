@@ -34,7 +34,7 @@ import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 @Composable
 internal fun ToggleRow(
     label: String,
-    hint: String,
+    hint: String? = null,
     enabled: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -78,11 +78,13 @@ internal fun ToggleRow(
                 style = MaterialTheme.typography.bodyLargeEmphasized,
                 color = MaterialTheme.colorScheme.onBackground,
             )
-            Text(
-                text = hint,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            hint?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
         Spacer(modifier = Modifier.width(YummySpacing.Large))
         Switch(

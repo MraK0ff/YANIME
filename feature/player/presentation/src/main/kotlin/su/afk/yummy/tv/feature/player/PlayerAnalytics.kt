@@ -383,6 +383,32 @@ internal class PlayerAnalytics @Inject constructor(
     }
 
     /**
+     * Alloha исчерпал бюджет восстановления после того, как новая сессия не открылась.
+     * Это диагностическое событие, а не повторный non-fatal: исходная ошибка резолва уже учтена.
+     */
+    fun eventRecoveryGaveUp(
+        state: PlayerState.State,
+        message: String,
+        errorType: String,
+        positionMs: Long,
+        retryAttempts: Int,
+    ) {
+        val source = state.analyticsSource()
+        tracker.track(
+            EVENT_RECOVERY_GAVE_UP,
+            sourceParams(source) +
+                analyticsParamsOf(
+                    PARAM_ANIME_NAME to source.animeName,
+                    PARAM_ERROR_TYPE to errorType,
+                    PARAM_ERROR_MESSAGE to message.analyticsMessage(),
+                    PARAM_RETRY_ATTEMPTS to retryAttempts.coerceAtLeast(0),
+                    PARAM_POSITION to positionMs.formatPlaybackTimecode(),
+                    PARAM_POSITION_MS to positionMs.coerceAtLeast(0L),
+                ),
+        )
+    }
+
+    /**
      * Плеер запустил поток из выбранного источника.
      *
      * Параметры: anime_id, video_id, player_id, episode, player, dubbing.
@@ -575,6 +601,7 @@ internal class PlayerAnalytics @Inject constructor(
         const val EVENT_SPEED_SELECTED = "player_speed_selected"
         const val EVENT_STREAM_STARTED = "player_stream_started"
         const val EVENT_STREAM_RESOLVE_FAILED = "player_stream_resolve_failed"
+        const val EVENT_RECOVERY_GAVE_UP = "player_recovery_gave_up"
         const val EVENT_ZOOM_LEVEL_SELECTED = "player_zoom_level_selected"
     }
 }

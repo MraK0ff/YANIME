@@ -48,14 +48,6 @@ internal fun SettingsTvStorageContent(
         hint = stringResource(R.string.settings_clear_cache_hint),
         onClick = { onEvent(SettingsState.Event.ClearCacheRequested) },
     )
-    SettingsDivider()
-    SettingsSectionTitle(text = stringResource(R.string.settings_section_anime_list))
-    AboutRow(
-        label = stringResource(R.string.settings_list_transfer_title),
-        hint = stringResource(R.string.settings_list_transfer_hint),
-        onClick = { onEvent(SettingsState.Event.ListTransferSelected) },
-        modifier = Modifier.restoreCategoryFocusOnLeft(tabFocusRequester),
-    )
     if (showCacheStorageDialog) {
         CacheStorageTvDialog(
             entries = state.cacheStorageEntries,

@@ -95,13 +95,6 @@ internal fun SettingsTvAppearanceContent(
         onClick = { onEvent(SettingsState.Event.ShowLibraryTitleYearToggled) },
         modifier = Modifier.restoreCategoryFocusOnLeft(tabFocusRequester),
     )
-    SettingsDivider()
-    ToggleRow(
-        label = stringResource(R.string.settings_minimal_details),
-        enabled = state.minimalDetails,
-        onClick = { onEvent(SettingsState.Event.MinimalDetailsToggled) },
-        modifier = Modifier.restoreCategoryFocusOnLeft(tabFocusRequester),
-    )
     SettingsBlockGap()
     SettingsSectionTitle(text = stringResource(R.string.settings_mobile_section_library))
     SettingsTvIconChoiceRow(

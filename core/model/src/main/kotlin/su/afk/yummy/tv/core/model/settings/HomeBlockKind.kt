@@ -10,5 +10,6 @@ enum class HomeBlockKind {
     RECOMMENDATIONS,
     ANNOUNCEMENTS,
     COLLECTIONS,
+    BLOGGER_VIDEOS,
     QUICK_ACTIONS,
 }

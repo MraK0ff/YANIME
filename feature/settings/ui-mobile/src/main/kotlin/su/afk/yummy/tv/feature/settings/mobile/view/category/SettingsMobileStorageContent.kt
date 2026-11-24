@@ -10,7 +10,6 @@ import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.feature.settings.SettingsState
 import su.afk.yummy.tv.feature.settings.common.utils.hint
 import su.afk.yummy.tv.feature.settings.common.utils.label
-import su.afk.yummy.tv.feature.settings.mobile.view.SettingsMobileNavigationRow
 import su.afk.yummy.tv.feature.settings.mobile.view.SettingsMobileOptionRow
 import su.afk.yummy.tv.feature.settings.mobile.view.SettingsMobileSection
 import su.afk.yummy.tv.feature.settings.mobile.view.SettingsMobileToggleRow
@@ -74,13 +73,6 @@ internal fun SettingsMobileStorageContent(
                 },
                 enabled = state.videoExportAutoEnabled,
                 onClick = { onEvent(SettingsState.Event.VideoExportAutoToggled) },
-            )
-        }
-        SettingsMobileSection(title = stringResource(R.string.settings_section_anime_list)) {
-            SettingsMobileNavigationRow(
-                label = stringResource(R.string.settings_list_transfer_title),
-                hint = stringResource(R.string.settings_list_transfer_hint),
-                onClick = { onEvent(SettingsState.Event.ListTransferSelected) },
             )
         }
     }

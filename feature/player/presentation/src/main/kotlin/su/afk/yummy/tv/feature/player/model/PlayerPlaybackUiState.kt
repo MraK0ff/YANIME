@@ -74,4 +74,8 @@ data class PlayerPlaybackUiState(
     val showRecoveryHint: Boolean,
     /** Позиция, с которой продолжить после смены источника с экрана ошибки. */
     val errorResumePositionMs: Long,
+    /** Ограничение высоты synthetic HLS master; null для обычного потока. */
+    val videoHeightCap: Int? = null,
+    /** Закрепить выбранный вариант master при ручном выборе качества. */
+    val videoHeightPinned: Boolean = false,
 )

@@ -30,6 +30,7 @@ fun HomeBlockKind.toSectionType(): HomeFeedSectionType? = when (this) {
     HomeBlockKind.COLLECTIONS -> HomeFeedSectionType.COLLECTIONS
     HomeBlockKind.HERO,
     HomeBlockKind.CONTINUE_WATCHING,
+    HomeBlockKind.BLOGGER_VIDEOS,
     HomeBlockKind.QUICK_ACTIONS,
     -> null
 }

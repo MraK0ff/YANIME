@@ -14,7 +14,7 @@ internal fun SettingsMobileToggleRow(
 ) {
     MobileSettingToggleRow(
         label = label,
-        hint = hint,
+        hint = hint.orEmpty(),
         checked = enabled,
         onClick = onClick,
         modifier = modifier,

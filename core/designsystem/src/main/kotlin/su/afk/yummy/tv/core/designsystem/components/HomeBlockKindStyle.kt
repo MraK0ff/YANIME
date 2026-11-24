@@ -27,6 +27,7 @@ fun HomeBlockKind.icon(): ImageVector = when (this) {
     HomeBlockKind.RECOMMENDATIONS -> Icons.Filled.Recommend
     HomeBlockKind.ANNOUNCEMENTS -> Icons.Filled.Campaign
     HomeBlockKind.COLLECTIONS -> Icons.Filled.VideoLibrary
+    HomeBlockKind.BLOGGER_VIDEOS -> Icons.Filled.Slideshow
     HomeBlockKind.QUICK_ACTIONS -> Icons.Filled.Bolt
 }
 
@@ -41,5 +42,6 @@ fun HomeBlockKind.color(): Color = when (this) {
     HomeBlockKind.RECOMMENDATIONS -> YummySemanticColors.StatusPostponed
     HomeBlockKind.ANNOUNCEMENTS -> YummySemanticColors.StatusDropped
     HomeBlockKind.COLLECTIONS -> MaterialTheme.colorScheme.secondary
+    HomeBlockKind.BLOGGER_VIDEOS -> MaterialTheme.colorScheme.tertiary
     HomeBlockKind.QUICK_ACTIONS -> MaterialTheme.colorScheme.primary
 }

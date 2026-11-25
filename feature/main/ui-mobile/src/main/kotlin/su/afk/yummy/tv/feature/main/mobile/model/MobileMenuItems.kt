@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.CollectionsBookmark
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Forum
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import su.afk.yummy.tv.core.navigation.root.RootTab
@@ -24,6 +25,7 @@ internal fun mobileMenuItems(
     val available = listOf(
         "SCHEDULE" to MobileMenuItem(stringResource(R.string.main_tab_schedule), RootTab.SCHEDULE, Icons.Default.CalendarToday),
         "HOME" to MobileMenuItem(stringResource(R.string.main_tab_home), RootTab.HOME, Icons.Default.Home, hasSeasonalDecor = true),
+        "COMMUNITY" to MobileMenuItem(stringResource(R.string.main_tab_community), RootTab.COMMUNITY, Icons.Default.Forum),
         "LIBRARY" to MobileMenuItem(stringResource(R.string.main_tab_library), RootTab.LIBRARY, Icons.AutoMirrored.Filled.List),
         "POSTS" to MobileMenuItem(stringResource(R.string.main_tab_news), RootTab.POSTS, Icons.Default.Article),
         "COLLECTIONS" to MobileMenuItem(stringResource(R.string.main_tab_collections), RootTab.COLLECTIONS, Icons.Default.CollectionsBookmark),

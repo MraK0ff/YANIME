@@ -269,6 +269,7 @@ private fun MobileMainTabsCustomizationDialog(
                             text = when (key) {
                                 "SCHEDULE" -> stringResource(R.string.settings_mobile_main_tab_schedule)
                                 "HOME" -> stringResource(R.string.settings_mobile_main_tab_home)
+                                "COMMUNITY" -> stringResource(R.string.settings_mobile_main_tab_community)
                                 "LIBRARY" -> stringResource(R.string.settings_mobile_main_tab_library)
                                 "DOWNLOADS" -> stringResource(R.string.settings_mobile_main_tab_downloads)
                                 "POSTS" -> stringResource(R.string.settings_mobile_main_tab_news)
@@ -312,8 +313,8 @@ private fun MobileMainTabsCustomizationDialog(
         dismissButton = {
             Row {
                 TextButton(onClick = {
-                    onOrderChanged(listOf("SCHEDULE", "HOME", "LIBRARY", "DOWNLOADS", "POSTS", "COLLECTIONS"))
-                    onEnabledChanged(setOf("SCHEDULE", "HOME", "LIBRARY", "DOWNLOADS"))
+                    onOrderChanged(listOf("SCHEDULE", "HOME", "COMMUNITY", "LIBRARY", "DOWNLOADS", "POSTS", "COLLECTIONS"))
+                    onEnabledChanged(setOf("SCHEDULE", "HOME", "COMMUNITY", "LIBRARY", "DOWNLOADS"))
                 }) {
                     Text(stringResource(R.string.settings_mobile_main_tabs_reset))
                 }

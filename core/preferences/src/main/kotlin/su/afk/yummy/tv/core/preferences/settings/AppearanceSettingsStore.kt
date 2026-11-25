@@ -94,7 +94,7 @@ interface AppearanceSettingsStore {
 
     companion object {
         val defaultLibraryTabOrder: List<LibraryTabKind> = LibraryTabKind.entries
-        val defaultMobileMainTabsOrder: List<String> = listOf("SCHEDULE", "HOME", "LIBRARY", "DOWNLOADS", "POSTS", "COLLECTIONS")
-        val defaultMobileMainTabsEnabled: Set<String> = setOf("SCHEDULE", "HOME", "LIBRARY", "DOWNLOADS")
+        val defaultMobileMainTabsOrder: List<String> = listOf("SCHEDULE", "HOME", "COMMUNITY", "LIBRARY", "DOWNLOADS", "POSTS", "COLLECTIONS")
+        val defaultMobileMainTabsEnabled: Set<String> = setOf("SCHEDULE", "HOME", "COMMUNITY", "LIBRARY", "DOWNLOADS")
     }
 }

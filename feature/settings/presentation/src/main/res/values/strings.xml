@@ -455,4 +455,5 @@ Search indexer: https://jac-red.ru or Jackett: https://github.com/jackett/jacket
     <string name="settings_mobile_main_tabs_save">Save</string>
     <string name="settings_mobile_main_tabs_cancel">Cancel</string>
     <string name="settings_mobile_main_tabs_reset">Reset</string>
+    <string name="settings_mobile_main_tab_community">Community</string>
 </resources>

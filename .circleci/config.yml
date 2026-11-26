@@ -1,0 +1,102 @@
+version: 2.1
+setup: true
+
+orbs:
+  continuation: circleci/continuation@2
+
+jobs:
+  detect-changes:
+    docker:
+      - image: cimg/base:2026.11
+    resource_class: small
+    environment:
+      BASE_REVISION: << pipeline.git.base_revision >>
+    steps:
+      - checkout
+      - run:
+          name: Detect APK-affecting changes
+          command: |
+            set -euo pipefail
+
+            head_sha="${CIRCLE_SHA1}"
+            branch="${CIRCLE_BRANCH}"
+            build=false
+            base=""
+
+            if [[ "${BASE_REVISION:-}" =~ ^[0-9a-f]{40}$ ]]; then
+              if git cat-file -e "${BASE_REVISION}^{commit}" 2>/dev/null || git fetch --no-tags origin "${BASE_REVISION}"; then
+                base="${BASE_REVISION}"
+              fi
+            fi
+
+            if [[ -z "$base" && "$branch" == "main" ]]; then
+              # Without a trustworthy previous revision, never skip the default branch.
+              build=true
+              echo "No safe base revision for main; forcing an APK build."
+            elif [[ -z "$base" ]]; then
+              git fetch --no-tags origin main:refs/remotes/origin/main
+              base="$(git merge-base refs/remotes/origin/main "$head_sha" || true)"
+            fi
+
+            if [[ "$build" != true ]]; then
+              if [[ -z "$base" ]]; then
+                echo "Could not determine a safe comparison base; forcing an APK build."
+                build=true
+              else
+                echo "Comparing $base..$head_sha"
+                while IFS= read -r -d '' path; do
+                  case "$path" in
+                    # Android source, resources, manifests, native code and module build files.
+                    app/*|core/*|feature/*|source/*|external/*|baselineprofile/*|private/*|buildSrc/*|build-logic/*)
+                      build=true
+                      break
+                      ;;
+                    # Root and shared Gradle configuration.
+                    gradle/*|settings.gradle|settings.gradle.kts|build.gradle|build.gradle.kts|gradle.properties|gradlew|gradlew.bat|local.properties|.gitmodules|.gitattributes|scripts/*|tools/*|.circleci/*)
+                      build=true
+                      break
+                      ;;
+                    # Dependency locks and Android manifests can occur in any module.
+                    *gradle.lockfile|*verification-metadata.xml|AndroidManifest.xml)
+                      build=true
+                      break
+                      ;;
+                    # Known documentation and repository metadata do not affect the APK.
+                    README*|LICENSE*|NOTICE*|CONTRIBUTING*|docs/*|.github/ISSUE_TEMPLATE/*|.github/FUNDING.yml|.github/CODEOWNERS|.github/workflows/*|.github/scripts/*)
+                      ;;
+                    # Fail safe: an unclassified file may affect packaging or generated inputs.
+                    *)
+                      echo "Unclassified changed path; treating as build-relevant: $path"
+                      build=true
+                      break
+                      ;;
+                  esac
+                done < <(git diff --no-renames --name-only -z "$base" "$head_sha")
+              fi
+            fi
+
+            printf '{"run_android_build":%s}\n' "$build" > /tmp/pipeline-parameters.json
+            cat /tmp/pipeline-parameters.json
+      - continuation/continue:
+          configuration_path: .circleci/continue.yml
+          parameters: /tmp/pipeline-parameters.json
+
+workflows:
+  setup:
+    jobs:
+      - detect-changes:
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+                - development
+                - /^feature\/.*/
+                - /^fix\/.*/
+                - /^bugfix\/.*/
+                - /^hotfix\/.*/
+                - /^release\/.*/
+                - /^adapt\/.*/
+                - /^refactor\/.*/
+                - /^chore\/.*/
+                - /^ci\/.*/

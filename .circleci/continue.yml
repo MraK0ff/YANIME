@@ -1,0 +1,193 @@
+version: 2.1
+
+parameters:
+  run_android_build:
+    type: boolean
+    default: false
+
+jobs:
+  build-apk:
+    machine:
+      image: android:2026.10.1
+    resource_class: medium
+    retention:
+      caches: 7d
+    working_directory: ~/project
+    steps:
+      - checkout
+      - run:
+          name: Verify Android build environment
+          command: |
+            set -euo pipefail
+            java -version
+            test -n "${ANDROID_HOME:-}"
+            command -v sdkmanager
+            compile_sdk="$(grep -m1 '^android-compileSdk' gradle/libs.versions.toml | cut -d '"' -f 2)"
+            (yes || true) | sdkmanager --licenses >/dev/null
+            sdkmanager --install "platforms;android-$compile_sdk"
+      - run:
+          name: Configure API base URL
+          command: |
+            set -euo pipefail
+            api_base_url="${YUMMY_TV_API_BASE_URL:-https://v2.yummytv.afk.su/api}"
+            if [[ ! "$api_base_url" =~ ^https:// ]]; then
+              echo "YUMMY_TV_API_BASE_URL must be an HTTPS URL" >&2
+              exit 1
+            fi
+            printf 'yummytv.apiBaseUrl=%s\n' "$api_base_url" >> local.properties
+      - run:
+          name: Create dependency cache fingerprint
+          command: |
+            set -euo pipefail
+            {
+              echo "executor_image=android:2026.10.1"
+              java -version 2>&1
+              while IFS= read -r -d '' file; do
+                case "$file" in
+                  *.gradle|*.gradle.kts|./gradle.properties|*/gradle.properties|gradle.lockfile|*/gradle.lockfile|*.gradle.lockfile|*/libs.versions.toml|*/gradle-wrapper.properties|*/verification-metadata.xml)
+                    sha256sum "$file"
+                    ;;
+                esac
+              done < <(find . -type f -not -path './.git/*' -print0)
+            } > .circleci/gradle-deps-key.txt
+      - restore_cache:
+          keys:
+            - yanime-gradle-deps-v2-{{ arch }}-{{ checksum ".circleci/gradle-deps-key.txt" }}
+            - yanime-gradle-deps-v2-{{ arch }}-
+      - run:
+          name: Assemble production-like debug APK
+          no_output_timeout: 30m
+          command: |
+            set -euo pipefail
+            ./gradlew :app:assembleReleaseDebug --stacktrace
+      - save_cache:
+          key: yanime-gradle-deps-v2-{{ arch }}-{{ checksum ".circleci/gradle-deps-key.txt" }}
+          paths:
+            - ~/.gradle/caches/modules-2
+            - ~/.gradle/wrapper/dists
+      - run:
+          name: Sign APK with the stable Android test key
+          command: |
+            set -euo pipefail
+            key_dir="$HOME/android-testkey"
+            mkdir -p "$key_dir"
+            curl --fail --silent --show-error --location --retry 3 --retry-delay 2 'https://android.googlesource.com/platform/build/+/refs/heads/main/target/product/security/testkey.pk8?format=TEXT' | base64 --decode > "$key_dir/testkey.pk8"
+            curl --fail --silent --show-error --location --retry 3 --retry-delay 2 'https://android.googlesource.com/platform/build/+/refs/heads/main/target/product/security/testkey.x509.pem?format=TEXT' | base64 --decode > "$key_dir/testkey.x509.pem"
+            openssl pkcs8 -inform DER -nocrypt -in "$key_dir/testkey.pk8" -out /dev/null
+            openssl pkey -inform DER -in "$key_dir/testkey.pk8" -pubout -out "$key_dir/key-public.pem"
+            openssl x509 -in "$key_dir/testkey.x509.pem" -pubkey -noout > "$key_dir/cert-public.pem"
+            diff -u "$key_dir/key-public.pem" "$key_dir/cert-public.pem"
+            apksigner="$(find "$ANDROID_HOME/build-tools" -maxdepth 2 -type f -name apksigner | sort -V | tail -n 1)"
+            test -n "$apksigner"
+            apk="app/build/outputs/apk/releaseDebug/YANIME.apk"
+            test -f "$apk"
+            "$apksigner" sign --key "$key_dir/testkey.pk8" --cert "$key_dir/testkey.x509.pem" "$apk"
+            "$apksigner" verify --verbose --print-certs "$apk"
+      - run:
+          name: Prepare commit-bound artifacts
+          command: |
+            set -euo pipefail
+            apk="app/build/outputs/apk/releaseDebug/YANIME.apk"
+            metadata="app/build/outputs/apk/releaseDebug/output-metadata.json"
+            test -f "$apk"
+            test -f "$metadata"
+            version_name="$(jq -er '.elements[0].versionName | select(type == "string" and length > 0)' "$metadata")"
+            version_code="$(jq -er '.elements[0].versionCode' "$metadata")"
+            [[ "$version_name" =~ ^[0-9A-Za-z._+-]+$ ]]
+            out="artifacts/$CIRCLE_SHA1"
+            mkdir -p "$out"
+            cp "$apk" "$out/YANIME.apk"
+            mapping="app/mappings/$version_name-$version_code/releaseDebug/mapping.txt"
+            test -f "$mapping"
+            cp "$mapping" "$out/mapping.txt"
+            {
+              echo "commit_sha=$CIRCLE_SHA1"
+              echo "variant=releaseDebug"
+              echo "version_name=$version_name"
+              echo "version_code=$version_code"
+              echo "gradle_version=$(sed -nE 's#.*gradle-([0-9]+([.][0-9]+)*)-bin.zip.*#\1#p' gradle/wrapper/gradle-wrapper.properties)"
+              echo "java_version=$(awk -F= '/^JAVA_VERSION=/{gsub(/"/, "", $2); print $2}' "$JAVA_HOME/release")"
+              echo "built_at_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            } > "$out/build-metadata.txt"
+            sha256sum "$out/YANIME.apk" > "$out/SHA256SUMS"
+      - store_artifacts:
+          path: artifacts
+          destination: yanime
+      - persist_to_workspace:
+          root: .
+          paths:
+            - artifacts
+
+  publish-release:
+    docker:
+      - image: cimg/base:2026.11
+    resource_class: small
+    working_directory: ~/project
+    environment:
+      GH_REPO: MraK0ff/YANIME
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install GitHub CLI
+          command: |
+            set -euo pipefail
+            if ! command -v gh >/dev/null 2>&1; then
+              sudo apt-get update
+              sudo apt-get install -y gh
+            fi
+      - run:
+          name: Publish versioned YANIME release
+          command: |
+            set -euo pipefail
+            : "${GH_TOKEN:?Create the yanime-release CircleCI context and add GH_TOKEN}"
+            metadata="artifacts/$CIRCLE_SHA1/build-metadata.txt"
+            apk="artifacts/$CIRCLE_SHA1/YANIME.apk"
+            test -f "$metadata"
+            test -f "$apk"
+            version_name="$(sed -n 's/^version_name=//p' "$metadata")"
+            [[ "$version_name" =~ ^[0-9A-Za-z._+-]+$ ]]
+            tag="v$version_name"
+            for legacy_tag in latest v; do
+              if gh release view "$legacy_tag" >/dev/null 2>&1; then
+                gh release delete "$legacy_tag" --yes
+              fi
+              gh api --method DELETE "repos/$GH_REPO/git/refs/tags/$legacy_tag" >/dev/null 2>&1 || true
+            done
+            if gh release view "$tag" >/dev/null 2>&1; then
+              gh release edit "$tag" --title "$version_name" --latest
+              gh release upload "$tag" "$apk" --clobber
+            else
+              gh release create "$tag" "$apk" --title "$version_name" --latest --target "$CIRCLE_SHA1" --notes ""
+            fi
+            GITHUB_REPOSITORY="$GH_REPO" YANIME_VERSION="$version_name" python3 .github/scripts/update_release_history.py
+
+workflows:
+  build:
+    when: << pipeline.parameters.run_android_build >>
+    jobs:
+      - build-apk:
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+                - development
+                - /^feature\/.*/
+                - /^fix\/.*/
+                - /^bugfix\/.*/
+                - /^hotfix\/.*/
+                - /^release\/.*/
+                - /^adapt\/.*/
+                - /^refactor\/.*/
+                - /^chore\/.*/
+                - /^ci\/.*/
+      - publish-release:
+          requires:
+            - build-apk
+          context:
+            - yanime-release
+          filters:
+            branches:
+              only: main

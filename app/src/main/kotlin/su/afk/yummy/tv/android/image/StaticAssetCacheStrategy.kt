@@ -10,6 +10,7 @@ import okio.BufferedSink
 import okio.FileSystem
 import okio.IOException
 import okio.Path
+import su.afk.yummy.tv.core.model.anime.utils.yaniPosterCacheKey
 import kotlin.time.Duration.Companion.days
 
 /**
@@ -31,8 +32,10 @@ internal class StaticAssetCacheStrategy(
         options: Options,
     ): CacheStrategy.ReadResult {
         val age = nowMillis() - cacheResponse.responseMillis
-        val isFresh = cacheResponse.code == 200 && age in 0..StaticFreshness.inWholeMilliseconds
-        val isStableAsset = isOwnStatic(networkRequest.url, staticPrefix()) || isImage(cacheResponse.headers["Content-Type"])
+        // Постер yani с id неизменяем: новый постер получает новый id, поэтому кэш можно хранить без TTL.
+        val isPoster = yaniPosterCacheKey(networkRequest.url) != null
+        val isFresh = cacheResponse.code == 200 && (isPoster || age in 0..StaticFreshness.inWholeMilliseconds)
+        val isStableAsset = isPoster || isOwnStatic(networkRequest.url, staticPrefix()) || isImage(cacheResponse.headers["Content-Type"])
         return if (isFresh && isStableAsset) {
             CacheStrategy.ReadResult(cacheResponse)
         } else {

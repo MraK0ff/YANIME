@@ -34,7 +34,7 @@
     <string name="details_loading_episodes">Загружаем серии…</string>
     <string name="details_continue_episode">Продолжить · Серия %1$s</string>
     <string name="details_mobile_add_library">В список</string>
-    <string name="details_add_favorite">Любимые</string>
+    <string name="details_add_favorite">Любимое</string>
         <string name="details_mobile_sections">Разделы</string>
         <string name="details_mobile_video_section">Видео</string>
         <string name="details_mobile_blogger_videos_hint">Мнения и разборы</string>
@@ -47,6 +47,7 @@
     <string name="details_episodes_filter_unwatched">Непросмотренные</string>
     <string name="details_episodes_filter_watched">Просмотренные</string>
     <string name="details_episodes_filter_empty">Нет серий под выбранный фильтр</string>
+    <string name="details_episodes_range_label">%1$s–%2$s</string>
     <string name="details_sections_hint">Вы можете нажимать вниз, чтобы увидеть больше секций: описание, рейтинг, вселенную тайтла и похожие тайтлы. Попробуйте — это легко</string>
     <string name="details_sections_hint_dismiss">Хорошо, запомнил</string>
     <string name="details_subscriptions">Подписки</string>
@@ -63,11 +64,13 @@
     <string name="details_mobile_show_collections">Показать коллекции</string>
     <string name="details_mobile_show_comments">Показать комментарии</string>
     <string name="details_mobile_universe_show_all">Показать все</string>
+    <string name="details_random_anime">Случайное аниме</string>
     <string name="details_screenshots_title">Скриншоты</string>
     <string name="details_new_search">Поиск</string>
     <string name="details_back_to_search">Вернуться к поиску</string>
     <string name="details_kinopoisk_rating">КП %1$s</string>
     <string name="details_shikimori_rating">Shikimori %1$s</string>
+    <string name="details_shikimori_rating_short">Shiki %1$s</string>
     <string name="details_mal_rating">MAL %1$s</string>
     <string name="details_library_picker_title">Добавить в список</string>
     <string name="details_library_list_watching">Смотрю</string>
@@ -80,7 +83,7 @@
     <string name="details_mobile_subscription_meta">%1$s · серий: %2$d</string>
     <string name="details_subscription_subscribe">Подписаться</string>
     <string name="details_subscription_unsubscribe">Отписаться</string>
-    <string name="details_balancer_title">Серия %1$s · Балансер</string>
+    <string name="details_balancer_title">Серия %1$s · Плеер</string>
     <string name="details_mobile_unsupported_player">%1$s · не поддерживается</string>
     <string name="details_balancer_external">Внешний</string>
     <string name="details_mobile_aired">Вышло: %1$d из %2$s</string>
@@ -151,10 +154,14 @@
     <string name="details_mobile_episode_download_error_unknown">Ошибка загрузки</string>
     <string name="details_episode_dubbings_title">Серия %1$s · Озвучка</string>
     <string name="details_mobile_download_dubbing_empty">Озвучки недоступны</string>
-        <string name="details_mobile_download_balancer_empty">Балансеры недоступны</string>
+        <string name="details_mobile_download_balancer_empty">Плееры недоступны</string>
     <string name="details_mobile_download_quality_title">Качество скачивания</string>
     <string name="details_mobile_download_quality_prompt">Выберите качество</string>
     <string name="details_mobile_download_quality_empty">Нет доступных качеств</string>
+    <string name="details_mobile_download_preset_remember">Запомнить озвучку и плеер</string>
+    <string name="details_mobile_download_preset_remember_hint">В следующий раз спросим только качество</string>
+    <string name="details_mobile_download_preset_label">Пресет: %1$s</string>
+    <string name="details_mobile_download_preset_change">Изменить</string>
             <string name="details_episodes_count_short">%1$d сер.</string>
     <string name="details_count_thousands">%1$sк</string>
     <string name="details_count_millions">%1$sм</string>
@@ -215,7 +222,7 @@
     <string name="details_in_library">В списке</string>
     <string name="details_add_library">В список</string>
         <string name="details_subscription_dubbing">Озвучка: %1$s</string>
-    <string name="details_subscription_player">Балансер: %1$s</string>
+    <string name="details_subscription_player">Плеер: %1$s</string>
     <string name="details_subscription_episodes">Серий: %1$d</string>
     <string name="details_subscribe_updates">Подписаться на новые серии</string>
     <string name="details_unsubscribe_updates">Отписаться от новых серий</string>
@@ -259,6 +266,4 @@
     <string name="details_onboarding_episodes_text">Все серии с отметками просмотра. Здесь же можно выбрать озвучку для конкретной серии.</string>
     <string name="details_onboarding_subscriptions_title">Уведомления о сериях</string>
     <string name="details_onboarding_subscriptions_text">Подпишитесь на озвучку, чтобы узнавать о выходе новой серии.</string>
-    <string name="details_random_anime">Случайное аниме</string>
-    <string name="details_shikimori_rating_short">Shiki %1$s</string>
 </resources>

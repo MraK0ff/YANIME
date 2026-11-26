@@ -27,13 +27,13 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.core.designsystem.theme.YummySpacing
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.Flow
 import su.afk.yummy.tv.core.designsystem.dimensions.TvScreenPadding
 import su.afk.yummy.tv.core.designsystem.error.uiMessage
 import su.afk.yummy.tv.core.designsystem.focus.requestFocusUntilTimeout
+import su.afk.yummy.tv.core.designsystem.mvi.collectAsEffect
 import su.afk.yummy.tv.core.designsystem.tv.TvLoadingScreen
 import su.afk.yummy.tv.core.designsystem.tv.TvStateMessage
 import su.afk.yummy.tv.feature.comments.CommentsState
@@ -48,6 +48,8 @@ import su.afk.yummy.tv.core.designsystem.R as CoreR
 fun CommentsTvScreen(
     state: CommentsState.State,
     effect: Flow<CommentsState.Effect>,
+    /** Встроен вкладкой в упрощённую ТВ-деталку: без своего «Назад», заголовка и автофокуса. */
+    embedded: Boolean = false,
     onEvent: (CommentsState.Event) -> Unit,
 ) {
     val context = LocalContext.current
@@ -67,19 +69,17 @@ fun CommentsTvScreen(
         buildVisibleComments(state, comments.itemSnapshotList.items)
     }
 
-    LaunchedEffect(Unit) {
-        effect.collect { event ->
-            when (event) {
-                is CommentsState.Effect.ShowToast ->
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
-            }
+    effect.collectAsEffect { event ->
+        when (event) {
+            is CommentsState.Effect.ShowToast ->
+                Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
         }
     }
     LaunchedEffect(Unit) {
-        requestFocusUntilTimeout(headerFocusRequester)
+        if (!embedded) requestFocusUntilTimeout(headerFocusRequester)
     }
     LaunchedEffect(refreshState) {
-        if (refreshState is LoadState.Error && visibleComments.isEmpty()) {
+        if (!embedded && refreshState is LoadState.Error && visibleComments.isEmpty()) {
             requestFocusUntilTimeout(retryFocusRequester)
         }
     }
@@ -98,7 +98,7 @@ fun CommentsTvScreen(
         }
     }
 
-    BackHandler(enabled = state.pendingDelete == null && state.pendingReport == null) {
+    BackHandler(enabled = !embedded && state.pendingDelete == null && state.pendingReport == null) {
         onEvent(CommentsState.Event.BackSelected)
     }
 
@@ -113,20 +113,27 @@ fun CommentsTvScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = YummySpacing.Large - 2.dp),
+                .padding(bottom = 14.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = stringResource(R.string.comments_title),
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
+            if (!embedded) {
+                Text(
+                    text = stringResource(R.string.comments_title),
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
+                )
+            }
             CommentsHeader(
                 selectedSort = state.sort,
                 initialFocusRequester = headerFocusRequester,
                 onSortSelected = { onEvent(CommentsState.Event.SortSelected(it)) },
                 onRefresh = { onEvent(CommentsState.Event.RefreshSelected) },
+                onOpenDetails = if (state.hasDetailsAction) {
+                    { onEvent(CommentsState.Event.DetailsSelected) }
+                } else {
+                    null
+                },
             )
         }
         Box(

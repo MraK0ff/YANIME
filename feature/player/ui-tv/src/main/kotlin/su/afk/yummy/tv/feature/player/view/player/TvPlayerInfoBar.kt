@@ -90,7 +90,7 @@ internal fun TvPlayerNameBadge(
         else -> null
     }
     AnimatedVisibility(
-        visible = visible && flagLabel != null,
+        visible = visible,
         modifier = modifier
             .windowInsetsPadding(WindowInsets.safeDrawing)
             .padding(top = 16.dp, end = 16.dp),
@@ -101,6 +101,7 @@ internal fun TvPlayerNameBadge(
             horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
+            TvPlayerClock()
             if (flagLabel != null) {
                 Text(
                     text = flagLabel.first,

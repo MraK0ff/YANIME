@@ -1,29 +1,26 @@
 package su.afk.yummy.tv.feature.details.episodes
 
-import su.afk.yummy.tv.feature.details.details.handler.SourceStarsHandler
-import su.afk.yummy.tv.feature.details.utils.withStars
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.minus
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.plus
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.async
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.common.coroutines.runSuspendCatching
@@ -43,18 +40,16 @@ import su.afk.yummy.tv.core.preferences.settings.PlayerSettingsStore
 import su.afk.yummy.tv.core.utils.kodik.kodikThumbnailIframeUrl
 import su.afk.yummy.tv.domain.account.usecase.ObserveAccountSessionUseCase
 import su.afk.yummy.tv.domain.anime.usecase.GetAnimeDetailsUseCase
-import su.afk.yummy.tv.domain.anime.usecase.ObserveAnimeEpisodeFlagsUseCase
 import su.afk.yummy.tv.domain.anime.usecase.GetAnimeEpisodeInfoUseCase
+import su.afk.yummy.tv.domain.anime.usecase.ObserveAnimeEpisodeFlagsUseCase
 import su.afk.yummy.tv.domain.anime.usecase.ObserveAnimeVideosUseCase
 import su.afk.yummy.tv.domain.anime.usecase.ObserveAnimeWatchProgressUseCase
 import su.afk.yummy.tv.domain.anime.usecase.RefreshAnimeVideosUseCase
 import su.afk.yummy.tv.domain.videodownload.usecase.ObserveVideoDownloadStatusesUseCase
 import su.afk.yummy.tv.domain.watchlater.usecase.ObserveWatchLaterEpisodesUseCase
 import su.afk.yummy.tv.feature.details.DetailsAnalytics
-import su.afk.yummy.tv.feature.details.episodes.model.EpisodeWatchFilter
-import su.afk.yummy.tv.feature.details.episodes.model.EpisodeWatchStatus
-import su.afk.yummy.tv.feature.details.episodes.utils.watchStatus
 import su.afk.yummy.tv.feature.details.details.handler.DetailsPlayerNavigationHandler
+import su.afk.yummy.tv.feature.details.details.handler.SourceStarsHandler
 import su.afk.yummy.tv.feature.details.details.model.BalancerPickerState
 import su.afk.yummy.tv.feature.details.details.model.DetailsPlayerSelection
 import su.afk.yummy.tv.feature.details.details.model.VideosUiState
@@ -66,17 +61,21 @@ import su.afk.yummy.tv.feature.details.episodes.handler.EpisodeDownloadHandler
 import su.afk.yummy.tv.feature.details.episodes.handler.EpisodeDownloadPrepareResult
 import su.afk.yummy.tv.feature.details.episodes.handler.EpisodeWatchLaterHandler
 import su.afk.yummy.tv.feature.details.episodes.handler.EpisodeWatchedHandler
+import su.afk.yummy.tv.feature.details.episodes.model.EpisodeWatchStatus
 import su.afk.yummy.tv.feature.details.episodes.utils.buildEpisodeGroups
+import su.afk.yummy.tv.feature.details.episodes.utils.buildEpisodeRanges
 import su.afk.yummy.tv.feature.details.episodes.utils.filterEpisodeGroups
 import su.afk.yummy.tv.feature.details.episodes.utils.isActive
 import su.afk.yummy.tv.feature.details.episodes.utils.resolveDownloadStatuses
 import su.afk.yummy.tv.feature.details.episodes.utils.uiStatusKey
+import su.afk.yummy.tv.feature.details.episodes.utils.watchStatus
 import su.afk.yummy.tv.feature.details.mapper.episodeDubbingItems
 import su.afk.yummy.tv.feature.details.mapper.toUiState
 import su.afk.yummy.tv.feature.details.model.DetailsWatchProgressIndex
 import su.afk.yummy.tv.feature.details.presentation.R
 import su.afk.yummy.tv.feature.details.utils.mostWatchedDubbing
 import su.afk.yummy.tv.feature.details.utils.playerPosterUrl
+import su.afk.yummy.tv.feature.details.utils.withStars
 import su.afk.yummy.tv.feature.videodownload.IVideoDownloadNavigator
 
 @HiltViewModel(assistedFactory = EpisodesViewModel.Factory::class)
@@ -146,14 +145,6 @@ class EpisodesViewModel @AssistedInject internal constructor(
         viewModelScope.launch { loadMeta() }
         viewModelScope.launch { loadVideos() }
         viewModelScope.launch { loadEpisodeInfo() }
-        appearanceSettingsStore.episodeWatchFilter
-            .distinctUntilChanged()
-            .onEach { stored ->
-                val filter = EpisodeWatchFilter.entries.firstOrNull { it.name == stored }
-                    ?: EpisodeWatchFilter.All
-                setState { copy(watchFilter = filter).withVisibleGroups() }
-            }
-            .launchIn(viewModelScope)
         appearanceSettingsStore.showEpisodeFlags
             .distinctUntilChanged()
             .onEach { enabled -> applyEpisodeFlags(enabled) }
@@ -212,16 +203,8 @@ class EpisodesViewModel @AssistedInject internal constructor(
 
             EpisodesState.Event.BackSelected -> nav.back()
             EpisodesState.Event.RetryVideosSelected -> viewModelScope.launch { loadVideos() }
-            is EpisodesState.Event.WatchFilterSelected -> {
-                setState {
-                    copy(
-                        watchFilter = event.filter,
-                        scrollAnchorEpisode = event.anchorEpisode ?: scrollAnchorEpisode,
-                    ).withVisibleGroups()
-                }
-                viewModelScope.launch {
-                    appearanceSettingsStore.setEpisodeWatchFilter(event.filter.name)
-                }
+            is EpisodesState.Event.WatchFilterSelected -> setState {
+                copy(watchFilter = event.filter).withVisibleGroups()
             }
 
             is EpisodesState.Event.EpisodeDescriptionToggled -> setState {
@@ -328,7 +311,7 @@ class EpisodesViewModel @AssistedInject internal constructor(
 
             is EpisodesState.Event.EpisodeDownloadSelected -> {
                 downloadHandler.beginNewDownload()
-                showDownloadDubbingPicker(event.videos)
+                startEpisodeDownload(event.videos)
             }
 
             is EpisodesState.Event.DownloadedEpisodeSelected -> {
@@ -386,8 +369,13 @@ class EpisodesViewModel @AssistedInject internal constructor(
 
             is EpisodesState.Event.DownloadBalancerSelected -> {
                 setState { copy(pendingDownloadBalancerSelection = null) }
+                if (event.rememberAsPreset) {
+                    viewModelScope.launch { downloadHandler.savePreset(animeId, event.video) }
+                }
                 prepareEpisodeDownload(event.video)
             }
+
+            EpisodesState.Event.DownloadPresetResetSelected -> resetDownloadPreset()
 
             EpisodesState.Event.DownloadDubbingPickerDismissed -> {
                 downloadHandler.dismissSourcePicker()
@@ -409,8 +397,17 @@ class EpisodesViewModel @AssistedInject internal constructor(
             EpisodesState.Event.BalancerPickerDismissed ->
                 setState { copy(pendingBalancerSelection = null) }
 
-            EpisodesState.Event.OpenDownloadsScreenSelected ->
+            EpisodesState.Event.OpenDownloadsScreenSelected -> {
+                setState {
+                    copy(
+                        pendingDownloadedEpisodeAction = null,
+                        pendingDownloadQualitySelection = null,
+                        pendingDownloadBalancerSelection = null,
+                        pendingDownloadDubbingSelection = null,
+                    )
+                }
                 nav.navigate(videoDownloadNavigator.getVideoDownloadDest())
+            }
         }
     }
 
@@ -615,8 +612,13 @@ class EpisodesViewModel @AssistedInject internal constructor(
         setState { copy(watchProgress = buildWatchProgressIndex(serverVideos)).withVisibleGroups() }
     }
 
-    private fun EpisodesState.State.withVisibleGroups(): EpisodesState.State =
-        copy(visibleEpisodeGroups = filterEpisodeGroups(episodeGroups, watchProgress, watchFilter))
+    private fun EpisodesState.State.withVisibleGroups(): EpisodesState.State {
+        val visible = filterEpisodeGroups(episodeGroups, watchProgress, watchFilter)
+        return copy(
+            visibleEpisodeGroups = visible,
+            episodeRanges = buildEpisodeRanges(visible),
+        )
+    }
 
     private fun buildWatchProgressIndex(
         videos: List<AnimeVideo>,
@@ -633,6 +635,42 @@ class EpisodesViewModel @AssistedInject internal constructor(
         val progress: DetailsWatchProgressIndex,
         val bestDubbing: String,
     )
+
+    /**
+     * Старт скачивания серии: при сохранённом пресете сразу готовит качества у его источника,
+     * иначе открывает выбор озвучки.
+     */
+    private fun startEpisodeDownload(videos: List<AnimeVideo>) {
+        viewModelScope.launch {
+            val presetVideo = downloadHandler.findPresetVideo(
+                animeId = animeId,
+                videos = videos,
+                statuses = currentState.downloadStatuses,
+                resolvingKeys = currentState.resolvingDownloadKeys,
+            )
+            if (presetVideo == null) {
+                showDownloadDubbingPicker(videos)
+            } else {
+                prepareEpisodeDownload(
+                    video = presetVideo,
+                    presetLabel = downloadHandler.presetLabel(presetVideo),
+                    fallbackVideos = videos,
+                )
+            }
+        }
+    }
+
+    private fun resetDownloadPreset() {
+        val selection = currentState.pendingDownloadQualitySelection ?: return
+        val episodeVideos = (currentState.videosState as? VideosUiState.Content)
+            ?.videos
+            .orEmpty()
+            .filter { it.episode == selection.episode }
+        downloadHandler.clearPending()
+        setState { copy(pendingDownloadQualitySelection = null) }
+        viewModelScope.launch { downloadHandler.clearPreset(animeId) }
+        showDownloadDubbingPicker(episodeVideos)
+    }
 
     private fun showDownloadDubbingPicker(
         videos: List<AnimeVideo>,
@@ -662,7 +700,15 @@ class EpisodesViewModel @AssistedInject internal constructor(
         }
     }
 
-    private fun prepareEpisodeDownload(video: AnimeVideo) {
+    /**
+     * [presetLabel] задан, когда источник взят из пресета; [fallbackVideos] — видео серии, чтобы при
+     * неудаче показать обычный выбор озвучки, а не оставить пользователя без пути дальше.
+     */
+    private fun prepareEpisodeDownload(
+        video: AnimeVideo,
+        presetLabel: String? = null,
+        fallbackVideos: List<AnimeVideo>? = null,
+    ) {
         val key = downloadHandler.downloadStatusKey(video)
         if (currentState.downloadStatuses[key]?.status?.isActive == true || key in currentState.resolvingDownloadKeys) {
             return
@@ -674,7 +720,7 @@ class EpisodesViewModel @AssistedInject internal constructor(
                 is EpisodeDownloadPrepareResult.Ready -> setState {
                     copy(
                         resolvingDownloadKeys = resolvingDownloadKeys - result.key,
-                        pendingDownloadQualitySelection = result.selection,
+                        pendingDownloadQualitySelection = result.selection.copy(presetLabel = presetLabel),
                     )
                 }
 
@@ -686,6 +732,7 @@ class EpisodesViewModel @AssistedInject internal constructor(
                         )
                     }
                     setEffect(EpisodesState.Effect.ShowToast(result.message))
+                    fallbackVideos?.let { showDownloadDubbingPicker(it) }
                 }
             }
         }
@@ -836,10 +883,6 @@ class EpisodesViewModel @AssistedInject internal constructor(
                     animeId = animeId,
                     posterUrl = posterUrl,
                     resumeFromMs = currentState.watchProgress.resumeFromMsFor(video),
-                    episodeTitle = currentState.episodeInfo[video.episode]?.title.orEmpty(),
-                    episodeTitles = currentState.episodeInfo.mapNotNull { (number, info) ->
-                        info.title?.takeIf { it.isNotBlank() }?.let { number to it }
-                    }.toMap(),
                 ),
             )
         }

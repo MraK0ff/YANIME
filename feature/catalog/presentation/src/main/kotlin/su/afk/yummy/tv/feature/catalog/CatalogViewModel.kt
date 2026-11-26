@@ -85,9 +85,6 @@ class CatalogViewModel @Inject internal constructor(
         appearanceSettingsStore.showCatalogTitleYear
             .onEach { showTitleYear -> setState { copy(showTitleYear = showTitleYear) } }
             .launchIn(viewModelScope)
-        appearanceSettingsStore.mobileHeaderEnabled
-            .onEach { enabled -> setState { copy(isHeaderSearchEnabled = enabled) } }
-            .launchIn(viewModelScope)
         appearanceSettingsStore.titleCardLayout
             .onEach { layout -> setState { copy(titleCardLayout = layout) } }
             .launchIn(viewModelScope)
@@ -96,35 +93,6 @@ class CatalogViewModel @Inject internal constructor(
             .launchIn(viewModelScope)
         searchOpener.isSearchFocusPending
             .onEach { pending -> setState { copy(isSearchFocusRequested = pending) } }
-            .launchIn(viewModelScope)
-        searchOpener.searchQuery
-            .onEach { query ->
-                if (query != currentState.query) onQueryChanged(query)
-            }
-            .launchIn(viewModelScope)
-        searchOpener.isSearchSubmitPending
-            .onEach { pending ->
-                if (pending) {
-                    searchOpener.consumeSearchSubmit()
-                    onEvent(CatalogState.Event.SearchSubmitted)
-                }
-            }
-            .launchIn(viewModelScope)
-        searchOpener.isFilterOpenPending
-            .onEach { pending ->
-                if (pending) {
-                    searchOpener.consumeFilterOpen()
-                    onEvent(CatalogState.Event.OpenFilters)
-                }
-            }
-            .launchIn(viewModelScope)
-        searchOpener.isRandomAnimePending
-            .onEach { pending ->
-                if (pending) {
-                    searchOpener.consumeRandomAnimeRequest()
-                    onEvent(CatalogState.Event.RandomAnimeSelected)
-                }
-            }
             .launchIn(viewModelScope)
         accountSettingsStore.contentLanguageChanges()
             .onEach {
@@ -159,7 +127,6 @@ class CatalogViewModel @Inject internal constructor(
             // Снимок мог сохранить год, который сервер отвергает: без чистки каталог падал бы при каждом открытии.
             val filters = snapshot.toSearchFilters().normalizedYears()
             setState { copy(query = query, filters = filters, draftFilters = filters) }
-            searchOpener.updateSearchQuery(query)
             setSearchResults(query, filters)
         }
     }
@@ -177,6 +144,7 @@ class CatalogViewModel @Inject internal constructor(
 
             CatalogState.Event.SearchSubmitted -> onSearchSubmitted()
             CatalogState.Event.RetrySelected -> analytics.eventRetry()
+            CatalogState.Event.PullRefreshed -> forceNetworkNext = true
             CatalogState.Event.RandomAnimeSelected -> openRandomAnime()
             CatalogState.Event.OpenFilters -> {
                 analytics.eventFiltersOpened()
@@ -226,7 +194,6 @@ class CatalogViewModel @Inject internal constructor(
             CatalogState.Event.SearchFocusHandled -> searchOpener.consumeSearchFocus()
             is CatalogState.Event.SearchHistorySelected -> {
                 setState { copy(query = event.query) }
-                searchOpener.updateSearchQuery(event.query)
                 onSearchSubmitted()
             }
 
@@ -269,7 +236,6 @@ class CatalogViewModel @Inject internal constructor(
                 isFilterPanelOpen = false,
             )
         }
-        searchOpener.updateSearchQuery(normalizedQuery)
         if (normalizedQuery.isNotBlank()) analytics.eventExternalSearchSubmitted()
         rememberQuery(normalizedQuery)
         setSearchResults(normalizedQuery, SearchFilters.EMPTY)
@@ -280,7 +246,6 @@ class CatalogViewModel @Inject internal constructor(
         if (query.isBlank()) {
             // Очистили поле — сразу возвращаем каталог, без ожидания debounce.
             setState { copy(query = query) }
-            searchOpener.updateSearchQuery(query)
             setSearchResults("", currentState.filters)
             return
         }
@@ -292,7 +257,6 @@ class CatalogViewModel @Inject internal constructor(
                 isSearchPending = true,
             )
         }
-        searchOpener.updateSearchQuery(query)
         searchJob = viewModelScope.launch {
             delay(DEBOUNCE)
             setSearchResults(query.trim(), currentState.filters)
@@ -308,7 +272,6 @@ class CatalogViewModel @Inject internal constructor(
         )
         searchJob?.cancel()
         setState { copy(query = query) }
-        searchOpener.updateSearchQuery(query)
         rememberQuery(query)
         setSearchResults(query, filters)
     }
@@ -364,6 +327,10 @@ class CatalogViewModel @Inject internal constructor(
         setState { copy(draftFilters = draftFilters.update()) }
     }
 
+    /** Одноразовый флаг: следующая первая страница берётся из сети в обход кэша (pull-to-refresh). */
+    @Volatile
+    private var forceNetworkNext = false
+
     private fun setSearchResults(rawQuery: String, filters: SearchFilters) {
         // Сервер отвечает 400 на запрос короче двух символов — не отправляем его.
         val query = rawQuery.takeIf { it.length >= MIN_QUERY_LENGTH }.orEmpty()
@@ -395,7 +362,9 @@ class CatalogViewModel @Inject internal constructor(
         // Первую страницу показываем из кэша даже просроченной, а обновляем в фоне: так каталог
         // не держит скелетоны, пока идёт сеть. Следующие страницы берём как раньше, иначе старые
         // и новые страницы одной выдачи смешались бы.
-        if (offset == 0) {
+        val forceNetwork = offset == 0 && forceNetworkNext
+        if (forceNetwork) forceNetworkNext = false
+        if (offset == 0 && !forceNetwork) {
             val cached = runSuspendCatching { getCachedSearchPage(query, filters, limit, offset) }.getOrNull()
             if (cached != null) {
                 if (!cached.isFresh) refreshShownPage(query, filters, limit, cached.page, onRefreshed)
@@ -403,7 +372,7 @@ class CatalogViewModel @Inject internal constructor(
             }
         }
         return runSuspendCatching {
-            search(query, filters, limit, offset)
+            search(query, filters, limit, offset, forceRefresh = forceNetwork)
         }.fold(
             onSuccess = SearchPage::toOffsetPage,
             onFailure = { error ->

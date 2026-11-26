@@ -47,6 +47,7 @@
     <string name="details_episodes_filter_unwatched">Unwatched</string>
     <string name="details_episodes_filter_watched">Watched</string>
     <string name="details_episodes_filter_empty">No episodes match the filter</string>
+    <string name="details_episodes_range_label">%1$s–%2$s</string>
     <string name="details_sections_hint">You can press down to see more sections: description, rating, the title’s universe and similar titles. Give it a try — it’s easy</string>
     <string name="details_sections_hint_dismiss">Got it</string>
     <string name="details_subscriptions">Subscriptions</string>
@@ -63,11 +64,13 @@
     <string name="details_mobile_show_collections">Show collections</string>
     <string name="details_mobile_show_comments">Show comments</string>
     <string name="details_mobile_universe_show_all">Show all</string>
+    <string name="details_random_anime">Random anime</string>
     <string name="details_screenshots_title">Screenshots</string>
     <string name="details_new_search">Search</string>
     <string name="details_back_to_search">Back to search</string>
     <string name="details_kinopoisk_rating">KP %1$s</string>
     <string name="details_shikimori_rating">Shikimori %1$s</string>
+    <string name="details_shikimori_rating_short">Shiki %1$s</string>
     <string name="details_mal_rating">MAL %1$s</string>
     <string name="details_library_picker_title">Add to list</string>
     <string name="details_library_list_watching">Watching</string>
@@ -80,7 +83,7 @@
     <string name="details_mobile_subscription_meta">%1$s · %2$d episodes</string>
     <string name="details_subscription_subscribe">Subscribe</string>
     <string name="details_subscription_unsubscribe">Unsubscribe</string>
-    <string name="details_balancer_title">Episode %1$s · Balancer</string>
+    <string name="details_balancer_title">Episode %1$s · Player</string>
     <string name="details_mobile_unsupported_player">%1$s · unsupported</string>
     <string name="details_balancer_external">External</string>
     <string name="details_mobile_aired">Aired: %1$d of %2$s</string>
@@ -139,10 +142,14 @@
     <string name="details_mobile_episode_download_error_unknown">Download error</string>
     <string name="details_episode_dubbings_title">Episode %1$s · Dubbing</string>
     <string name="details_mobile_download_dubbing_empty">No dubbings available</string>
-        <string name="details_mobile_download_balancer_empty">No balancers available</string>
+        <string name="details_mobile_download_balancer_empty">No players available</string>
     <string name="details_mobile_download_quality_title">Download quality</string>
     <string name="details_mobile_download_quality_prompt">Choose quality</string>
     <string name="details_mobile_download_quality_empty">No qualities available</string>
+    <string name="details_mobile_download_preset_remember">Remember dubbing and player</string>
+    <string name="details_mobile_download_preset_remember_hint">Next time only the quality will be asked</string>
+    <string name="details_mobile_download_preset_label">Preset: %1$s</string>
+    <string name="details_mobile_download_preset_change">Change</string>
             <string name="details_episodes_count_short">%1$d ep.</string>
     <string name="details_count_thousands">%1$sK</string>
     <string name="details_count_millions">%1$sM</string>
@@ -201,9 +208,9 @@
     <string name="details_total">Total: %1$d</string>
     <string name="details_director_prefix">Dir.: %1$s</string>
     <string name="details_in_library">In library</string>
-    <string name="details_add_library">Add to library</string>
+    <string name="details_add_library">Add to list</string>
         <string name="details_subscription_dubbing">Dubbing: %1$s</string>
-    <string name="details_subscription_player">Balancer: %1$s</string>
+    <string name="details_subscription_player">Player: %1$s</string>
     <string name="details_subscription_episodes">%1$d episodes</string>
     <string name="details_subscribe_updates">Subscribe to new episodes</string>
     <string name="details_unsubscribe_updates">Unsubscribe from new episodes</string>
@@ -247,6 +254,4 @@
     <string name="details_onboarding_episodes_text">All episodes with watch marks. Choose a dubbing for a specific episode here.</string>
     <string name="details_onboarding_subscriptions_title">New episode alerts</string>
     <string name="details_onboarding_subscriptions_text">Subscribe to a dubbing to get notified when a new episode comes out.</string>
-    <string name="details_random_anime">Random anime</string>
-    <string name="details_shikimori_rating_short">Shiki %1$s</string>
 </resources>

@@ -427,6 +427,12 @@ class PlayerViewModel @AssistedInject internal constructor(
                 }
             }
 
+            is PlayerState.Event.PlaybackEndedWithError -> {
+                // Конец эпизода уже обработан UI; не запускаем повторное восстановление потока.
+                sourceBehaviors.forEach { it.reset() }
+                changePlayerHint.cancel()
+            }
+
             PlayerState.Event.PlaybackStalled -> {
                 activeSourceBehavior()?.onPlaybackStalled()
             }
@@ -654,6 +660,10 @@ class PlayerViewModel @AssistedInject internal constructor(
                     // Не продолжаем нагружать устройство, если декодер/GPU не успевает за видео.
                     preferences.setVideoEnhancementMode(host, VideoEnhancementMode.OFF)
                 }
+            }
+
+            PlayerState.Event.DecoderMayStruggle -> {
+                setEffect(PlayerState.Effect.ShowToast("Декодер устройства может работать нестабильно с этим видео"))
             }
 
             is PlayerState.Event.VideoEnhancementModeSelected ->

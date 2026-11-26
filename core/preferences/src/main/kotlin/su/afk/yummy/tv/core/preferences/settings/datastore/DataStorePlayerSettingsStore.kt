@@ -33,6 +33,7 @@ import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.autoSkip
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.browserUserAgentProfileKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.deblurEnabledKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.holdToConfirmEnabledKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.keepVideoEnhancementOnFrameDropsKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.mobilePlayerBrightnessPercentKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.mobilePlayerAutoBrightnessEnabledKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.mobilePlayerGestureTutorialDismissedKey
@@ -157,6 +158,9 @@ internal class DataStorePlayerSettingsStore @Inject constructor(
     override val videoEnhancementMode: Flow<VideoEnhancementMode> =
         store.data.map { prefs -> prefs.videoEnhancementMode() }.distinctUntilChanged()
 
+    override val keepVideoEnhancementOnFrameDrops: Flow<Boolean> =
+        store.boolean(keepVideoEnhancementOnFrameDropsKey, false)
+
     override val audioFocusDisabled: Flow<Boolean> =
         store.boolean(audioFocusDisabledKey, false)
 
@@ -219,6 +223,9 @@ internal class DataStorePlayerSettingsStore @Inject constructor(
 
     override suspend fun setAdaptiveVideoQualityEnabled(enabled: Boolean) =
         store.setBoolean(adaptiveVideoQualityEnabledKey, enabled)
+
+    override suspend fun setKeepVideoEnhancementOnFrameDrops(enabled: Boolean) =
+        store.setBoolean(keepVideoEnhancementOnFrameDropsKey, enabled)
 
     override suspend fun setAutoSkipOpeningsEndings(enabled: Boolean) =
         store.setBoolean(autoSkipOpeningsEndingsKey, enabled)

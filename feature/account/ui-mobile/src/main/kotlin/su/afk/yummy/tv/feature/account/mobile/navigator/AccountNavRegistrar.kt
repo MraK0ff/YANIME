@@ -9,9 +9,9 @@ import su.afk.yummy.tv.feature.account.IMobileAccountEntry
 import su.afk.yummy.tv.feature.account.account.AccountViewModel
 import su.afk.yummy.tv.feature.account.localauth.LocalAuthViewModel
 import su.afk.yummy.tv.feature.account.mobile.account.AccountMobileScreen
-import su.afk.yummy.tv.feature.account.mobile.account.AccountMobileNotificationsScreen
 import su.afk.yummy.tv.feature.account.mobile.localauth.LocalAuthMobileScreen
 import su.afk.yummy.tv.feature.account.mobile.mysubscriptions.MySubscriptionsMobileScreen
+import su.afk.yummy.tv.feature.account.mobile.notifications.AccountNotificationsMobileScreen
 import su.afk.yummy.tv.feature.account.mobile.passwordreset.PasswordResetMobileScreen
 import su.afk.yummy.tv.feature.account.mobile.profileedit.ProfileEditMobileScreen
 import su.afk.yummy.tv.feature.account.mobile.registration.RegistrationMobileScreen
@@ -20,6 +20,7 @@ import su.afk.yummy.tv.feature.account.mobile.userprofile.UserProfileResolverMob
 import su.afk.yummy.tv.feature.account.mobile.usersearch.UserSearchMobileScreen
 import su.afk.yummy.tv.feature.account.mysubscriptions.MySubscriptionsViewModel
 import su.afk.yummy.tv.feature.account.navigator.AccountDestination
+import su.afk.yummy.tv.feature.account.notifications.NotificationsViewModel
 import su.afk.yummy.tv.feature.account.navigator.AccountNotificationsDestination
 import su.afk.yummy.tv.feature.account.navigator.LocalAuthDestination
 import su.afk.yummy.tv.feature.account.navigator.MySubscriptionsDestination
@@ -50,9 +51,9 @@ class AccountNavRegistrar @Inject constructor() : IMobileAccountEntry {
                 }
             }
             entry<AccountNotificationsDestination> {
-                val viewModel = hiltViewModel<AccountViewModel>(key = "mobile-account-notifications")
+                val viewModel = hiltViewModel<NotificationsViewModel>()
                 ScreenNavigator(viewModel) { state, effect, onEvent ->
-                    AccountMobileNotificationsScreen(state = state, effect = effect, onEvent = onEvent)
+                    AccountNotificationsMobileScreen(state = state, effect = effect, onEvent = onEvent)
                 }
             }
             entry<UserProfileDestination> { dest ->

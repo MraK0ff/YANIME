@@ -53,10 +53,6 @@ internal fun HomeFeed.withoutHiddenRecommendations(hiddenIds: Set<Int>): HomeFee
 internal fun HomeFeed.withShuffledHero(random: Random): HomeFeed =
     if (heroItems.size < 2) this else copy(heroItems = heroItems.shuffled(random))
 
-/**
- * Adds current episode number and publication time to the ordinary new-releases cards.
- * The values come from the same schedule snapshot used by the personalized section.
- */
 internal fun HomeFeed.withRecentReleaseMetadata(
     recentlyAired: List<HomeFeedItem>,
     prioritizedAnimeIds: Set<Int> = emptySet(),
@@ -83,7 +79,10 @@ internal fun HomeFeed.withRecentReleaseMetadata(
     )
 }
 
-/** Adds only unwatched recent episodes for titles in [libraryAnimeIds]. */
+/**
+ * Добавляет в начало ленты секцию недавно вышедших серий тайтлов из [libraryAnimeIds]; без
+ * совпадений секцию не добавляет. Серии из [watchedEpisodes] убираются из секции.
+ */
 internal fun HomeFeed.withMyNewEpisodes(
     recentlyAired: List<HomeFeedItem>,
     libraryAnimeIds: Set<Int>,
@@ -92,8 +91,8 @@ internal fun HomeFeed.withMyNewEpisodes(
 ): HomeFeed {
     val items = recentlyAired
         .filter { it.id in libraryAnimeIds }
-        .filterNot { it.isEpisodeWatched(watchedEpisodes) }
-        .map { item -> item.copy(isFromSelectedList = true) }
+        .map { item -> item.copy(isWatched = item.isEpisodeWatched(watchedEpisodes)) }
+        .filterNot { it.isWatched }
     if (items.isEmpty()) return this
     val section = HomeFeedSection(HomeFeedSectionType.MY_NEW_EPISODES, title, items)
     return copy(sections = listOf(section) + sections)

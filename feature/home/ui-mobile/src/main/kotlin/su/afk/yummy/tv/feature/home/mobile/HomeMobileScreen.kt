@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
@@ -31,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -46,34 +48,36 @@ import su.afk.yummy.tv.core.designsystem.error.asString
 import su.afk.yummy.tv.core.designsystem.locals.LocalIsOffline
 import su.afk.yummy.tv.core.designsystem.mobile.MobileSectionHeader
 import su.afk.yummy.tv.core.designsystem.mobile.bar.MobileBottomBarDefaults
+import su.afk.yummy.tv.core.designsystem.mobile.scroll.PinToEndOnViewportChange
 import su.afk.yummy.tv.core.designsystem.mobile.layout.mobileContentMaxWidth
 import su.afk.yummy.tv.core.designsystem.mobile.state.MobileMessage
+import su.afk.yummy.tv.core.designsystem.mvi.collectAsEffect
 import su.afk.yummy.tv.core.designsystem.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.core.model.ErrorItem
+import su.afk.yummy.tv.core.model.settings.HomeBlockKind
 import su.afk.yummy.tv.core.model.text.UiText
 import su.afk.yummy.tv.core.utils.system.openExternalUri
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.domain.home.model.HomeFeedItem
 import su.afk.yummy.tv.domain.home.model.HomeFeedSectionType
-import su.afk.yummy.tv.core.model.settings.HomeBlockKind
 import su.afk.yummy.tv.feature.home.HomeState
-import su.afk.yummy.tv.feature.home.utils.toSectionType
 import su.afk.yummy.tv.feature.home.mapper.toHomeEventOrNull
 import su.afk.yummy.tv.feature.home.mobile.view.ContinueWatchingSection
 import su.afk.yummy.tv.feature.home.mobile.view.HomeAnnouncementDialog
+import su.afk.yummy.tv.feature.home.mobile.view.HomeBoostyPromptDialog
+import su.afk.yummy.tv.feature.home.mobile.view.HomeCommunityPromptDialog
 import su.afk.yummy.tv.feature.home.mobile.view.HomeContinueWatchingActionsSheet
 import su.afk.yummy.tv.feature.home.mobile.view.HomeFeedSectionRow
 import su.afk.yummy.tv.feature.home.mobile.view.HomeHeroCarousel
+import su.afk.yummy.tv.feature.home.mobile.view.HomeMobileSearchBar
 import su.afk.yummy.tv.feature.home.mobile.view.HomeMobileSkeleton
-import su.afk.yummy.tv.feature.home.mobile.view.HomeBoostyPromptDialog
-import su.afk.yummy.tv.feature.home.mobile.view.HomeCommunityPromptDialog
 import su.afk.yummy.tv.feature.home.mobile.view.HomeQuickActionsSection
 import su.afk.yummy.tv.feature.home.mobile.view.HomeRecommendationActionsSheet
 import su.afk.yummy.tv.feature.home.mobile.view.HomeSupportPromptDialog
-import su.afk.yummy.tv.feature.home.mobile.view.MobileHomeBloggerVideosSection
 import su.afk.yummy.tv.feature.home.presentation.R
 import su.afk.yummy.tv.feature.home.utils.hasInitialContent
 import su.afk.yummy.tv.feature.home.utils.isFirstScreenSettled
+import su.afk.yummy.tv.feature.home.utils.toSectionType
 import su.afk.yummy.tv.core.designsystem.R as CoreR
 
 @Preview(name = "Default", device = "spec:width=412dp,height=915dp,dpi=420", showBackground = true)
@@ -124,36 +128,34 @@ fun HomeMobileScreen(
         onEvent(HomeState.Event.ScreenResumed)
     }
 
-    LaunchedEffect(Unit) {
-        effect.collect { event ->
-            when (event) {
-                is HomeState.Effect.ShowToast -> {
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
-                }
+    effect.collectAsEffect { event ->
+        when (event) {
+            is HomeState.Effect.ShowToast -> {
+                Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+            }
 
-                is HomeState.Effect.OpenUri -> context.openExternalUri(event.uri)
+            is HomeState.Effect.OpenUri -> context.openExternalUri(event.uri)
 
-                is HomeState.Effect.ShowRecommendationUndo -> {
-                    snackbarScope.launch {
-                        val result = snackbarHostState.showSnackbar(
-                            message = event.message,
-                            actionLabel = undoLabel,
-                        )
-                        if (result == SnackbarResult.ActionPerformed) {
-                            onEvent(HomeState.Event.RecommendationRestoreRequested(event.animeId))
-                        }
+            is HomeState.Effect.ShowRecommendationUndo -> {
+                snackbarScope.launch {
+                    val result = snackbarHostState.showSnackbar(
+                        message = event.message,
+                        actionLabel = undoLabel,
+                    )
+                    if (result == SnackbarResult.ActionPerformed) {
+                        onEvent(HomeState.Event.RecommendationRestoreRequested(event.animeId))
                     }
                 }
+            }
 
-                is HomeState.Effect.ShowContinueWatchingUndo -> {
-                    snackbarScope.launch {
-                        val result = snackbarHostState.showSnackbar(
-                            message = event.message,
-                            actionLabel = undoLabel,
-                        )
-                        if (result == SnackbarResult.ActionPerformed) {
-                            onEvent(HomeState.Event.ContinueWatchingRemoveUndone(event.animeId))
-                        }
+            is HomeState.Effect.ShowContinueWatchingUndo -> {
+                snackbarScope.launch {
+                    val result = snackbarHostState.showSnackbar(
+                        message = event.message,
+                        actionLabel = undoLabel,
+                    )
+                    if (result == SnackbarResult.ActionPerformed) {
+                        onEvent(HomeState.Event.ContinueWatchingRemoveUndone(event.animeId))
                     }
                 }
             }
@@ -202,6 +204,7 @@ fun HomeMobileScreen(
                                     statusUrl,
                                 ),
                                 style = MaterialTheme.typography.bodySmall,
+                                textAlign = TextAlign.Center,
                             )
                         }
                     }
@@ -214,7 +217,10 @@ fun HomeMobileScreen(
                 onRefresh = { onEvent(HomeState.Event.RefreshRequested) },
                 modifier = Modifier.fillMaxSize(),
             ) {
+                val listState = rememberLazyListState()
+                listState.PinToEndOnViewportChange()
                 LazyColumn(
+                    state = listState,
                     // Без общего предела ширины: лента почти целиком из горизонтальных рядов, им
                     // ширина окна только на пользу. Ограничены лишь баннеры и кнопки внизу.
                     modifier = Modifier
@@ -222,24 +228,23 @@ fun HomeMobileScreen(
                         .testTag("home_feed"),
                     contentPadding = PaddingValues(
                         top = 12.dp,
-                        bottom = MobileBottomBarDefaults.contentBottomPadding,
+                        bottom = MobileBottomBarDefaults.rootContentBottomPadding,
                     ),
-                    verticalArrangement = Arrangement.spacedBy(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(24.dp),
                 ) {
                     val feed = state.feed
 
                     // Плашки и поиск в одном item: иначе spacedBy(24) растягивает зазор между ними
-                    if (isOffline || state.statusMessage != null) {
-                        item(key = "status_banners", contentType = "home_status_banners") {
-                            Column(
+                    item(key = "search") {
+                        Column(modifier = Modifier.mobileContentMaxWidth()) {
+                            OfflineBanner(isOffline = isOffline)
+                            InfoBanner(message = state.statusMessage)
+                            HomeMobileSearchBar(
+                                onClick = { onEvent(HomeState.Event.SearchSelected) },
                                 modifier = Modifier
-                                    .mobileContentMaxWidth()
-                                    .padding(horizontal = 16.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
-                            ) {
-                                OfflineBanner(isOffline = isOffline)
-                                InfoBanner(message = state.statusMessage)
-                            }
+                                    .padding(horizontal = 16.dp)
+                                    .padding(top = if (isOffline || state.statusMessage != null) 8.dp else 0.dp),
+                            )
                         }
                     }
 
@@ -247,7 +252,7 @@ fun HomeMobileScreen(
                         when (kind) {
                             HomeBlockKind.HERO -> {
                                 if (feed != null && feed.heroItems.isNotEmpty()) {
-                                    item(key = "hero", contentType = "home_hero") {
+                                    item(key = "hero") {
                                         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                                             MobileSectionHeader(
                                                 title = stringResource(R.string.home_season_title),
@@ -264,7 +269,7 @@ fun HomeMobileScreen(
 
                             HomeBlockKind.CONTINUE_WATCHING -> {
                                 if (state.continueWatching.isNotEmpty()) {
-                                    item(key = "continue_watching", contentType = "home_continue_watching") {
+                                    item(key = "continue_watching") {
                                         ContinueWatchingSection(
                                             entries = state.continueWatching,
                                             launchingAnimeId = state.launchingContinueWatchingAnimeId,
@@ -277,37 +282,13 @@ fun HomeMobileScreen(
                                 }
                             }
 
-                            HomeBlockKind.BLOGGER_VIDEOS -> {
-                                if (state.bloggerVideos.isNotEmpty()) {
-                                    item(key = "blogger_videos", contentType = "home_blogger_videos") {
-                                        MobileHomeBloggerVideosSection(
-                                            title = stringResource(R.string.home_mobile_blogger_videos),
-                                            allLabel = stringResource(R.string.home_mobile_all),
-                                            videos = state.bloggerVideos,
-                                            onVideoSelected = { onEvent(HomeState.Event.BloggerVideoSelected(it)) },
-                                            onAllSelected = { onEvent(HomeState.Event.BloggerVideosSelected) },
-                                        )
-                                    }
-                                }
-
-                                state.bloggerVideosError?.let { message ->
-                                    item(key = "blogger_videos_error", contentType = "home_inline_error") {
-                                        MobileMessage(
-                                            title = message.asString(),
-                                            actionLabel = stringResource(CoreR.string.common_retry),
-                                            onAction = { onEvent(HomeState.Event.BloggerVideosRetrySelected) },
-                                        )
-                                    }
-                                }
-                            }
-
                             HomeBlockKind.QUICK_ACTIONS -> {
-                                item(key = "quick_actions", contentType = "home_quick_actions") {
+                                item(key = "quick_actions") {
                                     HomeQuickActionsSection(
                                         title = stringResource(R.string.home_mobile_more),
-                                        newsTitle = stringResource(R.string.home_mobile_news),
+                                        scheduleTitle = stringResource(R.string.home_mobile_schedule),
                                         reviewsTitle = stringResource(R.string.home_mobile_reviews),
-                                        onNewsClick = { onEvent(HomeState.Event.NewsSelected) },
+                                        onScheduleClick = { onEvent(HomeState.Event.ScheduleSelected) },
                                         onReviewsClick = { onEvent(HomeState.Event.ReviewsSelected) },
                                         modifier = Modifier.mobileContentMaxWidth(),
                                     )
@@ -319,7 +300,7 @@ fun HomeMobileScreen(
                                     ?.let { type -> feed?.sections.orEmpty().firstOrNull { it.type == type } }
                                     ?.takeIf { it.items.isNotEmpty() }
                                 if (section != null) {
-                                    item(key = "section_${section.type.name}", contentType = "home_feed_section") {
+                                    item(key = "section_${section.type.name}") {
                                         val isCollections = section.type == HomeFeedSectionType.COLLECTIONS
                                         val isRecommendations =
                                             section.type == HomeFeedSectionType.RECOMMENDATIONS

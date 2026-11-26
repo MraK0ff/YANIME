@@ -3,6 +3,7 @@ package su.afk.yummy.tv.feature.details.details.view
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
@@ -35,6 +36,7 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -94,6 +96,7 @@ internal fun DetailsHero(
     onCommentsSelected: () -> Unit,
     onReviewsSelected: () -> Unit,
     onBloggerVideosSelected: () -> Unit,
+    onInfoSelected: () -> Unit,
     /** Кубик «ещё случайный тайтл»; `null` — деталка открыта не из кубика каталога. */
     onRandomAnimeSelected: (() -> Unit)?,
     isRandomAnimeLoading: Boolean,
@@ -252,10 +255,16 @@ internal fun DetailsHero(
                             modifier = Modifier
                                 .weight(1f)
                                 .alignByBaseline()
+                                .border(
+                                    width = 2.dp,
+                                    color = if (titleFocused) MaterialTheme.colorScheme.primary else Color.Transparent,
+                                    shape = RoundedCornerShape(8.dp),
+                                )
                                 .focusRequester(titleFocusRequester)
                                 .focusProperties { down = downFocusRequester }
-                                .focusable()
-                                .onFocusChanged { fs -> titleFocused = fs.isFocused },
+                                .clickable(onClick = onInfoSelected)
+                                .onFocusChanged { fs -> titleFocused = fs.isFocused }
+                                .padding(horizontal = 8.dp, vertical = 4.dp),
                         )
                         userRating?.let { userRating ->
                             // По первой строке заголовка, а не по центру двух строк.

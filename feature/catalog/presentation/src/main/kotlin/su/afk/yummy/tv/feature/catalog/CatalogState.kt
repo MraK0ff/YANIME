@@ -36,8 +36,6 @@ class CatalogState {
          * до того, как экран начнёт собирать эффекты, и снимается событием [Event.SearchFocusHandled].
          */
         val isSearchFocusRequested: Boolean = false,
-        /** Header search replaces the inline field only while the global header is enabled. */
-        val isHeaderSearchEnabled: Boolean = true,
         /** Последние поисковые запросы, от новых к старым. */
         val searchHistory: ImmutableList<String> = persistentListOf(),
     ) : UiState
@@ -55,6 +53,9 @@ class CatalogState {
 
         /** Пользователь отправил текущий поисковый запрос. */
         data object SearchSubmitted : Event
+
+        /** Пользователь потянул список вниз: первая страница берётся из сети в обход кэша. */
+        data object PullRefreshed : Event
 
         /** Пользователь запросил повторную загрузку результатов. */
         data object RetrySelected : Event

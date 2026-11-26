@@ -240,6 +240,9 @@ class PlayerState {
         /** Декодер не справляется с включённым улучшением картинки. */
         data object VideoEnhancementOverloaded : Event
 
+        /** Выбранный формат может воспроизводиться нестабильно на декодере устройства. */
+        data object DecoderMayStruggle : Event
+
         /** Пользователь включил или выключил стабилизацию громкости в боковой панели плеера. */
         data class VolumeStabilizationToggled(val enabled: Boolean) : Event
 
@@ -300,6 +303,15 @@ class PlayerState {
             val cause: String? = null,
             /** HTTP-код нестандартного ответа CDN, если ошибка пришла от HTTP-источника. */
             val httpStatusCode: Int? = null,
+        ) : Event
+
+        /** Ошибка пришла на самом конце потока: UI уже завершает эпизод, ретраи не нужны. */
+        data class PlaybackEndedWithError(
+            val message: String,
+            val errorCode: String? = null,
+            val cause: String? = null,
+            val positionMs: Long = 0L,
+            val durationMs: Long = 0L,
         ) : Event
 
         /** Новый media item подготовлен после фонового восстановления воспроизведения. */

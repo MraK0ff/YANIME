@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -35,6 +34,7 @@ import su.afk.yummy.tv.core.designsystem.mobile.cards.MobilePosterGrid
 import su.afk.yummy.tv.core.designsystem.mobile.rememberMobileSwipeableTabsState
 import su.afk.yummy.tv.core.designsystem.mobile.state.MobileMessage
 import su.afk.yummy.tv.core.designsystem.mobile.state.MobileSectionLoading
+import su.afk.yummy.tv.core.designsystem.mvi.collectAsEffect
 import su.afk.yummy.tv.core.designsystem.paging.getOrNull
 import su.afk.yummy.tv.core.designsystem.paging.safeItemKey
 import su.afk.yummy.tv.core.designsystem.preview.ScreenPreviewTheme
@@ -78,12 +78,10 @@ fun CollectionsCatalogMobileScreen(
         },
     )
 
-    LaunchedEffect(Unit) {
-        effect.collect { event ->
-            when (event) {
-                is CollectionsCatalogState.Effect.ShowToast ->
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
-            }
+    effect.collectAsEffect { event ->
+        when (event) {
+            is CollectionsCatalogState.Effect.ShowToast ->
+                Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -118,6 +116,7 @@ fun CollectionsCatalogMobileScreen(
             CollectionsSortSelector(
                 selectedSort = state.sort,
                 onSortSelected = { tabsState.selectPage(sorts.indexOf(it)) },
+                transition = tabsState::tabTransition,
             )
         },
         isLoading = refreshState is LoadState.Loading && pagingItems.itemCount == 0,
@@ -151,7 +150,7 @@ fun CollectionsCatalogMobileScreen(
             ) {
                 val error = (appendState as? LoadState.Error)?.error
                 if (error != null && pagingItems.itemCount > 0) {
-                    item(span = { GridItemSpan(maxLineSpan) }, contentType = "error_banner") {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
                         ErrorBanner(
                             message = error.uiMessage(),
                             onRetry = { pagingItems.retry() },
@@ -161,7 +160,6 @@ fun CollectionsCatalogMobileScreen(
                 items(
                     count = pagingItems.itemCount,
                     key = pagingItems.safeItemKey("collection") { it.id },
-                    contentType = { "collection" },
                 ) { index ->
                     pagingItems.getOrNull(index)?.let { item ->
                         MobileCollectionCard(
@@ -183,7 +181,7 @@ fun CollectionsCatalogMobileScreen(
                     }
                 }
                 if (appendState is LoadState.Loading) {
-                    item(span = { GridItemSpan(maxLineSpan) }, contentType = "loading_indicator") {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
                         Box(
                             modifier = Modifier.fillMaxWidth(),
                             contentAlignment = Alignment.Center,

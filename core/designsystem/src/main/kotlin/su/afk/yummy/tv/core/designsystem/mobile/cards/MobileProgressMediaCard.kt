@@ -39,6 +39,7 @@ fun MobileProgressMediaCard(
     trailingSubtitle: String? = null,
     progress: Float,
     modifier: Modifier = Modifier.width(220.dp),
+    subtitleColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     imageOverlay: @Composable BoxScope.() -> Unit = {},
     isLoading: Boolean = false,
     /** Крупный блеклый текст под картинкой: виден, пока превью грузится или его нет. */
@@ -103,6 +104,7 @@ fun MobileProgressMediaCard(
         ) {
             Text(
                 text = title,
+                minLines = minOf(2, titleMaxLines.coerceAtLeast(1)),
                 maxLines = titleMaxLines.coerceAtLeast(1),
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodyMediumEmphasized,
@@ -119,7 +121,7 @@ fun MobileProgressMediaCard(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = subtitleColor,
                         modifier = Modifier.weight(1f),
                     )
                     if (!trailingSubtitle.isNullOrBlank()) {

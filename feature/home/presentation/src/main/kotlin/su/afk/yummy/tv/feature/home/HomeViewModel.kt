@@ -23,14 +23,12 @@ import su.afk.yummy.tv.core.model.settings.HomeBlockKind
 import su.afk.yummy.tv.core.model.text.UiText
 import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
-import su.afk.yummy.tv.core.navigation.root.RootTab
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.preferences.settings.contentLanguageChanges
 import su.afk.yummy.tv.core.tv.api.ITvIntegration
 import su.afk.yummy.tv.core.utils.formatting.millisToClockTime
 import su.afk.yummy.tv.core.utils.system.BOOSTY_URL
 import su.afk.yummy.tv.core.utils.system.COMMUNITY_TELEGRAM_URL
-import su.afk.yummy.tv.domain.bloggers.usecase.GetBloggerVideosUseCase
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.domain.home.model.HomeFeed
 import su.afk.yummy.tv.domain.home.usecase.GetCachedHomeFeedUseCase
@@ -40,7 +38,6 @@ import su.afk.yummy.tv.domain.home.usecase.ObserveLibraryNewEpisodeAnimeIdsUseCa
 import su.afk.yummy.tv.domain.home.usecase.ObserveWatchedEpisodesUseCase
 import su.afk.yummy.tv.domain.home.usecase.RefreshHomeFeedUseCase
 import su.afk.yummy.tv.domain.home.usecase.RefreshRemoteContinueWatchingUseCase
-import su.afk.yummy.tv.feature.bloggers.IBloggerVideosNavigator
 import su.afk.yummy.tv.feature.catalog.ICatalogSearchOpener
 import su.afk.yummy.tv.feature.collection.ICollectionNavigator
 import su.afk.yummy.tv.feature.details.IDetailsNavigator
@@ -73,11 +70,9 @@ class HomeViewModel @Inject internal constructor(
     private val detailsNavigator: IDetailsNavigator,
     private val collectionNavigator: ICollectionNavigator,
     private val reviewsNavigator: IReviewsNavigator,
-    private val bloggerVideosNavigator: IBloggerVideosNavigator,
     private val scheduleNavigator: IScheduleNavigator,
     private val catalogSearchOpener: ICatalogSearchOpener,
     private val getHomeFeed: GetHomeFeedUseCase,
-    private val getBloggerVideos: GetBloggerVideosUseCase,
     private val getCachedHomeFeed: GetCachedHomeFeedUseCase,
     private val refreshHomeFeed: RefreshHomeFeedUseCase,
     private val refreshRemoteContinueWatching: RefreshRemoteContinueWatchingUseCase,
@@ -149,13 +144,13 @@ class HomeViewModel @Inject internal constructor(
             }
             .launchIn(viewModelScope)
         observeLibraryAnimeIds()
+        loadRecentlyAired()
         observeHiddenRecommendations()
         observeSupportPrompt()
         observeAnnouncement()
         observePreviewChannelPrompt()
         observeCommunityPrompt()
         observeBoostyPrompt()
-        loadBloggerVideos()
         load()
         reloadOnContentLanguageChange()
     }
@@ -210,10 +205,6 @@ class HomeViewModel @Inject internal constructor(
                 nav.navigate(HomeRecommendationsDestination)
             }
 
-            HomeState.Event.NewsSelected -> {
-                nav.switchRoot(RootTab.POSTS, reselectPopToRoot = true)
-            }
-
             HomeState.Event.ScheduleSelected -> {
                 nav.navigate(scheduleNavigator.getScheduleDest())
             }
@@ -223,13 +214,6 @@ class HomeViewModel @Inject internal constructor(
             }
 
             HomeState.Event.SearchSelected -> catalogSearchOpener.openSearch()
-
-            HomeState.Event.BloggerVideosSelected -> nav.navigate(bloggerVideosNavigator.feed())
-
-            HomeState.Event.BloggerVideosRetrySelected -> loadBloggerVideos()
-
-            is HomeState.Event.BloggerVideoSelected ->
-                nav.navigate(bloggerVideosNavigator.video(event.video.id))
 
             HomeState.Event.SupportPromptDismissed -> dismissSupportPrompt()
             HomeState.Event.CommunityPromptDismissed -> hideCommunityPrompt()
@@ -658,13 +642,8 @@ class HomeViewModel @Inject internal constructor(
                 setState { copy(error = null) }
             }
             runSuspendCatching { getHomeFeed() }.fold(
-                onSuccess = { feed ->
-                    applyFeed(feed, isLoading = false)
-                    // Feed refresh records newly published episode videos before this schedule read.
-                    loadRecentlyAired()
-                },
+                onSuccess = { feed -> applyFeed(feed, isLoading = false) },
                 onFailure = { e ->
-                    loadRecentlyAired()
                     analytics.eventLoadError(e)
                     setState {
                         copy(
@@ -674,31 +653,6 @@ class HomeViewModel @Inject internal constructor(
                             } else {
                                 error
                             },
-                        )
-                    }
-                },
-            )
-        }
-    }
-
-    /** Грузит блок видео блогеров; его ошибка живёт отдельно от ошибки ленты. */
-    private fun loadBloggerVideos() {
-        viewModelScope.launch {
-            setState { copy(isBloggerVideosLoading = true, bloggerVideosError = null) }
-            runSuspendCatching { getBloggerVideos(limit = 10) }.fold(
-                onSuccess = { videos ->
-                    setState {
-                        copy(
-                            bloggerVideos = videos.toImmutableList(),
-                            isBloggerVideosLoading = false,
-                        )
-                    }
-                },
-                onFailure = { error ->
-                    setState {
-                        copy(
-                            isBloggerVideosLoading = false,
-                            bloggerVideosError = UiText.Failure(error, UiText.Res(R.string.home_blogger_videos_load_error)),
                         )
                     }
                 },
@@ -718,15 +672,12 @@ class HomeViewModel @Inject internal constructor(
             } else {
                 setState { copy(isRefreshing = true) }
             }
+            loadRecentlyAired()
             val result = runSuspendCatching { refreshHomeFeed() }
             setState { copy(isRefreshing = false) }
             result.fold(
-                onSuccess = { feed ->
-                    applyFeed(feed, isLoading = false)
-                    loadRecentlyAired()
-                },
+                onSuccess = { feed -> applyFeed(feed, isLoading = false) },
                 onFailure = { e ->
-                    loadRecentlyAired()
                     analytics.eventLoadError(e)
                     if (!showInitialLoading) {
                         setEffect(

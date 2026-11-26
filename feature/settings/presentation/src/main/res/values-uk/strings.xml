@@ -452,4 +452,5 @@
     <string name="settings_mobile_main_tabs_save">Зберегти</string>
     <string name="settings_mobile_main_tabs_cancel">Скасувати</string>
     <string name="settings_mobile_main_tabs_reset">Скинути</string>
+    <string name="settings_mobile_main_tab_community">Спільнота</string>
 </resources>

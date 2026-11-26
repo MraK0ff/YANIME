@@ -1,7 +1,5 @@
 package su.afk.yummy.tv.feature.details.episodes
 
-import su.afk.yummy.tv.core.preferences.settings.SourceStarsSettingsStore
-import su.afk.yummy.tv.feature.details.details.handler.SourceStarsHandler
 import androidx.navigation3.runtime.NavKey
 import io.mockk.Runs
 import io.mockk.coEvery
@@ -34,6 +32,7 @@ import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.preferences.settings.AppLifecycleSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.AppearanceSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.PlayerSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.SourceStarsSettingsStore
 import su.afk.yummy.tv.core.testing.BaseUnitTest
 import su.afk.yummy.tv.core.testing.collectEmissions
 import su.afk.yummy.tv.domain.account.model.AccountSession
@@ -51,6 +50,7 @@ import su.afk.yummy.tv.domain.watchlater.usecase.ObserveWatchLaterEpisodesUseCas
 import su.afk.yummy.tv.feature.details.DetailsAnalytics
 import su.afk.yummy.tv.feature.details.animeDetails
 import su.afk.yummy.tv.feature.details.details.handler.DetailsPlayerNavigationHandler
+import su.afk.yummy.tv.feature.details.details.handler.SourceStarsHandler
 import su.afk.yummy.tv.feature.details.details.model.VideosUiState
 import su.afk.yummy.tv.feature.details.episodes.EpisodesState.Effect
 import su.afk.yummy.tv.feature.details.episodes.EpisodesState.Event
@@ -113,8 +113,6 @@ class EpisodesViewModelTest : BaseUnitTest() {
         coEvery { animeRepository.getAnimeEpisodeInfo(ANIME_ID) } returns emptyMap()
         every { animeRepository.observeAnimeEpisodeFlags(ANIME_ID) } returns flowOf(emptyMap())
         every { appearanceSettingsStore.showEpisodeFlags } returns flowOf(true)
-        every { appearanceSettingsStore.episodeWatchFilter } returns flowOf("All")
-        coEvery { appearanceSettingsStore.setEpisodeWatchFilter(any()) } just Runs
     }
 
     private fun createViewModel(pendingEpisode: String? = null): EpisodesViewModel = EpisodesViewModel(
@@ -346,6 +344,7 @@ class EpisodesViewModelTest : BaseUnitTest() {
     fun `download dubbing picker is built by the handler and can be dismissed`() {
         val selection = EpisodesState.EpisodeDownloadDubbingSelection(episode = "1", options = persistentListOf())
         every { downloadHandler.dubbingSelection(any(), any(), any(), any(), any()) } returns selection
+        coEvery { downloadHandler.findPresetVideo(any(), any(), any(), any()) } returns null
         val vm = createViewModel()
 
         vm.setEvent(Event.EpisodeDownloadSelected(listOf(v1)))
@@ -371,6 +370,73 @@ class EpisodesViewModelTest : BaseUnitTest() {
 
         vm.setEvent(Event.DownloadQualitySelected(EpisodesState.EpisodeDownloadQualityOption("720p", "url")))
         assertNull(vm.currentState.pendingDownloadQualitySelection)
+    }
+
+    @Test
+    fun `saved preset skips the pickers and goes straight to quality`() {
+        val selection = EpisodesState.EpisodeDownloadQualitySelection(videoId = 1, episode = "1", options = persistentListOf())
+        coEvery { downloadHandler.findPresetVideo(any(), any(), any(), any()) } returns v1
+        every { downloadHandler.presetLabel(v1) } returns "Anidub • Kodik"
+        every { downloadHandler.downloadStatusKey(any()) } returns "key"
+        coEvery { downloadHandler.prepare(v1) } returns EpisodeDownloadPrepareResult.Ready("key", selection)
+        val vm = createViewModel()
+
+        vm.setEvent(Event.EpisodeDownloadSelected(listOf(v1)))
+
+        assertNull(vm.currentState.pendingDownloadDubbingSelection)
+        assertEquals(selection.copy(presetLabel = "Anidub • Kodik"), vm.currentState.pendingDownloadQualitySelection)
+    }
+
+    @Test
+    fun `failed preset source falls back to the dubbing picker`() = runTest {
+        val dubbings = EpisodesState.EpisodeDownloadDubbingSelection(episode = "1", options = persistentListOf())
+        coEvery { downloadHandler.findPresetVideo(any(), any(), any(), any()) } returns v1
+        every { downloadHandler.presetLabel(v1) } returns "Anidub • Kodik"
+        every { downloadHandler.downloadStatusKey(any()) } returns "key"
+        every { downloadHandler.dubbingSelection(any(), any(), any(), any(), any()) } returns dubbings
+        coEvery { downloadHandler.prepare(v1) } returns EpisodeDownloadPrepareResult.Failure("key", "no stream")
+        val vm = createViewModel()
+        val effects = collectEmissions(vm.effect)
+
+        vm.setEvent(Event.EpisodeDownloadSelected(listOf(v1)))
+
+        assertEquals(Effect.ShowToast("no stream"), effects.last())
+        assertEquals(dubbings, vm.currentState.pendingDownloadDubbingSelection)
+    }
+
+    @Test
+    fun `remember flag saves the chosen source as preset`() {
+        every { downloadHandler.downloadStatusKey(any()) } returns "key"
+        coEvery { downloadHandler.prepare(any()) } returns EpisodeDownloadPrepareResult.Failure("key", "no stream")
+        val vm = createViewModel()
+
+        vm.setEvent(Event.DownloadBalancerSelected(v1, rememberAsPreset = true))
+        vm.setEvent(Event.DownloadBalancerSelected(v1, rememberAsPreset = false))
+
+        coVerify(exactly = 1) { downloadHandler.savePreset(ANIME_ID, v1) }
+    }
+
+    @Test
+    fun `resetting the preset clears it and reopens the dubbing picker`() {
+        val quality = EpisodesState.EpisodeDownloadQualitySelection(
+            videoId = 1,
+            episode = "1",
+            options = persistentListOf(),
+            presetLabel = "Anidub • Kodik",
+        )
+        val dubbings = EpisodesState.EpisodeDownloadDubbingSelection(episode = "1", options = persistentListOf())
+        every { downloadHandler.downloadStatusKey(any()) } returns "key"
+        every { downloadHandler.dubbingSelection(any(), any(), any(), any(), any()) } returns dubbings
+        coEvery { downloadHandler.prepare(v1) } returns EpisodeDownloadPrepareResult.Ready("key", quality)
+        val vm = createViewModel()
+        vm.setEvent(Event.DownloadBalancerSelected(v1))
+
+        vm.setEvent(Event.DownloadPresetResetSelected)
+
+        assertNull(vm.currentState.pendingDownloadQualitySelection)
+        assertEquals(dubbings, vm.currentState.pendingDownloadDubbingSelection)
+        coVerify(exactly = 1) { downloadHandler.clearPreset(ANIME_ID) }
+        verify(exactly = 1) { downloadHandler.clearPending() }
     }
 
     @Test
@@ -423,13 +489,27 @@ class EpisodesViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `permission request is remembered and the downloads screen opens`() {
+    fun `permission request is remembered and the downloads screen opens and dismisses download sheets`() {
         val vm = createViewModel()
+        val v1 = video(id = 1, episode = "1", dubbing = "Anilibria")
+        val download = EpisodesState.EpisodeDownloadUiState(
+            downloadId = 9L,
+            dubbing = "Anilibria",
+            playerName = "Kodik",
+            qualityLabel = "1080p",
+            bytesDownloaded = 1024L,
+            status = EpisodesState.EpisodeDownloadUiStatus.Downloaded,
+            progress = 1f,
+            errorMessage = null,
+        )
+        vm.setEvent(Event.DownloadedEpisodeSelected(listOf(v1), download))
+        assertNotNull(vm.currentState.pendingDownloadedEpisodeAction)
 
         vm.setEvent(Event.NotificationPermissionRequested)
         vm.setEvent(Event.OpenDownloadsScreenSelected)
         vm.setEvent(Event.BackSelected)
 
+        assertNull(vm.currentState.pendingDownloadedEpisodeAction)
         coVerify(exactly = 1) { appLifecycleSettingsStore.markNotificationPermissionRequested() }
         verify(exactly = 1) { nav.navigate(navKey) }
         verify(exactly = 1) { nav.back() }

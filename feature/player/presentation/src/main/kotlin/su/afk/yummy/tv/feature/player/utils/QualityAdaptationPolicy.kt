@@ -20,6 +20,8 @@ sealed interface QualityAdaptationDecision {
 class QualityAdaptationPolicy(
     /** Верхняя граница: выше этой высоты не поднимаемся (по умолчанию — до 4K, если сеть и декодер тянут). */
     private val ceilingHeight: Int = DEFAULT_CEILING_HEIGHT,
+    /** Режим, в котором оценка сети не должна менять качество; оставлен для совместимости вызывающего UI. */
+    private val deviceOnly: Boolean = false,
 ) {
     private val stallTimesMs = ArrayDeque<Long>()
     private val droppedFrames = ArrayDeque<Pair<Long, Int>>()

@@ -57,7 +57,9 @@ import su.afk.yummy.tv.feature.reviews.view.ReviewTvCard
 fun ReviewsListTvScreen(
     state: ReviewsListState.State,
     effect: Flow<ReviewsListState.Effect>,
-    onEvent: (ReviewsListState.Event) -> Unit
+    onEvent: (ReviewsListState.Event) -> Unit,
+    /** Встроен вкладкой в деталку: без заголовка и автоматического перевода фокуса. */
+    embedded: Boolean = false,
 ) {
     val context = LocalContext.current
     val reviews = state.reviews.collectAsLazyPagingItems()
@@ -76,11 +78,14 @@ fun ReviewsListTvScreen(
                 vertical = TvScreenPadding.Vertical,
             ),
     ) {
-        Text(
-            stringResource(R.string.reviews_title),
-            style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.onBackground,
-        )
+        if (!embedded) {
+            Text(
+                stringResource(R.string.reviews_title),
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+    
+        }
         Row(
             Modifier.padding(vertical = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(TvCardSpacing.Horizontal),
@@ -130,7 +135,7 @@ fun ReviewsListTvScreen(
                 val focusRequesters =
                     remember(reviewCount) { List(reviewCount) { FocusRequester() } }
                 val firstCardFocus = focusRequesters.first()
-                LaunchedEffect(Unit) { runCatching { firstCardFocus.requestFocus() } }
+                LaunchedEffect(Unit) { if (!embedded) runCatching { firstCardFocus.requestFocus() } }
                 CompositionLocalProvider(
                     LocalBringIntoViewSpec provides rememberTvTopAnchoredGridBringIntoViewSpec(TvCardSpacing.Vertical),
                 ) {

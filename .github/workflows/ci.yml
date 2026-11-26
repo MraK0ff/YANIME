@@ -110,10 +110,7 @@ jobs:
   build:
     name: Build optimized APK
     needs: changes
-    if: >-
-      needs.changes.outputs.run_build == 'true' &&
-      (github.event_name != 'pull_request' ||
-       github.event.pull_request.head.repo.full_name != github.repository)
+    if: needs.changes.outputs.run_build == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     outputs:

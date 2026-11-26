@@ -1,4 +1,4 @@
-name: YANIME Optimized Build
+name: YANIME CI
 
 on:
   workflow_dispatch:
@@ -10,21 +10,114 @@ on:
 permissions:
   contents: read
 
-# Separate concurrency per ref: a new run cancels only an older run on the same ref.
+# Keep only the newest non-main run for each branch/PR.
+# Main runs are not cancelled: release publishing must finish atomically.
 concurrency:
-  group: yanime-optimized-build-${{ github.ref }}
-  # Only the newest commit on a branch needs an APK; cancel stale builds to save runner time.
-  cancel-in-progress: true
+  group: yanime-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
+  changes:
+    name: Detect build-relevant changes
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      run_build: ${{ steps.filter.outputs.run_build }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      - name: Check changed paths
+        id: filter
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -euo pipefail
+
+          # Manual runs and initial pushes always build.
+          if [[ "$EVENT_NAME" == "workflow_dispatch" || -z "$BASE_SHA" || "$BASE_SHA" =~ ^0+$ ]]; then
+            echo "run_build=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # If Git cannot resolve the comparison safely, prefer a build over a false skip.
+          if ! git fetch --no-tags --depth=1 origin "$BASE_SHA"; then
+            echo "::warning::Could not fetch base commit; running the Android build."
+            echo "run_build=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if ! git diff --no-renames --name-only -z "$BASE_SHA" "$GITHUB_SHA" > "$RUNNER_TEMP/changed-paths"; then
+            echo "::warning::Could not calculate changed paths; running the Android build."
+            echo "run_build=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          python3 <<'PY'
+          import os
+          from pathlib import PurePosixPath
+
+          with open(os.environ["RUNNER_TEMP"] + "/changed-paths", "rb") as stream:
+              paths = [item.decode("utf-8", "surrogateescape") for item in stream.read().split(b"\0") if item]
+
+          build_roots = (
+              "app/", "core/", "feature/", "source/", "external/",
+              "baselineprofile/", "private/", "buildSrc/", "build-logic/",
+              "gradle/", "scripts/", "tools/", ".github/workflows/",
+              ".github/actions/", ".github/scripts/",
+          )
+          build_files = {
+              "gradlew", "gradlew.bat", "gradle.properties",
+              "settings.gradle", "settings.gradle.kts",
+              "build.gradle", "build.gradle.kts", ".gitmodules", ".gitattributes",
+          }
+          docs_only_roots = (
+              "docs/", ".github/ISSUE_TEMPLATE/", ".circleci/",
+          )
+          docs_only_files = {
+              ".github/FUNDING.yml", ".github/CODEOWNERS",
+          }
+
+          run_build = False
+          for path in paths:
+              name = PurePosixPath(path).name
+              if path in docs_only_files or path.startswith(docs_only_roots):
+                  continue
+              if path.startswith(build_roots) or path in build_files:
+                  run_build = True
+                  break
+              if name.endswith((".gradle", ".gradle.kts")):
+                  run_build = True
+                  break
+              if name.startswith(("README", "LICENSE", "NOTICE", "CONTRIBUTING")):
+                  continue
+
+              # Unknown files are build-relevant by default (fail-safe).
+              print(f"Unknown changed path; keeping build enabled: {path}")
+              run_build = True
+              break
+
+          print(f"Changed files: {len(paths)}")
+          print(f"Android build required: {run_build}")
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"run_build={'true' if run_build else 'false'}\n")
+          PY
+
   build:
     name: Build optimized APK
-    outputs:
-      version_name: ${{ steps.app_version.outputs.version_name }}
-    # Internal PRs are already built by their branch push; avoid a duplicate runner.
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
+    needs: changes
+    if: >-
+      needs.changes.outputs.run_build == 'true' &&
+      (github.event_name != 'pull_request' ||
+       github.event.pull_request.head.repo.full_name != github.repository)
     runs-on: ubuntu-24.04
     timeout-minutes: 40
+    outputs:
+      version_name: ${{ steps.app_version.outputs.version_name }}
 
     steps:
       - name: Checkout
@@ -35,19 +128,21 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
+          cache: ''
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v5
         with:
-          # Trusted branch pushes can save cache; pull requests only restore it.
+          # Fork PRs may restore the cache but cannot write to it.
           cache-read-only: ${{ github.event_name == 'pull_request' }}
-          # No encryption secret required. Gradle dependency and build caches are still persisted.
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
 
       - name: Install Android SDK platform
+        shell: bash
         run: |
+          set -euo pipefail
           compile_sdk=$(grep -m1 '^android-compileSdk' gradle/libs.versions.toml | cut -d'"' -f2)
           case "$compile_sdk" in
             *.*) platform_version="$compile_sdk" ;;
@@ -57,8 +152,6 @@ jobs:
           (yes || true) | sdkmanager --licenses >/dev/null
           sdkmanager --install "platforms;android-$platform_version"
 
-      # BuildConfig reads this value from local.properties via yummytv.apiBaseUrl.
-      # A repository Actions variable can override the default API host.
       - name: Configure YummyTV API base URL
         env:
           API_BASE_URL: ${{ vars.YUMMY_TV_API_BASE_URL || 'https://v2.yummytv.afk.su/api' }}
@@ -72,44 +165,16 @@ jobs:
           printf 'yummytv.apiBaseUrl=%s\n' "$API_BASE_URL" >> local.properties
           echo "Configured YummyTV API base URL."
 
-      # Compile Kotlin before the packaging/R8/signing pipeline. This gives a
-      # dedicated, early failure point for unresolved symbols and API mismatches.
-      # The subsequent assemble task reuses Gradle outputs and remains the
-      # authoritative end-to-end APK verification.
-      - name: Compile application Kotlin
-        shell: bash
-        run: |
-          set -euo pipefail
-          ./gradlew :app:compileReleaseDebugKotlin --stacktrace
-
+      # assembleReleaseDebug already compiles Kotlin; a separate compile task
+      # only starts Gradle twice without providing additional build coverage.
       - name: Build debug APK
         shell: bash
         run: |
           set -euo pipefail
-
           echo "Runner memory before Gradle:"
           free -h
-          echo "Top memory consumers before Gradle:"
-          ps -eo pid,rss,comm --sort=-rss | head -n 12
+          ./gradlew :app:assembleReleaseDebug --stacktrace --profile --build-cache
 
-          # Keep periodic memory snapshots in the job log while Gradle is running.
-          (
-            while sleep 60; do
-              echo "::group::Runner memory snapshot"
-              date -u
-              free -h
-              ps -eo pid,rss,comm --sort=-rss | head -n 12
-              echo "::endgroup::"
-            done
-          ) &
-          monitor_pid=$!
-          trap 'kill "$monitor_pid" 2>/dev/null || true; echo "Runner memory at Gradle exit:"; free -h; ps -eo pid,rss,comm --sort=-rss | head -n 12' EXIT
-
-          ./gradlew :app:assembleReleaseDebug --stacktrace --profile
-
-      # R8 mapping is generated by :app:assembleReleaseDebug and copied by
-      # app/build.gradle.kts into a versioned directory. Keep it beside the APK
-      # so obfuscated production-like crashes can be decoded later.
       - name: Upload R8 mapping
         uses: actions/upload-artifact@v7
         with:
@@ -130,7 +195,7 @@ jobs:
       - name: Upload generated Room schema
         uses: actions/upload-artifact@v7
         with:
-          name: room-schema-70
+          name: room-schema-71
           path: core/storage/schemas/su.afk.yummy.tv.core.storage.db.AppDatabase/71.json
           if-no-files-found: ignore
           retention-days: 7
@@ -143,23 +208,14 @@ jobs:
           key_dir="$RUNNER_TEMP/android-testkey"
           mkdir -p "$key_dir"
 
-          # AOSP's public test signing key (not suitable for production releases).
-          curl -fsSL 'https://android.googlesource.com/platform/build/+/refs/heads/main/target/product/security/testkey.pk8?format=TEXT' \
+          curl -fsSL --retry 3 'https://android.googlesource.com/platform/build/+/refs/heads/main/target/product/security/testkey.pk8?format=TEXT' \
             | base64 --decode > "$key_dir/testkey.pk8"
-          curl -fsSL 'https://android.googlesource.com/platform/build/+/refs/heads/main/target/product/security/testkey.x509.pem?format=TEXT' \
+          curl -fsSL --retry 3 'https://android.googlesource.com/platform/build/+/refs/heads/main/target/product/security/testkey.x509.pem?format=TEXT' \
             | base64 --decode > "$key_dir/testkey.x509.pem"
 
-          # apksigner --key requires unencrypted PKCS#8 in DER format.
-          # AOSP's .pk8 file is already in that format; do not convert it to PEM.
-          openssl pkcs8 -inform DER -nocrypt \
-            -in "$key_dir/testkey.pk8" \
-            -out /dev/null
-
-          # Confirm that the downloaded certificate belongs to this private key.
-          openssl pkey -inform DER -in "$key_dir/testkey.pk8" -pubout \
-            -out "$key_dir/key-public.pem"
-          openssl x509 -in "$key_dir/testkey.x509.pem" -pubkey -noout \
-            > "$key_dir/cert-public.pem"
+          openssl pkcs8 -inform DER -nocrypt -in "$key_dir/testkey.pk8" -out /dev/null
+          openssl pkey -inform DER -in "$key_dir/testkey.pk8" -pubout -out "$key_dir/key-public.pem"
+          openssl x509 -in "$key_dir/testkey.x509.pem" -pubkey -noout > "$key_dir/cert-public.pem"
           diff -u "$key_dir/key-public.pem" "$key_dir/cert-public.pem"
 
           apksigner="$(find "$ANDROID_HOME/build-tools" -maxdepth 2 -type f -name apksigner | sort -V | tail -n 1)"
@@ -170,10 +226,7 @@ jobs:
           test "${#apks[@]}" -gt 0
 
           for apk in "${apks[@]}"; do
-            "$apksigner" sign \
-              --key "$key_dir/testkey.pk8" \
-              --cert "$key_dir/testkey.x509.pem" \
-              "$apk"
+            "$apksigner" sign --key "$key_dir/testkey.pk8" --cert "$key_dir/testkey.x509.pem" "$apk"
             "$apksigner" verify --verbose --print-certs "$apk"
           done
 
@@ -202,9 +255,14 @@ jobs:
 
   release:
     name: Publish versioned YANIME release
-    needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [changes, build]
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      needs.changes.outputs.run_build == 'true' &&
+      needs.build.result == 'success'
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     permissions:
       contents: write
     steps:
@@ -219,18 +277,16 @@ jobs:
           name: yanime-apk
           path: release-apk
 
-      # Remove legacy non-versioned releases/tags left by earlier CI runs.
       - name: Remove legacy release tags
         env:
           GH_TOKEN: ${{ github.token }}
+        shell: bash
         run: |
           set -euo pipefail
-
           for legacy_tag in latest v; do
             if gh release view "$legacy_tag" >/dev/null 2>&1; then
               gh release delete "$legacy_tag" --yes
             fi
-            # The tag may already be absent; that is not a release-job failure.
             gh api --method DELETE "repos/$GITHUB_REPOSITORY/git/refs/tags/$legacy_tag" >/dev/null 2>&1 || true
           done
 

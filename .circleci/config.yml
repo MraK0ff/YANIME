@@ -9,7 +9,6 @@ jobs:
     resource_class: xlarge.gen2
     working_directory: ~/project
     environment:
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs=-Xmx6g\ -XX:MaxMetaspaceSize=1g\ -Dfile.encoding=UTF-8"
       TERM: dumb
     steps:
       - checkout
@@ -104,14 +103,14 @@ jobs:
           name: Prepare optional diagnostic artifacts
           command: |
             set -euo pipefail
-            artifact_root="/tmp/yanime-ci-artifacts"
+            artifact_root="ci-artifacts"
             mkdir -p "$artifact_root/r8-mappings" "$artifact_root/gradle-build-profile" "$artifact_root/room-schema"
 
             if [[ -d app/mappings ]]; then
-              find app/mappings -type f -name mapping.txt -exec cp {} "$artifact_root/r8-mappings/" \\; || true
+              find app/mappings -type f -name mapping.txt -exec cp {} "$artifact_root/r8-mappings/" \; || true
             fi
             if [[ -d build/reports/profile ]]; then
-              find build/reports/profile -type f -name '*.html' -exec cp {} "$artifact_root/gradle-build-profile/" \\; || true
+              find build/reports/profile -type f -name '*.html' -exec cp {} "$artifact_root/gradle-build-profile/" \; || true
             fi
             schema="core/storage/schemas/su.afk.yummy.tv.core.storage.db.AppDatabase/71.json"
             if [[ -f "$schema" ]]; then
@@ -129,15 +128,15 @@ jobs:
           destination: YANIME.apk
 
       - store_artifacts:
-          path: /tmp/yanime-ci-artifacts/r8-mappings
+          path: ci-artifacts/r8-mappings
           destination: r8-mappings
 
       - store_artifacts:
-          path: /tmp/yanime-ci-artifacts/gradle-build-profile
+          path: ci-artifacts/gradle-build-profile
           destination: gradle-build-profile
 
       - store_artifacts:
-          path: /tmp/yanime-ci-artifacts/room-schema
+          path: ci-artifacts/room-schema
           destination: room-schema
 
 workflows:

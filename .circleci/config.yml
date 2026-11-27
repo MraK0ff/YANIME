@@ -100,6 +100,24 @@ jobs:
 
             test -f app/build/outputs/apk/releaseDebug/YANIME.apk
 
+      - run:
+          name: Prepare optional diagnostic artifacts
+          command: |
+            set -euo pipefail
+            artifact_root="/tmp/yanime-ci-artifacts"
+            mkdir -p "$artifact_root/r8-mappings" "$artifact_root/gradle-build-profile" "$artifact_root/room-schema"
+
+            if [[ -d app/mappings ]]; then
+              find app/mappings -type f -name mapping.txt -exec cp {} "$artifact_root/r8-mappings/" \\; || true
+            fi
+            if [[ -d build/reports/profile ]]; then
+              find build/reports/profile -type f -name '*.html' -exec cp {} "$artifact_root/gradle-build-profile/" \\; || true
+            fi
+            schema="core/storage/schemas/su.afk.yummy.tv.core.storage.db.AppDatabase/71.json"
+            if [[ -f "$schema" ]]; then
+              cp "$schema" "$artifact_root/room-schema/71.json"
+            fi
+
       - save_cache:
           key: yanime-gradle-v3-{{ arch }}-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}-{{ checksum "gradle/libs.versions.toml" }}
           paths:
@@ -111,16 +129,16 @@ jobs:
           destination: YANIME.apk
 
       - store_artifacts:
-          path: app/mappings
+          path: /tmp/yanime-ci-artifacts/r8-mappings
           destination: r8-mappings
 
       - store_artifacts:
-          path: build/reports/profile
+          path: /tmp/yanime-ci-artifacts/gradle-build-profile
           destination: gradle-build-profile
 
       - store_artifacts:
-          path: core/storage/schemas/su.afk.yummy.tv.core.storage.db.AppDatabase/71.json
-          destination: room-schema-71.json
+          path: /tmp/yanime-ci-artifacts/room-schema
+          destination: room-schema
 
 workflows:
   build:

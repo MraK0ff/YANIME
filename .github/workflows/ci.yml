@@ -141,11 +141,12 @@ jobs:
         run: |
           set -euo pipefail
           compile_sdk=$(grep -m1 '^android-compileSdk' gradle/libs.versions.toml | cut -d'"' -f2)
-          case "$compile_sdk" in
-            *.*) platform_version="$compile_sdk" ;;
-            *)   platform_version="$compile_sdk.0" ;;
-          esac
-          echo "compileSdk=$compile_sdk -> platforms;android-$platform_version"
+          minor_sdk=$(grep -m1 '^android-compileSdkMinor' gradle/libs.versions.toml | cut -d'"' -f2 || true)
+          platform_version="$compile_sdk"
+          if [[ -n "$minor_sdk" && "$minor_sdk" != "0" ]]; then
+            platform_version="$compile_sdk.$minor_sdk"
+          fi
+          echo "compileSdk=$compile_sdk.$minor_sdk -> platforms;android-$platform_version"
           (yes || true) | sdkmanager --licenses >/dev/null
           sdkmanager --install "platforms;android-$platform_version"
 

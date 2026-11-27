@@ -128,7 +128,7 @@ jobs:
           cache: ''
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4.4.1
+        uses: gradle/actions/setup-gradle@v6
         with:
           # Fork PRs may restore the cache but cannot write to it.
           cache-read-only: ${{ github.event_name == 'pull_request' }}

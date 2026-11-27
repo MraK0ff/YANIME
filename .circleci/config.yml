@@ -23,6 +23,11 @@ jobs:
           command: |
             set -euo pipefail
             java -version
+            java_major="$(java -XshowSettings:properties -version 2>&1 | awk -F'= ' '/java.specification.version =/ {print $2; exit}')"
+            if [[ "$java_major" != "21" ]]; then
+              echo "Expected JDK 21 from the CircleCI Android image, got: $java_major" >&2
+              exit 1
+            fi
             test -x ./gradlew
             test -n "${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
             echo "Android SDK: ${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
